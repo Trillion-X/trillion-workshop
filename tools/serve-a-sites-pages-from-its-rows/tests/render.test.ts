@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
 import { pageOf } from '../do-work/pages.ts';
-import { drawnTreeOf, lookCss, runsOf, screensOfTools, treeOf } from '../do-work/render.ts';
+import { drawnTreeOf, fontFacesOf, lookCss, runsOf, screensOfTools, treeOf } from '../do-work/render.ts';
 import { layoutElement, modulesOf } from '../do-work/render-layout.ts';
 
 const tools = join(import.meta.dirname, '..', '..');
@@ -62,4 +62,13 @@ test('a tool or main node\'s props are the page\'s own words under the answer, w
   });
   const { drawn } = await drawnTreeOf(treeOf(page, {}), new Map([['tool:read-c', { file: 'c/show/C.tsx', export: 'View' }]]), async () => ({ title: 'Seen' }));
   assert.deepEqual(drawn, { nodes: [{ module: 'c/show/C.tsx#View', props: { heading: 'Articles', title: 'Seen' } }] });
+});
+
+test('a font-face row is a family, weight, style and font file; anything else refuses the set, and it is never a CSS variable', () => {
+  assert.deepEqual(fontFacesOf([{ name: 'font-face.text-400', value: 'SF Pro Text|400|normal|/assets/fonts/SF-Pro-Text-Regular.woff2' }, { name: 'theme', value: 'paper' }]),
+    [{ family: 'SF Pro Text', weight: '400', style: 'normal', src: '/assets/fonts/SF-Pro-Text-Regular.woff2' }]);
+  for (const value of ['SF Pro|400|normal|/x.png', "Evil'}|400|normal|/x.woff2", 'SF|450|normal|/x.woff2', 'SF|400|oblique|/x.woff2', 'SF|400|normal|javascript:x.woff2']) {
+    assert.throws(() => fontFacesOf([{ name: 'font-face.x', value }]), /a font face is/, value);
+  }
+  assert.equal(lookCss([{ name: 'font-face.x', value: 'SF|400|normal|/x.woff2' }]), '');
 });

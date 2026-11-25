@@ -30,6 +30,7 @@ credentials folder is where the computer seals the site's door pass and the file
 
 | Address | Answer |
 |---|---|
+| a path a `pass_on` entry names | passed whole to that program (the sign-in tool's pages and `/api/auth`; a program's actions that have no tool yet), its answer passed back whole |
 | `/screen-files/<identity>.<kind>` | a page's mount script, its stylesheet, or a font the shared looks name, by BLAKE3 identity, kept for good |
 | `<member_files.path><key>` | for a member: 302 to a presigned GET of `key_prefix` + key; for anyone else: 403; always `private, no-store` |
 | a path under `public_files.paths` | 302 to a presigned GET of `key_prefix` + the path without its leading slash, `public, max-age=cache_seconds` |
@@ -78,7 +79,13 @@ A part is a `show/` file under the tools folder; nothing else can be placed. A t
 `"screen": {"kind": "module", "entry": "show/<Name>.tsx", "export": "View"}`; its props are exactly the tool's answer.
 
 `site_look`: one row per CSS variable (`name`, `value`), written on every page as `--name: value` after the shared looks, so the
-site's rows win. A value holding `; { } < >` or a backslash refuses the set.
+site's rows win. Name them by the role tokens the shared parts read (`button-primary-bg`, `accent-primary`, `thread`, `ink`,
+`text-primary`, `font-primary`, `radius-card`, ...); a dotted name becomes dashes. A value holding `; { } < >` or a backslash
+refuses the set. Two names are not variables:
+- `theme`: the Screen Look theme the page starts from (its palette is written first);
+- `font-face.<anything>`: `"<family>|<weight>|<normal or italic>|<path or https address of a font file>"`, an `@font-face`
+  rule whose file is read once (a public file from the files store) and served from this site by identity, so no
+  cross-origin font rule is needed. Example: `font-face.body-400` = `Body Sans|400|normal|/assets/fonts/body-regular.woff2`.
 
 ## Settings
 
@@ -99,6 +106,9 @@ site's rows win. A value holding `; { } < >` or a backslash refuses the set.
 
 - `door.pass_credential`: the site's own pass, used for public pages and every row read.
 - `pages.answer_seconds`: how long a public page's tool answer is kept (0 keeps none). A members page's answers are never kept.
+- `pass_on`: `[{ "name", "address", "paths", "exact", "hosts" }]`. A request under one of `paths` (a path and what is under it),
+  or at one of `exact` (that path only), on one of `hosts` (every host when left out), is passed to `address` whole; the first
+  entry that takes it wins. Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
 - `sign_in`: a members page asks the sign-in tool (`tools/better-auth-official`) for the visitor's pass (`/api/auth/token`), checks
   it against that tool's keys (`/api/auth/jwks`): EdDSA, ES256 or RS256, issuer, audience, end, and `team_claim` holding
   `members_team`. That pass is the caller for the page's tool runs, so the door judges the member by their own pass. No pass:

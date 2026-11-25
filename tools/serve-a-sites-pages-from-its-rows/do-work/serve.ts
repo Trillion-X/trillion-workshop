@@ -30,8 +30,11 @@
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
 //                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
-//                    drawn at the members address itself, 200, private, no-store); paths: the site paths the sign-in tool
-//                    answers itself (its pages and /api/auth), each request under them passed to it whole
+//                    drawn at the members address itself, 200, private, no-store)
+//     pass_on        [{ name, address, paths, exact, hosts }]: other programs that answer some of the site's addresses
+//                    themselves (the sign-in tool's pages and /api/auth; a program's actions that have no tool yet): a request
+//                    under one of `paths`, or at one of `exact`, on one of `hosts` (every host when left out), is passed to
+//                    `address` whole, its answer passed back whole; the first entry that takes it wins
 //     files_store    (optional) { endpoint, region, bucket, style, credential }: the site's files store, and the name of its read
 //                    key in the unit's credentials (member-video.ts)
 //     member_files   (optional, needs files_store) { path, key_prefix, prefixes, link_seconds }: members' files
@@ -57,16 +60,16 @@ import { ask, commandOf, DoorError, runTool, runToolAsCommand } from './door.ts'
 import type { Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
-import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
+import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, presignedGet, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { pageStyles } from './page-styles.ts';
-import { drawnTreeOf, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, wordsTree } from './render.ts';
+import { drawnTreeOf, fontFaceCss, fontFacesOf, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
 import { modulesOf } from './render-layout.ts';
 import type { DrawnNode } from './render-layout.ts';
-import { ScreenFiles } from './screen-files.ts';
+import { kindOf, ScreenFiles } from './screen-files.ts';
 import type { Answer } from './screen-files.ts';
 
 export interface Settings {
@@ -76,7 +79,8 @@ export interface Settings {
   lang: string;
   door: { address: string; pass_credential?: string; pins?: string[] };
   pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
-  sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw'; paths: string[] };
+  sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
+  pass_on: PassOn[];
   files_store?: FilesStore & { credential: string };
   member_files?: MemberFiles;
   public_files?: PublicFiles;
@@ -94,7 +98,7 @@ const HOST_NAME = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])
 /** Checks a settings file's value; a wrong one throws with what it should be. */
 export function settingsOf(value: unknown): Settings {
   const given = value as Partial<Settings> | null;
-  const s = given ? { ...given, listen: given.listen ?? LOCAL_LISTEN, hosts: given.hosts ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect', paths: given.sign_in.paths ?? [] } : given.sign_in } : null;
+  const s = given ? { ...given, listen: given.listen ?? LOCAL_LISTEN, hosts: given.hosts ?? [], pass_on: given.pass_on ?? [], sign_in: given.sign_in ? { ...given.sign_in, signed_out: given.sign_in.signed_out ?? 'redirect' } : given.sign_in } : null;
   if (!s || typeof s.listen !== 'string' || !/^(unix:\/.+|[0-9.]+:\d+|\[[0-9a-f:]+\]:\d+)$/i.test(s.listen)) throw new Error('listen is "unix:/path/to.sock" or "host:port".');
   if (typeof s.origin !== 'string' || !/^https?:\/\/[^/]+$/.test(s.origin)) throw new Error('origin is the site\'s address, such as https://example.com.');
   if (!Array.isArray(s.hosts) || s.hosts.some(host => typeof host !== 'string' || !HOST_NAME.test(host))) throw new Error('hosts lists lower-case host names, such as ["app.example.com"].');
@@ -114,7 +118,12 @@ export function settingsOf(value: unknown): Settings {
     throw new Error('sign_in is { address, page (a site path), issuer, audience, team_claim, members_team }.');
   }
   if (i.signed_out !== 'redirect' && i.signed_out !== 'draw') throw new Error('sign_in.signed_out is "redirect" or "draw".');
-  if (!Array.isArray(i.paths) || i.paths.some(path => typeof path !== 'string' || !/^\/[A-Za-z0-9._~\/-]*$/.test(path))) throw new Error('sign_in.paths lists the site paths the sign-in tool answers, such as ["/sign-in", "/api/auth"].');
+  const sitePath = (path: unknown) => typeof path === 'string' && /^\/[A-Za-z0-9._~\/-]*$/.test(path);
+  if (!Array.isArray(s.pass_on) || s.pass_on.some(on => !on || typeof on.name !== 'string' || typeof on.address !== 'string'
+    || !(Array.isArray(on.paths ?? []) && (on.paths ?? []).every(sitePath)) || !(Array.isArray(on.exact ?? []) && (on.exact ?? []).every(sitePath))
+    || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host))))) {
+    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only), hosts (only these hosts; every host when left out) }.');
+  }
   if (s.files_store !== undefined) {
     filesStoreOf(s.files_store);
     if (typeof s.files_store.credential !== 'string') throw new Error('files_store.credential names the store\'s read key in the unit\'s credentials.');
@@ -150,6 +159,8 @@ export interface SiteParts {
   passes: { memberOfCookie(cookie: string | undefined): Promise<Member | null> };
   storeKey: StoreKey | null;
   bundles: PageBundles;
+  /** Reads a font file a look row names (a public file path or an https address), keeps it by identity, answers its address. */
+  keepFont: (src: string) => Promise<string>;
   /** The CSS variables of the site's Screen Look theme (page-styles.ts palette). */
   palette: (theme: string | null) => string;
   files: ScreenFiles;
@@ -194,7 +205,8 @@ export class Site {
     this.#pages = good;
     this.#refused = refused;
     const theme = look.find(row => row.name === THEME_ROW)?.value;
-    this.#look = `${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
+    const faces = await Promise.all(fontFacesOf(look).map(async face => ({ ...face, address: await this.#parts.keepFont(face.src) })));
+    this.#look = `${fontFaceCss(faces)}${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
     this.#readAt = Date.now();
   }
 
@@ -341,13 +353,22 @@ export function serverTiming(timed: Timed[]): string {
 
 const HOP = new Set(['connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'proxy-connection', 'te', 'trailer', 'content-length', 'host']);
 
-/** A path the sign-in tool answers: the path itself or one under it. */
-export function signInPath(paths: string[], pathname: string): boolean {
-  return paths.some(path => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`));
+export interface PassOn {
+  name: string;
+  address: string;
+  paths?: string[];
+  exact?: string[];
+  hosts?: string[];
 }
 
-/** One request passed whole to the sign-in tool, and its answer passed back whole (its cookies too). */
-async function passToSignIn(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+/** The program a request is passed on to, or null: a path is the path itself or one under it; exact is that path only. */
+export function passOnFor(passOn: PassOn[], host: string, pathname: string): PassOn | null {
+  return passOn.find(on => (!on.hosts?.length || on.hosts.includes(host))
+    && ((on.exact ?? []).includes(pathname) || (on.paths ?? []).some(path => pathname === path || pathname.startsWith(path.endsWith('/') ? path : `${path}/`)))) ?? null;
+}
+
+/** One request passed whole to another program, and its answer passed back whole (its cookies too). */
+async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk as Buffer);
   const headers: Record<string, string | string[]> = {};
@@ -363,18 +384,20 @@ async function passToSignIn(address: string, host: string, request: http.Incomin
 }
 
 /** The program's node:http handler over a site. */
-export function handlerOf(site: Site, signIn?: { address: string; paths: string[] }): http.RequestListener {
+export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListener {
   return (request, response) => {
     const forwarded = request.headers['x-forwarded-host'];
-    if (signIn && signInPath(signIn.paths, new URL(request.url ?? '/', 'http://site.invalid').pathname)) {
-      passToSignIn(signIn.address, site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host), request, response).catch(error => {
-        console.error(`${request.method} ${request.url}: the sign-in tool did not answer: ${(error as Error).message}`);
+    const host = site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host);
+    const on = passOnFor(passOn, host, new URL(request.url ?? '/', 'http://site.invalid').pathname);
+    if (on) {
+      passOnTo(on.address, host, request, response).catch(error => {
+        console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
         if (!response.headersSent) response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
-        response.end('Signing in is not answering. Try again in a minute.\n');
+        response.end('This is not answering. Try again in a minute.\n');
       });
       return;
     }
-    site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host))
+    site.answer(request.method ?? 'GET', request.url ?? '/', request.headers.cookie, host)
       .then(answer => {
         response.writeHead(answer.status, { 'x-content-type-options': 'nosniff', ...answer.headers });
         response.end(request.method === 'HEAD' ? undefined : answer.body);
@@ -396,6 +419,7 @@ export async function start(settingsFile: string): Promise<http.Server> {
   const doorOp = join(tools, 'use-your-tools-from-a-shell', 'do-work', 'door-op.mjs');
   const files = new ScreenFiles();
   const styles = await pageStyles(tools, files);
+  const storeKey = settings.files_store ? storeKeyOf(credential(settings.files_store.credential)) : null;
   // Through a command the site's own reads carry the computer owner's rights; a member's pass is refused, never swapped for them.
   const run = command
     ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, command, settings.door.pins ?? [], call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
@@ -406,14 +430,21 @@ export async function start(settingsFile: string): Promise<http.Server> {
     run,
     sitePass: command ? COMMAND_PASS : credential(settings.door.pass_credential!),
     passes: new MemberPasses(settings.sign_in),
-    storeKey: settings.files_store ? storeKeyOf(credential(settings.files_store.credential)) : null,
+    storeKey,
     bundles: new PageBundles(tools, styles, files),
     palette: theme => styles.palette(theme),
+    keepFont: async src => {
+      const key = src.startsWith('/') && settings.files_store && settings.public_files ? publicKeyOf(settings.public_files, src) : null;
+      if (src.startsWith('/') && (!key || !storeKey)) throw new Error(`The font ${src} is not a public file in the files store.`);
+      const answer = await fetch(key ? presignedGet(settings.files_store!, storeKey!, key, 300, new Date()) : src, { signal: AbortSignal.timeout(30_000) });
+      if (!answer.ok) throw new Error(`The font ${src} answered ${answer.status}.`);
+      return files.keep(Buffer.from(await answer.arrayBuffer()), kindOf(src)!);
+    },
     files,
     screens: screensOfTools(tools),
   });
   await site.read();
-  const server = http.createServer(handlerOf(site, settings.sign_in));
+  const server = http.createServer(handlerOf(site, settings.pass_on));
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject);
     if (settings.listen.startsWith('unix:')) {

@@ -245,12 +245,40 @@ export class PageBundles {
 const LOOK_NAME = /^[a-z][a-z0-9-]*(\.[a-z0-9][a-z0-9-]*)*$/;
 const LOOK_VALUE = /^[^;{}<>\\\n\r]+$/;
 
-/** The look row that names the site's Screen Look theme; every other row is a CSS variable. */
+/** The look row that names the site's Screen Look theme; every other row is a CSS variable, except font faces. */
 export const THEME_ROW = 'theme';
+/** Look rows named `font-face.<anything>` are the site's own font files: "<family>|<weight>|<style>|<file path or https address>". */
+export const FONT_FACE = 'font-face.';
+const FACE = /^([A-Za-z0-9 _-]{1,60})\|([1-9]00)\|(normal|italic)\|(\/[A-Za-z0-9._~\/-]+|https:\/\/[A-Za-z0-9._~\/:-]+)$/;
+
+export interface FontFace {
+  family: string;
+  weight: string;
+  style: string;
+  src: string;
+}
+
+/** The font face rows, checked; a row that is not "<family>|<weight>|<style>|<address of a font file>" refuses the set. */
+export function fontFacesOf(rows: Record<string, unknown>[]): FontFace[] {
+  return rows.filter(row => typeof row.name === 'string' && row.name.startsWith(FONT_FACE)).map(row => {
+    const match = typeof row.value === 'string' ? FACE.exec(row.value) : null;
+    if (!match || !kindOf(match[4]) || !['woff2', 'woff', 'ttf', 'otf'].includes(kindOf(match[4])!)) {
+      throw new Error(`look ${String(row.name)}: a font face is "<family>|<weight 100-900>|<normal or italic>|<path or https address of a .woff2, .woff, .ttf or .otf>".`);
+    }
+    return { family: match[1], weight: match[2], style: match[3], src: match[4] };
+  });
+}
+
+const FORMATS: Record<string, string> = { woff2: 'woff2', woff: 'woff', ttf: 'truetype', otf: 'opentype' };
+
+/** @font-face rules for the faces, each font's bytes already kept at `address` (same site, so no cross-origin font rule). */
+export function fontFaceCss(faces: (FontFace & { address: string })[]): string {
+  return faces.map(face => `@font-face{font-family:'${face.family}';src:url('${face.address}') format('${FORMATS[kindOf(face.src)!]}');font-weight:${face.weight};font-style:${face.style};font-display:swap}`).join('');
+}
 
 /** The site's look rows ({name, value}) as CSS variables on :root; a row that could end a declaration refuses the set. */
 export function lookCss(rows: Record<string, unknown>[]): string {
-  const pairs = rows.filter(row => row.name !== THEME_ROW).map(row => {
+  const pairs = rows.filter(row => row.name !== THEME_ROW && !String(row.name).startsWith(FONT_FACE)).map(row => {
     if (typeof row.name !== 'string' || !LOOK_NAME.test(row.name)) throw new Error(`look ${JSON.stringify(row.name)}: a name is lower-case words with dashes, grouped by dots.`);
     if (typeof row.value !== 'string' || !LOOK_VALUE.test(row.value)) throw new Error(`look ${row.name}: a value is one CSS value, with no ; { } < > or backslash.`);
     return `--${row.name.replaceAll('.', '-')}:${row.value};`;

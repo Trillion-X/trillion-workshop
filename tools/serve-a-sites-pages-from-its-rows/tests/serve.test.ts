@@ -11,7 +11,7 @@ import type { ToolRun } from '../do-work/door.ts';
 import { pageStyles } from '../do-work/page-styles.ts';
 import { PageBundles } from '../do-work/render.ts';
 import { ScreenFiles } from '../do-work/screen-files.ts';
-import { handlerOf, serverTiming, settingsOf, signInPath, Site } from '../do-work/serve.ts';
+import { handlerOf, passOnFor, serverTiming, settingsOf, Site } from '../do-work/serve.ts';
 import type { Settings } from '../do-work/serve.ts';
 
 const tools = join(import.meta.dirname, '..', '..');
@@ -43,7 +43,7 @@ async function door() {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
-        result = { rows: sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
+        result = { rows: sql.includes('FROM pages') ? PAGES : sql.includes('FROM site_look') ? [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' }] : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:read-a-greeting') {
         result = { as: 'p', children: `Hello, ${run.input.who}` };
       } else {
@@ -79,6 +79,7 @@ async function siteOn(address: string, more: Record<string, unknown> = {}) {
     storeKey: null,
     bundles: new PageBundles(tools, styles, files),
     palette: theme => styles.palette(theme),
+    keepFont: async src => files.keep(Buffer.from(`font bytes of ${src}`), 'woff2'),
     files,
     screens: new Map([['tool:read-a-greeting', { file: TEXT, export: 'Text' }], ['tool:fails', { file: TEXT, export: 'Text' }]]),
     log: () => {},
@@ -97,8 +98,11 @@ test('a public page is drawn on the server from its layout, its tool answer and 
     assert.match(html, /^<!doctype html><html lang="en">/);
     assert.match(html, /<title>Home<\/title>/);
     assert.match(html, /<link rel="canonical" href="https:\/\/site.example.test\/"\/>/);
-    const look = html.match(/<style>(:root\{[^<]*)<\/style>/)![1];
-    assert.ok(look.startsWith(styles.palette('paper')), 'the site\'s theme row picks its Screen Look palette first');
+    const look = html.match(/<style>(@font-face[^<]*)<\/style>/)![1];
+    const face = look.match(/^@font-face\{font-family:'Body Sans';src:url\('(\/screen-files\/[^']+\.woff2)'\) format\('woff2'\);font-weight:400;font-style:normal;font-display:swap\}/);
+    assert.ok(face, 'a font-face row is an @font-face rule first, its file kept on this site');
+    assert.equal(String(files.answer(face![1])!.body), 'font bytes of /assets/fonts/body.woff2');
+    assert.ok(look.slice(face![0].length).startsWith(styles.palette('paper')), 'the site\'s theme row picks its Screen Look palette next');
     assert.ok(look.endsWith(':root{--brand-ink:#123456;}'), 'the site\'s own look rows follow, so they win');
     assert.notEqual(styles.palette('paper'), styles.palette(null), 'a named theme is not the starting one');
     assert.throws(() => styles.palette('no-such-look'), /does not offer/);
@@ -259,7 +263,7 @@ test('a moved template page sends the browser on to its new address with the sam
   } finally { d.server.close(); }
 });
 
-test('the sign-in tool\'s paths are passed to it whole, cookies and all; every other path is the site\'s', async () => {
+test('the paths another program answers (the sign-in tool\'s) are passed to it whole, cookies and all; every other path is the site\'s', async () => {
   const seen: { method?: string; url?: string; forwardedHost?: string; body: string }[] = [];
   const signIn = http.createServer((request, response) => {
     let body = '';
@@ -272,7 +276,7 @@ test('the sign-in tool\'s paths are passed to it whole, cookies and all; every o
   });
   await new Promise<void>(resolve => signIn.listen(0, '127.0.0.1', resolve));
   const d = await door();
-  const server = http.createServer(handlerOf(await siteOn(d.address), { address: `http://127.0.0.1:${(signIn.address() as AddressInfo).port}`, paths: ['/sign-in', '/api/auth'] }));
+  const server = http.createServer(handlerOf(await siteOn(d.address), [{ name: 'the sign-in tool', address: `http://127.0.0.1:${(signIn.address() as AddressInfo).port}`, paths: ['/sign-in', '/api/auth'] }]));
   await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
   try {
     const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
@@ -281,8 +285,12 @@ test('the sign-in tool\'s paths are passed to it whole, cookies and all; every o
     assert.deepEqual(answer.headers.getSetCookie(), ['a=1; Path=/', 'b=2; Path=/']);
     assert.deepEqual(seen[0], { method: 'POST', url: '/api/auth/sign-in/email', forwardedHost: 'app.site.example.test', body: '{"email":"x"}' });
     assert.match(await (await fetch(`${at}/`)).text(), /Hello, everyone/, 'the site answers its own paths');
-    assert.equal(signInPath(['/sign-in'], '/sign-in-later'), false, 'a path is the prefix and what is under it, never a longer word');
-    assert.equal(signInPath(['/sign-in'], '/sign-in/done'), true);
+    const on = [{ name: 'sign-in', address: 'http://a', paths: ['/sign-in'] }, { name: 'members', address: 'http://b', exact: ['/'], hosts: ['app.site.example.test'] }];
+    assert.equal(passOnFor(on, 'site.example.test', '/sign-in-later'), null, 'a path is the prefix and what is under it, never a longer word');
+    assert.equal(passOnFor(on, 'site.example.test', '/sign-in/done')?.name, 'sign-in');
+    assert.equal(passOnFor(on, 'app.site.example.test', '/')?.name, 'members', 'exact paths on named hosts only');
+    assert.equal(passOnFor(on, 'site.example.test', '/'), null);
+    assert.equal(passOnFor(on, 'app.site.example.test', '/x'), null);
   } finally { server.close(); signIn.close(); d.server.close(); }
 });
 
