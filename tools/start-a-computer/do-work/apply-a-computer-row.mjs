@@ -28,11 +28,15 @@
 // tool's own process (the connection string on its descriptor 3). Values the row's units name by vault name are handed to the apply on
 // descriptor 5, as start-a-computer takes them; none is in argv, a file or the summary. `--dry-run` stops after the edits and the commit
 // check, says what the check found, and writes nothing.
+// One apply of a row at a time: a run holds the row (an advisory lock on a database session of its own, do-work/hold-a-computer-row.mjs)
+// from before it reads it until after its last write-back, and a second run of the same row is refused at once with who holds it and
+// since when (exit 3). A dry run takes no hold.
 import { spawn, execFile } from 'node:child_process';
 import { resolve4 } from 'node:dns/promises';
 import { closeSync, createReadStream, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readlinkSync, readSync, realpathSync, renameSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { isIP } from 'node:net';
-import { homedir, tmpdir } from 'node:os';
+import { createRequire } from 'node:module';
+import { homedir, hostname, tmpdir, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import { StringDecoder } from 'node:string_decoder';
 import { setTimeout as delay } from 'node:timers/promises';
@@ -40,6 +44,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isDeepStrictEqual, promisify } from 'node:util';
 import { engineScopeForEdit, engineScopeSiteFile, readEngineScope, ROW_ENGINE_SCOPE_PROTOCOL } from './start-a-computer.mjs';
 import { withSlots } from './render-what-a-computer-runs.mjs';
+import { holdComputerRow } from './hold-a-computer-row.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const run = promisify(execFile);
@@ -289,10 +294,18 @@ export function checkRequest(request) {
  * write(name, computer) answers { read_back_equal }), `targets` (read-data/apply-a-computer-row.json), `heldValues(names)`,
  * `archive(commit, folder)`, `runFolder(name)`, `startProbe({ tree, urls, log })` (answers `stop()`), `runApply({ tree, requestFile, held, out, err })`
  * (answers the exit code), `addressesOf(host)` (a fresh lookup of a name's addresses), `isAncestor(older, newer)` (true, false, or
- * null when either commit is not known even after one fetch), `sleep(ms)` and `now()`.
+ * null when either commit is not known even after one fetch), `sleep(ms)`, `now()`, and `holdRow(name)` (do-work/hold-a-computer-row.mjs:
+ * the row held from before it is read until after its last write-back, or a refusal naming who holds it; a dry run takes none).
  */
 export async function applyARow(rawRequest, { dryRun = false }, deps) {
   const request = checkRequest(rawRequest);
+  if (dryRun || !deps.holdRow) return applyHeld(request, { dryRun }, deps, null);
+  const hold = await deps.holdRow(request.computer);
+  try { return await applyHeld(request, { dryRun }, deps, hold); } finally { await hold.release(); }
+}
+
+/** The run of one request, with the row held (`hold`, null for a dry run, which writes nothing). */
+async function applyHeld(request, { dryRun }, deps, hold) {
   const { computer, siteSetting } = await deps.store.read(request.computer);
   const { row, changes } = applyEdits(computer, request.edits);
   const scope = request.scope ? engineScopeForEdit(computer, row, request.scope) : undefined;
@@ -339,6 +352,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
   let written = false, applyStarted = false, put, code, ended, probed, putBack, failure, probeFailure, engineProof;
   const problems = [];
   try {
+    await hold?.check();
     written = changed && (await deps.store.write(row.name, row)).read_back_equal === true;
     if (changed && !written) throw new Error('the database did not read back what was written; no apply was run.');
     if (request.links) put = setLinks(placed(request.links.folder), Object.fromEntries(Object.entries(request.links.set).map(([name, target]) => [name, placed(target)])));
@@ -397,6 +411,7 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
     code: elsewhere.length ? 6 : code || (probeFailure ? PROBE_EVIDENCE_UNCONFIRMED : 0),
     summary: {
       computer: row.name, workshop_commit: request.workshop_commit, workshop_check: workshopCheck, row_written: written, ...putBack,
+      ...(hold && { row_held_since: hold.holder.since }),
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
       ...(code === SWITCH_UNCONFIRMED && { apply_outcome: 'slot_switch_unconfirmed' }),
       ...(request.links && { links: code === 1 || code === 2 ? 'put back' : 'set' }),
@@ -603,8 +618,20 @@ export async function startApplyProbe({ tree, urls, log, deadlineMs, expectedRes
   } };
 }
 
-const realDeps = ({ store, targets, workshop }) => ({
+/** A connected pg client on a session of its own, with the pg the SQL tool ships, through the run's proxy when there is one. */
+const ownSession = (workshop, connection) => async () => {
+  const sqlTool = join(workshop, 'tools/run-sql-in-my-database');
+  const pg = createRequire(join(sqlTool, 'package.json'))('pg');
+  const proxy = process.env.HTTPS_PROXY;
+  const stream = proxy ? (await import(pathToFileURL(join(sqlTool, 'do-work/through-the-run-proxy.mjs')).href)).throughProxy(proxy) : undefined;
+  const client = new pg.Client({ connectionString: connection, keepAlive: true, ...(stream ? { stream } : {}) });
+  await client.connect();
+  return client;
+};
+
+const realDeps = ({ store, targets, workshop, connection }) => ({
   store, targets,
+  holdRow: name => holdComputerRow(name, { connect: ownSession(workshop, connection), holder: { by: targets.applied_by ?? userInfo().username, pid: process.pid, host: hostname() } }),
   heldValues: heldValuesBy(targets.held_value_reader),
   runFolder,
   async archive(commit, folder) {
@@ -667,7 +694,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (typeof targets.row_connection_name !== 'string' || !targets.row_connection_name) throw refused(`${targetsFile} names no row_connection_name (the vault name of the connection on descriptor 3).`);
     const workshop = (await run('git', ['-C', here, 'rev-parse', '--show-toplevel'])).stdout.trim();
     const sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), connection, targets.row_connection_name);
-    const { code, summary } = await applyARow(JSON.parse(readFileSync(file, 'utf8')), { dryRun }, realDeps({ store: sqlRowStore(sql), targets, workshop }));
+    const { code, summary } = await applyARow(JSON.parse(readFileSync(file, 'utf8')), { dryRun }, realDeps({ store: sqlRowStore(sql), targets, workshop, connection }));
     process.stdout.write(`${JSON.stringify(summary, null, 1)}\n`);
     process.exitCode = code;
   } catch (error) {
