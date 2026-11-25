@@ -49,6 +49,9 @@
 //                    names, so the computer's own setup fills one place in
 //     addresses      (optional) { <name>: address }: addresses pass_on entries name as "named:<name>"
 //     actions        (optional) the table of the site's action rows (actions.ts), read with the pages
+//     address_cookies (optional) [{ query, cookie, pattern, upper_case, max_age_days, domain, http_only }]: values a visitor's
+//                    arrival address carries (?ref=CODE) kept as cookies by any GET, the site's own pages and passed-on
+//                    ones alike, when the value is the whole of its pattern (address-cookies.ts)
 //     site_head      (optional) { tool, input }: the tool whose answer { head, body_start } every page carries at the top of its
 //                    <head> and the start of its <body> (the consent default and bar, then the site's declared tags; the
 //                    Workshop's tool:read-the-site-head), read with the rows and placed by that tool's own withSiteHead
@@ -73,6 +76,8 @@ import { chmodSync, existsSync, readFileSync, realpathSync, statSync, unlinkSync
 import http from 'node:http';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { addressCookiesOf, cookiesFromAddress, withCookies } from './address-cookies.ts';
+import type { AddressCookie } from './address-cookies.ts';
 import { ask, commandOf, DoorError, runTool, runToolAsCommand } from './door.ts';
 import type { CommandDoor, Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
@@ -103,6 +108,7 @@ export interface Settings {
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
   addresses?: Record<string, string>;
+  address_cookies: AddressCookie[];
   site_head?: { tool: string; input: Record<string, unknown> };
   actions?: string;
   files_store?: FilesStore & { credential: string };
@@ -188,6 +194,7 @@ export function settingsOf(value: unknown): Settings {
     || !s.site_head.input || typeof s.site_head.input !== 'object' || Array.isArray(s.site_head.input))) {
     throw new Error('site_head is { tool: "tool:<id>", input: { ... } }: the tool whose answer { head, body_start } every page carries.');
   }
+  s.address_cookies = addressCookiesOf((given as { address_cookies?: unknown }).address_cookies);
   if (s.actions !== undefined && (typeof s.actions !== 'string' || !/^[a-z_][a-z0-9_]*$/.test(s.actions))) throw new Error('actions is the table name of the site\'s action rows, such as "site_actions".');
   if (s.files_store !== undefined) {
     filesStoreOf(s.files_store);
@@ -584,7 +591,7 @@ export function passOnFor(passOn: PassOn[], host: string, pathname: string, page
 }
 
 /** One request passed whole to another program, and its answer passed back whole (its cookies too). */
-async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null): Promise<void> {
+async function passOnTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse, head: SiteHeadMarkup | null, cookies: string[] = []): Promise<void> {
   const chunks: Buffer[] = [];
   for await (const chunk of request) chunks.push(chunk as Buffer);
   const headers: Record<string, string | string[]> = {};
@@ -599,7 +606,7 @@ async function passOnTo(address: string, host: string, request: http.IncomingMes
   const text = head !== null && String(answer.headers['content-type'] ?? '').startsWith('text/html') && !answer.headers['content-encoding'] ? answer.body.toString('utf8') : null;
   const whole = text !== null && text.includes(`${String.fromCharCode(60)}head>`) && new RegExp(`${String.fromCharCode(60)}body[^>]*>`).test(text);
   const body = whole ? Buffer.from(withSiteHead(text, head!)) : answer.body;
-  response.writeHead(answer.status, back);
+  response.writeHead(answer.status, withCookies(back, cookies));
   response.end(request.method === 'HEAD' ? undefined : body);
 }
 
@@ -616,18 +623,20 @@ async function bytesOf(request: http.IncomingMessage): Promise<Buffer | null> {
 }
 
 /** The program's node:http handler over a site. */
-export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListener {
+export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: AddressCookie[] = []): http.RequestListener {
   return (request, response) => {
     const forwarded = request.headers['x-forwarded-host'];
     const host = site.hostOf(Array.isArray(forwarded) ? forwarded[0] : forwarded, request.headers.host);
     const pathname = new URL(request.url ?? '/', 'http://site.invalid').pathname;
+    // What the arrival address carries (?ref=CODE) is kept on whichever program answers the page.
+    const cookies = cookiesFromAddress(addressCookies, request.method ?? 'GET', request.url ?? '/', host);
     // A request the site's own action rows name is the site's, even under a path another program answers, unless that path is
     // passed on ahead of the site's rows (exact, or under an entry marked first).
     const method = request.method ?? 'GET';
     const acting = site.acts(method, host, pathname);
     const on = passOnFor(passOn, host, pathname, method === 'GET' || method === 'HEAD' ? (h, p) => site.pageFor(h, p) : undefined, acting);
     if (on) {
-      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null).catch(error => {
+      passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null, cookies).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
         if (!response.headersSent) response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
         response.end('This is not answering. Try again in a minute.\n');
@@ -641,7 +650,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = []): http.RequestListen
       : site.answer(method, request.url ?? '/', request.headers.cookie, host);
     answering
       .then(answer => {
-        response.writeHead(answer.status, { 'x-content-type-options': 'nosniff', ...answer.headers });
+        response.writeHead(answer.status, withCookies({ 'x-content-type-options': 'nosniff', ...answer.headers }, cookies));
         response.end(request.method === 'HEAD' ? undefined : answer.body);
       })
       .catch(error => {
@@ -719,7 +728,7 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
     screens: screensOfTools(tools),
   });
   await site.read();
-  const handler = handlerOf(site, settings.pass_on);
+  const handler = handlerOf(site, settings.pass_on, settings.address_cookies);
   const servers = settings.listen.map(() => http.createServer(handler));
   await Promise.all(servers.map((server, i) => listenOn(server, settings.listen[i])));
   console.error(`serving ${site.pages.length} pages (${site.refused.length} rows set aside) of ${settings.origin} on ${settings.listen.join(', ')}`);

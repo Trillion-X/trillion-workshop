@@ -192,6 +192,12 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   entry that takes it wins. An `exact` path, and a path under an entry with `"first": true`, is passed on ahead of the site's
   own action and page rows, so a site can hold rows for addresses another program still answers (each write path listed
   exactly while the site's grant reads only). Example: `{ "name": "the sign-in tool", "address": "unix:/run/sign-in/sign-in.sock", "paths": ["/sign-in", "/api/auth"] }`.
+- `address_cookies`: `[{ "query", "cookie", "pattern", "upper_case", "max_age_days", "domain", "http_only" }]`. A value the
+  visitor's arrival address carries (`?ref=CODE`) is kept as a cookie by any GET, on the site's own pages and on passed-on
+  ones, when it is the whole of `pattern` (after `upper_case`) and only cookie-safe characters; `Path=/; SameSite=Lax;
+  Secure`, `HttpOnly` unless `http_only` is false, and `Domain=<domain>` when the request's host is that domain or under it.
+  An action reads it back with `{ "$": "cookie", "name": "<cookie>" }` (a checkout's referral code). Example:
+  `{ "query": "ref", "cookie": "site_ref", "pattern": "[A-Z0-9][A-Z0-9-]{3,31}", "upper_case": true, "max_age_days": 30, "domain": "example.com" }`.
 - `addresses`: `{ "<name>": address }`. A `pass_on` address `"named:<name>"` is the one named here, so a computer's setup
   fills one place in for every entry that goes to the same program.
 - `site_head`: `{ "tool", "input" }`, the tool whose answer `{ head, body_start }` every page, members pages too, carries at
