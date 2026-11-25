@@ -1,5 +1,5 @@
 {
-  "_what": "What tool:check-a-computer-from-inside reads on a computer and when it calls something a finding. disk.warn_used_pct and disk.alert_used_pct are the used share of a filesystem at which it warns and alerts (a caller may give its own in the input); disk.skip_types are filesystem types that hold no kept data (memory, an image, the boot firmware). The program a unit runs when it is an engine is the caller's own word (input engine_program), never this file's. engine.ready_path answers the persons it holds, engine.add_person_path holds a person again, asked on the engine's own agent socket as the engine's own user (the only way the engine adds a person). persons.largest_files is how many of each person folder's largest files are named. ssh holds the administrator login used when the input names none, and how long one read may take. Each value is a row a person changes, never code.",
+  "_what": "What tool:check-a-computer-from-inside reads on a computer and when it calls something a finding. disk.warn_used_pct and disk.alert_used_pct are the used share of a filesystem at which it warns and alerts (a caller may give its own in the input); disk.skip_types are filesystem types that hold no kept data (memory, an image, the boot firmware). The program a unit runs when it is an engine is the caller's own word (input engine_program), never this file's. engine.ready_path answers the persons it holds, engine.add_person_path holds a person again, asked on the engine's own agent socket as the engine's own user (the only way the engine adds a person). persons.largest_files is how many of each person folder's largest files are named. ssh holds the administrator login used when the input names none, and how long one read may take. Each value is a row a person changes, never code. row.max_age_seconds is the oldest a computer row the caller passes may be (its row_read_at): an older one is not checked, so what was dropped from or added to the row since is never misread.",
   "disk": {
     "warn_used_pct": 85,
     "alert_used_pct": 92,
@@ -25,5 +25,8 @@
   },
   "persons": {
     "largest_files": 5
+  },
+  "row": {
+    "max_age_seconds": 300
   }
 }

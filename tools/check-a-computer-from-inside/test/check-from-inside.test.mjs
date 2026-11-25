@@ -166,6 +166,35 @@ test('every unit the row runs is asked of systemd: a failed run, a stopped timer
   assert.throws(() => readScript([], ['a unit; rm -rf /']), /A unit name was refused/);
 });
 
+test('only the row\'s runs as read now are checked: no units list, or a row read too long ago, is not checked at all', async () => {
+  const notAsked = { run: () => assert.fail('a computer is not asked without the row\'s units as read now') };
+  for (const runs of [undefined, {}, { units: null }, { units: 'a-site.service' }]) {
+    const seen = await checkFromInside({ ...computer([]), runs }, notAsked);
+    assert.deepEqual([seen.checked, seen.findings], [false, []]);
+    assert.match(seen.why, /runs\.units was not given/);
+  }
+  // Nov 25 2026: a copy of a row read 44 minutes before its check named five units another apply had removed.
+  const stale = await checkFromInside(computer([siteUnit], { row_read_at: new Date(Date.now() - 44 * 60_000).toISOString() }), notAsked);
+  assert.equal(stale.checked, false);
+  assert.match(stale.why, /read 26\d\d s before this check, more than 300 s/);
+  const later = await checkFromInside(computer([siteUnit], { row_read_at: new Date(Date.now() + 10 * 60_000).toISOString() }), notAsked);
+  assert.match(later.why, /is after this check began/);
+  const garbled = await checkFromInside(computer([siteUnit], { row_read_at: 'this morning' }), notAsked);
+  assert.match(garbled.why, /row_read_at was refused/);
+});
+
+test('a row read just now is checked unit by unit, and the units asked are answered with it', async () => {
+  const readAt = new Date(Date.now() - 5_000).toISOString();
+  const { run } = computerAnswering({}, { systemd: { 'a-site.service': ['loaded', 'active', 'success'], 'a-dropped.service': ['not-found', 'inactive', 'success'] } });
+  const seen = await checkFromInside(computer([siteUnit, { unit: 'a-dropped.service' }], { row_read_at: readAt }), { run });
+  assert.equal(seen.checked, true);
+  assert.equal(seen.row_read_at, readAt);
+  assert.deepEqual(seen.units_asked, ['a-site.service', 'a-dropped.service']);
+  assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.about]), [['unit-missing', 'a-dropped.service']]);
+  const none = await checkFromInside(computer([]), { run: computerAnswering({}).run });
+  assert.deepEqual([none.checked, none.units_asked, none.row_read_at], [true, [], null], 'a computer that runs no unit is checked for its disks');
+});
+
 test('nothing outside its shape is written into a command', () => {
   assert.throws(() => holdAgainScript({ unit: 'x.service', user: 'engine', socket: '/tmp/a.sock; reboot' }, OWNER), /cannot be asked/);
   assert.throws(() => holdAgainScript({ unit: 'x.service', user: 'engine', socket: '/tmp/a.sock' }, "a'b"), /cannot be asked/);

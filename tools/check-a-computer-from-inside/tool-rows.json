@@ -28,7 +28,7 @@
             },
             "runs": {
               "type": "object",
-              "description": "The row's runs: each unit that declares a loopback listen address (slots' health_listen, health_listen or settings.listen) and settings.persons is an engine, read for its ready check, agent socket, owner persons (settings.local_agents) and persons folder; ready_in_container names the container whose network it answers on."
+              "description": "The row's runs: each unit that declares a loopback listen address (slots' health_listen, health_listen or settings.listen) and settings.persons is an engine, read for its ready check, agent socket, owner persons (settings.local_agents) and persons folder; ready_in_container names the container whose network it answers on. Its units list must be given (an empty list for a computer that runs no unit); a runs with none is answered checked: false."
             },
             "engine_program": {
               "type": "string",
@@ -96,6 +96,10 @@
                   "description": "Unit to the systemd Result to pretend its last run ended in (exit-code: a failed run)."
                 }
               }
+            },
+            "row_read_at": {
+              "type": "string",
+              "description": "When the caller read the computer row these runs came from (an ISO time). A row read more than settings.json row.max_age_seconds (300) before the check is answered checked: false, so a unit the row has since dropped or added is never misread."
             }
           }
         },
@@ -283,6 +287,19 @@
                   }
                 }
               }
+            },
+            "row_read_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "units_asked": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Every unit name the row's runs named and systemd was asked about."
             }
           }
         },

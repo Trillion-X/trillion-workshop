@@ -3,9 +3,9 @@ import { realpathSync } from 'node:fs';
 // tools/check-a-computer-from-inside/do-work/check-from-inside.mjs
 //
 // tool:check-a-computer-from-inside: how full each disk of one computer is, and whether each engine its row runs holds a
-// person, read over SSH as the computer's administrator from another computer. Input { name, address, runs,
+// person, read over SSH as the computer's administrator from another computer. Input { name, address, runs, row_read_at?,
 // engine_program?, host_key, admin_user?, ssh_port?, warn_used_pct?, alert_used_pct?, hold_again?, pretend? }; answer { name, address,
-// checked, checked_at, disks: [{mount, type, size_bytes, used_bytes, available_bytes, used_pct}], engines: [{unit, user, owners, persons,
+// checked, checked_at, row_read_at, units_asked, disks: [{mount, type, size_bytes, used_bytes, available_bytes, used_pct}], engines: [{unit, user, owners, persons,
 // listens: [{listen, answered, persons, draining}], held_again?, person_folders: [{person, bytes, largest: [{path, bytes}]}]}],
 // findings: [{computer, at, kind, level, about, said,
 // pretend?}] }.
@@ -23,6 +23,10 @@ import { realpathSync } from 'node:fs';
 // from systemd (its LoadState, ActiveState and Result): a unit whose last run did not end in success (a base backup that
 // failed) is unit-failed, a timer or path that is not active is unit-not-running, and a unit the computer does not have is
 // unit-missing. A unit that runs in slots is read as its engine, not here. Everything else only reads.
+// What is checked is only what `runs.units` names, so a runs with no units list, or one read longer ago than settings.json
+// row.max_age_seconds (`row_read_at`, when the row was read), is not checked: it would answer a computer green, or name
+// as missing a unit the row has since dropped (Nov 25 2026: a copy of a row read 44 minutes earlier named five units
+// another apply had removed, and a call with no units checked none and answered no finding).
 // `pretend` replaces what was read ({disks: {mount: used_pct}, engines: {unit: persons}, units: {unit: result},
 // unreachable: true}) so a caller
 // can see the findings of a full disk, an empty engine or a lost computer without making one; a pretended empty engine is
@@ -239,6 +243,18 @@ export async function checkFromInside(input, options = {}) {
   } catch (error) {
     return { ...base, checked: false, why: error.message, disks: [], engines: [], findings: [] };
   }
+  const notChecked = why => ({ ...base, checked: false, why, disks: [], engines: [], findings: [] });
+  if (!Array.isArray(input.runs?.units)) return notChecked('runs.units was not given: pass the computer row\'s runs as read now (an empty list for a computer that runs no unit); with no units list nothing on the computer can be checked.');
+  const rowReadAt = input.row_read_at ?? null;
+  if (rowReadAt !== null) {
+    const age = (Date.parse(checkedAt) - Date.parse(rowReadAt)) / 1000;
+    const most = Number(SETTINGS.row.max_age_seconds);
+    if (!Number.isFinite(age)) return notChecked(`row_read_at was refused: give the time the row was read as an ISO time, not ${JSON.stringify(rowReadAt)}.`);
+    if (age > most) return notChecked(`the computer row was read ${Math.round(age)} s before this check, more than ${most} s: read the row again and pass its runs, so a unit it has since added or dropped is not misread.`);
+    if (age < -60) return notChecked(`row_read_at ${rowReadAt} is after this check began: give the time the row was read.`);
+  }
+  base.row_read_at = rowReadAt;
+  base.units_asked = unitsOf(input.runs);
   const warn = Number(input.warn_used_pct ?? SETTINGS.disk.warn_used_pct);
   const alert = Number(input.alert_used_pct ?? SETTINGS.disk.alert_used_pct);
   if (!(warn > 0 && alert >= warn && alert <= 100)) throw new Error('warn_used_pct and alert_used_pct were refused: give 0 < warn <= alert <= 100.');
