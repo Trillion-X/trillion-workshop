@@ -102,9 +102,13 @@ test('done marks: read needs a person; saving twice adds one row; a lesson of an
 
 test('the catalogue read answers every course in sort order (the statement turns a missing column into empty words), and renames only plain tables', async () => {
   const asked: string[] = [];
-  const answer = await readCourses({ database: 'd', tables: { courses: 'ethos_courses' } }, async sql => { asked.push(sql); return [{ slug: 'a', title: 'A', short_description: 'About A', category: 'Technique', image: 'img1', lesson_count: '26' }, { slug: 'b', title: 'B', short_description: '', category: '', image: '' }]; });
-  assert.match(asked[0], /from "ethos_courses" order by "sort_order", "slug"$/);
-  assert.deepEqual(answer.courses.map(course => [course.slug, course.short_description, course.image, course.lesson_count]), [['a', 'About A', 'img1', 26], ['b', '', '', 0]]);
-  assert.match(asked[0], /\(select count\(\*\) from "lessons" where "course_id" = "ethos_courses"\."slug"\) as lesson_count/);
+  const answer = await readCourses({ database: 'd', tables: { courses: 'ethos_courses' } }, async sql => { asked.push(sql); if (sql.includes('to_regclass')) return [{ present: true }]; return [{ slug: 'a', title: 'A', short_description: 'About A', category: 'Technique', image: 'img1', lesson_count: '26' }, { slug: 'b', title: 'B', short_description: '', category: '', image: '' }]; });
+  assert.match(asked[1], /from "ethos_courses" order by "sort_order", "slug"$/);
+  assert.deepEqual(answer.courses.map(course => [course.slug, course.short_description, course.image, course.lesson_count]), [['a', 'About A', 'img1', 26], ['b', '', '', undefined]]);
+  assert.match(asked[1], /\(select count\(\*\) from "lessons" where "course_id" = "ethos_courses"\."slug"\) as lesson_count/);
   await assert.rejects(readCourses({ database: 'd', tables: { courses: 'x; drop' } }, async () => []), /plain table name/);
+  const without: string[] = [];
+  const bare = await readCourses({ database: 'd' }, async sql => { without.push(sql); return sql.includes('to_regclass') ? [{ present: false }] : [{ slug: 'a', title: 'A', short_description: '', category: '', image: '' }]; });
+  assert.ok(without.every(sql => !sql.includes('count(*)')), 'no lessons table: no count is asked for');
+  assert.equal('lesson_count' in bare.courses[0], false);
 });

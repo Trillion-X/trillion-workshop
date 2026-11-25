@@ -7,7 +7,7 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. View is pure: no fetch and no window while it renders. Every word is a prop or the answer's own.
-//   2. A course's address is base_path and its slug; the count is the answer's own lesson_count.
+//   2. A course's address is base_path and its slug; the count is the answer's own lesson_count, left out when the answer has none.
 //   3. Nothing is drawn when no course is left after leaving out `current`.
 //   4. Everything drawn is a shared part (Text, Button, Card); no raw HTML and no inline styling.
 //
@@ -40,7 +40,7 @@ export function View({ courses, heading, base_path = '/courses', current, lesson
           <Text as="li" key={course.slug} data-course={course.slug}>
             <Button variant="ghost" href={`${base}/${encodeURIComponent(course.slug)}`} className="grid h-auto w-full gap-1 text-start">
               <Text as="span">{course.title}</Text>
-              <Text as="span" variant="label" color="muted">{`${course.lesson_count} ${course.lesson_count === 1 ? lessonWords.one : lessonWords.many}`}</Text>
+              {course.lesson_count === undefined ? null : <Text as="span" variant="label" color="muted">{`${course.lesson_count} ${course.lesson_count === 1 ? lessonWords.one : lessonWords.many}`}</Text>}
             </Button>
           </Text>
         ))}

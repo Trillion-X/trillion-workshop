@@ -147,3 +147,18 @@ test('the other courses draw as links with their lesson counts, leave out the cu
   assert.doesNotMatch(await renderAView(at('CourseLinks.tsx'), { courses: [courses[1]], current: 'b' }), /data-course-links/);
   assert.match(await renderAView(at('CourseLinks.tsx'), { courses: [courses[1]], current: 'x' }), /1 lesson</);
 });
+
+test('a landing course draws its title with the last word solid, the join post under the header and again after the lessons', async () => {
+  const lessons = [{ id: 'l1', position: 1, title: 'One', href: '/c/l1', done: false }];
+  const join = { action: '/checkout', hiddenFields: { plan: 'membership' }, label: 'Join from $99 a month', choose: { label: 'Choose your own amount', href: '/#pricing' }, note: 'Cancel anytime.', repeat: { heading: 'One membership opens every course.', lead: 'Pay what you want.' } };
+  const html = await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'The Big Breakdown', description: '' }, lessons, doneCount: 0, join, landing: true });
+  assert.match(html, /The Big <span[^>]*>Breakdown<\/span>/);
+  assert.equal((html.match(/<form[^>]*action="\/checkout"/g) ?? []).length, 2);
+  assert.equal((html.match(/name="plan" value="membership"/g) ?? []).length, 2);
+  assert.equal((html.match(/Join from \$99 a month/g) ?? []).length, 2);
+  assert.match(html, /Choose your own amount/);
+  assert.match(html, /Cancel anytime\./);
+  assert.match(html, /data-course-join-again/);
+  const plain = await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'The Big Breakdown', description: '' }, lessons, doneCount: 0 });
+  assert.doesNotMatch(plain, /<form|data-course-join-again/);
+});

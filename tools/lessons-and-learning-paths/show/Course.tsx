@@ -10,6 +10,8 @@
 //   2. A lesson's address is the one the read gave (href); the screen makes none.
 //   3. The course's picture is drawn only when the answer gives one, at the address image_template makes of it; nothing is
 //      guessed here.
+//   2b. The membership button is the shared CheckoutButton: a plain post to the page row's action with its hidden fields; the
+//      screen knows nothing of price or payment.
 //   3a. A title whose id starts with "page:" is one the course page names but no lesson holds: it is drawn as text, never as a
 //      link, because its address would land on a lesson page that refuses it.
 //   3b. A done mark is drawn only for a lesson the answer marks done, and the count is the answer's own doneCount.
@@ -20,6 +22,7 @@
 import React from 'react';
 import { Button } from '../../ui/show/button/Button.tsx';
 import { Card } from '../../ui/show/card/Card.tsx';
+import { CheckoutButton, type CheckoutButtonProps } from '../../ui/show/pricing/CheckoutButton.tsx';
 import { LiveFrame } from '../../ui/show/live-frame/LiveFrame.tsx';
 import { MediaFrame } from '../../ui/show/media-frame/MediaFrame.tsx';
 import { ProgressBar } from '../../ui/show/progress-bar/ProgressBar.tsx';
@@ -35,11 +38,21 @@ export type CourseProps = CourseAnswer & {
   lessonWords?: { one: string; many: string };
   /** The words said of a lesson the learner has done. */
   doneLabel?: string;
+  /** The membership the course page sells: a post to a checkout, drawn under the header, and again after the lessons when `repeat` is given. */
+  join?: CheckoutButtonProps & { note?: string; repeat?: { heading: string; lead?: string } };
+  /** Draw the page as a landing page: its header centred and the last word of the title solid. */
+  landing?: boolean;
   /** The headings of the three cards, and the word after the category in the line above the title. */
   cardWords?: { learn: string; contents: string; requirements: string; course: string };
 };
 
 const WORDS = { lessons: { one: 'lesson', many: 'lessons' }, done: 'Done', cards: { learn: 'What you will learn', contents: 'What is in it', requirements: 'Before you start', course: 'course' } } as const;
+
+// A title with its last word solid, as a landing page draws it.
+function TwoTone({ text }: { text: string }) {
+  const at = text.lastIndexOf(' ') + 1;
+  return at === 0 ? <>{text}</> : <>{text.slice(0, at)}<Text as="span" color="success">{text.slice(at)}</Text></>;
+}
 
 // One of the three cards: a heading over the course row's own list; no card for an empty list.
 function ListCard({ heading, items, name }: { heading: string; items: readonly string[]; name: string }) {
@@ -52,16 +65,18 @@ function ListCard({ heading, items, name }: { heading: string; items: readonly s
   );
 }
 
-export function View({ course, lessons, doneCount, action, image_template = '{image}', lessonWords = WORDS.lessons, doneLabel = WORDS.done, cardWords = WORDS.cards }: CourseProps) {
+export function View({ course, lessons, doneCount, action, join, landing = false, image_template = '{image}', lessonWords = WORDS.lessons, doneLabel = WORDS.done, cardWords = WORDS.cards }: CourseProps) {
   const count = `${lessons.length} ${lessons.length === 1 ? lessonWords.one : lessonWords.many}`;
   const percentage = lessons.length === 0 ? 0 : Math.round((doneCount / lessons.length) * 100);
   return (
     <Text as="section" className="grid gap-6" data-course={course.slug}>
-      <Text as="header" className="grid gap-3">
+      <Text as="header" className={landing ? 'grid justify-items-center gap-3 text-center' : 'grid gap-3'}>
         {course.category === undefined || course.category === '' ? null : <Text as="p" variant="label" color="muted" className="uppercase" data-course-eyebrow>{`${course.category} ${cardWords.course} · ${count}`}</Text>}
-        <Text as="h1" variant="title">{course.title}</Text>
+        <Text as="h1" variant="title">{landing ? <TwoTone text={course.title} /> : course.title}</Text>
         {course.description === '' ? null : <Text as="p" color="muted">{course.description}</Text>}
         {action ?? null}
+        {join === undefined ? null : <CheckoutButton action={join.action} hiddenFields={join.hiddenFields} label={join.label} choose={join.choose} />}
+        {join?.note === undefined || join.note === '' ? null : <Text as="p" variant="caption" color="muted">{join.note}</Text>}
       </Text>
       {course.image === undefined || course.image === ''
         ? (course.preview_video_id === undefined || course.preview_video_id === '' ? null : <LiveFrame src={`https://www.youtube-nocookie.com/embed/${encodeURIComponent(course.preview_video_id)}`} title={course.title} allow="encrypted-media; picture-in-picture; fullscreen" />)
@@ -96,6 +111,13 @@ export function View({ course, lessons, doneCount, action, image_template = '{im
           </Text>
         ))}
       </Text>
+      {join?.repeat === undefined ? null : (
+        <Text as="section" className="grid justify-items-center gap-3 text-center" data-course-join-again>
+          <Text as="h2" variant="title"><TwoTone text={join.repeat.heading} /></Text>
+          {join.repeat.lead === undefined || join.repeat.lead === '' ? null : <Text as="p" color="muted">{join.repeat.lead}</Text>}
+          <CheckoutButton action={join.action} hiddenFields={join.hiddenFields} label={join.label} choose={join.choose} />
+        </Text>
+      )}
     </Text>
   );
 }
