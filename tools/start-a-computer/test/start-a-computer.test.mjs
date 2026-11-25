@@ -217,6 +217,31 @@ test('starting a computer on an adopted machine sets it up, has it fetch and bui
   assert.ok(commands.some(({ command }) => command === "systemctl enable --now 'example-computer.service' >/dev/null 2>&1"));
 });
 
+test('a unit that names uid has set-up given its uid, and an account with another id is set up again (where set-up refuses it)', async () => {
+  const here = folder(), commands = [];
+  const row = { ...COMPUTER_ROW, runs: { ...COMPUTER_ROW.runs, units: [{ ...COMPUTER_ROW.runs.units[0], uid: 1104 }] } };
+  const run = async (_machine, command, input) => {
+    commands.push({ command, input });
+    if (command === 'uname -m') return 'aarch64\n';
+    if (command.includes('curl')) return '200';
+    // The account exists with another id: the uid check fails, as getent alone would not.
+    if (command.startsWith('[ "$(id -u ')) throw Object.assign(new Error('another id'), { code: 3 });
+    if (command.startsWith('getent passwd')) return '';
+    if (command.startsWith('if [ -f ') || command.startsWith('test -')) throw Object.assign(new Error('absent'), { code: 3 });
+    if (command.startsWith('sh -c ')) return `${SOURCE_COMMIT}\n`;
+    return '';
+  };
+  await startAComputer({
+    lease_file: join(here, 'lease.json'), machine: { provider: ADOPTED, name: 'a-pi', placement: { address: '192.0.2.40' } },
+    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, computer_row: row,
+  }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/readyz' ? 200 : 404 }), wait: async () => {} });
+  assert.ok(commands.some(({ command }) => command === `[ "$(id -u 'example-computer' 2>/dev/null)" = '1104' ] || exit 3`), 'the account is checked by its id');
+  assert.equal(commands.some(({ command }) => command.startsWith('getent passwd')), false, 'a unit with a uid is not checked by its name alone');
+  const setUp = commands.find(({ command }) => command.startsWith('sh -s -- ') && command.includes('"units":'));
+  assert.ok(setUp, 'set-up runs');
+  assert.match(setUp.command, /"uid":1104/, 'set-up is given the unit\'s uid');
+});
+
 test('renting a machine leases it and waits for SSH, and sets nothing up on it', async () => {
   const here = folder(), commands = [];
   const run = async (_machine, command) => { commands.push(command); return command === 'uname -m' ? 'x86_64\n' : ''; };

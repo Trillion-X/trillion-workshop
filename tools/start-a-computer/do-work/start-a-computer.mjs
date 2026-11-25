@@ -539,12 +539,17 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   if (!writes.length && !missing.length && !nodeMissing && !foldersMissing && !programsMissing && !triggersOff.length && !builds.length && !stale.length && !usersPresent.length && !present.length && !portsClosed.length && !switching.length && !keysOwed.length && !surplus.length && !linksOff.length) return { written: [], restarted: [] };
   // Set-up makes what is missing (packages, node, accounts, folders); a computer whose accounts and node all exist needs
   // none, and running it would refresh the package lists on every apply.
-  const accounts = await Promise.all(runs.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
+  // A unit that names `uid` needs its account to have that id: one with another id is as missing, so set-up runs and refuses it
+  // (it never changes an account's id). Until Nov 25 2026 the uid never reached set-up, and the receiver's account was made
+  // with whatever id was free (994, not the row's 1104), so the engine's socket row for 1104 admitted nobody.
+  const accounts = await Promise.all(runs.units.map(unit => run(machine, Number.isInteger(unit.uid)
+    ? `[ "$(id -u ${q(unit.user)} 2>/dev/null)" = ${q(String(unit.uid))} ] || exit 3`
+    : `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
   // The set-up data is settings.json `machine` with the row's own `machine` fields over it (its packages, its firewall). Set-up
   // reads of each unit only what it makes (its account, folders and node), so only those go in its argument: a unit's files
   // and pages (a site's bundles) can be larger than one argument may be.
   // A unit that keeps its key sealed has set-up make no plain key file.
-  const setUpUnits = runs.units.map(({ unit, user, state, builds, key_file, key_sealed_file, folders, node_bin }) => ({ unit, user, state, builds, key_file: key_sealed_file ? undefined : key_file, folders, node_bin }));
+  const setUpUnits = runs.units.map(({ unit, user, uid, state, builds, key_file, key_sealed_file, folders, node_bin }) => ({ unit, user, uid, state, builds, key_file: key_sealed_file ? undefined : key_file, folders, node_bin }));
   const needsSetup = accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length > 0;
   if (needsSetup) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   await sealTheKeys(machine, keys, run);
