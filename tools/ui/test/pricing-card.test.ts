@@ -98,3 +98,12 @@ test('a card with a custom amount keeps its box closed until the amounts are ope
   const closed = await renderAView(card, { ...offer, more });
   assert.doesNotMatch(closed, /Your own amount/);
 });
+
+test('a card that names its attempt fields carries them, empty, in its form, and stamps them as it is submitted', async () => {
+  const html = await renderAView(card, { ...offer, action: '/buy', hiddenFields: { offerId: 'o1' }, attempt: { id_field: 'checkoutAttemptId', started_field: 'checkoutStartedAt' } });
+  assert.match(html, /name="checkoutAttemptId"[^>]*value=""|value=""[^>]*name="checkoutAttemptId"/);
+  assert.match(html, /name="checkoutStartedAt"[^>]*value=""|value=""[^>]*name="checkoutStartedAt"/);
+  assert.match(html, /name="offerId"[^>]*value="o1"|value="o1"[^>]*name="offerId"/);
+  const without = await renderAView(card, { ...offer, action: '/buy', hiddenFields: { offerId: 'o1' } });
+  assert.doesNotMatch(without, /checkoutAttemptId/);
+});

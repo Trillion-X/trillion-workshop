@@ -53,7 +53,13 @@ export type PricingMore = {
 
 const moneyOf = (cents: number, currency = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: cents % 100 === 0 ? 0 : 2, maximumFractionDigits: 2 }).format(cents / 100);
 
+/** A post that names one checkout attempt: the form carries an id and the time the buyer pressed Checkout, made when it is
+ *  submitted (a new pair for every press), in these fields. */
+export type PricingAttempt = { id_field: string; started_field: string };
+
 export type PricingCardProps = {
+  /** The fields the post carries its attempt in (see PricingAttempt); none when the page that receives the post asks for none. */
+  attempt?: PricingAttempt;
   /** The amounts a buyer may pay instead of the price shown (see invariant 1). */
   more?: PricingMore;
   id: string;
@@ -91,7 +97,7 @@ function Cta({ cta, onCheckout, pending, posts }: Pick<PricingCardProps, 'cta' |
 }
 
 export function View(props: PricingCardProps) {
-  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, repeatCta = features.length > 2 } = props;
+  const { id, name, price: given, cadence, note, amounts, features = [], cta: ctaGiven, onCheckout, action, hiddenFields: fields, pending, error, footnote, more, attempt, repeatCta = features.length > 2 } = props;
   const [open, setOpen] = useState(false);
   const [picked, setPicked] = useState<{ cents: number; label: string } | null>(null);
   const [typed, setTyped] = useState<string | null>(null);
@@ -101,7 +107,17 @@ export function View(props: PricingCardProps) {
   const price = picked?.label ?? given;
   const cta = { ...ctaGiven, label: ctaGiven.label.replace('{price}', picked?.label ?? given ?? '') };
   const blocked = typed !== null && picked === null;
-  const hiddenFields = more && picked ? { ...fields, [more.field]: String(picked.cents) } : fields;
+  const chosen = more && picked ? { ...fields, [more.field]: String(picked.cents) } : fields;
+  const hiddenFields = attempt ? { ...chosen, [attempt.id_field]: '', [attempt.started_field]: '' } : chosen;
+  // The attempt is made as the form is submitted, so every press is its own: an id of letters, digits and dashes, and the time.
+  const stamp = (event: React.FormEvent<HTMLFormElement>) => {
+    if (!attempt) return;
+    const form = event.currentTarget.elements;
+    const id = form.namedItem(attempt.id_field) as HTMLInputElement | null;
+    const started = form.namedItem(attempt.started_field) as HTMLInputElement | null;
+    if (id) id.value = typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : `attempt-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    if (started) started.value = new Date().toISOString();
+  };
   const body = (
     <>
       <Container layout="vertical" gap="sm" width="full">
@@ -164,7 +180,7 @@ export function View(props: PricingCardProps) {
   );
   return (
     <Text as="article" className="grid gap-4" data-offer-card={id}>
-      {posts ? <Form method="post" action={action} hiddenFields={hiddenFields} className="grid gap-4">{body}</Form> : body}
+      {posts ? <Form method="post" action={action} hiddenFields={hiddenFields} onSubmit={attempt ? stamp : undefined} className="grid gap-4">{body}</Form> : body}
     </Text>
   );
 }
