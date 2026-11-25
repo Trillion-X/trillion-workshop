@@ -1,0 +1,154 @@
+{
+ "drafted_from": "tool:step-a-hostname-cut-over-through-the-engine's own row (its words, input schema and sample run) and what its sample run answered here; read it before relying on it",
+ "start_here": "Say to your AI: \"Work out the next DNS request that pointing one of my hostnames at a new address needs, at a DNS provider my engine reaches for me, so a workflow sends it\", with {\"cutover\":\"prepare\",\"hostname\":\"files.example.org\",\"address\":\"198.51.100.4\",\"dns\":{\"id\":\"example-mcp-dns\",\"name\":\"Example DNS (MCP)\",\"base\":\"https://mcp.dns.example.test/mcp\",\"transport\":\"engine\",\"lease_label_key\":\"place-lease\",\"requests\":{\"find_zone\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"domains_list\",\"arguments\":{\"domain\":\"{zone}\"}}},\"list_records\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"dns_records_get\",\"arguments\":{\"domainName\":\"{zone_id}\",\"skip\":\"{skip}\",\"take\":\"{take}\"}}},\"create_record\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"dns_records_save\",\"arguments\":{\"domainName\":\"{zone_id}\",\"records\":[{\"type\":\"A\",\"name\":\"{host_label}\",\"address\":\"{address}\",\"ttl\":60}]}}},\"remove_record\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"dns_records_delete\",\"arguments\":{\"domainName\":\"{zone_id}\",\"records\":[\"{record_body}\"]}}}},\"zone\":{\"find\":\"find_zone\",\"list_at\":\"items\",\"id_is\":\"zone_id\",\"id_pattern\":\"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\\\.)+[a-z]{2,63}$\",\"id_at\":\"name\",\"name_relative\":true},\"record\":{\"list\":\"list_records\",\"list_at\":\"items\",\"page_size\":100,\"remove\":\"remove_record\",\"id_is_fields\":[\"type\",\"name\",\"address\"],\"create\":\"create_record\",\"created_at\":\"\",\"name_at\":\"name\",\"type_at\":\"type\",\"content_at\":\"address\",\"content_at_by_type\":{\"CNAME\":\"cname\"},\"omitted_at\":\"omittedRecords\",\"address_types\":[\"A\",\"CNAME\",\"URL\",\"URL301\",\"FRAME\"],\"editable_types\":[\"A\"],\"fields\":[\"type\",\"name\",\"address\",\"ttl\"],\"desired\":{\"type\":\"A\",\"name\":\"{host_name}\",\"address\":\"{address}\",\"ttl\":60},\"owner_by\":\"address\"}},\"transcript\":[]}. It runs tool:step-a-hostname-cut-over-through-the-engine and answers {\"done\":false,\"next\":{\"name\":\"domains_list\",\"arguments\":{\"domain\":\"files.example.org\"}},\"asked\":0}: the next request is the description's domains_list with those arguments. The workflow asks that tool through the engine, adds {request, answer} to transcript and steps again until done is true.",
+ "lists": [],
+ "no_lists_because": "It names no list of yours: the description, any receipt and the answers kept so far come in as input, and it keeps nothing.",
+ "workflows": [],
+ "tools": [
+  "tool:step-a-hostname-cut-over-through-the-engine",
+  "tool:cut-a-hostname-over-to-a-new-address"
+ ],
+ "instructions": [
+  "1. Say to your AI: \"Work out the next DNS request that pointing one of my hostnames at a new address needs, at a DNS provider my engine reaches for me, so a workflow sends it\", and give it cutover (prepare, activate, rollback or status); dns (a DNS provider description with transport \"engine\"); hostname; address; receipt (for activate, rollback and status: the receipt an earlier answer gave); transcript ([] the first time).",
+  "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:step-a-hostname-cut-over-through-the-engine and that input (the worked example shows one).",
+  "3. When it answers done false, ask next.name of the description's server through the engine (tools:run with the description's base as address and <host>/<next.name> as tool, next.arguments as input), add { request: next, answer: what the engine answered } to transcript, and step again with the same input.",
+  "4. When it answers done true, answer is the cut-over's own answer: keep its receipt for the next cut-over (activate after prepare, rollback after activate)."
+ ],
+ "worked_examples": [
+  {
+   "title": "Step a hostname cut-over on its own sample",
+   "ask": "Work out the next DNS request that pointing one of my hostnames at a new address needs, at a DNS provider my engine reaches for me, so a workflow sends it",
+   "mcp": {
+    "server": "{cli}",
+    "tool": "do_one_thing_in_my_account",
+    "input": {
+     "method": "tools:run",
+     "input": {
+      "tool": "tool:step-a-hostname-cut-over-through-the-engine",
+      "input": {
+       "cutover": "prepare",
+       "hostname": "files.example.org",
+       "address": "198.51.100.4",
+       "dns": {
+        "id": "example-mcp-dns",
+        "name": "Example DNS (MCP)",
+        "base": "https://mcp.dns.example.test/mcp",
+        "transport": "engine",
+        "lease_label_key": "place-lease",
+        "requests": {
+         "find_zone": {
+          "url": "https://mcp.dns.example.test/mcp",
+          "method": "POST",
+          "body_template": {
+           "name": "domains_list",
+           "arguments": {
+            "domain": "{zone}"
+           }
+          }
+         },
+         "list_records": {
+          "url": "https://mcp.dns.example.test/mcp",
+          "method": "POST",
+          "body_template": {
+           "name": "dns_records_get",
+           "arguments": {
+            "domainName": "{zone_id}",
+            "skip": "{skip}",
+            "take": "{take}"
+           }
+          }
+         },
+         "create_record": {
+          "url": "https://mcp.dns.example.test/mcp",
+          "method": "POST",
+          "body_template": {
+           "name": "dns_records_save",
+           "arguments": {
+            "domainName": "{zone_id}",
+            "records": [
+             {
+              "type": "A",
+              "name": "{host_label}",
+              "address": "{address}",
+              "ttl": 60
+             }
+            ]
+           }
+          }
+         },
+         "remove_record": {
+          "url": "https://mcp.dns.example.test/mcp",
+          "method": "POST",
+          "body_template": {
+           "name": "dns_records_delete",
+           "arguments": {
+            "domainName": "{zone_id}",
+            "records": [
+             "{record_body}"
+            ]
+           }
+          }
+         }
+        },
+        "zone": {
+         "find": "find_zone",
+         "list_at": "items",
+         "id_is": "zone_id",
+         "id_pattern": "^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}$",
+         "id_at": "name",
+         "name_relative": true
+        },
+        "record": {
+         "list": "list_records",
+         "list_at": "items",
+         "page_size": 100,
+         "remove": "remove_record",
+         "id_is_fields": [
+          "type",
+          "name",
+          "address"
+         ],
+         "create": "create_record",
+         "created_at": "",
+         "name_at": "name",
+         "type_at": "type",
+         "content_at": "address",
+         "content_at_by_type": {
+          "CNAME": "cname"
+         },
+         "omitted_at": "omittedRecords",
+         "address_types": [
+          "A",
+          "CNAME",
+          "URL",
+          "URL301",
+          "FRAME"
+         ],
+         "editable_types": [
+          "A"
+         ],
+         "fields": [
+          "type",
+          "name",
+          "address",
+          "ttl"
+         ],
+         "desired": {
+          "type": "A",
+          "name": "{host_name}",
+          "address": "{address}",
+          "ttl": 60
+         },
+         "owner_by": "address"
+        }
+       },
+       "transcript": []
+      }
+     }
+    }
+   },
+   "given": "The input {\"cutover\":\"prepare\",\"hostname\":\"files.example.org\",\"address\":\"198.51.100.4\",\"dns\":{\"id\":\"example-mcp-dns\",\"name\":\"Example DNS (MCP)\",\"base\":\"https://mcp.dns.example.test/mcp\",\"transport\":\"engine\",\"lease_label_key\":\"place-lease\",\"requests\":{\"find_zone\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"domains_list\",\"arguments\":{\"domain\":\"{zone}\"}}},\"list_records\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"dns_records_get\",\"arguments\":{\"domainName\":\"{zone_id}\",\"skip\":\"{skip}\",\"take\":\"{take}\"}}},\"create_record\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"dns_records_save\",\"arguments\":{\"domainName\":\"{zone_id}\",\"records\":[{\"type\":\"A\",\"name\":\"{host_label}\",\"address\":\"{address}\",\"ttl\":60}]}}},\"remove_record\":{\"url\":\"https://mcp.dns.example.test/mcp\",\"method\":\"POST\",\"body_template\":{\"name\":\"dns_records_delete\",\"arguments\":{\"domainName\":\"{zone_id}\",\"records\":[\"{record_body}\"]}}}},\"zone\":{\"find\":\"find_zone\",\"list_at\":\"items\",\"id_is\":\"zone_id\",\"id_pattern\":\"^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\\\.)+[a-z]{2,63}$\",\"id_at\":\"name\",\"name_relative\":true},\"record\":{\"list\":\"list_records\",\"list_at\":\"items\",\"page_size\":100,\"remove\":\"remove_record\",\"id_is_fields\":[\"type\",\"name\",\"address\"],\"create\":\"create_record\",\"created_at\":\"\",\"name_at\":\"name\",\"type_at\":\"type\",\"content_at\":\"address\",\"content_at_by_type\":{\"CNAME\":\"cname\"},\"omitted_at\":\"omittedRecords\",\"address_types\":[\"A\",\"CNAME\",\"URL\",\"URL301\",\"FRAME\"],\"editable_types\":[\"A\"],\"fields\":[\"type\",\"name\",\"address\",\"ttl\"],\"desired\":{\"type\":\"A\",\"name\":\"{host_name}\",\"address\":\"{address}\",\"ttl\":60},\"owner_by\":\"address\"}},\"transcript\":[]}",
+   "hands_back": "It answered {\"done\":false,\"next\":{\"name\":\"domains_list\",\"arguments\":{\"domain\":\"files.example.org\"}},\"asked\":0}"
+  }
+ ]
+}

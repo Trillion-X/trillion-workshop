@@ -57,7 +57,7 @@ function engineClient({ provider, call }) {
   return async function request(method, path, body) {
     if (method !== 'POST' || path !== '' || !declared.has(body?.name)) throw Error(`The ${provider.name} operation was refused.`);
     let answer;
-    try { answer = await call({ address: provider.base, tool: `${host}/${body.name}`, input: body.arguments ?? {} }); } catch { throw Error(`${provider.name} did not answer ${body.name}.`); }
+    try { answer = await call({ address: provider.base, tool: `${host}/${body.name}`, input: body.arguments ?? {} }); } catch (error) { if (error?.from_a_step) throw error; throw Error(`${provider.name} did not answer ${body.name}.`); }
     const result = answer?.result;
     if (!result || result.isError) throw Error(`${provider.name} refused ${body.name}.`);
     if (result.structuredContent !== undefined) return result.structuredContent;

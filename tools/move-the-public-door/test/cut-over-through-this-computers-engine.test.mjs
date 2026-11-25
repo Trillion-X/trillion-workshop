@@ -84,3 +84,40 @@ test('the engine call sends the run on standard input to `<engine command> op to
   assert.throws(() => engineCall({ tool: 't' }, { spawn: () => ({ status: 1, stdout: '' }), command: 'engine' }), /did not finish/);
   assert.throws(() => engineCall({ tool: 't' }, { spawn, command: '' }), /ENGINE_COMMAND/);
 });
+
+// The same cut-over stepped as a workflow steps it: each step replays the cut-over against the answers kept so far and names
+// the next request, which the test answers from the made-up zone as the workflow's fixed ask step would, until it is done.
+import { stepACutover } from '../do-work/door-tools.mjs';
+async function stepped(w, cutover, receipt) {
+  const transcript = [];
+  for (let pass = 0; pass < 60; pass += 1) {
+    const turn = await stepACutover({ action: 'step', cutover, hostname: host, address: ROW, dns: provider, receipt, transcript });
+    assert.equal(turn.asked, transcript.length, 'each kept answer is used once, in order');
+    if (turn.done) return { answer: turn.answer, transcript };
+    assert.ok(Object.values(provider.requests).some(asked => asked.body_template?.name === turn.next.name), `${turn.next.name} is a tool the description declares`);
+    transcript.push({ request: turn.next, answer: await w.call({ address: provider.base, tool: `mcp.namecheap.com/${turn.next.name}`, input: turn.next.arguments }) });
+  }
+  throw new Error('the cut-over never finished');
+}
+
+test('stepped, prepare, activate and rollback send the same requests and leave the same zone as one call does', async () => {
+  const records = () => [txt('@', 'v=spf1 -all'), aRecord('files', OLD), aRecord('www', OLD)];
+  const once = world(records()), steps = world(records());
+  const p1 = await run(once, 'prepare'), a1 = await run(once, 'activate', p1.receipt), r1 = await run(once, 'rollback', a1.receipt);
+  const p2 = await stepped(steps, 'prepare'), a2 = await stepped(steps, 'activate', p2.answer.receipt), r2 = await stepped(steps, 'rollback', a2.answer.receipt);
+  assert.deepEqual([p2.answer.state, a2.answer.state, r2.answer.state], ['prepared', 'active', 'rolled-back']);
+  assert.deepEqual(steps.state.calls, once.state.calls, 'the same requests in the same order');
+  assert.deepEqual([steps.state.saves, steps.state.deletes, steps.state.records], [once.state.saves, once.state.deletes, once.state.records]);
+  assert.deepEqual([a2.answer.current, r2.answer.state], [a1.current, r1.state]);
+});
+
+test('a step whose kept answers were for another request refuses, and a keyed description or no cut-over name is refused', async () => {
+  const w = world([aRecord('files', OLD)]);
+  const first = await stepACutover({ action: 'step', cutover: 'prepare', hostname: host, address: ROW, dns: provider, transcript: [] });
+  assert.equal(first.done, false);
+  const wrong = [{ request: { ...first.next, arguments: { domain: 'other.example' } }, answer: {} }];
+  await assert.rejects(stepACutover({ action: 'step', cutover: 'prepare', hostname: host, address: ROW, dns: provider, transcript: wrong }), /belong to another cut-over/);
+  await assert.rejects(stepACutover({ action: 'step', cutover: 'prepare', hostname: host, address: ROW, dns: { ...provider, transport: undefined }, transcript: [] }), /reached through the engine/);
+  await assert.rejects(stepACutover({ action: 'step', hostname: host, address: ROW, dns: provider, transcript: [] }), /names the cut-over/);
+  assert.deepEqual(w.state.calls, [], 'a step reaches nothing itself');
+});

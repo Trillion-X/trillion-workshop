@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1471 tools in 319 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1472 tools in 319 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -198,7 +198,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `motion-film-template` | `tool:plan-a-motion-films-soundtrack-premix`, `tool:premix-a-motion-films-soundtrack`, `tool:write-the-icon-shapes-a-motion-film-uses` |
 | `move-code-between-trees` | `tool:move-code-between-trees` |
 | `move-records-through-declared-states` | `tool:check-a-pipeline`, `tool:check-a-stage-move` |
-| `move-the-public-door` | `tool:cut-a-hostname-over-to-a-new-address`, `tool:release-a-host-of-the-public-door`, `tool:rent-a-host-for-the-public-door`, `tool:see-where-the-public-door-runs` |
+| `move-the-public-door` | `tool:cut-a-hostname-over-to-a-new-address`, `tool:release-a-host-of-the-public-door`, `tool:rent-a-host-for-the-public-door`, `tool:see-where-the-public-door-runs`, `tool:step-a-hostname-cut-over-through-the-engine` |
 | `name-my-next-commitment` | `tool:name-my-next-commitment` |
 | `name-voices-from-the-call` | `tool:name-voices-from-the-call` |
 | `notice-what-needs-attention` | `tool:notice-what-needs-attention` |

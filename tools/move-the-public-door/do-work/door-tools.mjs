@@ -72,3 +72,33 @@ export async function cutAHostnameOver(input, { env = process.env, fetchImpl = f
     : await changeCutover(c, { request, provider, receipts, file: CUTOVER, rollback: input.action === 'rollback' });
   return answer(receipt);
 }
+
+// A description reached through the engine (transport "engine") runs as a workflow, whose ask steps send its declared tools
+// (tool:step-a-hostname-cut-over-through-the-engine): a step replays the cut-over named in `cutover` (prepare, activate, rollback or status) against the answers the workflow
+// kept so far (`transcript`: [{ request: { name, arguments }, answer }], in the order they were asked), and answers either the
+// next request it needs ({ done: false, next: { name, arguments } }) or the cut-over's own answer ({ done: true, answer }). The
+// same code runs as for one call, so a step changes nothing and reaches nothing: every request goes out through the workflow.
+// A kept answer whose request is not the one the replay asks at that place refuses the step: those answers belong to another
+// cut-over (a changed input or zone), and the run must start again.
+const NEEDS_ANSWER = request => Object.assign(new Error(`The workflow is to ask ${request.name}.`), { from_a_step: true, needs_answer: true, request });
+export async function stepACutover(input) {
+  if (input.dns?.transport !== 'engine') throw new Error('Only a DNS description reached through the engine (transport "engine") is stepped; a keyed one runs as one call.');
+  if (!['prepare', 'activate', 'rollback', 'status'].includes(input.cutover)) throw new Error('A step names the cut-over it replays: cutover is prepare, activate, rollback or status.');
+  const transcript = Array.isArray(input.transcript) ? input.transcript : [];
+  let used = 0;
+  const call = async run => {
+    const request = { name: run.tool.slice(run.tool.indexOf('/') + 1), arguments: run.input };
+    if (used === transcript.length) throw NEEDS_ANSWER(request);
+    const kept = transcript[used];
+    if (JSON.stringify(kept?.request) !== JSON.stringify(request)) throw Object.assign(new Error(`Kept answer ${used + 1} was for another request; these answers belong to another cut-over, so start the run again.`), { from_a_step: true });
+    used += 1;
+    return kept.answer;
+  };
+  const { transcript: _kept, cutover, ...rest } = input;
+  try {
+    return { done: true, answer: await cutAHostnameOver({ ...rest, action: cutover }, { call }), asked: used };
+  } catch (error) {
+    if (error?.needs_answer) return { done: false, next: error.request, asked: used };
+    throw error;
+  }
+}
