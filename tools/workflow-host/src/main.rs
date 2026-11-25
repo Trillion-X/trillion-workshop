@@ -728,7 +728,7 @@ fn record(run: &str) -> Result<Value, String> {
                 let Some((tool, input, why, at)) = open.remove(&id) else { continue };
                 let input_text = input.to_string();
                 let is_wf = names_wf(&input_text, "start|answer|show|cancel");
-                if names_wf(&input_text, "start|answer|cancel") && (input_text.contains(&short) || (input_text.contains("wf start") && text.contains(&short))) { worked_until = Some(at.clone()); }
+                if names_wf(&input_text, "start|answer|cancel") && (acts_on_run(&input_text, &short) || (names_wf(&input_text, "start") && text.contains(&short))) { worked_until = Some(at.clone()); }
                 if is_wf {
                     if let Some(c) = re(r#""step":\s*"([^"]+)""#).captures_iter(&text).last() { waits_on = c[1].to_string(); }
                 }
@@ -929,6 +929,15 @@ fn names_wf(call: &str, verbs: &str) -> bool {
     if is_like(&format!(r"\bwf ({verbs})\b"), call) { return true; }
     re(r#"\b([A-Za-z_][A-Za-z0-9_]*)=\\?["']?[^\s"';|&\\]*/wf(?:[^\w-]|$)"#).captures_iter(call)
         .any(|c| is_like(&format!(r#"\$(?:\{{{v}\}}|{v}\b)\\?"?\s+({verbs})\b"#, v = &c[1]), call))
+}
+// A wf start, answer or cancel call acts on the run when the run's id follows the verb, or follows it as a variable the same
+// command sets to the id (`R=1795...-run; $W answer $R step`). A note or message that only mentions the id beside the words
+// "wf answer" is not a call on it.
+fn acts_on_run(call: &str, short: &str) -> bool {
+    const VERBS: &str = "start|answer|cancel";
+    is_like(&format!(r#"\b({VERBS})\s+\\?["']?\S*{short}"#), call)
+        || re(&format!(r#"\b([A-Za-z_][A-Za-z0-9_]*)=\\?["']?[^\s"';|&\\]*{short}"#)).captures_iter(call)
+            .any(|c| is_like(&format!(r#"\b({VERBS})\s+\\?"?\$(?:\{{{v}\}}|{v}\b)"#, v = &c[1]), call))
 }
 // A pattern is compiled once per process: record walks every call of every chat that names the run, and compiling its
 // patterns per call made a long chat take minutes (a 187 MB transcript held wf record past 60 s, Nov 21 4:3x AM CST).
@@ -1746,6 +1755,18 @@ mod names_wf_tests {
 
     fn counts(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string(), "start|answer|show|cancel") }
     fn works_a_run(command: &str) -> bool { names_wf(&json!({ "command": command }).to_string(), "start|answer|cancel") }
+
+    #[test]
+    fn a_call_acts_on_a_run_only_when_its_id_follows_the_verb() {
+        use super::acts_on_run;
+        let call = |c: &str| acts_on_run(&json!({ "command": c }).to_string(), "1795563437");
+        assert!(call("wf answer 1795563437-7391-workflow_x step '{}'"));
+        assert!(call("R=1795563437-7391-workflow_x; $W answer $R step '{}'"));
+        assert!(call("R=\"1795563437-x\"; ${W} cancel \"$R\""));
+        assert!(!call("cat > note.md <<EOF\nRun 1795563437-x, a call like wf answer R step\nEOF"));
+        assert!(!call("R=1795563437-x; wf record $R"));
+        assert!(!call("R=1795563437-x; $W answer $Q step"));
+    }
 
     #[test]
     fn a_chat_that_only_shows_a_run_did_not_work_it() {
