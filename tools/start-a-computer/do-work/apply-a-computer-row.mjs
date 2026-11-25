@@ -16,7 +16,9 @@
 //    written, before the apply reads them, and put back as they were when the apply fails.
 //  - A failed apply puts the row back to exactly what was read, by the same compare-and-set (it changes the row only while it still
 //    is what this run wrote): the computer keeps serving what it served, so the row must keep saying so. The summary says
-//    `row_put_back` and whether the database read back what was put.
+//    `row_put_back` and whether the database read back what was put. The apply's receipt says when that holds: it refused before
+//    changing the computer (`apply_not_started`), or a boot check failed and its rollback put back everything it changed
+//    (`put_back`, with what `rolled_back` did). A failure whose receipt says neither keeps the row for readback.
 //  - The row keeps the Workshop commit its computer was last applied from, `runs.rendered_from_workshop`, written by the same
 //    compare-and-set as the edits. Every unit renders from the request's commit, so a commit that is not that one or one after it
 //    renders an older kit over the computer (Nov 22 2026, 6:15 AM CST: an apply from a commit made before the web server kit learned
@@ -57,6 +59,10 @@ const PROBE_EVIDENCE_UNCONFIRMED = 7;
 function confirmedApplyExit({ exit, receipt } = {}) {
   if (receipt?.row_apply_protocol === APPLY_PROTOCOL) {
     if (exit === SWITCH_UNCONFIRMED && isObject(receipt.slot_switch_unconfirmed)) return exit;
+    const failed = exit === 1 || exit === 2;
+    if (failed && receipt.apply_not_started === true && typeof receipt.error === 'string') return exit;
+    if (failed && receipt.put_back === true && Array.isArray(receipt.apply_checked) && isObject(receipt.rolled_back) &&
+        Array.isArray(receipt.rolled_back.restored) && !Object.hasOwn(receipt.rolled_back, 'failed') && typeof receipt.error === 'string') return exit;
     const stopped = receipt.slot_not_switched;
     if ((exit === 1 || exit === 2) && stopped?.candidate_stopped === true &&
         typeof stopped.incumbent === 'string' && typeof stopped.candidate === 'string' && stopped.incumbent !== stopped.candidate) return exit;
@@ -353,7 +359,7 @@ async function applyHeld(request, { dryRun }, deps, hold) {
   const started = deps.now();
   const probe = await deps.startProbe({ tree, urls, log: join(log, 'probe-requests.jsonl'), deadlineMs: deps.targets.probe?.startup_deadline_ms, ...(engineProbe && { expectedResource: engineProbe.expectedResource }) });
   if (typeof probe?.stop !== 'function') throw refused('the apply probe did not confirm startup; no row was written.');
-  let written = false, applyStarted = false, put, code, ended, probed, putBack, failure, probeFailure, engineProof;
+  let written = false, applyStarted = false, put, code, ended, probed, putBack, failure, probeFailure, engineProof, refusal;
   const problems = [];
   try {
     await hold?.check();
@@ -377,6 +383,9 @@ async function applyHeld(request, { dryRun }, deps, hold) {
       } else if (verified !== SWITCH_UNCONFIRMED) throw new Error('the scoped apply returned an unrelated result.');
     }
     code = verified;
+    if ((code === 1 || code === 2) && (report.receipt.apply_not_started === true || report.receipt.put_back === true)) {
+      refusal = { apply_error: report.receipt.error, ...(report.receipt.apply_not_started === true ? { apply_not_started: true } : { rolled_back: report.receipt.rolled_back }) };
+    }
   } catch (error) {
     failure = error;
     if (error?.apply_not_started === true) applyStarted = false;
@@ -414,7 +423,7 @@ async function applyHeld(request, { dryRun }, deps, hold) {
   return {
     code: elsewhere.length ? 6 : code || (probeFailure ? PROBE_EVIDENCE_UNCONFIRMED : 0),
     summary: {
-      computer: row.name, workshop_commit: request.workshop_commit, workshop_check: workshopCheck, row_written: written, ...putBack,
+      computer: row.name, workshop_commit: request.workshop_commit, workshop_check: workshopCheck, row_written: written, ...putBack, ...refusal,
       ...(hold && { row_held_since: hold.holder.since }),
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
       ...(code === SWITCH_UNCONFIRMED && { apply_outcome: 'slot_switch_unconfirmed' }),

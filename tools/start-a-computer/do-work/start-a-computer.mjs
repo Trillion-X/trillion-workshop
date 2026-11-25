@@ -494,7 +494,15 @@ function slotUnconfirmed(target, unit, phase, cause) {
   });
 }
 
+// An error says whether the computer was changed before it (`machine_touched`): until set-up, everything is read, so a refusal
+// there (a row two of whose units render one path differently, a value the vault did not hand) left the computer as it was.
 export async function applyWhatItRuns(machine, given, run = onMachine, held = {}, deps = {}) {
+  const mark = { touched: false };
+  try { return await applyMarked(machine, given, run, held, deps, mark); }
+  catch (error) { throw Object.assign(error, { machine_touched: mark.touched }); }
+}
+
+async function applyMarked(machine, given, run, held, deps, mark) {
   const applyStarted = Date.now();
   const { runs, rendered, live, present, strays, usersPresent, portsClosed, builds, stale, switches, keys, surplus, linksOff } = await runsState(machine, given, run, deps);
   // A sealed key the computer lacks is made, and a plain key it still holds is removed once its unit runs from the sealed one: that unit restarts.
@@ -576,6 +584,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // A unit that keeps its key sealed has set-up make no plain key file.
   const setUpUnits = runs.units.map(({ unit, user, uid, state, builds, key_file, key_sealed_file, folders, node_bin }) => ({ unit, user, uid, state, builds, key_file: key_sealed_file ? undefined : key_file, folders, node_bin }));
   const needsSetup = accounts.includes(false) || nodeMissing || foldersMissing || programsMissing || portsClosed.length > 0;
+  mark.touched = true;
   if (needsSetup) await run(machine, `sh -s -- ${q(JSON.stringify({ units: setUpUnits }))} ${q(JSON.stringify(machineData))}`, readFileSync(SETUP));
   await sealTheKeys(machine, keys, run);
   for (const unit of missing) {
@@ -614,8 +623,11 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   // every restarted unit passed its boot check they go, and if anything fails from the first write on, they are moved back over
   // their files and the units that read them restart on them (Nov 25 2026: 21 copies no row named had piled up under /etc on
   // one computer, and one inside a config folder would be read by whatever binds that folder).
-  const backups = [];
-  let switched, booted, linked, checked, computer, units, containersRestarted = [];
+  // The files this apply makes that the computer did not have, and the units it enables and starts for the first time: a failed
+  // apply removes and stops them, so the computer runs what it ran before (Nov 25 2026, 11:08 AM CST: a new sign-in unit that
+  // failed its check stayed enabled with its files after the rollback and restarted about 55 times until 11:23).
+  const backups = [], created = [], enabled = [];
+  let switched = [], booted, linked = [], checked, computer, units, containersRestarted = [];
   try {
     for (const { path, text, binary, check } of writes.filter(({ path, check }) => !inOwned(path) || check)) {
       if (live[path] !== undefined && !inOwned(path)) {
@@ -627,6 +639,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       const write = `install -d -m 0755 ${q(dirname(path))} && t=$(mktemp ${q(`${dirname(path)}/.write.XXXXXX`)}) && ${binary ? 'base64 -d' : 'cat'} > "$t" && chmod 0644 "$t" && chown root:root "$t" && mv -f "$t"`;
       // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
       // once that command passes: a site file its own server validates, so a bad one never reaches the running program.
+      if (live[path] === undefined && !inOwned(path)) created.push(path);
       if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
       else await run(machine, `${write} ${q(path)}`, text);
     }
@@ -708,6 +721,7 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       linked.push(link);
     }
     for (const unit of units) {
+      if (!running.has(unit)) enabled.push(unit);
       await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable --now ${q(unit)} >/dev/null 2>&1`);
       const container = containerOfUnit(runs.units.find(given => given.unit === unit));
       if (container) { await run(machine, container.restart); containersRestarted.push(unit); }
@@ -728,7 +742,11 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
       booted.push(unit);
     }
   } catch (error) {
-    error.rolled_back = await putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes, containerOf: unit => containerOfUnit(runs.units.find(given => given.unit === unit)) });
+    error.rolled_back = await putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes, created, enabled, containerOf: unit => containerOfUnit(runs.units.find(given => given.unit === unit)) });
+    // The computer is as it was only when a boot check failed (every command before it answered), the rollback did all it
+    // tried, and the apply changed nothing a rollback does not undo: no slot switched or link moved, nothing removed or built.
+    error.put_back = Boolean(error.apply_checked) && !error.rolled_back.failed && !switched.length && !linked.length &&
+      !present.length && !usersPresent.length && !built.length && !strays.length;
     throw error;
   }
   const backupsLeft = await dropTheBackups(machine, run, backups);
@@ -740,19 +758,31 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
  * each copy is moved over its file (so the copy is gone too), systemd reloads when a unit file or drop-in came back, each unit
  * that reads a restored file restarts on it, with the container that reads that unit's files (`containerOf`), (a slotted
  * unit is left to its own switch, which keeps the slot that ran), and a
- * restored file's `then` commands run once more. A file the apply made new has no previous bytes and stays; what the apply
- * removed, sealed or built is not undone here. Returns the paths put back, and each one that could not be with why (its copy
- * is kept, and named, for whoever looks next). */
-export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes, containerOf = () => null }) {
-  const restored = [], failed = [];
+ * restored file's `then` commands run once more. A file the apply made new (`created`) has no previous bytes: it is removed,
+ * after each unit the apply enabled for the first time (`enabled`) and each unit whose unit file it made is stopped (and the
+ * enabled ones disabled), and a unit that reads a removed file restarts without it. What the apply removed, sealed or built is
+ * not undone here. Returns the paths put back and removed, the units stopped and restarted, and each step that could not be
+ * done with why (a copy that could not move back is kept, and named, for whoever looks next). */
+export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted, writes, created = [], enabled = [], containerOf = () => null }) {
+  const restored = [], failed = [], removed = [];
   for (const { path, backup } of backups) {
     try { await run(machine, `mv -f ${q(backup)} ${q(path)}`); restored.push(path); }
     catch (error) { failed.push({ path, backup, reason: error.message }); }
   }
-  const restart = [...new Set(restored.flatMap(unitsOf).filter(unit => unit && !slotted.has(unit)))];
+  const unitFileOf = path => path.match(/^\/etc\/systemd\/system\/([A-Za-z0-9@._-]+\.(?:service|timer|path|socket))$/)?.[1];
+  const stopped = [...new Set([...enabled, ...created.map(unitFileOf)].filter(unit => unit && !slotted.has(unit)))];
+  for (const unit of stopped) {
+    try { await run(machine, enabled.includes(unit) ? `systemctl disable --now ${q(unit)} >/dev/null 2>&1` : `systemctl stop ${q(unit)}`); }
+    catch (error) { failed.push({ command: `stop ${unit}`, reason: error.message }); }
+  }
+  if (created.length) {
+    try { await run(machine, 'while IFS= read -r p; do rm -f -- "$p"; done', `${created.join('\n')}\n`); removed.push(...created); }
+    catch (error) { failed.push({ command: 'remove the files the apply made', reason: error.message }); }
+  }
+  const restart = [...new Set([...restored, ...removed].flatMap(unitsOf).filter(unit => unit && !slotted.has(unit) && !stopped.includes(unit)))];
   const thens = [...new Map(writes.filter(({ path }) => restored.includes(path)).flatMap(({ then }) => then ?? []).map(argv => [JSON.stringify(argv), argv])).values()];
   const steps = [
-    ...(restored.some(path => path.startsWith('/etc/systemd/system/')) ? ['systemctl daemon-reload'] : []),
+    ...([...restored, ...removed].some(path => path.startsWith('/etc/systemd/system/')) ? ['systemctl daemon-reload'] : []),
     ...restart.flatMap(unit => [`systemctl restart ${q(unit)}`, ...(containerOf(unit) ? [containerOf(unit).restart] : [])]),
     ...thens.map(argv => argv.map(q).join(' ')),
   ];
@@ -760,7 +790,7 @@ export async function putBackTheFiles(machine, run, backups, { unitsOf, slotted,
     try { await run(machine, command); }
     catch (error) { failed.push({ command, reason: error.message }); }
   }
-  return { restored, restarted: restart, ...(failed.length ? { failed } : {}) };
+  return { restored, restarted: restart, ...(removed.length ? { removed } : {}), ...(stopped.length ? { stopped } : {}), ...(failed.length ? { failed } : {}) };
 }
 
 /** Removes the copies an apply kept for its rollback, once its checks passed, in one command. A copy that could not be removed
@@ -1145,11 +1175,16 @@ export const SLOT_SWITCH_UNCONFIRMED_EXIT = 5;
 export const computerRowApplyExit = answer => answer.names_unconfirmed !== undefined || (answer.names ?? []).some(name => name.unanswered) ? 4 : 0;
 export const computerRowApplyReceipt = answer => ({ ...answer, row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL });
 
-export function computerRowApplyFailure(error) {
+// A failed ordinary apply's receipt says which of the two outcomes the row can be put back on holds: the computer was not changed
+// (`apply_not_started`, a refusal before set-up), or its rollback put back all it changed (`put_back`). Any other failure says
+// neither, so its row and the computer are read back before a retry (Nov 25 2026, 11:08 and 11:15 AM CST: a check that stopped
+// at once and a render refusal both left their row edit in place, the second a second copy of a unit the row already held).
+export function computerRowApplyFailure(error, { ordinary = false } = {}) {
   const { apply_checked, slot_not_switched, slot_switch_unconfirmed, rolled_back } = error;
   if (apply_checked || slot_not_switched || slot_switch_unconfirmed) {
-    return computerRowApplyReceipt({ apply_checked, slot_not_switched, slot_switch_unconfirmed, ...(rolled_back ? { rolled_back } : {}), error: error.message });
+    return computerRowApplyReceipt({ apply_checked, slot_not_switched, slot_switch_unconfirmed, ...(rolled_back ? { rolled_back } : {}), ...(error.put_back === true ? { put_back: true } : {}), error: error.message });
   }
+  if (ordinary && error.machine_touched !== true) return computerRowApplyReceipt({ apply_not_started: true, error: error.message });
 }
 
 /** What the computer the request names runs that its row does not render: [] when it matches. A name of the row that does not
@@ -1341,6 +1376,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (operation !== 'apply' && Object.hasOwn(request, 'scope')) throw refused('engine scope is not supported by this operation.');
     return request;
   };
+  let ordinary = false;
   try {
     if (operation === 'register') {
       if (!first || !second || third) throw Object.assign(new Error(usage), { exit: 2 });
@@ -1350,7 +1386,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     if (operation === 'apply' || operation === 'differences') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
+      ordinary = operation === 'apply';
       const request = json(first), scoped = Object.hasOwn(request, 'scope');
+      ordinary = operation === 'apply' && !scoped;
       if (!scoped && operation === 'apply') checkOrdinaryApplyFields(request);
       const runs = scoped ? null : await withPrepared(runsOf(request), { pages: readPages(request) });
       const named = !scoped && (request.computer_row?.runs?.names ?? []).length > 0;
@@ -1374,7 +1412,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.stdout.write(`${JSON.stringify(answer)}\n`);
     if (answer.alert === true) process.exitCode = 3;
   } catch (error) {
-    const receipt = computerRowApplyFailure(error);
+    const receipt = computerRowApplyFailure(error, { ordinary });
     if (receipt) process.stdout.write(`${JSON.stringify(receipt)}\n`);
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.exit ?? 1;

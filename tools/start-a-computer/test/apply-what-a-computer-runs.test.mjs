@@ -1184,3 +1184,71 @@ test('an engine probe never infers an engine route from the public root or an un
     assert.throws(() => engineProbeOf(other, scope), /engine probe/);
   }
 });
+
+// Nov 25 2026, 11:04-11:23 AM CST: a row added a new unit beside a changed settings file of a running one; the new unit's check
+// exited 77, and the rollback put back the settings file but left the new unit enabled with its files, so it restarted about 55
+// times, and the receipt said nothing the row could be put back on. Now the rollback stops and disables what it newly enabled,
+// removes what it newly wrote, restarts the unit whose file came back, and says `put_back`.
+test('a failed boot check stops and removes what the apply newly made, and its receipt says the computer is put back', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
+  const gateway = { unit: 'example-gateway.socket', user: 'root', check_command: 'gateway-check',
+    files: [{ path: '/etc/systemd/system/example-gateway.socket', text: '[Socket]\nListenStream=127.0.0.1:8896\n\n[Install]\nWantedBy=sockets.target\n' },
+      { path: '/etc/systemd/system/example-gateway.service', text: '[Service]\nExecStart=/usr/lib/systemd/systemd-socket-proxyd 127.0.0.1:8897\n' }] };
+  const grown = { ...runs, units: [{ ...runs.units[0], settings: { listen: '127.0.0.1:7199', readers: [1106] } }, gateway] };
+  const base = computer(live);
+  const run = async (m, command, input) => {
+    if (command === 'gateway-check') { base.commands.push({ command }); throw Object.assign(new Error('restarted 3 times'), { code: 77 }); }
+    return base.run(m, command, input);
+  };
+  const failure = await applyWhatItRuns(machine, grown, run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.ok(failure, 'the apply fails');
+  assert.match(failure.message, /example-gateway\.socket's check_command said trying again cannot pass \(exit 77\)/);
+  const commands = base.commands.map(({ command }) => command);
+  const failed = commands.indexOf('gateway-check');
+  const after = commands.slice(failed + 1);
+  assert.ok(after.includes("systemctl disable --now 'example-gateway.socket' >/dev/null 2>&1"), 'the unit it enabled is stopped and disabled');
+  assert.ok(after.includes("systemctl stop 'example-gateway.service'"), 'the unit whose file it made is stopped');
+  const removal = base.commands.slice(failed + 1).find(({ command }) => command.startsWith('while IFS= read -r p; do rm -f'));
+  assert.equal(removal.input, '/etc/systemd/system/example-gateway.socket\n/etc/systemd/system/example-gateway.service\n');
+  assert.ok(after.indexOf("systemctl disable --now 'example-gateway.socket' >/dev/null 2>&1") < after.indexOf('while IFS= read -r p; do rm -f -- "$p"; done'), 'stopped before its file goes');
+  assert.ok(after.includes('systemctl daemon-reload') && after.includes("systemctl restart 'example-place.service'"), 'the unit whose settings came back restarts on them');
+  assert.deepEqual(failure.rolled_back, { restored: ['/etc/example-place/computer.json'], restarted: ['example-place.service'],
+    removed: ['/etc/systemd/system/example-gateway.socket', '/etc/systemd/system/example-gateway.service'], stopped: ['example-gateway.socket', 'example-gateway.service'] });
+  assert.equal(failure.machine_touched, true);
+  const receipt = computerRowApplyFailure(failure, { ordinary: true });
+  assert.equal(receipt.put_back, true);
+  assert.equal(receipt.apply_not_started, undefined);
+  assert.deepEqual(receipt.rolled_back, failure.rolled_back);
+});
+
+test('a rollback that could not do a step, or an apply that removed what a rollback cannot bring back, is not put back', async () => {
+  const live = Object.fromEntries(renderWhatItRuns(runs).map(({ path, text }) => [path, text]));
+  const grown = { ...runs, units: [{ ...runs.units[0], check_command: 'place-check', settings: { listen: '127.0.0.1:7199', readers: [1106] } }] };
+  const base = computer(live);
+  const run = async (m, command, input) => {
+    if (command === 'place-check') throw Object.assign(new Error('no'), { code: 77 });
+    if (command.startsWith('mv -f ') && command.includes('.bak-')) throw Object.assign(new Error('read-only file system'), { code: 1 });
+    return base.run(m, command, input);
+  };
+  const failure = await applyWhatItRuns(machine, grown, run, {}, { wait: async () => {} }).then(() => null, error => error);
+  assert.ok(failure.rolled_back.failed.length >= 1);
+  assert.equal(failure.put_back, false);
+  assert.equal(computerRowApplyFailure(failure, { ordinary: true }).put_back, undefined);
+});
+
+// Nov 25 2026, 11:15 AM CST: the corrected request added a unit the row already held, and the apply refused while rendering (two
+// units render different text at one path) before it touched the computer; the receipt said nothing, so the row kept both copies.
+test('a refusal before set-up changes nothing on the computer, and its receipt says the apply did not start', async () => {
+  const twice = { ...runs, units: [runs.units[0], { ...runs.units[0], settings: { listen: '127.0.0.1:7200' } }] };
+  const { run, commands } = computer({});
+  const failure = await applyWhatItRuns(machine, twice, run).then(() => null, error => error);
+  assert.match(failure.message, /two units render different text at \/etc\/example-place\/computer\.json/);
+  assert.equal(failure.machine_touched, false);
+  assert.ok(!commands.some(({ command }) => /^(sh -s|install |cp |mv |rm |systemctl (?:restart|enable|disable|stop|start))/.test(command)), 'nothing was changed');
+  assert.deepEqual(computerRowApplyFailure(failure, { ordinary: true }), { apply_not_started: true, error: failure.message, row_apply_protocol: computerRowApplyReceipt({}).row_apply_protocol });
+  assert.equal(computerRowApplyFailure(failure), undefined, 'a scoped engine apply keeps its own receipts');
+  // A failure once set-up has begun is not one.
+  const late = await applyWhatItRuns(machine, runs, async (m, command, input) => { if (command.startsWith('sh -s')) throw Object.assign(new Error('set-up failed'), { code: 1 }); return run(m, command, input); }).then(() => null, error => error);
+  assert.equal(late.machine_touched, true);
+  assert.equal(computerRowApplyFailure(late, { ordinary: true }), undefined);
+});

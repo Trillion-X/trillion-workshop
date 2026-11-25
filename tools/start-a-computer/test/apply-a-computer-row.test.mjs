@@ -615,3 +615,40 @@ test('an unknown or unsupported apply scope refuses before reading the computer 
     await assert.rejects(applyARow(request(extra), {}, deps), /unsupported apply scope|unknown apply request field/);
   }
 });
+
+// Nov 25 2026, 11:08 and 11:15 AM CST: a boot check whose rollback put the computer back, and a refusal before the computer was
+// changed, both left their row edit in place as an unknown outcome. Either receipt now puts the row and links back.
+test('a receipt that says the apply did not start, or that its rollback put the computer back, puts the row back', async () => {
+  const notStarted = { row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL, apply_not_started: true, error: 'two units render different text at /etc/example/settings.json' };
+  const putBack = { row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL, apply_checked: [{ check: 'failed' }], put_back: true, error: 'example.service\'s check_command said trying again cannot pass (exit 77)',
+    rolled_back: { restored: ['/etc/example/computer.json'], restarted: ['example.service'], removed: ['/etc/systemd/system/example-new.service'], stopped: ['example-new.service'] } };
+  for (const [exit, receipt] of [[2, notStarted], [1, putBack]]) {
+    const { deps, seen } = world({ recorded: OLD });
+    const { input, checkUnchanged } = withLinks();
+    const original = structuredClone(seen.stored);
+    deps.runApply = async () => ({ exit, receipt });
+    const { code, summary } = await applyARow(input, {}, deps);
+    assert.equal(code, exit);
+    assert.deepEqual(seen.stored, original, 'the row is what was read');
+    assert.equal(seen.writes.length, 2);
+    assert.equal(summary.row_put_back, true);
+    assert.equal(summary.links, 'put back');
+    assert.equal(summary.apply_error, receipt.error);
+    if (receipt.apply_not_started) assert.equal(summary.apply_not_started, true); else assert.deepEqual(summary.rolled_back, receipt.rolled_back);
+    checkUnchanged();
+  }
+});
+
+test('a put-back receipt whose rollback failed a step, or that says it at exit 0, keeps the row for readback', async () => {
+  const unfinished = { row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL, apply_checked: [], put_back: true, error: 'check failed',
+    rolled_back: { restored: [], restarted: [], failed: [{ command: 'stop example.service', reason: 'timeout' }] } };
+  const early = { row_apply_protocol: ROW_APPLY_RESULT_PROTOCOL, apply_not_started: true, error: 'refused' };
+  for (const [exit, receipt] of [[1, unfinished], [0, early], [1, { ...early, row_apply_protocol: undefined }]]) {
+    const { deps, seen } = world({ recorded: OLD });
+    const { input } = withLinks();
+    deps.runApply = async () => ({ exit, receipt });
+    await assert.rejects(applyARow(input, {}, deps), { apply_outcome: 'unknown_needs_readback' });
+    assert.equal(seen.writes.length, 1);
+    assert.equal(seen.stored.runs.units[1].source.commit, NEW);
+  }
+});
