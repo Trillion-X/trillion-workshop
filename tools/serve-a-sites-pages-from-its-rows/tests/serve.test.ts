@@ -32,7 +32,7 @@ const ACTIONS = [
   { path: '/checkout', host: null, access: 'public', tool: 'tool:start-a-checkout', failed: 'Checkout could not start.', answer: { redirect_from: 'redirectUrl' }, input: {
     offerId: { $: 'body', key: 'offerId' }, amount: { $: 'number', of: { $: 'body', key: 'amount' } }, email: { $: 'member', claim: 'email' },
     visitor: { $: 'cookie', name: 'visitor', when: { cookie: 'consent', is: 'granted' } }, offers: { $: 'rows', database: 'a_site_for_who_runs_it', sql: 'SELECT * FROM offers WHERE id = $1', params: [{ $: 'body', key: 'offerId' }] },
-    success_url: { $: 'origin', then: '/welcome' }, attempt: { $: 'new_id' }, at: { $: 'now' },
+    success_url: { $: 'origin', then: '/welcome' }, attempt: { $: 'first', of: [{ $: 'body', key: 'attempt' }, { $: 'new_id' }] }, at: { $: 'now' },
     consent: { billing: { $: 'boolean', of: { $: 'body', key: 'consent.billing' } }, legal: true }, customer: { email: { $: 'member', claim: 'email' } },
   } },
   { path: '/book/:offer', host: null, access: 'public', tool: 'tool:keep-a-lead', failed: 'Booking could not start.', input: { offer: { $: 'path', name: 'offer' }, email: { $: 'body', key: 'email' } },
@@ -361,16 +361,17 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     assert.equal(run.success_url, 'https://site.example.test/welcome');
     assert.deepEqual(run.offers, [{ id: 'offer:one', params: ['offer:one'] }], 'a rows source reads a database with its values');
     assert.equal((d.calls.find(call => String((call.run.input as { sql?: string }).sql).includes('FROM offers'))!.run.input as { database: string }).database, 'a_site_for_who_runs_it', 'as the site, on the database it names');
-    assert.match(String(run.attempt), /^[0-9a-f-]{36}$/);
+    assert.match(String(run.attempt), /^[0-9a-f-]{36}$/, 'with no attempt posted, the next value is used');
     assert.ok(!Number.isNaN(Date.parse(String(run.at))));
     assert.ok(!('email' in run), 'a signed-out visitor has no member claim, so the key is left out');
     assert.ok(!('customer' in run), 'an object all of whose values gave nothing is left out');
     assert.deepEqual(run.consent, { billing: true, legal: true }, 'a form field named with a dot is read whole, and "on" is true');
     d.calls.length = 0;
-    const asJson = await site.act('/checkout', 'visitor=v-1; session=member', host, { contentType: 'application/json', bytes: Buffer.from(JSON.stringify({ offerId: 'offer:one' })) });
+    const asJson = await site.act('/checkout', 'visitor=v-1; session=member', host, { contentType: 'application/json', bytes: Buffer.from(JSON.stringify({ offerId: 'offer:one', attempt: 'page-attempt-1' })) });
     assert.equal(asJson.status, 200);
     assert.deepEqual(JSON.parse(String(asJson.body)), { redirect: 'https://pay.example.test/session/1' }, 'a JSON post gets the address as JSON');
     const memberRun = d.calls.find(call => call.run.tool === 'tool:start-a-checkout')!;
+    assert.equal((memberRun.run.input as Record<string, unknown>).attempt, 'page-attempt-1', 'a posted value is the first that gives something');
     assert.equal(memberRun.pass, 'the-member-pass', 'a signed-in member\'s action runs as the member');
     const input = memberRun.run.input as Record<string, unknown>;
     assert.equal(input.email, 'member@example.test');

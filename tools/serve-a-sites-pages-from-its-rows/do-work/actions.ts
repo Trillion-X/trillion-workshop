@@ -33,6 +33,7 @@
 //     { "$": "answer", "key": "a.b" }               a key of the tool's answer (only in answer.redirect_to)
 //     { "$": "now" }                                the time now, as ISO 8601
 //     { "$": "new_id" }                             a new random id
+//     { "$": "first", "of": [<value>, ...] }        the first value that gives something (the page's attempt id, else a new one)
 //     { "$": "boolean", "of": <value> }             true for true, "true", "on", "yes" or "1"; false for their opposites
 //   A source that gives nothing leaves its key out of an object (null in a list), and an object all of whose values gave
 //   nothing is itself nothing, so a tool's optional input stays absent (a signed-out buyer sends no customer) and its
@@ -102,6 +103,10 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
   },
   number: (v, where) => checkValue(v.of, `${where}.of`),
   boolean: (v, where) => checkValue(v.of, `${where}.of`),
+  first: (v, where) => {
+    if (!Array.isArray(v.of) || v.of.length === 0) throw new PageRowError(`${where}.of lists the values to try in order.`);
+    v.of.forEach((item, i) => checkValue(item, `${where}.of[${i}]`));
+  },
   answer: (v, where) => words(v.key, `${where}.key`),
   now: () => {},
   new_id: () => {},
@@ -246,6 +251,13 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
         const got = await filled(value.of, asked);
         const number = typeof got === 'number' ? got : typeof got === 'string' && got.trim() ? Number(got) : NaN;
         return Number.isFinite(number) ? number : undefined;
+      }
+      case 'first': {
+        for (const item of value.of as unknown[]) {
+          const got = await filled(item, asked);
+          if (got !== undefined && got !== null && got !== '') return got;
+        }
+        return undefined;
       }
       case 'boolean': {
         const got = await filled(value.of, asked);
