@@ -7,7 +7,7 @@
 // 2. reads the pipeline's run history (cicd/doActionOnPipeline, action getHistory: one row per run, each with its own id) and
 //    the commit it serves (cicd/getPipelineDetails);
 // 3. asks for a resync (cicd/doActionOnPipeline, action reSyncPipeline): Elestio queues a run that fetches the branch and
-//    builds it again;
+//    builds it again; when a Resync run has not ended yet, it follows that run instead of asking another;
 // 4. reads the history every poll_seconds until the first Resync run with an id above every id read in 2 has ended: Success
 //    on `commit` is ok; Failed, Canceled, or Success on another commit is not. Queue, Stuck and the running words wait.
 // Done is that run's own record, never a clock: Elestio stamps the pipeline's lastUpdate both when a resync is asked and
@@ -96,9 +96,14 @@ export async function resyncAnElestioPipeline(request, {
   };
 
   const before = await details();
-  const known = Math.max(0, ...(await history()).map(run => run.id));
+  const earlier = await history();
+  // A resync is not idempotent: each ask downs the site once more. When a Resync run has not ended yet (this same call
+  // started again by its runner: one call made runs 323099 and 323100, 2 min apart, Nov 25 2026), it is followed, not
+  // asked again.
+  const inFlight = earlier.filter(row => row.action === 'Resync' && !ENDED.has(row.status)).sort((a, b) => a.id - b.id)[0];
+  const known = inFlight ? inFlight.id - 1 : Math.max(0, ...earlier.map(run => run.id));
   const askedAt = now();
-  await post('reSyncPipeline', 'cicd/doActionOnPipeline', { ...ids, action: 'reSyncPipeline' });
+  if (!inFlight) await post('reSyncPipeline', 'cicd/doActionOnPipeline', { ...ids, action: 'reSyncPipeline' });
 
   let run = null, reads = 0;
   for (;;) {
@@ -122,6 +127,7 @@ export async function resyncAnElestioPipeline(request, {
         before,
         after,
         asked_at: new Date(askedAt).toISOString(),
+        followed: Boolean(inFlight),
         seconds: Math.round((now() - askedAt) / 1000),
         reads,
         ...(reason ? { reason } : {}),

@@ -16,7 +16,7 @@
         "id": "tool:resync-an-elestio-pipeline",
         "label": "Resync an Elestio pipeline and confirm it serves the pushed commit",
         "job": "Redeploy one Elestio CI/CD pipeline from its branch after a push (a push alone does not redeploy it) and say whether it now serves the pushed commit. Any site moved onto Elestio deploys a change with it, in one call, with no dashboard clicks.",
-        "description": "Trades the vault's Elestio API token (elestio-api-key, bound only to api.elest.io) for a session, reads the pipeline's run history (cicd/doActionOnPipeline, action getHistory: one row per run with its own id) and its deployed commit, asks Elestio to resync it (action reSyncPipeline: fetch the branch, run the Pre Deploy command, down, run the Post Deploy command), then reads the history every poll_seconds until the first Resync run with an id above every id read before the ask has ended. Done is that run's own record, never a clock: Elestio stamps the pipeline's lastUpdate both when a resync is asked and when it has run, minutes apart, and holds a run in Queue first. Success on the given commit (or, when the run names no commit, the commit the pipeline then serves) is ok; Failed, Canceled or another commit is ok false with the reason; Queue, Stuck and the running words wait, up to wait_seconds (900 by default). Returns ok, the run (id, action, status, commit, created, started, ended, seconds, log), the pipeline before and after (deployed commit, status, build status), when it was asked, the seconds waited and the number of history reads. It passes on no other field (the pipeline's details also hold the deploy key and the webhook secret) and never the token or the session. Holding a key, it reaches only api.elest.io, so it cannot ask the site itself: prove the live site (its address, and its downtime by probing once a second) in a step without a key.",
+        "description": "Trades the vault's Elestio API token (elestio-api-key, bound only to api.elest.io) for a session, reads the pipeline's run history (cicd/doActionOnPipeline, action getHistory: one row per run with its own id) and its deployed commit, asks Elestio to resync it, unless a Resync run has not ended yet, which it then follows instead (a resync is not idempotent: each ask takes the site down once more) (action reSyncPipeline: fetch the branch, run the Pre Deploy command, down, run the Post Deploy command), then reads the history every poll_seconds until the first Resync run with an id above every id read before the ask has ended. Done is that run's own record, never a clock: Elestio stamps the pipeline's lastUpdate both when a resync is asked and when it has run, minutes apart, and holds a run in Queue first. Success on the given commit (or, when the run names no commit, the commit the pipeline then serves) is ok; Failed, Canceled or another commit is ok false with the reason; Queue, Stuck and the running words wait, up to wait_seconds (900 by default). Returns ok, the run (id, action, status, commit, created, started, ended, seconds, log), the pipeline before and after (deployed commit, status, build status), when it was asked, the seconds waited and the number of history reads. It passes on no other field (the pipeline's details also hold the deploy key and the webhook secret) and never the token or the session. Holding a key, it reaches only api.elest.io, so it cannot ask the site itself: prove the live site (its address, and its downtime by probing once a second) in a step without a key.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -74,7 +74,8 @@
             "after",
             "asked_at",
             "seconds",
-            "reads"
+            "reads",
+            "followed"
           ],
           "properties": {
             "ok": {
@@ -165,6 +166,9 @@
             },
             "reason": {
               "type": "string"
+            },
+            "followed": {
+              "type": "boolean"
             }
           },
           "$defs": {

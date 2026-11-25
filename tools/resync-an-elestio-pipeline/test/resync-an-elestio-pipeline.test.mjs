@@ -81,6 +81,28 @@ test('the earlier run, and a newer run that is not a Resync, are never taken for
   assert.equal(answer.reason, 'no new Resync run appeared in 2 s');
 });
 
+test('a Resync run that has not ended is followed, not asked again: a resync downs the site each time', async () => {
+  // One call made runs 323099 and 323100 two minutes apart when its runner started it again (Nov 25 2026).
+  const building = ours({ id: 323099, status: 'Building', startTime: '2026-11-25T09:05:31.000Z' });
+  const { answer, asked } = await run([
+    [building, earlier],
+    [building, earlier],
+    [ours({ id: 323099, status: 'Success', commitID: COMMIT, endTime: '2026-11-25T09:06:23.000Z' }), earlier],
+  ]);
+  assert.equal(answer.ok, true);
+  assert.equal(answer.followed, true);
+  assert.equal(answer.run.id, 323099);
+  assert.equal(asked.filter(call => call.body.action === 'reSyncPipeline').length, 0);
+});
+
+test('a run that ended, or an UpdateBuild still running, does not stop a new ask', async () => {
+  const update = { ...ours({ id: 323098, action: 'UpdateBuild', status: 'Building' }) };
+  const { answer, asked } = await run([[update, earlier], [ours({ id: 323101, status: 'Success', commitID: COMMIT }), update, earlier]]);
+  assert.equal(answer.ok, true);
+  assert.equal(answer.followed, false);
+  assert.equal(asked.filter(call => call.body.action === 'reSyncPipeline').length, 1);
+});
+
 test('a failed or canceled run ends at once with its words', async () => {
   const failed = await run([[earlier], [ours({ status: 'Failed', errorMessage: 'build exited 1' }), earlier]]);
   assert.equal(failed.answer.ok, false);
