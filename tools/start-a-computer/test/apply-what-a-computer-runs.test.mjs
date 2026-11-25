@@ -257,6 +257,17 @@ test('a unit\'s health row may name the Host its boot check asks for', async () 
   assert.ok(commands.some(({ command }) => command.includes("curl") && command.includes("-H 'Host: place.example.test' 'http://127.0.0.1:9445/.well-known/oauth-protected-resource/mcp'")));
 });
 
+test('a file the row writes and also lists in absent is refused before the computer is read', async () => {
+  const commands = [];
+  const run = async (_machine, command) => { commands.push(command); return ''; };
+  const key = '/etc/credstore.encrypted/example-move-key';
+  const both = { ...runs, units: [{ ...runs.units[0], credentials: [{ vault_key: 'example-move-key', name: 'move-key', file: key }] }], absent: [key] };
+  await assert.rejects(runsDifferences(machine, both, run), /writes \/etc\/credstore\.encrypted\/example-move-key and lists it in runs\.absent/);
+  await assert.rejects(applyWhatItRuns(machine, both, run), /lists it in runs\.absent/);
+  await assert.rejects(runsDifferences(machine, { ...runs, absent: ['/etc/example-place/'] }, run), /writes \/etc\/example-place\/computer\.json/);
+  assert.deepEqual(commands, []);
+});
+
 test('a user the row says is absent is a difference while the computer has it, and the apply removes it and reloads ssh for a removed drop-in', async () => {
   const gone = { health_listen: '127.0.0.1:7199', units: [], unmanaged: [], absent: ['/etc/ssh/sshd_config.d/old-tunnel.conf'], absent_users: ['old-tunnel'] };
   const commands = [];

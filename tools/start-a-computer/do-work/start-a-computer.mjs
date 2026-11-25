@@ -123,12 +123,24 @@ export async function runsDifferences(machine, runs, run = onMachine, deps = {})
   return [...differences(rendered, live), ...found];
 }
 
+/** A path the row both writes (a rendered file, or a credential a unit seals) and lists in `absent`, or one inside a folder or
+ * unit it lists there, is refused before the computer is read: the apply would put it back each time and then take it away, or
+ * keep a credential sealed that the row says is gone (a move's key, listed absent, was sealed again by every apply while its copy
+ * units still named it, Nov 25 2026). */
+export function namedAndAbsent(runs, rendered) {
+  const absent = (runs.absent ?? []).map(path => path.replace(/\/+$/, ''));
+  const named = [...rendered.map(({ path }) => path), ...runs.units.flatMap(secretsOf).map(({ secret_file }) => secret_file)];
+  const both = [...new Set(named.filter(path => absent.some(gone => path === gone || path.startsWith(`${gone}/`) || path.startsWith(`${gone}.d/`))))];
+  if (both.length) throw refused(`The computer row writes ${both.join(', ')} and lists it in runs.absent: take it out of one of them.`);
+}
+
 /** What a computer's `runs` renders, what the computer has at those paths, and what the computer keeps that `runs` does not
  * name. Each unit that names `prepare` is first handed to its program's own module (`withPrepared`),
  * and the answer's `runs` is that whole list, the one the apply follows. */
 export async function runsState(machine, given, run = onMachine, { pages } = {}) {
   const runs = withSlots(await withPrepared(given, { pages })), units = runs.units;
   const rendered = renderWhatItRuns(runs);
+  namedAndAbsent(runs, rendered);
   // The files of a folder a unit owns whole are read in one command (files-in-one-go.mjs); every other file one by one.
   const inOwned = ownedFolders(runs);
   const live = await readAll(machine, run, rendered.filter(({ path }) => inOwned(path)));

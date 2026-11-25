@@ -7,6 +7,7 @@ PostgreSQL's own files for a computer row: the server unit, its access file, and
 - `serve-postgres.service`: the server unit (a row's unit `template`).
 - `prepare-a-database-unit.mjs`: the unit's `prepare`. It turns the unit's `reach` into the listen line, the access file, and the ports they open.
 - `scripts/set-up-postgres-role.sh`, `scripts/back-up-postgres.sh`, `scripts/restore-a-postgres-backup.sh`, `scripts/copy-backups-to-a-second-place.sh`, `scripts/restore-a-backup-on-a-spare-computer.sh`, `scripts/copy-a-database.sh`, `scripts/remove-from-the-store.sh`: a `run-a-script` unit's `script`.
+- `do-work/pause-a-databases-writers.mjs`: the apply request that pauses, or resumes, a moving database's writers on its old server, from the move's pointers row.
 - `test/a-database-unit.test.mjs`: these files rendered by start-a-computer from a made-up row.
 
 ## The server unit
@@ -28,6 +29,10 @@ Two programs run on any computer that can reach both databases, each opened by i
 - `do-work/carry-rows-to-new-database.mjs` (`OLD_CONNECTION`, `NEW_CONNECTION`, table names) brings what the old database got after the copy: missing columns, then every row by primary key, then sequences moved forward, in one transaction on the new one. `--deletes-too` also takes out keys the old one removed (only while the new one has no writer yet); `--keep-new` keeps the new one's row where both have the key (once it has).
 
 The order of a move with nothing dropped: copy (`copy-a-database.sh`), compare, switch each program's credential through its row (a program on a socket restarts without dropping a request), carry what the old one got meanwhile, compare again. The old database is kept until its owner says it may go.
+
+## Pausing the writers of a moving database
+
+A move's pointers row holds, before anything runs, the statements that stop its database's writers on the old server and the ones that give their rights back, in the server's own SQL: `check_result.pause` is `{computer, unit, run, reverse}` (the old server's computer row, its PostgreSQL unit, and two lists of single statements: for example `REVOKE CONNECT ON DATABASE d FROM writer`, then `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'd' AND usename <> 'postgres'`; and `GRANT CONNECT ON DATABASE d TO writer`). `do-work/pause-a-databases-writers.mjs pause|resume RUNS_JSON POINTER_JSON WORKSHOP_COMMIT` reads that row and the old server's `runs` as they are now and prints the apply request: `pause` adds a file beside the unit's access file, `writes-paused-<pointer>.sql`, holding `run`, which the unit runs once with psql as the server's own account (a `then`, so PostgreSQL keeps running); `resume` writes `reverse` over it, and the change runs it. Each run writes one journal line tagged `pause-a-databases-writers` (`journalctl -t pause-a-databases-writers`), the moment the statements ran. It refuses a psql command (a line starting with a backslash) and two statements in one. Nothing is typed on the server, and the statements that ran are the ones on the pointers row.
 
 ## A row that uses it
 
