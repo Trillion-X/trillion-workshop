@@ -1236,7 +1236,6 @@
             }
           ]
         },
-        "wakes": [],
         "fires_when": [
           {
             "label": "someone wants a map or geography/history explainer short",
