@@ -2,6 +2,11 @@
 Description={description}
 After=network-online.target
 Wants=network-online.target
+# A start that keeps failing (a tool its pins lack, a pass the door refuses, a bad settings file) stops after 5 tries in 5
+# minutes and stays failed, naming why in the journal, instead of restarting forever; `systemctl reset-failed` and a start
+# (or the next apply) try again.
+StartLimitIntervalSec=300
+StartLimitBurst=5
 
 [Service]
 # Serves a whole site from its rows: node do-work/serve.ts {settings_file}, the settings start-a-computer writes from the row's

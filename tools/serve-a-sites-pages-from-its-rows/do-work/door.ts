@@ -120,7 +120,7 @@ export function toolAnswerOf(envelope: unknown): unknown {
  * One operation on the door (`tools:run`, `tools:list`, ...) as the caller whose pass is `pass`, and its structured answer. A
  * refusal throws with the door's own status, code and words, so the log says why. `what` names the call in those words.
  */
-export async function callDoor(door: Door, pass: string, method: string, input: unknown, what = method, timeoutMs = 60_000): Promise<unknown> {
+async function callDoor(door: Door, pass: string, method: string, input: unknown, what = method, timeoutMs = 60_000): Promise<unknown> {
   const body = JSON.stringify({
     jsonrpc: '2.0', id: 1, method: 'tools/call',
     params: { name: 'do_one_thing_in_my_account', arguments: { address: '@tools', method, request_key: randomUUID(), input } },
@@ -159,7 +159,7 @@ export function commandOf(address: string): string | null {
  * One operation as this computer's own signed-in command (door-op.mjs of the Workshop this program runs from), with the pins
  * given, and its answer. It carries the computer owner's rights, so the site uses it only for its own reads.
  */
-export function callAsCommand(doorOp: string, command: string, pins: string[], method: string, input: unknown, what = method, timeoutMs = 120_000): Promise<unknown> {
+function callAsCommand(doorOp: string, command: string, pins: string[], method: string, input: unknown, what = method, timeoutMs = 120_000): Promise<unknown> {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [doorOp], { stdio: ['pipe', 'pipe', 'pipe'] });
     const out: Buffer[] = [];
@@ -180,31 +180,4 @@ export function callAsCommand(doorOp: string, command: string, pins: string[], m
 /** Runs one tool as this computer's own signed-in command, and answers the tool's own answer. */
 export async function runToolAsCommand(doorOp: string, command: string, pins: string[], run: ToolRun, timeoutMs = 120_000): Promise<unknown> {
   return toolAnswerOf(await callAsCommand(doorOp, command, pins, 'tools:run', run, run.tool, timeoutMs));
-}
-
-/** How a program asks the door one operation: `tools:list`, say. */
-export type DoorCall = (method: string, input: unknown) => Promise<unknown>;
-
-/**
- * The tools this computer cannot run, out of `ids`, as one line naming them and the door's words for each, or null when it runs
- * every one: each is asked of tools:list { tool } (its details, with runs_here), at most eight at a time.
- */
-export async function missingTools(ids: string[], call: DoorCall): Promise<string | null> {
-  const unique = [...new Set(ids)].sort();
-  const why = new Map<string, string[]>();
-  for (let at = 0; at < unique.length; at += 8) {
-    await Promise.all(unique.slice(at, at + 8).map(async id => {
-      const reason = await call('tools:list', { tool: id }).then(
-        answer => {
-          const found = answer as { id?: unknown; runs_here?: unknown } | null;
-          if (found?.id !== id) return `answered no such tool: ${doorWordsOf(answer)}`;
-          return found.runs_here === false ? 'it does not run on this computer' : null;
-        },
-        error => (error as Error).message,
-      );
-      if (reason !== null) why.set(reason, [...(why.get(reason) ?? []), id]);
-    }));
-  }
-  if (why.size === 0) return null;
-  return `This computer cannot run ${[...why.values()].flat().length} of the tools the site names: ${[...why].map(([reason, tools]) => `${tools.join(', ')} (${reason})`).join('; ')}`;
 }

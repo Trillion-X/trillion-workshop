@@ -62,20 +62,20 @@ import { chmodSync, existsSync, readFileSync, realpathSync, statSync, unlinkSync
 import http from 'node:http';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { ask, callAsCommand, callDoor, commandOf, DoorError, missingTools, runTool, runToolAsCommand } from './door.ts';
-import type { Door, DoorCall, ToolRun } from './door.ts';
+import { ask, commandOf, DoorError, runTool, runToolAsCommand } from './door.ts';
+import type { Door, ToolRun } from './door.ts';
 import { MemberPasses } from './member-pass.ts';
 import type { Member, SignIn } from './member-pass.ts';
 import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyOf, presignedGet, publicFileAnswer, publicFilesOf, publicKeyOf, storeKeyOf } from './member-video.ts';
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { filledInput, matchPage, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
-import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf, toolsOfAction } from './actions.ts';
+import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf } from './actions.ts';
 import type { ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
 import type { SiteHeadMarkup } from '../../site-head-from-its-rows/do-work/site-head.ts';
-import { drawnTreeOf, fontFaceCss, fontFacesOf, lookCss, PageBundles, screensOfTools, THEME_ROW, toolNodesOf, treeOf, wordsTree } from './render.ts';
+import { drawnTreeOf, fontFaceCss, fontFacesOf, lookCss, PageBundles, screensOfTools, THEME_ROW, treeOf, wordsTree } from './render.ts';
 import type { Screen, Timed } from './render.ts';
 import { modulesOf } from './render-layout.ts';
 import type { DrawnNode } from './render-layout.ts';
@@ -345,12 +345,6 @@ export class Site {
     const urls = entries.map(({ loc, lastmod }) => `<url><loc>${xml(loc)}</loc>${lastmod ? `<lastmod>${xml(lastmod.slice(0, 10))}</lastmod>` : ''}</url>`).join('\n');
     const body = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`;
     return { status: 200, headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=300' }, body };
-  }
-
-  /** Every tool the site's rows name: each page's tool and its layout's tool nodes, and every tool its actions run. */
-  toolsNamed(): string[] {
-    const pages = this.#pages.flatMap(page => [...(page.tool ? [page.tool] : []), ...(page.layout && !('go_to' in page.layout) ? toolNodesOf(page.layout).map(node => node.tool) : [])]);
-    return [...new Set([...pages, ...this.#actions.flatMap(toolsOfAction)])].sort();
   }
 
   /** The site head's markup as last read, or null when the site has none. */
@@ -628,14 +622,10 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
   const run = command
     ? (pass: string, call: ToolRun) => pass === COMMAND_PASS ? runToolAsCommand(doorOp, command, settings.door.pins ?? [], call) : Promise.reject(new DoorError('A members page needs the engine door, not a command.', 403))
     : (pass: string, call: ToolRun) => runTool(door, pass, call);
+  // The start's first reads (the rows through run-sql, the site head) are real tool runs with the site's own pass: a tool this
+  // computer lacks, or a pass the door refuses, stops the start there with the door's own words. Nothing else is asked of the
+  // door, so the pass needs no right beyond running the site's tools.
   const sitePass = command ? COMMAND_PASS : credential(settings.door.pass_credential!);
-  const doorCall: DoorCall = command
-    ? (method, input) => callAsCommand(doorOp, command, settings.door.pins ?? [], method, input)
-    : (method, input) => callDoor(door, sitePass, method, input);
-  // Before any row is read: the tools the settings name must run here, so a missing one stops the start with its name.
-  const settingsTools = [RUN_SQL, ...(settings.site_head ? [settings.site_head.tool] : [])];
-  const settingsMissing = await missingTools(settingsTools, doorCall);
-  if (settingsMissing) throw new Error(settingsMissing);
   const site = new Site({
     settings,
     tools,
@@ -656,9 +646,6 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
     screens: screensOfTools(tools),
   });
   await site.read();
-  // And the tools the rows name (pages and actions): a row naming a tool this computer lacks stops the start the same way.
-  const rowsMissing = await missingTools(site.toolsNamed(), doorCall);
-  if (rowsMissing) throw new Error(rowsMissing);
   const handler = handlerOf(site, settings.pass_on);
   const servers = settings.listen.map(() => http.createServer(handler));
   await Promise.all(servers.map((server, i) => listenOn(server, settings.listen[i])));

@@ -122,7 +122,7 @@ export function runsOf(tree: LayoutNode): ToolRun[] {
 }
 
 /** Every tool node of a tree, in tree order. */
-export function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] {
+function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] {
   if ('tool' in node) return [node];
   if ('nodes' in node) return node.nodes.flatMap(toolNodesOf);
   if ('children' in node) return (node.children ?? []).flatMap(toolNodesOf);

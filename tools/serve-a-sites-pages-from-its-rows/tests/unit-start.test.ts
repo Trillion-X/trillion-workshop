@@ -7,7 +7,7 @@
 // npm is a stand-in that links this checkout's installed packages (the test is about the start order, not the registry), and
 // flock, which macOS lacks, is a stand-in with the same kernel lock (perl's flock on the descriptor the unit names).
 // Three starts: a new computer; a Workshop copy a killed fetch left with git's lock files; a door that lacks a tool a setting
-// names, which must stop the start with that tool's name and the door's own words.
+// names, whose first real run must stop the start with the door's own words. The start asks the door nothing but tool runs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
@@ -52,8 +52,8 @@ function argvOf(command: string): string[] {
   return quoted ? [quoted[1], '-c', quoted[2]] : command.split(/\s+/).filter(Boolean);
 }
 
-/** A loopback engine door that answers the site's row reads (one public page, no look rows) and tools:list; `lacks` are the
- * tools it has not got, refused as the engine refuses them. */
+/** A loopback engine door that answers the site's row reads (one public page, no look rows) and the site head; `lacks` are the
+ * tools it has not got, refused as the engine refuses them. Any method but tools:run is refused as a pass with no right to it. */
 async function door(lacks: string[] = []): Promise<http.Server> {
   const server = http.createServer((request, response) => {
     let body = '';
@@ -64,10 +64,8 @@ async function door(lacks: string[] = []): Promise<http.Server> {
         response.setHeader('content-type', 'text/event-stream');
         response.end(`data: ${JSON.stringify({ jsonrpc: '2.0', id: 1, result })}\n\n`);
       };
-      if (method === 'tools:list') {
-        if (lacks.includes(input.tool)) return reply({ isError: true, structuredContent: { code: 'tools_tool_unknown', detail: 'No tool has this id on this computer.' } });
-        return reply({ structuredContent: { id: input.tool, runs_here: true } });
-      }
+      if (method !== 'tools:run') return reply({ isError: true, structuredContent: { code: 'current_workspace_rights_refused', detail: 'This pass has no right to do that.' } });
+      if (lacks.includes(input.tool)) return reply({ isError: true, structuredContent: { code: 'tools_tool_unknown', detail: 'No tool has this id on this computer.' } });
       const sql = String(input.input.sql ?? '');
       const rows = sql.includes('FROM pages')
         ? [{ path: '/', title: 'Started', access: 'public', tool: null, input: {}, collection: null, updated_at: null, layout: { part: TEXT, export: 'Text', props: { as: 'main' }, children: [{ text: 'Started' }] } }]
@@ -207,9 +205,16 @@ test('a Workshop copy a killed fetch left with git\'s lock files starts all the 
   for (const leftover of ['shallow.lock', 'index.lock']) assert.equal(existsSync(join(started.workshop, '.git', leftover)), false, `${leftover} is cleared under the fetch lock`);
 });
 
-test('a door that lacks a tool the settings name stops the start with that tool\'s name and the door\'s own words', { timeout: 600_000 }, async () => {
+test('a door that lacks a tool the settings name stops the start with the door\'s own words for that tool', { timeout: 600_000 }, async () => {
   const started = await startUnit({ siteHead: true, lacks: ['tool:read-the-site-head'] });
   assert.notEqual(started.exitCode, null, 'the program does not keep running');
-  assert.match(started.said, /This computer cannot run 1 of the tools the site names: tool:read-the-site-head \(The engine door refused tools:list: tools_tool_unknown: No tool has this id on this computer\.\)/);
+  assert.match(started.said, /The engine door refused tool:read-the-site-head: tools_tool_unknown: No tool has this id on this computer\./);
   assert.deepEqual(started.statuses.filter(status => status !== null), [], 'no socket answers');
+});
+
+test('a start that keeps failing stops after a few tries: the start limit is in the unit\'s [Unit] section', () => {
+  const unitSection = TEMPLATE.split(/^\[Service\]$/m)[0];
+  assert.match(unitSection, /^StartLimitIntervalSec=\d+$/m);
+  assert.match(unitSection, /^StartLimitBurst=\d+$/m);
+  assert.match(TEMPLATE, /^Restart=always$/m, 'it still restarts after a crash, up to that limit');
 });
