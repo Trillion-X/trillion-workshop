@@ -199,6 +199,10 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
   Secure`, `HttpOnly` unless `http_only` is false, and `Domain=<domain>` when the request's host is that domain or under it.
   An action reads it back with `{ "$": "cookie", "name": "<cookie>" }` (a checkout's referral code). Example:
   `{ "query": "ref", "cookie": "site_ref", "pattern": "[A-Z0-9][A-Z0-9-]{3,31}", "upper_case": true, "max_age_days": 30, "domain": "example.com" }`.
+- `pass_on` entries with `"stream": true` are piped both ways as they come: every request header passes unchanged (Host,
+  `Authorization`, `Mcp-Session-Id`), the answer streams back (an MCP door's event stream, a GET that stays open), and the
+  other program's call ends when the visitor's does. Never with `site_head`. Example, an engine's MCP door on an app host:
+  `{ "name": "the engine door", "address": "http://127.0.0.1:7198", "exact": ["/mcp"], "hosts": ["app.example.com"], "stream": true }`.
 - `addresses`: `{ "<name>": address }`. A `pass_on` address `"named:<name>"` is the one named here, so a computer's setup
   fills one place in for every entry that goes to the same program.
 - `site_head`: `{ "tool", "input" }`, the tool whose answer `{ head, body_start }` every page, members pages too, carries at

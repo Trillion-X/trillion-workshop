@@ -46,7 +46,8 @@
 //                    `exact`, or under the `paths` of an entry with first: true, is passed on before any action or page row
 //                    of the site's own (so a site can keep rows it does not answer yet); under other `paths` the site's own
 //                    action rows and its longer page rows answer instead. `address` "named:<name>" is the one `addresses`
-//                    names, so the computer's own setup fills one place in
+//                    names, so the computer's own setup fills one place in. With stream: true an entry is piped both ways
+//                    as it comes, every header unchanged (an MCP door's event stream), never with site_head
 //     addresses      (optional) { <name>: address }: addresses pass_on entries name as "named:<name>"
 //     actions        (optional) the table of the site's action rows (actions.ts), read with the pages
 //     address_cookies (optional) [{ query, cookie, pattern, upper_case, max_age_days, domain, http_only }]: values a visitor's
@@ -74,6 +75,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { chmodSync, existsSync, readFileSync, realpathSync, statSync, unlinkSync } from 'node:fs';
 import http from 'node:http';
+import https from 'node:https';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { addressCookiesOf, cookiesFromAddress, withCookies } from './address-cookies.ts';
@@ -180,8 +182,9 @@ export function settingsOf(value: unknown): Settings {
   if (!Array.isArray(s.pass_on) || s.pass_on.some(on => !on || typeof on.name !== 'string' || typeof on.address !== 'string'
     || !(Array.isArray(on.paths ?? []) && (on.paths ?? []).every(sitePath)) || !(Array.isArray(on.exact ?? []) && (on.exact ?? []).every(sitePath))
     || !(Array.isArray(on.hosts ?? []) && (on.hosts ?? []).every(host => typeof host === 'string' && HOST_NAME.test(host)))
-    || (on.site_head !== undefined && typeof on.site_head !== 'boolean') || (on.first !== undefined && typeof on.first !== 'boolean'))) {
-    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only, before the site\'s own rows), hosts (only these hosts; every host when left out), first (true: its paths too come before the site\'s own rows), site_head (true: its pages carry the site head too) }.');
+    || (on.site_head !== undefined && typeof on.site_head !== 'boolean') || (on.first !== undefined && typeof on.first !== 'boolean')
+    || (on.stream !== undefined && (typeof on.stream !== 'boolean' || (on.stream && on.site_head === true))))) {
+    throw new Error('pass_on lists { name, address, paths (a path and what is under it), exact (that path only, before the site\'s own rows), hosts (only these hosts; every host when left out), first (true: its paths too come before the site\'s own rows), site_head (true: its pages carry the site head too), stream (true: piped as it comes, every header unchanged, never with site_head) }.');
   }
   const named = addresses as Record<string, string>;
   for (const on of s.pass_on) {
@@ -578,6 +581,11 @@ export interface PassOn {
   site_head?: boolean;
   /** Its paths are passed on before the site's own action and page rows, as exact paths always are. */
   first?: boolean;
+  /**
+   * Piped as it comes, both ways, nothing kept or waited for: every request header passes unchanged (Host, Authorization,
+   * Mcp-Session-Id) and the answer streams back (an MCP door's event stream). Never with site_head.
+   */
+  stream?: boolean;
 }
 
 // The other program is asked for its answer as it is (no compression), so it is passed back byte for byte with headers
@@ -623,6 +631,40 @@ async function passOnTo(address: string, host: string, request: http.IncomingMes
   const body = whole ? Buffer.from(withSiteHead(text, head!)) : answer.body;
   response.writeHead(answer.status, withCookies(back, cookies));
   response.end(request.method === 'HEAD' ? undefined : body);
+}
+
+// The headers that belong to one connection, never passed through a stream.
+const STREAM_HOP = new Set(['connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'proxy-connection', 'te', 'trailer']);
+
+/**
+ * One request piped to another program and its answer piped back as it comes (an MCP door, whose answers are event streams
+ * and whose GET stays open): nothing is kept, every header but a connection's own passes unchanged both ways (Host too, so
+ * the door answers for the name the visitor asked), and the other program's call ends when the visitor's does.
+ */
+function streamTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const headers: Record<string, string | string[]> = {};
+    for (const [name, value] of Object.entries(request.headers)) if (value !== undefined && !STREAM_HOP.has(name)) headers[name] = value;
+    headers['x-forwarded-host'] = host;
+    headers['x-forwarded-proto'] = 'https';
+    const path = request.url ?? '/';
+    const target = address.startsWith('unix:')
+      ? { socketPath: address.slice('unix:'.length), path }
+      : (() => { const url = new URL(address); return { protocol: url.protocol, hostname: url.hostname, port: url.port, path }; })();
+    const send = (target as { protocol?: string }).protocol === 'https:' ? https.request : http.request;
+    const out = send({ ...target, method: request.method, headers }, answer => {
+      const back: Record<string, string | string[]> = {};
+      for (const [name, value] of Object.entries(answer.headers)) if (value !== undefined && !STREAM_HOP.has(name)) back[name] = value;
+      response.writeHead(answer.statusCode ?? 502, back);
+      response.flushHeaders();
+      answer.pipe(response);
+      answer.on('end', () => resolve());
+      answer.on('error', reject);
+    });
+    out.on('error', reject);
+    response.on('close', () => { if (!response.writableFinished) out.destroy(); });
+    request.pipe(out);
+  });
 }
 
 /** A request's body, or null once it holds more than an action may. */
@@ -674,6 +716,14 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
     const method = request.method ?? 'GET';
     const acting = site.acts(method, host, pathname);
     const on = passOnFor(passOn, host, pathname, method === 'GET' || method === 'HEAD' ? (h, p) => site.pageFor(h, p) : undefined, acting);
+    if (on?.stream) {
+      streamTo(on.address, host, request, response).catch(error => {
+        console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
+        if (!response.headersSent) response.writeHead(502, { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' });
+        response.end();
+      });
+      return;
+    }
     if (on) {
       passOnTo(on.address, host, request, response, on.site_head ? site.siteHead : null, cookies).catch(error => {
         console.error(`${request.method} ${request.url}: ${on.name} did not answer: ${(error as Error).message}`);
