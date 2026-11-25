@@ -1,14 +1,15 @@
 // tools/publish-content-for-discovery/do-work/site-search-head.mjs
 //
 // The search and answer-engine head of a built page, and the robots.txt and llms.txt of a site, from per-page DATA. A site keeps one
-// row per page (title, description, canonical address, Open Graph and Twitter card words, robots directive, JSON-LD objects); the
+// row per page (title, description, canonical address, Open Graph and Twitter card words, robots directive, JSON-LD objects, the
+// site's feeds a reader or feed reader can subscribe to); the
 // build calls withSearchHead(html, meta) on the page it built. The page's own visible words are never changed: this owns only the
 // head tags that describe the page.
 //
 // Exports:
 //   searchHeadMarkup(meta)        -> the head tags for one page (throws, listing every problem, when the meta is not valid)
-//   withSearchHead(html, meta)    -> the page's HTML with its old title, description, robots, canonical, Open Graph, Twitter and
-//                                    JSON-LD tags replaced by the ones searchHeadMarkup writes
+//   withSearchHead(html, meta)    -> the page's HTML with its old title, description, robots, canonical, Open Graph, Twitter,
+//                                    feed and JSON-LD tags replaced by the ones searchHeadMarkup writes
 //   robotsTxt({ sitemap, groups }) -> a robots.txt body; groups are { agents, allow, disallow } lists of paths
 //   llmsTxt({ name, summary, sections }) -> an llms.txt body per llmstxt.org (H1 name, blockquote summary, H2 sections of links)
 //
@@ -60,6 +61,15 @@ export function searchMetaProblems(meta) {
     if (!isObject(meta.twitter)) problems.push('`twitter` must be an object.');
     else if (!TWITTER_CARDS.includes(meta.twitter.card)) problems.push(`twitter.card must be one of ${TWITTER_CARDS.join(', ')}.`);
   }
+  if (meta.feeds !== undefined) {
+    if (!Array.isArray(meta.feeds)) problems.push('`feeds` must be a list of { href, title }.');
+    else {
+      meta.feeds.forEach((feed, i) => {
+        if (!isObject(feed) || !isHttps(feed.href)) problems.push(`feeds[${i}].href needs an absolute https address.`);
+        else if (!isText(feed.title)) problems.push(`feeds[${i}].title needs words.`);
+      });
+    }
+  }
   if (meta.jsonld !== undefined) {
     if (!Array.isArray(meta.jsonld)) problems.push('`jsonld` must be a list of objects.');
     else {
@@ -101,6 +111,10 @@ export function searchHeadMarkup(meta) {
     tags.push(`<meta name="twitter:description" content="${attribute(meta.og?.description ?? meta.description)}"/>`);
     if (meta.og?.image !== undefined) tags.push(`<meta name="twitter:image" content="${attribute(meta.og.image)}"/>`);
   }
+  // A feed is advertised as an RSS alternate of the page, so a feed reader given any page of the site finds it.
+  for (const feed of meta.feeds ?? []) {
+    tags.push(`<link rel="alternate" type="application/rss+xml" title="${attribute(feed.title)}" href="${attribute(feed.href)}"/>`);
+  }
   for (const item of meta.jsonld ?? []) {
     tags.push(`<script type="application/ld+json">${inScript(item)}</script>`);
   }
@@ -113,6 +127,7 @@ const REPLACED = [
   /<meta\s+name="(?:description|robots|twitter:[a-z_]+)"[^>]*\/?>/g,
   /<meta\s+property="og:[a-z_]+"[^>]*\/?>/g,
   /<link\s+rel="canonical"[^>]*\/?>/g,
+  /<link\s+rel="alternate"\s+type="application\/rss\+xml"[^>]*\/?>/g,
   /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/g,
 ];
 
