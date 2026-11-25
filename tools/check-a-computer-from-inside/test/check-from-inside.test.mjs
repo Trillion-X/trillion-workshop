@@ -162,7 +162,7 @@ test('every unit the row runs is asked of systemd: a failed run, a stopped timer
   const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(1) }, { systemd: {
     'a-site.service': ['loaded', 'active', 'success'], 'a-backup.service': ['loaded', 'failed', 'exit-code'],
     'a-backup.timer': ['loaded', 'inactive', 'success'], 'a-watch.path': ['loaded', 'active', 'success'], 'a-gone.service': ['not-found', 'inactive', 'success'] } });
-  const seen = await checkFromInside(computer(units), { run });
+  const seen = await checkFromInside(computer(units, { detail: true }), { run });
   assert.match(scripts[0], /^systemctl show -p LoadState -p ActiveState -p Result 'a-backup\.service' 2>\/dev\/null$/m);
   assert.deepEqual(seen.units.find(unit => unit.unit === 'a-backup.service'), { unit: 'a-backup.service', load: 'loaded', active: 'failed', result: 'exit-code' });
   assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.level, finding.about]), [
@@ -195,12 +195,12 @@ test('only the row\'s runs as read now are checked: no units list, or a row read
 test('a row read just now is checked unit by unit, and the units asked are answered with it', async () => {
   const readAt = new Date(Date.now() - 5_000).toISOString();
   const { run } = computerAnswering({}, { systemd: { 'a-site.service': ['loaded', 'active', 'success'], 'a-dropped.service': ['not-found', 'inactive', 'success'] } });
-  const seen = await checkFromInside(computer([siteUnit, { unit: 'a-dropped.service' }], { row_read_at: readAt }), { run });
+  const seen = await checkFromInside(computer([siteUnit, { unit: 'a-dropped.service' }], { row_read_at: readAt, detail: true }), { run });
   assert.equal(seen.checked, true);
   assert.equal(seen.row_read_at, readAt);
   assert.deepEqual(seen.units_asked, ['a-site.service', 'a-dropped.service']);
   assert.deepEqual(seen.findings.map(finding => [finding.kind, finding.about]), [['unit-missing', 'a-dropped.service']]);
-  const none = await checkFromInside(computer([]), { run: computerAnswering({}).run });
+  const none = await checkFromInside(computer([], { detail: true }), { run: computerAnswering({}).run });
   assert.deepEqual([none.checked, none.units_asked], [true, []], 'a computer that runs no unit is checked for its disks');
 });
 
@@ -362,7 +362,7 @@ test('a computer that does not answer is told as unreachable, and its book is no
 test('an answer past what a run carries drops its bulk detail and is told as answer-too-large, naming the computer; findings stay', async () => {
   const many = Array.from({ length: 300 }, (_, index) => ({ unit: `a-unit-with-a-long-enough-name-to-fill-the-answer-number-${index}.service`, user: 'x', program: 'serve.mjs' }));
   const { run } = computerAnswering({ '127.0.0.1:7198': ready(1) });
-  const seen = await checkFromInside(computer([engineUnit, ...many]), { run });
+  const seen = await checkFromInside(computer([engineUnit, ...many], { detail: true }), { run });
   assert.ok(Buffer.byteLength(JSON.stringify(seen)) <= 24000 + 600, 'the answer fits what a run carries');
   assert.equal(seen.units, undefined);
   assert.ok(seen.units_asked.length > 0, 'what is not needed to fit is kept: dropped in order, largest first, and no more than needed');
@@ -376,4 +376,13 @@ test('an answer past what a run carries drops its bulk detail and is told as ans
 test('a small answer is returned as it is', () => {
   const small = { name: 'x', checked_at: 't', findings: [], units: [{ unit: 'a' }] };
   assert.equal(boundedAnswer(small), small);
+});
+
+test('by default the answer carries nothing the workflow does not read: no unit states, no units asked, no engine listens', async () => {
+  const { run } = computerAnswering({ '127.0.0.1:7198': ready(1) });
+  const plain = await checkFromInside(computer([engineUnit, siteUnit]), { run });
+  assert.deepEqual([plain.units, plain.units_asked, plain.engines[0].listens], [undefined, undefined, undefined]);
+  assert.equal(plain.engines[0].persons, 1, 'what the workflow keeps stays');
+  const detailed = await checkFromInside(computer([engineUnit, siteUnit], { detail: true }), { run });
+  assert.ok(detailed.units.length > 0 && detailed.units_asked.length > 0 && detailed.engines[0].listens.length > 0);
 });

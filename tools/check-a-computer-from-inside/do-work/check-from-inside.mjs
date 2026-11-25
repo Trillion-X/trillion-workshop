@@ -410,8 +410,15 @@ export function boundedAnswer(result) {
   return trimmed;
 }
 
+/** A check answers what the workflow keeps and tells (disks, each engine's persons and folders, the wake books, the findings) and, only
+ *  when the input says `detail: true`, what it read besides: every unit's state, the units asked and each engine's listens. The
+ *  tick of Nov 25 2026, 8:00 and 9:45 AM CST lost its tell step to a carry of 32816 and 32817 bytes: the answer is carried beside the
+ *  computer's row and the step's own words, so what nothing reads is not carried at all. */
 export async function checkFromInside(input, options = {}) {
-  return boundedAnswer(await readComputer(input, options));
+  const answer = await readComputer(input, options);
+  if (input?.detail === true) return boundedAnswer(answer);
+  const { units, units_asked: asked, ...kept } = answer;
+  return boundedAnswer({ ...kept, engines: (kept.engines ?? []).map(({ listens, ...engine }) => engine) });
 }
 
 async function readComputer(input, options = {}) {

@@ -128,6 +128,10 @@
             "here": {
               "type": "boolean",
               "description": "true: read the computer this run is on, through the run's own door, with no SSH (address, host_key and runs are not needed). Only the symptom check, due-time-not-told, can be made there."
+            },
+            "detail": {
+              "type": "boolean",
+              "description": "true: also answer every unit's state, the units asked and each engine's listens (left out by default: a run carries at most 32768 bytes to its next step)."
             }
           }
         },
