@@ -1,0 +1,16 @@
+[Unit]
+Description={description}
+Before={before}
+After=local-fs.target
+
+[Service]
+# A disk of its own for {mount}: the file {image}, {size} taken at once (fallocate, so its room is held from the first day and
+# nothing else on the computer can take it), with its own ext4 filesystem, mounted at {mount} for {owner}. What is written
+# under {mount} can fill only this disk, never the computer's own, and the disk is its own line in df, so the computer's
+# check reads its used percent like any other. Made once: a file that is there is mounted as it is, never made again.
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/sh -c 'set -eu; test -f {image} || { fallocate -l {size} {image}.new; mkfs.ext4 -q -m 0 {image}.new; mv {image}.new {image}; }; mkdir -p {mount}; mountpoint -q {mount} || mount -o loop,noatime {image} {mount}; chown {owner}:{owner} {mount}'
+
+[Install]
+WantedBy=multi-user.target
