@@ -253,7 +253,9 @@ export function credential(name: string, folder = process.env.CREDENTIALS_DIRECT
   if (process.stdin.isTTY) throw new Error(`The credential ${name} is not in this unit's credentials, and nothing is piped in.`);
   if (piped.name !== null && piped.name !== name) throw new Error(`Standard input holds the credential ${piped.name}; a local run takes one credential.`);
   piped.name = name;
-  piped.value ??= readFileSync(0, 'utf8').trim();
+  // Opened by its path, a blocking read of its own: fd 0 is the parent's, and a pipe whose writer has not written yet answers
+  // EAGAIN when that fd was left non-blocking.
+  piped.value ??= readFileSync('/dev/stdin', 'utf8').trim();
   return piped.value;
 }
 const piped: { name: string | null; value: string | null } = { name: null, value: null };
