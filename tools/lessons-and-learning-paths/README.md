@@ -35,6 +35,12 @@ Where a learner stands on a track of ordered steps, and the keep rows that accep
 | `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
 | `test/lessons-and-learning-paths.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. Fixtures are a made-up bakery course. |
 | `show/mount-learning-home.tsx` | The Learn screen carried from `learning-home` (see the table above); `from-bitfield-packages/moved-from.json` is its receipt. |
+| `do-work/courses.ts` | `tool:read-a-course` and `tool:read-a-lesson`: the answers are the props of `show/Course.tsx` and `show/Lesson.tsx`. Table names are one block (`SOURCE`); a caller may rename a table to a plain identifier. A YouTube address becomes its privacy-enhanced embed address; a stored recording gets `files_base_url`; words are cut into passages by pauses and sentence ends only. |
+| `do-work/progress.ts` | `tool:read-a-learners-done-lessons` and `tool:mark-a-lesson-done`: one done row per learner, course and lesson; marking twice adds no second row; a lesson of another course is refused. The learner is named by the trusted caller, never by an argument a browser chooses. |
+| `show/Course.tsx` | The course screen: title, description, a host-given `action`, progress, and the lessons in order as links with a done mark. Pure `View(props)`. |
+| `show/Lesson.tsx` | The lesson screen: a YouTube recording in the shared `LiveFrame`, a stored recording in the shared player (a video element with its controls and captions), the transcript reader, Mark done, and the lessons before and after. Pure `View(props)`; playback time, seek and presses come from the host. |
+| `show/TranscriptReader.tsx` | The words of a recording, each marked as the recording reaches it, a speaker per passage, a press on a speaker filtering to that speaker, a press on a word seeking. Edit controls (naming a speaker, splitting a passage) are drawn only when `viewer.isOwner` is true. |
+| `test/courses.test.ts`, `test/screens.test.ts` | The reads over a fake row reader, and the screens drawn to markup. |
 
 ## Key Types / Functions
 
