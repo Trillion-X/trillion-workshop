@@ -1,8 +1,34 @@
 // tools/notice-when-something-shows-up/do-work/kept-places.mjs
 //
 // Where each waiter's place is kept: its last fact and its mechanism's state (a row-changes waiter's last told
-// {txid, position}, a service-lists waiter's fingerprints of what it has seen), under the waiter's kept key (its waiter
-// ref and address, tell-the-engine.mjs `keptAs`). One store per run, chosen by the run's input:
+// {txid, position}, a service-lists waiter's fingerprints of what it has seen), under the waiter's kept key (`keptKeyOf`:
+// the wake that started the run, its waiter ref and its address). One store per run, chosen by the run's input:
+//
+// Each wake keeps its own places (Nov 25 2026, 3:07 AM CST). The key was the waiter ref and address alone
+// ("waiter:row-changes@where::something-changed"), the same for every copy of a wake (keep-noticing-row-changes and its
+// copies, one per pursuit database, run one waiter, each over its own database): on one computer every
+// copy kept one place in the kept folder (one folder per account and tool), and with places_in two copies that name one
+// database refused each other, and four databases were each given the same carried-in place. So the key starts with the
+// wake's own id, which the engine hands each run in its task (`cause.wake`, the copy id `<declared id>/<name>` for a
+// copy; trillion-rust src/wake.rs, the cause it hands the runner; the row's argv gives it as `--wake`):
+// "keep-noticing-row-changes/notes|waiter:row-changes@where::something-changed". A run that no wake started (a direct
+// tools:run) has no wake, and keeps under the key without one, as before.
+//
+// Carrying over from the key without a wake (the shared key), once: a wake's first read of a key of its own that no
+// store holds yet starts from the shared key's place, and that first read keeps it under the wake's key at once (the
+// database's first row, a file in the kept folder), so the wake never reads the shared key again. A place is read in
+// this order: the wake's own key in the database, the shared key in the database, the wake's own key in the kept folder,
+// the shared key in the kept folder (a place in the database wins over one in the kept folder, and within each store
+// the wake's own wins over the shared one). A row-changes place is a (txid, position) and txids are counted across one
+// Postgres server, so a copy that starts from another database's place on the same server goes on from that point in
+// the server's order of transactions.
+//
+// The shared key is never written, claimed or removed by a wake's run: it is only read, so every copy that ran before
+// keys named the wake can still carry over from it, in any order, on any computer. A wake switched on for the first time
+// later finds it too, and starts from that place instead of from now; it stops moving once no run without a wake keeps
+// it, so once every copy has a key of its own (`SELECT kept_as FROM kept_waiter_places WHERE kept_as LIKE '%|' || <shared
+// key>`, and in the kept folder a file per copy), the shared row or file is removed by its owner, and wakes switched on
+// after that start from now.
 //
 // - With no `places_in`, the kept folder (`folderPlaces`): one file per kept key in the row's `invoke.kept_folder`, which
 //   the engine gives once per account and tool on each computer (trillion-rust src/tool_runs/tools/container.rs
@@ -19,10 +45,11 @@
 // Rules of the database store:
 // - A run claims a place when it first reads it: the row's version moves on and names this run (kept_on, kept_by_run).
 //   Every later write is compare-and-set on the version this run holds. So when two runs keep one waiter's place at
-//   once (its wake on two computers), the run that started last holds it, and the other's next write is refused
+//   once (one wake on two computers), the run that started last holds it, and the other's next write is refused
 //   (`placeTaken`), saying which run holds the place, on which computer and since when. Nothing moves the place twice
 //   without it being said. The refused run's waiter tells nothing more (tell-the-engine.mjs writeRecord asks `taken`
-//   before it tells) and ends with that refusal as its fact (emit-arrival-fact.mjs runResidentEmitter).
+//   before it tells) and ends with that refusal as its fact (emit-arrival-fact.mjs runResidentEmitter). Two copies of one
+//   wake are two wakes with two keys, so they never hold one place and never refuse each other.
 // - A place in the database wins over a place in this computer's kept folder. The kept folder is read only for a kept
 //   key the database holds no row for (the first run that names places_in carries its folder's place into the
 //   database), and it is never written while places_in is named: one store holds each place.
@@ -76,26 +103,55 @@ const HOLDER_SQL = `SELECT version::text AS version, kept_at, kept_on, kept_by_r
 /** How many times a claim is tried while other runs move the same place between its read and its claim. */
 const MOST_CLAIMS = 5;
 
+/** What parts the wake from the rest of a kept key. No wake id holds it (a copy's name is lowercase letters, digits and
+ *  hyphens, trillion-rust src/wake.rs `copied`), so a key with a wake is never taken for one without. */
+export const WAKE_SEPARATOR = '|';
+
+/** The key one waiter's place is kept under (`as`) and the key it carries over from once (`carriedFrom`, null for none):
+ *  the waiter ref and the address it emits at (two waiters that emit at one address keep apart), after the wake that
+ *  started the run (`wake`, null for a run no wake started, which keeps under the shared key itself). */
+export function keptKeyOf({ wake = null, waiterRef = null, addressLabel }) {
+  const shared = typeof waiterRef === 'string' && waiterRef !== '' ? `${waiterRef}@${addressLabel}` : addressLabel;
+  if (typeof wake !== 'string' || wake === '') return { as: shared, carriedFrom: null };
+  return { as: `${wake}${WAKE_SEPARATOR}${shared}`, carriedFrom: shared };
+}
+
 /** The places of one kept folder (`folder`, null for none: kept in memory for this run alone, by the carrier). Each kept
  *  key is one file, its name the key as base64url, written whole (a new file renamed over the old). */
 export function folderPlaces(folder) {
   const fileOf = keptAs => path.join(folder, `${Buffer.from(keptAs).toString('base64url')}.json`);
+  const readFile = (keptAs) => {
+    if (folder === null || keptAs === null) return null;
+    try {
+      return JSON.parse(readFileSync(fileOf(keptAs), 'utf8'));
+    } catch {
+      return null;
+    }
+  };
+  const writeFile = (keptAs, value) => {
+    if (folder === null) return;
+    mkdirSync(folder, { recursive: true });
+    const file = fileOf(keptAs);
+    writeFileSync(`${file}.new`, JSON.stringify(value));
+    renameSync(`${file}.new`, file);
+  };
   return {
     kind: 'kept-folder',
-    async read(keptAs) {
-      if (folder === null) return null;
-      try {
-        return JSON.parse(readFileSync(fileOf(keptAs), 'utf8'));
-      } catch {
-        return null;
-      }
+    /** The place of `keptAs`, else the place of `carriedFrom`, writing nothing: what a database store carries in. */
+    peek(keptAs, carriedFrom = null) {
+      return readFile(keptAs) ?? readFile(carriedFrom);
+    },
+    /** The place of `keptAs`. With none, the place of `carriedFrom` is carried over and kept under `keptAs` at once, so
+     *  it is carried once. */
+    async read(keptAs, carriedFrom = null) {
+      const own = readFile(keptAs);
+      if (own !== null) return own;
+      const carried = readFile(carriedFrom);
+      if (carried !== null) writeFile(keptAs, carried);
+      return carried;
     },
     async write(keptAs, value) {
-      if (folder === null) return;
-      mkdirSync(folder, { recursive: true });
-      const file = fileOf(keptAs);
-      writeFileSync(`${file}.new`, JSON.stringify(value));
-      renameSync(`${file}.new`, file);
+      writeFile(keptAs, value);
     },
     taken() { return null; },
     async close() {},
@@ -117,7 +173,7 @@ function unreachable(error, where) {
 
 /** The places of one tool (`tool`) in a database (`client`: {query(sql, params) -> {rows}}, already holding
  *  PLACES_TABLE), named `where` in what it says. `keptOn` and `run` name this run in every row it moves. `fallback` is the
- *  kept folder's store, read only for a kept key the database holds no row for. */
+ *  kept folder's store, read only for a kept key the database holds no row for, and never written. */
 export function databasePlaces({ client, tool, where, keptOn, run, fallback = folderPlaces(null) }) {
   /** The version this run holds of each place it claimed. */
   const held = new Map();
@@ -133,9 +189,12 @@ export function databasePlaces({ client, tool, where, keptOn, run, fallback = fo
       throw unreachable(error, where);
     }
   };
-  /** Claims the place of `keptAs` for this run and answers its value: the database's, or, with no row, the kept folder's
-   *  carried in. Another run that moves it between the read and the claim makes the claim read again. */
-  async function claim(keptAs) {
+  /** Claims the place of `keptAs` for this run and answers its value: the database's, or, with no row, the first place
+   *  carried in, in the order the header gives: the database's row of `carriedFrom` (only read, never claimed, so every
+   *  copy can carry over from it), then the kept folder's own key and its `carriedFrom`. The first row made holds what was
+   *  carried in, so it is carried once. Another run that moves the place between the read and the claim makes the claim
+   *  read again. */
+  async function claim(keptAs, carriedFrom = null) {
     for (let tries = 0; tries < MOST_CLAIMS; tries += 1) {
       const [row] = await query(READ_SQL, [tool, keptAs]);
       if (row) {
@@ -146,7 +205,8 @@ export function databasePlaces({ client, tool, where, keptOn, run, fallback = fo
         }
         continue;
       }
-      const carried = await fallback.read(keptAs);
+      const [shared] = carriedFrom === null ? [] : await query(READ_SQL, [tool, carriedFrom]);
+      const carried = shared?.place ?? fallback.peek(keptAs, carriedFrom);
       const [first] = await query(FIRST_SQL, [tool, keptAs, carried === null ? null : JSON.stringify(carried), keptOn, run]);
       if (first) {
         held.set(keptAs, first.version);
@@ -157,8 +217,8 @@ export function databasePlaces({ client, tool, where, keptOn, run, fallback = fo
   }
   return {
     kind: 'database',
-    async read(keptAs) {
-      return claim(keptAs);
+    async read(keptAs, carriedFrom = null) {
+      return claim(keptAs, carriedFrom);
     },
     async write(keptAs, value) {
       if (taken.has(keptAs)) throw taken.get(keptAs);

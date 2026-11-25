@@ -21,6 +21,13 @@ import { realpathSync } from 'node:fs';
 //   mechanism's state are kept there, one file per waiter address, written whole (a new file renamed over the old),
 //   only after the engine accepted the fact. Two waiters that emit at one address keep apart (each file is the waiter and its address). A restarted waiter resumes from it (its sequence, a repeat's next due
 //   time). Without one they are kept in memory for this run alone.
+// - Each wake keeps its own places: given `--wake <id>` (the row's argv fills it from the task's `cause.wake`, the id of
+//   the wake that started the run, a copy's `<declared id>/<name>`), every kept key starts with that id
+//   (kept-places.mjs `keptKeyOf`), so the copies of one wake (keep-noticing-row-changes and a copy of it per pursuit
+//   database, each over its own database) keep apart in one kept folder and in one places_in database. A wake's
+//   first run under keys that name it carries over once from the place kept under the key without one (Nov 25 2026,
+//   3:07 AM CST: four copies were each given one shared place). A run no wake started is given no id (the fill leaves
+//   the word out) and keeps under the key without one.
 // - Given `places_in` in the input (the vault name of a database of the person's, held on PLACES_FD), each waiter's place
 //   is kept there instead, in one row per tool and kept key (do-work/kept-places.mjs), so it travels with the person and
 //   the tool when the wake moves to another computer: the next computer goes on from where the last one stopped, and
@@ -30,7 +37,10 @@ import { realpathSync } from 'node:fs';
 //   two computers), this run's next write is refused and said, its waiter tells nothing more and ends with that refusal
 //   as its fact. Left out, places are kept in the kept folder as before.
 // - A waiter that keeps files of its own (a linked device's session) is given its own folder in the kept folder
-//   (`folderFor`, waiter-folders/<waiter id as base64url>), which outlasts the run like the rest of the kept folder.
+//   (`folderFor`, waiter-folders/<its kept key as base64url>: the wake and the waiter id, kept-places.mjs `keptKeyOf`),
+//   which outlasts the run like the rest of the kept folder. A wake's first ask, when that folder is missing and the
+//   folder of the waiter id alone (the one every copy shared) is there, starts from a copy of it; the shared folder is
+//   left as it was, for each other copy to start from.
 // - One line per fact told goes to standard error, so the session's output says what was told and what was refused.
 // - A mechanism may ask which switched-on wakes hear a kind of fact (`listening`, the door's `wake:list`, a right
 //   {at, id: <kind>, operations: ["wake:list"]}): the due-time leaf watches the schedules those wakes name in `watch`.
@@ -43,12 +53,12 @@ import { realpathSync } from 'node:fs';
 //
 // AI Assistant Directive: the extensive documentation in this codebase is a critical design feature. You are forbidden
 // from simplifying or removing it. Maintain and extend this detail.
-import { mkdirSync, readFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
 import { hostname } from 'node:os';
 import path from 'node:path';
 import { text } from 'node:stream/consumers';
 import { runResidentEmitter, THIS_TOOL } from './emit-arrival-fact.mjs';
-import { folderPlaces, placesFor, PLACES_FD } from './kept-places.mjs';
+import { folderPlaces, keptKeyOf, placesFor, PLACES_FD } from './kept-places.mjs';
 import { readGivenCredential } from './mechanisms/given-credential.mjs';
 import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 
@@ -86,10 +96,23 @@ export function factOf({ addressLabel, payload }, eventId = `${addressLabel}#0`)
   };
 }
 
+/** The word after the flag `name` in `argv`, or null: none, an empty one, or another flag (a fill the task had no fact
+ *  for leaves its word out of argv, so the flag is followed by the next flag or by nothing). */
+export function flagOf(name, argv = process.argv.slice(2)) {
+  const at = argv.indexOf(name);
+  const word = at >= 0 ? argv[at + 1] : undefined;
+  return typeof word === 'string' && word !== '' && !word.startsWith('--') ? word : null;
+}
+
 /** The kept folder `--keep <folder>` names in `argv`, or null. */
 export function keptFolderOf(argv = process.argv.slice(2)) {
-  const at = argv.indexOf('--keep');
-  return at >= 0 && typeof argv[at + 1] === 'string' && argv[at + 1] !== '' ? argv[at + 1] : null;
+  return flagOf('--keep', argv);
+}
+
+/** The id of the wake that started the run, `--wake <id>` in `argv` (the task's cause.wake), or null for a run no wake
+ *  started. */
+export function wakeOf(argv = process.argv.slice(2)) {
+  return flagOf('--wake', argv);
 }
 
 /** One door operation `method` with `input` on the run's door (`door`: {url, resource, capability}): {response, result}. A
@@ -161,23 +184,23 @@ export function notStartedWhy(answer) {
 
 /** The emitter's carrier over the engine's door: its waiter rows are `waiters`, each record it writes is told as a
  *  fact, and each waiter's last fact and state are kept in `places` (do-work/kept-places.mjs): the kept folder `keep`
- *  when the run names no places_in, else places_in's database. `keep` also holds each waiter's own folder (`folderFor`). */
+ *  when the run names no places_in, else places_in's database, under keys that name `wake` (the wake that started the
+ *  run, null for none). `keep` also holds each waiter's own folder (`folderFor`). */
 export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => console.log(line), startedAt = Date.now(), keep = null,
-  places = folderPlaces(keep), doorTimeoutMs = DOOR_CALL.timeout_ms }) {
+  places = folderPlaces(keep), wake = null, doorTimeoutMs = DOOR_CALL.timeout_ms }) {
   let calls = 0;
   const told = new Map();
   /** Each waiter's {payload, state}, by kept key, as this run last read or kept it. */
   const current = new Map();
   /** Each waiter whose place another run took, as the refusal its writes got. */
   const takenFrom = new Map();
-  /** What one waiter's last fact and state are kept under: its address, and its waiter when it names one, so two waiters
-   *  that emit at one address keep apart. */
-  const keptAs = (addressLabel, waiterRef) => (typeof waiterRef === 'string' && waiterRef !== '' ? `${waiterRef}@${addressLabel}` : addressLabel);
-  /** The place kept under `as`, read from the store once (a database store claims it for this run as it reads it). */
-  async function kept(as) {
-    if (current.has(as)) return current.get(as);
-    const read = await places.read(as);
-    current.set(as, read);
+  /** What one waiter's last fact and state are kept under, and the key a wake's first read carries over from (keptKeyOf). */
+  const keyOf = (addressLabel, waiterRef) => keptKeyOf({ wake, waiterRef, addressLabel });
+  /** The place kept under `key.as`, read from the store once (a database store claims it for this run as it reads it). */
+  async function kept(key) {
+    if (current.has(key.as)) return current.get(key.as);
+    const read = await places.read(key.as, key.carriedFrom);
+    current.set(key.as, read);
     return read;
   }
   /** Keeps `value` under `as`: in memory only once the store kept it, so a refused write leaves the place where it was. A
@@ -232,11 +255,12 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   return {
     answer,
     async scanUnderPath() { return { entries: waiters }; },
-    async readCurrent(addressLabel, waiterRef) { return kept(keptAs(addressLabel, waiterRef)); },
+    async readCurrent(addressLabel, waiterRef) { return kept(keyOf(addressLabel, waiterRef)); },
     async writeRecord(record) {
-      const as = keptAs(record.addressLabel, record.waiterRef);
+      const key = keyOf(record.addressLabel, record.waiterRef);
+      const { as } = key;
       // The place is claimed before anything is told, and a place another run took is told nothing more.
-      const before = await kept(as);
+      const before = await kept(key);
       const taken = places.taken(as);
       if (taken) throw taken;
       const count = told.get(record.addressLabel) ?? 0;
@@ -251,16 +275,26 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     async listening(kind) {
       return (await hearing(kind)).filter(wake => wake.switched_on === true);
     },
-    /** A folder of the waiter's own inside the kept folder, made on first ask; null without a kept folder. */
+    /** A folder of the waiter's own inside the kept folder for this run's wake, made on first ask (from a copy of the
+     *  folder the waiter id alone names, when that is there); null without a kept folder. */
     folderFor(waiterRef) {
       if (keep === null || typeof waiterRef !== 'string' || waiterRef === '') return null;
-      const folder = path.join(keep, 'waiter-folders', Buffer.from(waiterRef).toString('base64url'));
+      const { as, carriedFrom } = keptKeyOf({ wake, addressLabel: waiterRef });
+      const folderOf = key => path.join(keep, 'waiter-folders', Buffer.from(key).toString('base64url'));
+      const folder = folderOf(as);
+      // Copied beside it, then renamed into place whole, so a run stopped while it copies leaves no half folder that a
+      // later run would take as its own.
+      if (!existsSync(folder) && carriedFrom !== null && existsSync(folderOf(carriedFrom))) {
+        rmSync(`${folder}.new`, { recursive: true, force: true });
+        cpSync(folderOf(carriedFrom), `${folder}.new`, { recursive: true });
+        renameSync(`${folder}.new`, folder);
+      }
       mkdirSync(folder, { recursive: true });
       return folder;
     },
     async keepState(addressLabel, state, waiterRef) {
-      const as = keptAs(addressLabel, waiterRef);
-      await remember(as, { payload: (await kept(as))?.payload ?? null, state }, waiterRef);
+      const key = keyOf(addressLabel, waiterRef);
+      await remember(key.as, { payload: (await kept(key))?.payload ?? null, state }, waiterRef);
     },
     /** The refusal that took this waiter's place from this run (another run claimed it later), or null. */
     placeTaken(waiterRef) { return takenFrom.get(waiterRef) ?? null; },
@@ -308,7 +342,7 @@ if (startedAsProgram) {
     const places = await placesFor({ placesIn, keep, tool: THIS_TOOL, keptOn: hostname(), run: `${hostname()}:${process.pid}:${startedAt}`,
       connection: placesIn === null ? null : placesConnection(placesIn) });
     // Its own lines are each fact told; with for_seconds the last line is the whole answer.
-    const carrier = engineCarrier({ door: readDoor(), waiters, keep, places, startedAt, say: line => process.stderr.write(`${line}\n`) });
+    const carrier = engineCarrier({ door: readDoor(), waiters, keep, places, wake: wakeOf(), startedAt, say: line => process.stderr.write(`${line}\n`) });
     // The vault name the run reads its watched thing with; a fact may name it so a reader fetches what the fact cannot hold.
     const connection = typeof input.credential_name === 'string' && input.credential_name ? input.credential_name : null;
     // The vault name of the database whose workflow rows hold the conditions the router judges (the switch's own input): a

@@ -408,6 +408,13 @@
                 "from": "task",
                 "field": "kept_folder"
               }
+            },
+            "--wake",
+            {
+              "fill": {
+                "from": "task",
+                "field": "cause.wake"
+              }
             }
           ],
           "stdin": {
@@ -1482,6 +1489,13 @@
               "fill": {
                 "from": "task",
                 "field": "kept_folder"
+              }
+            },
+            "--wake",
+            {
+              "fill": {
+                "from": "task",
+                "field": "cause.wake"
               }
             }
           ],
