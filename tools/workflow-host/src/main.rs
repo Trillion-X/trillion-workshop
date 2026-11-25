@@ -1149,13 +1149,13 @@ fn piece_gate(run: &str) -> Result<(), Vec<String>> {
     if plain(&store) {
         let text = Value::Array(decisions).to_string();
         // A round is one file of a piece: the same file judged again keeps its round, a new version of the piece is the
-        // next. A decision equal to that file's latest is not written again (wf show walks the run many times).
+        // next. A decision equal to that file's latest in the SAME run is not written again (wf show walks the run many times); a later run that repeats an earlier verdict still writes its own row.
         let sql = "insert into piece_gate_decisions (run, piece, round, file_identity, kind, passed, misses, maker, reviewer, steps)
                 select d->>'run', d->>'piece', coalesce((select p.round from piece_gate_decisions p where p.piece = d->>'piece' and p.file_identity = d->>'file_identity' limit 1),
                     (select count(distinct p.file_identity) from piece_gate_decisions p where p.piece = d->>'piece') + 1),
                   d->>'file_identity', d->>'kind', (d->>'passed')::boolean, d->'misses', d->>'maker', d->>'reviewer', d->'steps'
                 from jsonb_array_elements($1::jsonb) d
-                where not exists (select 1 from (select p.passed, p.misses, p.reviewer from piece_gate_decisions p where p.piece = d->>'piece' and p.file_identity = d->>'file_identity' order by p.at desc limit 1) l
+                where not exists (select 1 from (select p.passed, p.misses, p.reviewer from piece_gate_decisions p where p.run = d->>'run' and p.piece = d->>'piece' and p.file_identity = d->>'file_identity' order by p.at desc limit 1) l
                     where l.passed = (d->>'passed')::boolean and l.misses = d->'misses' and l.reviewer = d->>'reviewer') returning 1";
         if let Err(e) = sql_rows(&database_of(&store), sql, json!([text])) { eprintln!("the review gate's decision is not kept in {store} ({e})"); }
     }
