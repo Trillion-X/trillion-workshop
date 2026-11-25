@@ -65,7 +65,7 @@ One unit answers every host in `origin` and `hosts`: a request's host is its `X-
 it, else its `Host`; any other host is answered as `origin`'s. Canonical addresses and the sitemap use the request's host. The
 page's mount is `#root`.
 
-A tool that fails draws a 502 words page; the door refusing a member draws 403. A words page (not found, not open to you, could
+A page's own tool (its row's `tool`), or a layout tool node marked `"required": true`, that fails draws a 502 words page; any other tool node that fails draws nothing, the server log names the tool and why, and the rest of the page is drawn; the door refusing a member draws 403. A words page (not found, not open to you, could
 not be drawn, not ready, a failed form post with no page to go back to) is its heading and line in a centred card (the shared
 Container, Card, Text and Button parts), drawn at the `{ "words": true }` place of the host's public `/404` row so it wears the
 site's own frame (its nav, its shell), or alone when the site has no such row or its frame cannot be drawn just then. Each
@@ -95,7 +95,9 @@ A layout node is one of:
 
 ```
 { "part": "ui/show/pricing/Pricing.tsx", "export": "Pricing", "props": { ... }, "children": [ ...nodes ] }
-{ "tool": "tool:read-published-articles", "input": { ... } }    that tool's screen with its answer
+{ "tool": "tool:read-published-articles", "input": { ... } }    that tool's screen with its answer; if the tool fails, this
+                                                                node draws nothing and the rest of the page is drawn (200),
+                                                                unless the node says "required": true
 { "tool": "tool:read-movement-pairs", "input": { ... }, "part": "<folder>/show/<Other>.tsx", "export": "View" }
                                                                 another screen file, drawn with that tool's answer
 { "main": true }                                                the page's own tool screen

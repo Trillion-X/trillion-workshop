@@ -97,7 +97,8 @@ export function screensOfTools(tools: string): Map<string, Screen> {
 
 /** The page's tree: its layout (or its tool's screen alone), with the main node as the page's own tool. */
 export function treeOf(page: PageRow, params: Record<string, string>, query: URLSearchParams = new URLSearchParams()): LayoutNode {
-  const main: LayoutNode | null = page.tool ? { tool: page.tool, input: filledInput(page.input, params, query) } : null;
+  // The page row's own tool is what the page is: when it fails, the page fails.
+  const main: LayoutNode | null = page.tool ? { tool: page.tool, input: filledInput(page.input, params, query), required: true } : null;
   if (!page.layout) return main!;
   // A ":name" string in a node's props, or in a tool node's input, takes the path's value, as the page row's own input does
   // (the course a page is about, left out of a list of the other courses); a ":query.key" string takes the address's query value.
@@ -136,20 +137,35 @@ function toolNodesOf(node: LayoutNode): Extract<LayoutNode, { tool: string }>[] 
 
 /**
  * The tree with every tool node drawn by its screen with its answer, ready for render-layout.ts; a { "words": true } place
- * holds `words` (a words page's card), and a tree with that place and no words given is not drawn.
+ * holds `words` (a words page's card), and a tree with that place and no words given is not drawn. Every tool runs whatever
+ * the others do: one that fails (or answers something that is not an object) leaves its nodes drawing nothing, told to `log`
+ * with the tool and why, and the rest of the page is drawn; only a failing tool that a node marks `required` (the page row's
+ * own tool always is) fails the page, with that tool's own error.
  */
-export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>, words?: DrawnNode): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
+export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>, run: (call: ToolRun) => Promise<unknown>, words?: DrawnNode, log: (line: string) => void = () => {}): Promise<{ drawn: DrawnNode; timed: Timed[]; answerOf: (call: ToolRun) => Record<string, unknown> | undefined }> {
   const runs = runsOf(tree);
-  const unscreened = toolNodesOf(tree).find(node => node.part === undefined && !screens.has(node.tool));
+  const nodes = toolNodesOf(tree);
+  const unscreened = nodes.find(node => node.part === undefined && !screens.has(node.tool));
   if (unscreened) throw new Error(`${unscreened.tool} has no module screen in its card, so no page can draw it.`);
+  const required = new Set(nodes.filter(node => node.required).map(node => runKey(node.tool, node.input)));
   const timed: Timed[] = [];
-  const answers = new Map(await Promise.all(runs.map(async call => {
+  const settled = await Promise.allSettled(runs.map(async call => {
     const started = performance.now();
-    const answer = await run(call);
-    timed.push({ tool: call.tool, ms: Math.round(performance.now() - started) });
-    if (!answer || typeof answer !== 'object' || Array.isArray(answer)) throw new Error(`${call.tool} answered something that is not an object, so its screen has no props.`);
-    return [runKey(call.tool, call.input), answer as Record<string, unknown>] as const;
-  })));
+    try {
+      const answer = await run(call);
+      if (!answer || typeof answer !== 'object' || Array.isArray(answer)) throw new Error(`${call.tool} answered something that is not an object, so its screen has no props.`);
+      return [runKey(call.tool, call.input), answer as Record<string, unknown>] as const;
+    } finally {
+      timed.push({ tool: call.tool, ms: Math.round(performance.now() - started) });
+    }
+  }));
+  const answers = new Map<string, Record<string, unknown>>();
+  settled.forEach((outcome, i) => {
+    const key = runKey(runs[i].tool, runs[i].input);
+    if (outcome.status === 'fulfilled') return void answers.set(...outcome.value);
+    if (required.has(key)) throw outcome.reason;
+    log(`${runs[i].tool} did not answer, so its part of the page is left out: ${(outcome.reason as Error)?.message ?? String(outcome.reason)}`);
+  });
   const drawn = (node: LayoutNode): DrawnNode => {
     if ('text' in node) return { text: node.text };
     if ('go_to' in node) return { text: node.go_to };
@@ -159,6 +175,7 @@ export async function drawnTreeOf(tree: LayoutNode, screens: Map<string, Screen>
     }
     if ('nodes' in node) return { nodes: node.nodes.map(drawn) };
     if ('tool' in node) {
+      if (!answers.has(runKey(node.tool, node.input))) return { nodes: [] };
       const screen = node.part === undefined ? screens.get(node.tool)! : { file: node.part, export: node.export ?? 'View' };
       return { module: moduleKey(screen.file, screen.export), props: { ...(node.props ?? {}), ...answers.get(runKey(node.tool, node.input)) } };
     }

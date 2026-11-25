@@ -19,7 +19,9 @@
 //
 //   A layout is one node or a list of nodes (drawn one after another). A layout node is one of:
 //     { "part": "<folder under tools>/show/.../<File>.tsx", "export": "<Name>", "props": {...}, "children": [node...] }
-//     { "tool": "tool:<id>", "input": {...}, "props": {...} }   that tool's screen, drawn with its answer
+//     { "tool": "tool:<id>", "input": {...}, "props": {...} }   that tool's screen, drawn with its answer; when the tool fails the
+//                                               node draws nothing and the rest of the page is drawn, unless it says
+//                                               "required": true (then the page fails, as when the page row's own tool does)
 //     { "tool": "tool:<id>", "input": {...}, "part": "...", "export": "<Name>", "props": {...} }
 //                                               another screen file of the tools folder, drawn with that tool's answer
 //                                               (a second look at the same answer, such as a carousel of the same pairs)
@@ -49,7 +51,7 @@ export type Access = 'public' | 'members';
 
 export type LayoutNode =
   | { part: string; export?: string; props?: Record<string, unknown>; children?: LayoutNode[] }
-  | { tool: string; input?: unknown; part?: string; export?: string; props?: Record<string, unknown> }
+  | { tool: string; input?: unknown; part?: string; export?: string; props?: Record<string, unknown>; required?: true }
   | { main: true; props?: Record<string, unknown> }
   | { text: string }
   | { words: true }
@@ -141,11 +143,13 @@ function checkNode(node: unknown, where: string, hasTool: boolean, wordsPage: bo
   }
   if ('tool' in n) {
     if (typeof n.tool !== 'string' || !TOOL_ID.test(n.tool)) throw new PageRowError(`${where}: tool is a tool id such as tool:read-the-courses.`);
+    if (n.required !== undefined && n.required !== true) throw new PageRowError(`${where}: required is true or left out.`);
+    const required = n.required === true ? { required: true as const } : {};
     if (n.part === undefined) {
       if (n.export !== undefined) throw new PageRowError(`${where}: export names a part's export, and this tool node names no part.`);
-      return { tool: n.tool, input: n.input ?? {}, ...propsOf(n.props, where) };
+      return { tool: n.tool, input: n.input ?? {}, ...propsOf(n.props, where), ...required };
     }
-    return { tool: n.tool, input: n.input ?? {}, part: partOf(n.part, where), export: exportOf(n.export, where), ...propsOf(n.props, where) };
+    return { tool: n.tool, input: n.input ?? {}, part: partOf(n.part, where), export: exportOf(n.export, where), ...propsOf(n.props, where), ...required };
   }
   const name = exportOf(n.export, where);
   const part = partOf(n.part, where);

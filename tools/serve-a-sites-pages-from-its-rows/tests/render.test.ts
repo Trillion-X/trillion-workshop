@@ -27,12 +27,32 @@ test('the main node becomes the page\'s own tool with its slug, and each run is 
   assert.deepEqual(modulesOf(drawn), ['c/show/C.tsx#View', `${TEXT}#Text`]);
 });
 
-test('a tool with no module screen, or an answer that is not an object, refuses the page', async () => {
-  const tree = { tool: 'tool:read-c', input: {} };
+test('a tool with no module screen refuses the page; a required tool that fails, or answers no object, refuses it too', async () => {
+  const tree = { tool: 'tool:read-c', input: {}, required: true as const };
   await assert.rejects(drawnTreeOf(tree, new Map(), async () => ({})), /no module screen/);
   const screens = new Map([['tool:read-c', { file: 'c/show/C.tsx', export: 'View' }]]);
   await assert.rejects(drawnTreeOf(tree, screens, async () => [1, 2]), /not an object/);
   await assert.rejects(drawnTreeOf(tree, screens, async () => { throw new Error('door down'); }), /door down/);
+});
+
+test('one failing tool among good ones leaves only its own nodes out, says why, and the rest of the page is drawn', async () => {
+  const tree = { part: TEXT, export: 'Text', children: [
+    { tool: 'tool:read-c', input: { id: 'a' } }, { tool: 'tool:read-clips', input: {} }, { tool: 'tool:read-c', input: { id: 'b' } },
+  ] };
+  const screens = new Map([['tool:read-c', { file: 'c/show/C.tsx', export: 'View' }], ['tool:read-clips', { file: 'c/show/Clips.tsx', export: 'View' }]]);
+  const told: string[] = [];
+  const { drawn, timed } = await drawnTreeOf(tree, screens, async call => {
+    if (call.tool === 'tool:read-clips') throw new Error('the engine refused the read');
+    return { title: (call.input as { id: string }).id };
+  }, undefined, line => told.push(line));
+  assert.deepEqual(drawn, { module: `${TEXT}#Text`, children: [
+    { module: 'c/show/C.tsx#View', props: { title: 'a' } }, { nodes: [] }, { module: 'c/show/C.tsx#View', props: { title: 'b' } },
+  ] });
+  assert.equal(timed.length, 3, 'the failed run is timed too');
+  assert.deepEqual(told, ['tool:read-clips did not answer, so its part of the page is left out: the engine refused the read']);
+  // The same node marked required fails the page.
+  const strict = { ...tree, children: [tree.children[0], { ...tree.children[1], required: true as const }] };
+  await assert.rejects(drawnTreeOf(strict, screens, async call => { if (call.tool === 'tool:read-clips') throw new Error('refused'); return {}; }), /refused/);
 });
 
 test('a drawn tree whose module the bundle lacks is never drawn with it left out', () => {
@@ -89,6 +109,6 @@ test('a ":name" in a node\'s props, or in a layout tool node\'s input, takes the
   });
   assert.deepEqual(treeOf(page, { slug: 'x' }), {
     part: TEXT, export: 'Text', props: { current: 'x', word: ':other' },
-    children: [{ tool: 'tool:read-c', input: { id: 'x' }, props: { here: 'x' } }, { tool: 'tool:read-list', input: { except: 'x' } }],
+    children: [{ tool: 'tool:read-c', input: { id: 'x' }, required: true, props: { here: 'x' } }, { tool: 'tool:read-list', input: { except: 'x' } }],
   });
 });

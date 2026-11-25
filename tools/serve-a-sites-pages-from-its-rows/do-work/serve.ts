@@ -407,7 +407,7 @@ export class Site {
       const body = await this.#document(page.title ?? goTo, host, pathname, wordsTree(page.title ?? '', goTo), goTo);
       return { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': cache }, body };
     }
-    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params, query), this.#parts.screens, run, words);
+    const { drawn, timed, answerOf } = await drawnTreeOf(treeOf(page, params, query), this.#parts.screens, run, words, line => this.#log(`${pathname}: ${line}`));
     const answered = page.tool ? answerOf({ tool: page.tool, input: filledInput(page.input, params, query) })?.title : undefined;
     const title = page.title ?? (typeof answered === 'string' && answered.trim() ? answered : null);
     if (title === null) throw new Error(`page ${page.path}: its row has no title and ${page.tool} answered none.`);
