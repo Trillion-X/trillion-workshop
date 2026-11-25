@@ -1,0 +1,40 @@
+{
+  "start_here": "Say to your AI: \"Show the open times for my booking.\" It runs tool:read-a-bookings-open-times, which works out the open times from the busy times given and changes nothing.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:read-a-bookings-open-times",
+    "tool:check-when-i-am-busy"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:read-a-bookings-open-times and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Read a booking's open times",
+      "ask": "Show the open times for my booking.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:read-a-bookings-open-times",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "attemptId": "b1",
+              "busy": []
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"slots\":[{\"startIso\":\"2026-11-23T16:00:00.000Z\",\"endIso\":\"2026-11-23T16:30:00.000Z\"}]}"
+    }
+  ],
+  "drafted_from": "tool row in tools/take-a-booking-one-step-at-a-time/tool-rows.json and steps/serve-booking.ts"
+}

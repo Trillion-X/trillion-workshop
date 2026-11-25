@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Answer my booking question.\" It runs tool:answer-a-booking-question, which keeps the answer of the question the booking waits at and answers the next step.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:answer-a-booking-question"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:answer-a-booking-question and the input.",
+    "3. Read the answer and show it with the page's screen; the tool reads and changes one sitting."
+  ],
+  "worked_examples": [
+    {
+      "title": "Answer a booking question",
+      "ask": "Answer my booking question.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:answer-a-booking-question",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "attemptId": "b1",
+              "value": "Win my league."
+            }
+          }
+        }
+      },
+      "given": "The database holds the page and form rows the step reads (made-up values).",
+      "hands_back": "{\"next\":{\"key\":\"slot\",\"kind\":\"slot\"}}"
+    }
+  ],
+  "drafted_from": "tool row in tools/take-a-booking-one-step-at-a-time/tool-rows.json and steps/serve-booking.ts"
+}

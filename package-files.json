@@ -682,6 +682,213 @@
   }
  ],
  "tool:allow-my-ai-command-line-tools-in-a-folder": [],
+ "tool:answer-a-booking-question": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data",
+    "steps"
+   ],
+   "at": "/opt/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "take-a-booking-one-step-at-a-time",
+   "paths": [
+    "steps",
+    "read-data"
+   ],
+   "at": "/opt/take-a-booking-one-step-at-a-time"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "book-time",
+   "paths": [
+    "read-data/derive-open-slots.ts"
+   ],
+   "at": "/opt/book-time"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  }
+ ],
  "tool:answer-a-checks-questions-with-a-model-on-this-computer": [
   {
    "package": "ask-a-small-model-for-a-verdict",
@@ -6805,6 +7012,213 @@
    "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
   }
  ],
+ "tool:check-a-booking-is-ready": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data",
+    "steps"
+   ],
+   "at": "/opt/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "take-a-booking-one-step-at-a-time",
+   "paths": [
+    "steps",
+    "read-data"
+   ],
+   "at": "/opt/take-a-booking-one-step-at-a-time"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "book-time",
+   "paths": [
+    "read-data/derive-open-slots.ts"
+   ],
+   "at": "/opt/book-time"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+  }
+ ],
  "tool:check-a-bundle-against-package-boundaries": [
   {
    "package": "check-bundle-package-boundaries",
@@ -10010,6 +10424,213 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:choose-a-bookings-time": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data",
+    "steps"
+   ],
+   "at": "/opt/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "take-a-booking-one-step-at-a-time",
+   "paths": [
+    "steps",
+    "read-data"
+   ],
+   "at": "/opt/take-a-booking-one-step-at-a-time"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "book-time",
+   "paths": [
+    "read-data/derive-open-slots.ts"
+   ],
+   "at": "/opt/book-time"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:choose-a-content-style": [
@@ -22319,6 +22940,213 @@
     "read-data/find-the-running-app-and-send-requests-to-it.mjs"
    ],
    "at": "/opt/send-requests-to-an-engine"
+  }
+ ],
+ "tool:keep-a-made-booking": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data",
+    "steps"
+   ],
+   "at": "/opt/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "take-a-booking-one-step-at-a-time",
+   "paths": [
+    "steps",
+    "read-data"
+   ],
+   "at": "/opt/take-a-booking-one-step-at-a-time"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "book-time",
+   "paths": [
+    "read-data/derive-open-slots.ts"
+   ],
+   "at": "/opt/book-time"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:keep-a-mail-attachment": [
@@ -40766,6 +41594,213 @@
     "utils.js"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:read-a-bookings-open-times": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data",
+    "steps"
+   ],
+   "at": "/opt/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "take-a-booking-one-step-at-a-time",
+   "paths": [
+    "steps",
+    "read-data"
+   ],
+   "at": "/opt/take-a-booking-one-step-at-a-time"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "book-time",
+   "paths": [
+    "read-data/derive-open-slots.ts"
+   ],
+   "at": "/opt/book-time"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:read-a-camera-card-index": [
@@ -61852,6 +62887,213 @@
     "node_modules/@noble/hashes"
    ],
    "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
+ "tool:start-a-booking": [
+  {
+   "package": "ask-questions-sort-answers-follow-up",
+   "paths": [
+    "do-work",
+    "read-data",
+    "data",
+    "steps"
+   ],
+   "at": "/opt/ask-questions-sort-answers-follow-up"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "rules",
+    "built-stored-bytes/formula-engine"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+  },
+  {
+   "package": "take-a-booking-one-step-at-a-time",
+   "paths": [
+    "steps",
+    "read-data"
+   ],
+   "at": "/opt/take-a-booking-one-step-at-a-time"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/identity.mjs",
+    "read-data/blake3.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "book-time",
+   "paths": [
+    "read-data/derive-open-slots.ts"
+   ],
+   "at": "/opt/book-time"
+  },
+  {
+   "package": "formula-engine",
+   "paths": [
+    "built-stored-bytes/formula-engine/formula_engine.js",
+    "built-stored-bytes/formula-engine/formula_engine_bg.wasm",
+    "rules/rule-operators.json"
+   ],
+   "at": "/opt/formula-engine"
+  },
+  {
+   "package": "keep-and-wake-ai-sessions-on-this-computer",
+   "paths": [
+    "src/lists.json"
+   ],
+   "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+  },
+  {
+   "package": "keep-lists-of-rows",
+   "paths": [
+    "read-data/configuration-aspects.json",
+    "read-data/configuration-values.mjs",
+    "read-data/saved-view-engine.mjs"
+   ],
+   "at": "/opt/keep-lists-of-rows"
+  },
+  {
+   "package": "run-work-later-or-on-a-repeat",
+   "paths": [
+    "built-stored-bytes/timed-action/timed_action.js",
+    "built-stored-bytes/timed-action/timed_action_bg.wasm",
+    "do-work/timed-action.mjs"
+   ],
+   "at": "/opt/run-work-later-or-on-a-repeat"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/effect-outcomes.json",
+    "src/failure-codes.json",
+    "src/failure.mjs",
+    "src/platform-failures.json"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "package": "query-and-change-list-rows",
+   "paths": [
+    "src"
+   ],
+   "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
   }
  ],
  "tool:start-a-codex-run-on-this-computer": [],
