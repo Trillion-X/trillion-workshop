@@ -145,7 +145,9 @@ export function holdAgainScript(engine, person) {
   return `runuser -u ${engine.user} -- curl -s -m ${Number(SETTINGS.engine.ask_seconds) * 2} -o /dev/null -w '%{http_code}\\n' --unix-socket ${engine.socket} -X POST -H 'content-type: application/json' --data '${body}' http://engine${SETTINGS.engine.add_person_path}\n`;
 }
 
-const CURSOR = /^[A-Za-z0-9:_./#@+=-]{1,512}$/;
+// A cursor is the id of the last wake of the page: letters, digits, a few marks, and the unit separator (U+001F) between its parts
+// (read live Nov 25 2026, 7:39 AM CST); JSON writes that one as \u001f, so nothing but plain text reaches the shell.
+const CURSOR = /^[A-Za-z0-9:_./#@+=\u001f-]{1,512}$/;
 
 /** The script that asks one page of an engine's wake book (wake:list) on its agent socket. The door answers a call only at a
  *  Host it admits (a loopback name, settings.json wakes.host; any other is refused `host_not_admitted`, read live Nov 25 2026, 7:35 AM CST

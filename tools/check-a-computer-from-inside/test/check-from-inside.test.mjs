@@ -272,6 +272,7 @@ test('the wake list is asked on the engine\'s agent socket, a page at a time, an
   assert.match(first, /http:\/\/localhost\/mcp; echo/, 'asked at a Host the door admits');
   assert.match(first, /"method":"wake:list","request_key":"wakes:a:0","input":\{\}/);
   assert.match(wakeListScript(engine, 'chosen--a:b', 'wakes:a:1'), /"input":\{"after":"chosen--a:b"\}/);
+  assert.match(wakeListScript(engine, 'workflow:a-b\u001fchosen--c', 'wakes:a:2'), /"input":\{"after":"workflow:a-b\\u001fchosen--c"\}/, 'the unit separator the engine puts between the parts of a cursor');
   assert.throws(() => wakeListScript(engine, "x'; reboot", 'k'), /cursor was refused/);
   assert.throws(() => wakeListScript(engine, null, "k' k"), /request key was refused/);
   assert.throws(() => wakeListScript({ ...engine, socket: null }, null, 'k'), /no usable agent socket/);
