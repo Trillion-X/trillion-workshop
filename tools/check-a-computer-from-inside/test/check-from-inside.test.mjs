@@ -24,7 +24,7 @@ const DF = [
 const ready = persons => JSON.stringify({ draining: false, persons, offers: [] });
 
 /** A made-up computer: answers each script with the df above and each listen's ready answer from `answers`. */
-function computerAnswering(answers, { addStatus = '200', afterAdd = {} } = {}) {
+function computerAnswering(answers, { addStatus = '200', afterAdd = {}, folders = '' } = {}) {
   const scripts = [];
   let added = false;
   const run = script => {
@@ -33,9 +33,10 @@ function computerAnswering(answers, { addStatus = '200', afterAdd = {} } = {}) {
     const now = added ? { ...answers, ...afterAdd } : answers;
     const lines = [];
     for (const line of script.split('\n')) {
-      const mark = line.match(/^echo '@@(\w+)(?: (\d+) (\S+))?'$/);
+      const mark = line.match(/^echo '@@(\w+)(?: (\d+))?(?: (\S+))?'$/);
       if (!mark) continue;
-      lines.push(`@@${mark[1]}${mark[2] ? ` ${mark[2]} ${mark[3]}` : ''}`);
+      lines.push(`@@${mark[1]}${mark[2] ? ` ${mark[2]}` : ''}${mark[3] ? ` ${mark[3]}` : ''}`);
+      if (mark[1] === 'persons') lines.push(folders);
       if (mark[1] === 'df') lines.push(DF);
       if (mark[1] === 'ready') lines.push(now[mark[3]] ?? '');
     }
@@ -46,7 +47,7 @@ function computerAnswering(answers, { addStatus = '200', afterAdd = {} } = {}) {
 
 test('an engine is read from its row: its slots, its agent socket and the persons it must hold', () => {
   const [engine, gateway] = enginesOf({ units: [engineUnit, gatewayUnit, siteUnit] }, 'the-engine');
-  assert.deepEqual(engine, { unit: 'engine-for-someone.service', user: 'engine-for-someone', listens: ['127.0.0.1:7199', '127.0.0.1:7198'], socket: '/var/lib/engine-for-someone/agent.sock', owners: [OWNER] });
+  assert.deepEqual(engine, { unit: 'engine-for-someone.service', user: 'engine-for-someone', listens: ['127.0.0.1:7199', '127.0.0.1:7198'], persons_folder: null, socket: '/var/lib/engine-for-someone/agent.sock', owners: [OWNER] });
   assert.deepEqual(gateway.owners, [], 'an engine whose row names no local agent must hold no one');
   assert.equal(enginesOf({ units: [siteUnit] }, 'the-engine').length, 0);
   assert.equal(enginesOf({ units: [engineUnit] }).length, 0, 'with no engine program named, no unit is an engine');
@@ -151,4 +152,20 @@ test('the row runs this script with the held key at the path its argument names,
   const packed = Object.fromEntries(files.package_files.map(item => [item.package, item.at]));
   assert.equal(packed['check-a-computer-from-inside'], '/opt/check-a-computer-from-inside');
   assert.equal(packed['administer-a-rented-host'], '/opt/administer-a-rented-host', 'the helper is imported as ../../administer-a-rented-host');
+});
+
+test('each person folder of an engine is measured with its largest files, and nothing is written', async () => {
+  const unit = { ...engineUnit, settings: { ...engineUnit.settings, persons: '/var/lib/engine-for-someone/persons/' } };
+  const folders = [`folder ${OWNER} 10737418240`, `file ${OWNER} 1360000000 tool-runs.sqlite`, `file ${OWNER} 52000000 kept/a file with spaces.bin`, 'folder other-person 4096'].join('\n');
+  const { run, scripts } = computerAnswering({ '127.0.0.1:7198': ready(1) }, { folders });
+  const seen = await checkFromInside(computer([unit]), { run });
+  assert.match(scripts[0], /for d in \/var\/lib\/engine-for-someone\/persons\/\*\/; do .*du -sb .*find "\$d" -xdev -type f -printf .*head -5/);
+  assert.doesNotMatch(scripts[0], /\brm\b|[^2]>|\bmv\b|\btruncate\b/, 'the read writes nothing (only errors go to /dev/null)');
+  assert.deepEqual(seen.engines[0].person_folders, [
+    { person: OWNER, bytes: 10737418240, largest: [{ path: 'tool-runs.sqlite', bytes: 1360000000 }, { path: 'kept/a file with spaces.bin', bytes: 52000000 }] },
+    { person: 'other-person', bytes: 4096, largest: [] },
+  ]);
+  assert.deepEqual(seen.findings, [], 'a folder size is a reading, not a finding');
+  assert.equal(seen.engines.length, 1);
+  assert.equal((await checkFromInside(computer([engineUnit]), { run })).engines[0].person_folders, undefined, 'an engine whose row names no persons folder is not measured');
 });

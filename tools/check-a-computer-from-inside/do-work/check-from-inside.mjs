@@ -6,14 +6,17 @@ import { realpathSync } from 'node:fs';
 // person, read over SSH as the computer's administrator from another computer. Input { name, address, runs,
 // engine_program, host_key, admin_user?, ssh_port?, warn_used_pct?, alert_used_pct?, hold_again?, pretend? }; answer { name, address,
 // checked, checked_at, disks: [{mount, type, size_bytes, used_bytes, available_bytes, used_pct}], engines: [{unit, user, owners, persons,
-// listens: [{listen, answered, persons, draining}], held_again?}], findings: [{computer, at, kind, level, about, said,
+// listens: [{listen, answered, persons, draining}], held_again?, person_folders: [{person, bytes, largest: [{path, bytes}]}]}],
+// findings: [{computer, at, kind, level, about, said,
 // pretend?}] }.
 //
 // The engines are read from the computer's own row (`runs.units`): a unit whose `program` is the input's engine_program
 // is an engine, its slots' (or its own) health_listen are where it answers engine.ready_path, and the persons its
 // settings.local_agents name are the persons it must hold. An engine that answers 0 persons while its row names one is
 // held again (unless hold_again is false): engine.add_person_path with {"person": ...} on the engine's own agent socket,
-// as the engine's own user, the one road the engine takes a person on; then it is read again. Everything else only reads.
+// as the engine's own user, the one road the engine takes a person on; then it is read again. Each person folder in the
+// engine's settings.persons folder is measured (du) with its settings.json persons.largest_files largest files, so a
+// caller can keep its size each run and see what grows. Everything else only reads.
 // `pretend` replaces what was read ({disks: {mount: used_pct}, engines: {unit: persons}, unreachable: true}) so a caller
 // can see the findings of a full disk, an empty engine or a lost computer without making one; a pretended empty engine is
 // never held again, and each finding it makes says pretend: true.
@@ -53,6 +56,7 @@ export function enginesOf(runs, program) {
       unit: unit.unit,
       user: unit.user,
       listens: unique(listens.filter(listen => typeof listen === 'string' && LISTEN.test(listen))),
+      persons_folder: typeof unit.settings?.persons === 'string' && SOCKET.test(unit.settings.persons) ? unit.settings.persons.replace(/\/+$/, '') : null,
       socket: typeof unit.settings?.agent_socket === 'string' && SOCKET.test(unit.settings.agent_socket) ? unit.settings.agent_socket : null,
       owners: unique(agents.map(agent => agent?.person).filter(person => typeof person === 'string' && PERSON.test(person))),
     };
@@ -67,6 +71,14 @@ export function readScript(engines) {
     if (!LISTEN.test(listen)) throw new Error(`An engine's listen address was refused: ${listen}.`);
     lines.push(`echo '${MARK}ready ${index} ${listen}'`, `curl -s -m ${seconds} http://${listen}${SETTINGS.engine.ready_path}; echo`);
   }));
+  const largest = Number(SETTINGS.persons.largest_files);
+  engines.forEach((engine, index) => {
+    if (!engine.persons_folder) return;
+    if (!SOCKET.test(engine.persons_folder)) throw new Error(`An engine's persons folder was refused: ${engine.persons_folder}.`);
+    // Each person's folder: one `folder <person> <bytes>` line, then its largest files as `file <person> <bytes> <path>`.
+    lines.push(`echo '${MARK}persons ${index}'`,
+      `for d in ${engine.persons_folder}/*/; do [ -d "$d" ] || continue; n=$(basename "$d"); echo "folder $n $(du -sb "$d" 2>/dev/null | cut -f1)"; find "$d" -xdev -type f -printf '%s %P\\n' 2>/dev/null | sort -nr | head -${largest} | sed "s#^#file $n #"; done`);
+  });
   lines.push(`echo '${MARK}end'`);
   return `${lines.join('\n')}\n`;
 }
@@ -82,12 +94,13 @@ export function holdAgainScript(engine, person) {
 export function parseRead(stdout) {
   const disks = [];
   const ready = [];
+  const folders = [];
   const skip = new Set(SETTINGS.disk.skip_types);
   let part = null;
   for (const line of String(stdout).split('\n')) {
     if (line.startsWith(MARK)) {
       const [kind, index, listen] = line.slice(MARK.length).split(' ');
-      part = kind === 'ready' ? { index: Number(index), listen, lines: [] } : kind;
+      part = kind === 'ready' ? { index: Number(index), listen, lines: [] } : kind === 'persons' ? { persons: Number(index) } : kind;
       if (kind === 'ready') ready.push(part);
       continue;
     }
@@ -100,9 +113,14 @@ export function parseRead(stdout) {
       const usedBytes = Number(used);
       const room = usedBytes + Number(available);
       disks.push({ mount, type, size_bytes: Number(size), used_bytes: usedBytes, available_bytes: Number(available), used_pct: room > 0 ? Math.round((usedBytes / room) * 1000) / 10 : 0 });
+    } else if (part && typeof part === 'object' && 'persons' in part) {
+      const folder = line.match(/^folder ([A-Za-z0-9_-]+) ([0-9]+)$/);
+      const file = line.match(/^file ([A-Za-z0-9_-]+) ([0-9]+) (.+)$/);
+      if (folder) folders.push({ index: part.persons, person: folder[1], bytes: Number(folder[2]), largest: [] });
+      else if (file) folders.findLast(item => item.index === part.persons && item.person === file[1])?.largest.push({ path: file[3], bytes: Number(file[2]) });
     } else if (part && typeof part === 'object') part.lines.push(line);
   }
-  return { disks, ready: ready.map(({ index, listen, lines }) => ({ index, listen, answer: lines.join('\n').trim() })) };
+  return { disks, folders, ready: ready.map(({ index, listen, lines }) => ({ index, listen, answer: lines.join('\n').trim() })) };
 }
 
 const readyOf = answer => {
@@ -190,13 +208,16 @@ export async function checkFromInside(input, options = {}) {
     return { ...base, checked: false, why: said, disks: [], engines: [],
       findings: named([{ kind: 'unreachable', level: 'alert', about: host.address, said, ...(pretend.unreachable ? { pretend: true } : {}) }]) };
   }
-  const { disks, ready } = parseRead(read.stdout);
+  const { disks, ready, folders } = parseRead(read.stdout);
   const pretended = new Set();
   for (const [mount, used] of Object.entries(pretend.disks ?? {})) {
     const disk = disks.find(item => item.mount === mount);
     if (disk && Number.isFinite(Number(used))) { const room = disk.used_bytes + disk.available_bytes; disk.used_pct = Number(used); disk.used_bytes = Math.round(room * Number(used) / 100); disk.available_bytes = room - disk.used_bytes; pretended.add(`disk:${mount}`); }
   }
   const asRead = enginesAsRead(engines, ready);
+  asRead.forEach((engine, index) => {
+    if (engines[index].persons_folder) engine.person_folders = folders.filter(item => item.index === index).map(({ person, bytes, largest }) => ({ person, bytes, largest }));
+  });
   for (const [unit, persons] of Object.entries(pretend.engines ?? {})) {
     const engine = asRead.find(item => item.unit === unit);
     if (engine && Number.isInteger(persons)) { engine.persons = persons; engine.listens.forEach(listen => { if (listen.answered) listen.persons = persons; }); pretended.add(`engine:${unit}`); }

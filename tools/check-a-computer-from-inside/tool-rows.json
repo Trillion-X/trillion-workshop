@@ -6,7 +6,7 @@
         "id": "tool:check-a-computer-from-inside",
         "label": "Check a computer from inside",
         "job": "read how full each disk of one of my computers is and whether each engine it runs holds its person, from another computer, and hold the person again when an engine lost them",
-        "description": "Give the computer's row (its name, address and runs), the program its engines run (engine_program) and its pinned SSH host key. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else.",
+        "description": "Give the computer's row (its name, address and runs), the program its engines run (engine_program) and its pinned SSH host key. It signs in as the computer's administrator with the held key server-administration-ssh-key, reads every disk (df) and asks each engine the row runs for the persons it holds (its ready check on the loopback). A disk at or past warn_used_pct (85 unless given) is a warning and at or past alert_used_pct (92) an alert. An engine that holds no person while its row names one (settings.local_agents) is held again through the engine's own road, POST /persons/add on its agent socket as its own user, read again, and told: a warning when it holds the person again, an alert when it still holds none. Each person folder in the engine's settings.persons folder is measured (du) with its five largest files, as a reading for the caller to keep and compare run by run. A computer that does not answer is an alert; one with no usable address or host key is not checked. pretend replaces what was read ({disks: {mount: percent}, engines: {unit: persons}, unreachable: true}) to see those findings without making them; a pretended engine is never asked. It changes nothing else.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -177,6 +177,34 @@
                   },
                   "held_again": {
                     "type": "object"
+                  },
+                  "person_folders": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "person": {
+                          "type": "string"
+                        },
+                        "bytes": {
+                          "type": "number"
+                        },
+                        "largest": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "path": {
+                                "type": "string"
+                              },
+                              "bytes": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
