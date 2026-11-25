@@ -651,6 +651,11 @@
             "cancel_url": {
               "type": "string"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -662,7 +667,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "checkoutAttemptId",
             "checkoutStartedAt",
             "offerId",
@@ -781,6 +785,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -789,7 +799,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -1116,6 +1126,11 @@
               "type": "array",
               "description": "Your offers: the rows of your commercial-offer list (the values), read by your AI from its store."
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -1127,7 +1142,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "offer_id",
             "price_option_id",
             "payer_ref",
@@ -1243,6 +1257,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -1251,7 +1271,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -1545,6 +1565,11 @@
             "provider_session_id": {
               "type": "string"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -1552,7 +1577,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "provider_session_id"
           ]
         },
@@ -1660,6 +1684,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -1668,7 +1698,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -1971,6 +2001,11 @@
             "created_after_unix": {
               "type": "number"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -1978,7 +2013,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "offer_id"
           ]
         },
@@ -2083,6 +2117,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -2091,7 +2131,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -2366,6 +2406,11 @@
             "max_pages": {
               "type": "number"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -2373,7 +2418,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "created_after_unix"
           ]
         },
@@ -2485,6 +2529,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -2493,7 +2543,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -2764,6 +2814,11 @@
             "max_pages": {
               "type": "number"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -2771,7 +2826,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "ended_after_unix"
           ]
         },
@@ -2880,6 +2934,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -2888,7 +2948,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -3180,6 +3240,11 @@
             "idempotency_key": {
               "type": "string"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -3187,7 +3252,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "payment_schedule",
             "customer_ref",
             "product_name",
@@ -3301,6 +3365,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -3309,7 +3379,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -3579,6 +3649,11 @@
             "invoice_id": {
               "type": "string"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -3586,7 +3661,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "subscription_id"
           ]
         },
@@ -3697,6 +3771,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -3705,7 +3785,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -4022,6 +4102,11 @@
             "at_period_end": {
               "type": "boolean"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -4029,7 +4114,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "subscription_id"
           ]
         },
@@ -4140,6 +4224,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -4148,7 +4238,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -4441,6 +4531,11 @@
               ],
               "description": "The step the billing page opens on: payment_method_update changes the card, subscription_update changes the plan, subscription_cancel cancels. Leave it out for the page itself."
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -4448,7 +4543,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "subscription_id",
             "return_url",
             "subject_email"
@@ -4580,6 +4674,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -4588,7 +4688,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -4875,6 +4975,11 @@
             "metadata": {
               "type": "object"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -4882,7 +4987,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "subscription_id",
             "metadata"
           ]
@@ -4992,6 +5096,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -5000,7 +5110,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -5334,6 +5444,11 @@
               "type": "array",
               "description": "Your code-adjustment rows (checkout-code-adjustment), when a checkout code is used."
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -5341,7 +5456,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "owner",
             "after_payment_url",
             "offers"
@@ -5454,6 +5568,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -5462,7 +5582,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -6959,6 +7079,11 @@
             "idempotency_key": {
               "type": "string"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -6966,7 +7091,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "refresh_url",
             "return_url"
           ]
@@ -7079,6 +7203,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -7087,7 +7217,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -7390,6 +7520,11 @@
             "confirm_moves_money": {
               "type": "boolean"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -7397,7 +7532,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "amount_cents",
             "currency",
             "destination",
@@ -7511,6 +7645,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -7519,7 +7659,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -12301,6 +12441,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -12309,7 +12455,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -12377,6 +12523,11 @@
             "prior_report": {
               "type": "object"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -12384,7 +12535,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "agreement",
             "payer_id",
             "settlement"
@@ -13312,6 +13462,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -13320,7 +13476,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -13367,6 +13523,11 @@
                 "null"
               ]
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -13374,7 +13535,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "report",
             "provider_invoice_item_id"
           ],
@@ -14167,6 +14327,11 @@
               "minimum": 1,
               "maximum": 100
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -14174,9 +14339,7 @@
             }
           },
           "additionalProperties": false,
-          "required": [
-            "seller_connection"
-          ]
+          "required": []
         },
         "output_schema": {
           "type": "object",
@@ -14412,6 +14575,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -14420,7 +14589,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -15233,6 +15402,11 @@
             "max_pages": {
               "type": "number"
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -15244,7 +15418,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "created_after_unix"
           ]
         },
@@ -15359,6 +15532,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -15367,7 +15546,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {
@@ -15641,6 +15820,11 @@
               "format": "email",
               "description": "The signed-in buyer's verified email. The purchase must belong to it, or nothing is read."
             },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
             "seller_connection": {
               "type": "string",
               "pattern": "^service_connection:stripe(:[^:]+)?$",
@@ -15648,7 +15832,6 @@
             }
           },
           "required": [
-            "seller_connection",
             "subscription_id",
             "subject_email"
           ]
@@ -15887,6 +16070,12 @@
           },
           "credential_mounts": [
             {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {"input": "secret_name", "present": true}
+            },
+            {
               "secret_name_from_input": "account",
               "held_suffix": "-stripe-secret-key",
               "fd": 4,
@@ -15895,7 +16084,7 @@
             {
               "fd": 4,
               "field_id": "secret_key",
-              "only_when": {"input": "account", "present": false}
+              "only_when": {"input": "seller_connection", "present": true}
             }
           ],
           "connection": {

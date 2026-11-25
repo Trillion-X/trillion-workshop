@@ -9,7 +9,9 @@
 //   suggested-amount rows are rows the caller's AI reads from its store and passes in the request (`offers`,
 //   `adjustments`, `rules`, `suggestions`).
 //   send     delivers one built Stripe request. By default it is made from the person's own Stripe key, which the row
-//            mounts on descriptor 4 as the field of the seller's connection the input `seller_connection` names; tests pass a stand-in.
+//            mounts on descriptor 4 from exactly one of the inputs `secret_name` (the key's vault name, as it is), `account`
+//            (the account whose key is held as <account>-stripe-secret-key) or `seller_connection` (a field of the seller's
+//            connection); tests pass a stand-in.
 //   secrets  { webhookSecret }: the signing secret the row mounts on descriptor 5 (the connection's `webhook_secret`).
 //   readKey  how a held value is read from its descriptor (tests pass a stand-in; the default reads the descriptor).
 //
@@ -340,9 +342,9 @@ export async function rehearseABillingPageInTestMode(input, context = {}) {
   return rehearseABillingPage(input, testSender(context));
 }
 
-// `seller_connection` is the engine's: it names the connection whose key the row mounts, and is not an input of the read, which
-// refuses any input its row of read-data/stripe-read-shapes.json does not name.
-const readInputOf = ({ seller_connection: _mounted, ...input }) => input;
+// `seller_connection` and `secret_name` are the engine's: they name the key the row mounts, and are not inputs of the read,
+// which refuses any input its row of read-data/stripe-read-shapes.json does not name.
+const readInputOf = ({ seller_connection: _connection, secret_name: _named, ...input }) => input;
 
 /** The promotion codes of the account (one by its code, or those active or not), with the coupon each gives. Reads only. */
 export const readStripePromotionCodes = async (input, context = {}) => readStripeObjects('read:promotion-codes', readInputOf(input), { send: sender(context) });

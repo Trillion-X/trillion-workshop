@@ -47,14 +47,20 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     const mounts = row.invoke.credential_mounts ?? [];
     if (row.invoke.internet) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);
     if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
-    // The key is the seller's own: the row names a field of the seller's Stripe connection, and the run's input says whose.
+    // The key is the seller's own: the run's input names it, by its vault name, by the account it is held for, or as a field
+    // of the seller's Stripe connection. The row never names a key.
     for (const mount of mounts) {
-      if (mount.secret_name_from_input) assert.equal(mount.held_suffix, '-stripe-secret-key', `${row.id} names the account's key by its ending`);
+      if (mount.secret_name_from_input === 'secret_name') assert.ok(mount.held_suffix === undefined && mount.share_by_listing === true, `${row.id} mounts the named key as it is, for a share only when its grant lists that name`);
+      else if (mount.secret_name_from_input) assert.equal(mount.held_suffix, '-stripe-secret-key', `${row.id} names the account's key by its ending`);
       else assert.match(mount.field_id, /^(?:secret_key|test_secret_key|webhook_secret)$/, `${row.id} names a field of the seller's connection`);
     }
     if (mounts.length) {
       assert.deepEqual(row.invoke.connection, { vendor: 'stripe', from_input: 'seller_connection' }, `${row.id} takes the seller's connection from its input`);
-      assert.ok(row.input_schema.required.includes('seller_connection'), `${row.id} requires seller_connection`);
+      // A row with the three roads requires none of them (the engine refuses two, and a run with none holds no key); a row
+      // with only its connection's field requires the connection.
+      const roads = mounts.some(mount => mount.secret_name_from_input === 'secret_name');
+      assert.equal(row.input_schema.required.includes('seller_connection'), !roads, `${row.id} requires seller_connection only when it is the one road`);
+      if (roads) assert.equal(row.input_schema.properties.secret_name?.type, 'string', `${row.id} declares secret_name`);
     }
     // A sample's held values are made up; the one a key-prefix check needs is a visibly made-up test-mode key.
     const held = (row.verify ?? []).flatMap(item => Object.values(item.held ?? {}));
@@ -106,13 +112,34 @@ test('each sample run answers what the row says it should', async () => {
   assert.deepEqual(checked.sort(), ['tool:cancel-prepared-resource-usage-report', 'tool:check-what-a-buyer-paid', 'tool:manage-usage-pricing', 'tool:price-a-sale', 'tool:price-resource-usage', 'tool:read-resource-usage-report', 'tool:read-resource-usage-settlement', 'tool:show-which-offers-a-buyer-may-see']);
 });
 
-test('a seller key is the account the input names, or the seller connection field when the input names none', () => {
+// The engine's rules for which items a run mounts (trillion-rust src/tool_runs/tools/container.rs `mount_applies` and the
+// one-place check in `mounts_of`): an item with only_when {input, present} applies when that input holds text (or not), and two
+// items that apply on one descriptor refuse the run before it starts.
+const applies = (mount, input) => !mount.only_when || (typeof input[mount.only_when.input] === 'string' && input[mount.only_when.input] !== '') === mount.only_when.present;
+const mountsFor = (row, input) => {
+  const mounted = row.invoke.credential_mounts.filter(mount => applies(mount, input));
+  if (new Set(mounted.map(mount => mount.fd)).size !== mounted.length) return 'refused: two keys on one descriptor';
+  return mounted;
+};
+
+test('a seller key is named by exactly one of secret_name, account and seller_connection; two together are refused', () => {
   const seller = rows.filter(row => row.invoke.connection?.from_input === 'seller_connection' && row.invoke.credential_mounts?.some(mount => mount.field_id === 'secret_key'));
-  assert.ok(seller.length > 0);
+  assert.equal(seller.length, 19);
+  const named = 'a-sellers-stripe-key';
   for (const row of seller) {
     assert.deepEqual(row.invoke.credential_mounts, [
+      { secret_name_from_input: 'secret_name', share_by_listing: true, fd: 4, only_when: { input: 'secret_name', present: true } },
       { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },
-      { fd: 4, field_id: 'secret_key', only_when: { input: 'account', present: false } },
-    ], `${row.id} mounts one key by account, or by the seller connection field`);
+      { fd: 4, field_id: 'secret_key', only_when: { input: 'seller_connection', present: true } },
+    ], `${row.id} mounts one key, by its name, by account, or by the seller connection field`);
+    // Each road alone mounts its one key on descriptor 4.
+    assert.deepEqual(mountsFor(row, { secret_name: named }).map(mount => mount.secret_name_from_input), ['secret_name'], `${row.id}: secret_name alone`);
+    assert.deepEqual(mountsFor(row, { account: 'shop' }).map(mount => [mount.secret_name_from_input, mount.held_suffix]), [['account', '-stripe-secret-key']], `${row.id}: account alone, as before`);
+    assert.deepEqual(mountsFor(row, { seller_connection: 'service_connection:stripe:shop' }).map(mount => mount.field_id), ['secret_key'], `${row.id}: seller_connection alone`);
+    // Two roads given together are refused before the run starts; none mounts no key.
+    for (const both of [{ secret_name: named, account: 'shop' }, { secret_name: named, seller_connection: 'service_connection:stripe' }, { account: 'shop', seller_connection: 'service_connection:stripe' }]) {
+      assert.equal(mountsFor(row, both), 'refused: two keys on one descriptor', `${row.id}: ${Object.keys(both).join(' and ')}`);
+    }
+    assert.deepEqual(mountsFor(row, {}), [], `${row.id}: no road, no key`);
   }
 });
