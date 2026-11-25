@@ -655,7 +655,8 @@ async function startWaiter({ carrier, resolved, signal, nowMs, onWriteOutcome, c
     // Kept under the waiter as well as its address: two waiters may emit at one address (every service-list and row-change
     // waiter emits at where::something-changed), and one's state read as the other's made a restarted waiter take the
     // other's list as all it had seen, so every change made while it was down was never told (Nov 19 2026).
-    current = await carrier.readCurrent(emitted.address_label, declared.waiter_ref);
+    // Its place is taken only from where it reads (`where`, as its facts name it): a place read elsewhere is no place.
+    current = await carrier.readCurrent(emitted.address_label, declared.waiter_ref, connection ?? declared.where ?? null);
   } catch (error) {
     // A place store that could not be read (places_in's database, do-work/kept-places.mjs) is no empty place: starting
     // from now would pass over what changed while it could not be read, so the waiter crashes and is started again.

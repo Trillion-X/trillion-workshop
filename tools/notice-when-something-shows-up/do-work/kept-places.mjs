@@ -23,6 +23,15 @@
 // Postgres server, so a copy that starts from another database's place on the same server goes on from that point in
 // the server's order of transactions.
 //
+// A place is taken only from the place it was read in (Nov 25 2026, 2:04 PM CST): each place a waiter keeps holds its last
+// fact, and that fact names where it was read (`payload.where`, the vault name the waiter reads with). A place whose
+// `where` is not the waiter's own is read as no place, whichever key or store it was found under, and the run says so
+// (`placeIsFrom`, tell-the-engine.mjs `place_ignored`). Found in a pursuit's sign-ins database: its kept_waiter_places
+// held, under both the shared key and its sign-ins copy's own key, a place read in the pursuit's other database (position
+// 1245) while the sign-ins change table ends at position 28, so the sign-ins copy would have gone on from 1245 and passed
+// over its next 1,217 changes without a word. A place that names no `where` (a waiter whose facts carry none, such as a
+// due time's) is taken as before.
+//
 // The shared key is never written, claimed or removed by a wake's run: it is only read, so every copy that ran before
 // keys named the wake can still carry over from it, in any order, on any computer. A wake switched on for the first time
 // later finds it too, and starts from that place instead of from now; it stops moving once no run without a wake keeps
@@ -107,6 +116,13 @@ const MOST_CLAIMS = 5;
  *  hyphens, trillion-rust src/wake.rs `copied`), so a key with a wake is never taken for one without. */
 export const WAKE_SEPARATOR = '|';
 
+/** Whether `place` may be a waiter's whose facts name `where` (`accepts` for a store's read): one that names no `where`
+ *  itself, or the same one. A waiter that names none (null) takes any place. */
+export function placeIsFrom(place, where) {
+  const its = place?.payload?.where;
+  return where === null || where === undefined || typeof its !== 'string' || its === where;
+}
+
 /** The key one waiter's place is kept under (`as`) and the key it carries over from once (`carriedFrom`, null for none):
  *  the waiter ref and the address it emits at (two waiters that emit at one address keep apart), after the wake that
  *  started the run (`wake`, null for a run no wake started, which keeps under the shared key itself). */
@@ -114,6 +130,14 @@ export function keptKeyOf({ wake = null, waiterRef = null, addressLabel }) {
   const shared = typeof waiterRef === 'string' && waiterRef !== '' ? `${waiterRef}@${addressLabel}` : addressLabel;
   if (typeof wake !== 'string' || wake === '') return { as: shared, carriedFrom: null };
   return { as: `${wake}${WAKE_SEPARATOR}${shared}`, carriedFrom: shared };
+}
+
+/** `place` when `accepts` takes it, else null, telling `ignored` the key it was found under and the place. */
+function acceptedPlace(place, keptAs, accepts, ignored) {
+  if (place === null || place === undefined) return null;
+  if (accepts(place)) return place;
+  ignored({ keptAs, place });
+  return null;
 }
 
 /** The places of one kept folder (`folder`, null for none: kept in memory for this run alone, by the carrier). Each kept
@@ -137,16 +161,18 @@ export function folderPlaces(folder) {
   };
   return {
     kind: 'kept-folder',
-    /** The place of `keptAs`, else the place of `carriedFrom`, writing nothing: what a database store carries in. */
-    peek(keptAs, carriedFrom = null) {
-      return readFile(keptAs) ?? readFile(carriedFrom);
+    /** The place of `keptAs`, else the place of `carriedFrom`, writing nothing: what a database store carries in. A place
+     *  `accepts` refuses is no place (`ignored` is told its key and place). */
+    peek(keptAs, carriedFrom = null, { accepts = () => true, ignored = () => {} } = {}) {
+      return acceptedPlace(readFile(keptAs), keptAs, accepts, ignored) ?? acceptedPlace(readFile(carriedFrom), carriedFrom, accepts, ignored);
     },
     /** The place of `keptAs`. With none, the place of `carriedFrom` is carried over and kept under `keptAs` at once, so
-     *  it is carried once. */
-    async read(keptAs, carriedFrom = null) {
-      const own = readFile(keptAs);
+     *  it is carried once. A place `accepts` refuses is no place: one under `keptAs` is left for the next write to replace. */
+    async read(keptAs, carriedFrom = null, { accepts = () => true, ignored = () => {} } = {}) {
+      const found = readFile(keptAs);
+      const own = acceptedPlace(found, keptAs, accepts, ignored);
       if (own !== null) return own;
-      const carried = readFile(carriedFrom);
+      const carried = acceptedPlace(readFile(carriedFrom), carriedFrom, accepts, ignored);
       if (carried !== null) writeFile(keptAs, carried);
       return carried;
     },
@@ -194,19 +220,25 @@ export function databasePlaces({ client, tool, where, keptOn, run, fallback = fo
    *  copy can carry over from it), then the kept folder's own key and its `carriedFrom`. The first row made holds what was
    *  carried in, so it is carried once. Another run that moves the place between the read and the claim makes the claim
    *  read again. */
-  async function claim(keptAs, carriedFrom = null) {
+  async function claim(keptAs, carriedFrom = null, { accepts = () => true, ignored = () => {} } = {}) {
+    /** The first place carried in that `accepts` takes: the database's row of `carriedFrom`, then the kept folder's. */
+    const carriedIn = async () => {
+      const [shared] = carriedFrom === null ? [] : await query(READ_SQL, [tool, carriedFrom]);
+      return acceptedPlace(shared?.place ?? null, carriedFrom, accepts, ignored) ?? fallback.peek(keptAs, carriedFrom, { accepts, ignored });
+    };
     for (let tries = 0; tries < MOST_CLAIMS; tries += 1) {
       const [row] = await query(READ_SQL, [tool, keptAs]);
       if (row) {
         const [claimed] = await query(CLAIM_SQL, [tool, keptAs, row.version, keptOn, run]);
         if (claimed) {
           held.set(keptAs, claimed.version);
-          return row.place ?? null;
+          // A row whose place is another's is claimed, so this run's first write replaces it; until then it reads as no
+          // place, and what is carried in is read as for a key with no row.
+          return acceptedPlace(row.place ?? null, keptAs, accepts, ignored) ?? (row.place ? await carriedIn() : null);
         }
         continue;
       }
-      const [shared] = carriedFrom === null ? [] : await query(READ_SQL, [tool, carriedFrom]);
-      const carried = shared?.place ?? fallback.peek(keptAs, carriedFrom);
+      const carried = await carriedIn();
       const [first] = await query(FIRST_SQL, [tool, keptAs, carried === null ? null : JSON.stringify(carried), keptOn, run]);
       if (first) {
         held.set(keptAs, first.version);
@@ -217,8 +249,8 @@ export function databasePlaces({ client, tool, where, keptOn, run, fallback = fo
   }
   return {
     kind: 'database',
-    async read(keptAs, carriedFrom = null) {
-      return claim(keptAs, carriedFrom);
+    async read(keptAs, carriedFrom = null, options = {}) {
+      return claim(keptAs, carriedFrom, options);
     },
     async write(keptAs, value) {
       if (taken.has(keptAs)) throw taken.get(keptAs);

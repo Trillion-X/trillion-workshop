@@ -58,7 +58,7 @@ import { hostname } from 'node:os';
 import path from 'node:path';
 import { text } from 'node:stream/consumers';
 import { runResidentEmitter, THIS_TOOL } from './emit-arrival-fact.mjs';
-import { folderPlaces, keptKeyOf, placesFor, PLACES_FD } from './kept-places.mjs';
+import { folderPlaces, keptKeyOf, placeIsFrom, placesFor, PLACES_FD } from './kept-places.mjs';
 import { readGivenCredential } from './mechanisms/given-credential.mjs';
 import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 
@@ -200,10 +200,18 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   const takenFrom = new Map();
   /** What one waiter's last fact and state are kept under, and the key a wake's first read carries over from (keptKeyOf). */
   const keyOf = (addressLabel, waiterRef) => keptKeyOf({ wake, waiterRef, addressLabel });
-  /** The place kept under `key.as`, read from the store once (a database store claims it for this run as it reads it). */
-  async function kept(key) {
+  /** The vault name each waiter's facts name as `where`, as its first read of its place said (`readCurrent`). */
+  const whereOf = new Map();
+  /** The place kept under `key.as`, read from the store once (a database store claims it for this run as it reads it). A
+   *  place whose `where` is not the waiter's own (`placeIsFrom`) reads as no place, and is said once. */
+  async function kept(key, waiterRef = null) {
     if (current.has(key.as)) return current.get(key.as);
-    const read = await places.read(key.as, key.carriedFrom);
+    const where = whereOf.get(waiterRef ?? key.as) ?? null;
+    const read = await places.read(key.as, key.carriedFrom, {
+      accepts: place => placeIsFrom(place, where),
+      ignored: ({ keptAs, place }) => say(JSON.stringify({ place_ignored: key.as, found_under: keptAs, its_where: place?.payload?.where ?? null,
+        waiter_where: where, why: 'a place read in another place is no place for this waiter' })),
+    });
     current.set(key.as, read);
     return read;
   }
@@ -259,12 +267,16 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
   return {
     answer,
     async scanUnderPath() { return { entries: waiters }; },
-    async readCurrent(addressLabel, waiterRef) { return kept(keyOf(addressLabel, waiterRef)); },
+    /** The waiter's place; `where` is the vault name its facts name (its connection), the only place it takes a place from. */
+    async readCurrent(addressLabel, waiterRef, where = null) {
+      if (where !== null) whereOf.set(waiterRef ?? keyOf(addressLabel, waiterRef).as, where);
+      return kept(keyOf(addressLabel, waiterRef), waiterRef);
+    },
     async writeRecord(record) {
       const key = keyOf(record.addressLabel, record.waiterRef);
       const { as } = key;
       // The place is claimed before anything is told, and a place another run took is told nothing more.
-      const before = await kept(key);
+      const before = await kept(key, record.waiterRef);
       const taken = places.taken(as);
       if (taken) throw taken;
       const count = told.get(record.addressLabel) ?? 0;
@@ -298,7 +310,7 @@ export function engineCarrier({ door, waiters, fetchImpl = fetch, say = line => 
     },
     async keepState(addressLabel, state, waiterRef) {
       const key = keyOf(addressLabel, waiterRef);
-      await remember(key.as, { payload: (await kept(key))?.payload ?? null, state }, waiterRef);
+      await remember(key.as, { payload: (await kept(key, waiterRef))?.payload ?? null, state }, waiterRef);
     },
     /** The refusal that took this waiter's place from this run (another run claimed it later), or null. */
     placeTaken(waiterRef) { return takenFrom.get(waiterRef) ?? null; },
