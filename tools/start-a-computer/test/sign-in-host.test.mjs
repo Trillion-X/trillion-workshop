@@ -223,6 +223,10 @@ if [ -n "$make" ]; then mkdir -p "$@"; elif [ "$1" = /dev/stdin ]; then cat > "$
   writeFileSync(machine.log, '');
   assert.equal(setUp(machine, { units: [] }, { ...data, apt_sources: [] }).status, 0);
   assert.doesNotMatch(readFileSync(machine.log, 'utf8'), /tools\.example\.test/);
+  // A file already there is written again through a temporary file and one rename, never `install /dev/stdin`, which Ubuntu
+  // 26.04's coreutils (uutils 0.10.0) refuses with "No such file or directory" when the file exists (Nov 24 2026).
+  assert.doesNotMatch(readFileSync(machine.log, 'utf8'), /\/dev\/stdin/);
+  assert.equal(readFileSync(join(machine.root, 'etc/example/package.conf'), 'utf8'), 'one = 1\n');
   const wrong = setUp(machine, { units: [] }, { ...data, files: [], downloads: [], apt_sources: [{ ...data.apt_sources[0], key_sha256: '0'.repeat(64) }] });
   assert.notEqual(wrong.status, 0);
   assert.match(wrong.stderr, /is not the pinned one/);

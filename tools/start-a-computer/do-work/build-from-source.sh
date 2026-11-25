@@ -45,7 +45,8 @@ if [ ! -x "$at/$program" ]; then
   copy="$builds/repository"
   [ -d "$copy" ] || runuser -u "$user" -- git init -q --bare "$copy"
   if [ "$keyed" = true ]; then
-    printf '%s' "$SOURCE" | jq -r '.host_keys[]' | install -o "$user" -g "$user" -m 0644 /dev/stdin "$builds/known_hosts"
+    printf '%s' "$SOURCE" | jq -r '.host_keys[]' > "$builds/known_hosts.new" && chown "$user:$user" "$builds/known_hosts.new" &&
+      chmod 0644 "$builds/known_hosts.new" && mv -f "$builds/known_hosts.new" "$builds/known_hosts"
     runuser -u "$user" -- sh -c 'eval "$(ssh-agent -s)" >/dev/null && trap "ssh-agent -k >/dev/null" EXIT && ssh-add -q - &&
       GIT_SSH_COMMAND="ssh -F /dev/null -o IdentityAgent=$SSH_AUTH_SOCK -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$3" git -C "$0" fetch -q --depth 1 "$1" "$2"' \
       "$copy" "$repository" "$commit" "$builds/known_hosts"

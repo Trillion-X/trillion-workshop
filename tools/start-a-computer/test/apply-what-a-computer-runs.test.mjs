@@ -200,7 +200,9 @@ test('a file with check is checked beside the live one before it replaces it, an
   assert.deepEqual(written, ['/etc/example-greeter/site.conf']);
   assert.deepEqual(restarted, []);
   const write = commands.find(({ command }) => command.includes("site.conf.new'"));
-  assert.match(write.command, /install -m 0644 -o root -g root \/dev\/stdin '\/etc\/example-greeter\/site\.conf\.new' && 'example-check' '--file' '\/etc\/example-greeter\/site\.conf\.new' >\/dev\/null && mv '\/etc\/example-greeter\/site\.conf\.new' '\/etc\/example-greeter\/site\.conf'$/);
+  // Written through a temporary file and one rename, never `install /dev/stdin` (Ubuntu 26.04's uutils refuses an existing file).
+  assert.doesNotMatch(write.command, /\/dev\/stdin/);
+  assert.match(write.command, /t=\$\(mktemp '\/etc\/example-greeter\/\.write\.XXXXXX'\) && cat > "\$t" && chmod 0644 "\$t" && chown root:root "\$t" && mv -f "\$t" '\/etc\/example-greeter\/site\.conf\.new' && 'example-check' '--file' '\/etc\/example-greeter\/site\.conf\.new' >\/dev\/null && mv '\/etc\/example-greeter\/site\.conf\.new' '\/etc\/example-greeter\/site\.conf'$/);
   assert.equal(write.input, 'site\n');
   assert.ok(commands.some(({ command }) => command === "'systemctl' 'reload' 'example-web.service'"));
   assert.ok(!commands.some(({ command }) => command.startsWith('systemctl restart')));

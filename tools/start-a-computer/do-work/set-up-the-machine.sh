@@ -26,9 +26,15 @@ SET_UP=$2
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-computer sets up Debian and Ubuntu machines." >&2; exit 3; }
 export DEBIAN_FRONTEND=noninteractive
 command -v jq >/dev/null 2>&1 || { apt-get update -qq && apt-get install -y -qq jq >/dev/null; }
+# Writes standard input to $3 with mode $1 (and owner $2 when not empty) through a temporary file in its folder, then one
+# rename: `install /dev/stdin FILE` fails on Ubuntu 26.04's coreutils (uutils 0.10.0) whenever FILE already exists.
+put() {
+  tmp=$(mktemp "$(dirname "$3")/.put.XXXXXX") && cat > "$tmp" && chmod "$1" "$tmp" &&
+    { [ -z "$2" ] || chown "$2" "$tmp"; } && mv -f "$tmp" "$3" || { rm -f "$tmp"; return 1; }
+}
 printf '%s' "$SET_UP" | jq -r '(.files // [])[] | .path' | while read -r path; do
   install -d -m 0755 "$(dirname "$path")"
-  printf '%s' "$SET_UP" | jq -j --arg path "$path" '.files[] | select(.path == $path) | .text' | install -m 0644 /dev/stdin "$path"
+  printf '%s' "$SET_UP" | jq -j --arg path "$path" '.files[] | select(.path == $path) | .text' | put 0644 '' "$path"
 done
 printf '%s' "$SET_UP" | jq -r '(.apt_sources // [])[] | .name' | while read -r name; do
   field() { printf '%s' "$SET_UP" | jq -r --arg name "$name" ".apt_sources[] | select(.name == \$name) | .$1"; }
@@ -40,7 +46,7 @@ printf '%s' "$SET_UP" | jq -r '(.apt_sources // [])[] | .name' | while read -r n
     chmod 0644 "$key.new" && mv "$key.new" "$key"
   fi
   install -d -m 0755 "$(dirname "$list")"
-  printf '%s\n' "$line" | install -m 0644 /dev/stdin "$list"
+  printf '%s\n' "$line" | put 0644 '' "$list"
 done
 apt-get update -qq
 apt-get install -y -qq -o Dpkg::Options::=--force-confold $(printf '%s' "$SET_UP" | jq -r '.packages | join(" ")') >/dev/null
@@ -102,7 +108,7 @@ printf '%s' "$RUNS" | jq -r '.units[] | [.user, (.state // ""), (.builds // ""),
   install -d -o "$user" -g "$user" -m 0700 "$state"
   [ -z "$builds" ] || install -d -o "$user" -g "$user" -m 0755 "$builds"
   if [ -n "$key" ] && [ ! -s "$key" ]; then
-    head -c 32 /dev/urandom | base64 -w0 | install -o "$user" -g "$user" -m 0400 /dev/stdin "$key"
+    head -c 32 /dev/urandom | base64 -w0 | put 0400 "$user:$user" "$key"
   fi
 done
 # The folders a unit names (`folders`) that its program needs and does not make itself, such as an engine's persons folder.

@@ -559,7 +559,9 @@ export async function applyWhatItRuns(machine, given, run = onMachine, held = {}
   await writeAll(machine, run, writes.filter(({ path, check }) => inOwned(path) && !check));
   for (const { path, text, binary, check } of writes.filter(({ path, check }) => !inOwned(path) || check)) {
     if (live[path] !== undefined && !inOwned(path)) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
-    const write = `install -d -m 0755 ${q(dirname(path))} && ${binary ? 'base64 -d | ' : ''}install -m 0644 -o root -g root /dev/stdin`;
+    // Through a temporary file and one rename: `install /dev/stdin FILE` fails on Ubuntu 26.04's coreutils (uutils 0.10.0)
+    // whenever FILE already exists. The destination follows this text as its last word.
+    const write = `install -d -m 0755 ${q(dirname(path))} && t=$(mktemp ${q(`${dirname(path)}/.write.XXXXXX`)}) && ${binary ? 'base64 -d' : 'cat'} > "$t" && chmod 0644 "$t" && chown root:root "$t" && mv -f "$t"`;
     // A file that names `check` (an argv, `{file}` the new text's path) is written beside the live one and replaces it only
     // once that command passes: a site file its own server validates, so a bad one never reaches the running program.
     if (check) await run(machine, `${write} ${q(`${path}.new`)} && ${check.map(word => q(word.replaceAll('{file}', `${path}.new`))).join(' ')} >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`, text);
