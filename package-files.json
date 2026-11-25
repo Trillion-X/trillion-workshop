@@ -22887,6 +22887,101 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:keep-every-elestio-firewall": [
+  {
+   "package": "keep-an-elestio-firewall",
+   "paths": [
+    "do-work/keep-an-elestio-firewall.mjs",
+    "do-work/keep-every-elestio-firewall.mjs"
+   ],
+   "at": "/opt/keep-an-elestio-firewall"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/through-the-run-proxy.mjs"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  }
+ ],
  "tool:keep-forum-posts-from-a-public-archive": [
   {
    "package": "research-a-creator-or-topic",

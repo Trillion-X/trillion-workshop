@@ -1,1 +1,1 @@
-{ "public": ["do-work/keep-an-elestio-firewall.mjs"] }
+{ "public": ["do-work/keep-an-elestio-firewall.mjs", "do-work/keep-every-elestio-firewall.mjs"] }

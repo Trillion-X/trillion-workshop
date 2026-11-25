@@ -84,12 +84,23 @@ export function makeElestio({ send = fetch } = {}) {
   };
 }
 
-/** The firewall answer for one request. `read` gives the held token, `post` sends one API call, `wait` waits ms, `now` is ms. */
+/** A session for the account `email`, traded for the held token `read()` gives. */
+export async function signIn(email, { read = () => readFileSync(HELD_DESCRIPTOR, 'utf8'), post = makeElestio() } = {}) {
+  const token = read().trim();
+  if (!token) throw new Error('the held Elestio token is empty: put elestio-api-key in the vault of the computer that runs this');
+  const { jwt } = await post('auth/checkAPIToken', 'auth/checkAPIToken', { email, token });
+  if (typeof jwt !== 'string' || !jwt) throw new Error('auth/checkAPIToken answered no session');
+  return jwt;
+}
+
+/** The firewall answer for one request. `read` gives the held token, `post` sends one API call, `wait` waits ms, `now` is ms;
+ *  `jwt`, when given, is a session already signed in (one sign-in for many services: Elestio refuses bursts of sign-ins). */
 export async function keepAnElestioFirewall(request, {
   read = () => readFileSync(HELD_DESCRIPTOR, 'utf8'),
   post = makeElestio(),
   wait = ms => new Promise(done => setTimeout(done, ms)),
   now = () => Date.now(),
+  jwt: signedIn = null,
 } = {}) {
   const { email, project_id: projectID, vm_id: vmID } = request;
   const want = checkedRules(request.rules);
@@ -97,10 +108,7 @@ export async function keepAnElestioFirewall(request, {
   const waitMs = (request.wait_seconds ?? 300) * 1000;
   const pollMs = (request.poll_seconds ?? 5) * 1000;
 
-  const token = read().trim();
-  if (!token) throw new Error('the held Elestio token is empty: put elestio-api-key in the vault of the computer that runs this');
-  const { jwt } = await post('auth/checkAPIToken', 'auth/checkAPIToken', { email, token });
-  if (typeof jwt !== 'string' || !jwt) throw new Error('auth/checkAPIToken answered no session');
+  const jwt = signedIn ?? await signIn(email, { read, post });
   const ids = { jwt, vmID: String(vmID) };
 
   const state = async () => {

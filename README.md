@@ -155,7 +155,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `keep-a-video-packaging-ledger` | `tool:add-reviewed-videos-to-a-packaging-ledger`, `tool:check-a-compiled-packaging-template-against-the-ledger`, `tool:check-a-packaging-intake-against-the-ledger`, `tool:project-a-packaging-ledger-into-template-source` |
 | `keep-action-surfaces-complete` | `tool:keep-action-surfaces-complete` |
 | `keep-an-ai-loop-from-spinning` | `tool:check-a-model-loops-calls` |
-| `keep-an-elestio-firewall` | `tool:keep-an-elestio-firewall` |
+| `keep-an-elestio-firewall` | `tool:keep-an-elestio-firewall`, `tool:keep-every-elestio-firewall` |
 | `keep-and-wake-ai-sessions-on-this-computer` | `tool:cancel-a-codex-run-on-this-computer`, `tool:connect-an-ai-app-on-this-computer-to-my-account`, `tool:manage-claude-cloud-sessions`, `tool:manage-harness`, `tool:read-a-codex-run-on-this-computer`, `tool:set-up-account-hooks-in-an-ai-app-on-this-computer`, `tool:start-a-codex-run-on-this-computer` |
 | `keep-copies-in-step` | `tool:answer-the-catch-up-here-route`, `tool:say-how-this-device-stands`, `tool:see-if-my-copies-are-in-step`, `tool:settle-two-versions` |
 | `keep-goals-and-focus` | `tool:order-my-goals-under-the-goals-they-serve` |
