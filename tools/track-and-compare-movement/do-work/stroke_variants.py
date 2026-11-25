@@ -1,6 +1,6 @@
 """Make the clip-library variants of every stroke in one recording and keep them in the person's Files.
 
-USAGE: stroke_variants.py --job JOB.json --state STATE.json --work DIR [--spec SPEC.json]
+USAGE: stroke_variants.py --job JOB.json --state STATE.json --work DIR [--spec SPEC.json] [--contacts S1,S2]
 
 JOB: {call (the engine command up to its method), source_identity, source_name, date, person, files_folder, strokes: STROKES.json from find_strokes.py,
       track: TRACK.json from fast_pose.py}
@@ -10,7 +10,8 @@ held as long as wanted); the contact still. Each stroke is cut from its ready to
 side of contact and never past halfway to the next stroke, so a clip holds one stroke.
 All of a stroke's files come from one decode of the source. Before each decode it waits while the 5-minute load
 average is over load_max. STATE records each kept file and its identity, so a stopped run goes on where it stopped
-(keep STATE out of /tmp: a restart empties it).
+(keep STATE out of /tmp: a restart empties it). --contacts makes only the strokes whose contact second is listed (each
+stroke still pads against its real neighbours); without it every stroke is made.
 Prints one line per kept file and a last {"result": ...}.
 """
 import argparse, json, os, subprocess, sys, time
@@ -53,6 +54,7 @@ def main():
     ap.add_argument("--state", required=True)
     ap.add_argument("--work", required=True)
     ap.add_argument("--spec")
+    ap.add_argument("--contacts", help="comma-separated contact seconds of the strokes to make; all when absent")
     a = ap.parse_args()
     spec = dict(SPEC, **(json.load(open(a.spec)) if a.spec else {}))
     job = json.load(open(a.job))
@@ -63,8 +65,11 @@ def main():
     frames, video = track["persons"][0]["frames"], track["video"]
     contacts = sorted(s["contact_s"] for s in json.load(open(job["strokes"]))["strokes"])
     end_s = video["frames"] / video["fps"]
+    wanted = [float(x) for x in a.contacts.split(",")] if a.contacts else None
     kept = failed = 0
     for k, c in enumerate(contacts):
+        if wanted is not None and not any(abs(c - w) < 0.0005 for w in wanted):
+            continue
         sid = f"{job['person'].split()[0].lower()}-{job['date']}-{c:07.2f}s".replace(".", "_")
         before = min(spec["max_pad_s"], c, (c - contacts[k - 1]) / 2 if k else 1e9)
         after = min(spec["max_pad_s"], end_s - c, (contacts[k + 1] - c) / 2 if k + 1 < len(contacts) else 1e9)

@@ -1,4 +1,4 @@
-// Runs the four python test files: the phase alignment of two pose tracks on synthetic skeletons, the pose contract and
+// Runs the python test files: the phase alignment of two pose tracks on synthetic skeletons, the pose contract and
 // cache rule, the side-by-side edit builder, and the selected-object tracker's refusals (plus a real run on a made-up video when the small SAM 2 model
 // is cached). Skips, saying why, when python3 or numpy is missing.
 import test from 'node:test';
@@ -15,6 +15,7 @@ for (const [file, what] of [
   ['test_estimate_pose.py', 'the pose contract makes a keypoint safe, a track is reused only for the same bytes, refusals say what to change'],
   ['test_track_selected_object.py', 'the tracker refuses a bad range, frame rate, point or output folder, and follows a made-up object when its model is cached'],
   ['test_author_comparison_edl.py', 'the side-by-side edit takes labels, layout, mirror and passes from the spec, keeps every crop inside the frame, and refuses a bad spec'],
+  ['test_make_site_clip.py', 'a site clip is cut from its kept stretches, silent unless asked, kept by its identity, and wrong source bytes are refused'],
 ]) {
   test(what, { skip: !ready && 'python3 with numpy is needed', timeout: 900000 }, () => {
     const done = spawnSync('python3', ['-B', join(here, file)], { encoding: 'utf8', timeout: 900000 });
