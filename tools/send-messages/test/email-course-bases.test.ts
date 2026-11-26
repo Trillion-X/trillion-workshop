@@ -298,6 +298,18 @@ describe('the transaction\'s own time, a reply-to and text-only lessons', () => 
   });
 });
 
+describe('a first lesson that fails', () => {
+  it('is answered, not thrown: the sign-up\'s rows are kept and, with retry_failed false, nothing is queued to try again', async () => {
+    const answer = await enrollInEmailCourse({ provider: 'resend', records: [], email: 'buyer@example.com', basis: transaction('p/1'), course: buyers, enrollment_key: 'pay-1', waits_until: true },
+      { ...keys, send: { run: async (_p: unknown, input: { recipients: string[] }) => ({ code: 1, stdout: JSON.stringify({ sent: input.recipients.map(recipient => ({ recipient, error: 'Resend 500: down' })) }) }) }, ...hours(0) });
+    assert.equal(answer.status, 'enrolled');
+    assert.deepEqual(answer.first_lesson, { status: 'failed', why: 'Resend 500: down' });
+    const types = answer.keep.map((row: { type: string }) => row.type).sort();
+    assert.deepEqual(types, ['contact-point', 'email-course-subscription', 'email-course-token', 'email-lesson-due', 'email-lesson-due']);
+    assert.deepEqual(answer.keep.filter((row: Row) => row.type === 'email-lesson-due').map((row: Row) => row.value?.lesson_index).sort(), [1, 2], 'no retry of the welcome');
+  });
+});
+
 describe('an enrollment\'s own variables', () => {
   it('fill its lessons\' subject and words; the engine\'s own names, too many, or a non-text value are refused before anything is kept', async () => {
     const calls: { body: Record<string, unknown> }[] = [];

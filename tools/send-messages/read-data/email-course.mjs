@@ -303,15 +303,23 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     const accountId = imported?.rows?.find((row) => row?.account_id)?.account_id;
     if (typeof accountId !== 'string' || !accountId) throw new Error('Email enrollment could not be saved.');
     const address = subscriptionAddress(course.id, accountId, enrollmentKey);
-    // The first lesson goes now unless this enrollment is still waiting on its caller; then it is queued like the others.
+    // The first lesson goes now unless this enrollment is still waiting on its caller; then it is queued like the others. A
+    // first lesson that fails is answered, not thrown: the enrollment stands (its rows are kept) and a retry is queued as
+    // the course allows, so a failed send never loses the sign-up.
     async function startLessons(state) {
       const first = state.waits === true && !waitsUntil ? 0 : 1;
       for (let index = first; index < state.course.lessons.length; index++) await schedule(state, index);
-      if (first === 1 && !state.sent?.[0]) await deliver({ token: state.unsubscribe_token, lesson_index: 0, waits_until: waitsUntil });
+      if (first === 0) return { status: 'waiting' };
+      if (state.sent?.[0]) return { status: 'already-sent' };
+      try {
+        const { status } = await deliver({ token: state.unsubscribe_token, lesson_index: 0, waits_until: waitsUntil });
+        return { status };
+      } catch (error) {
+        return { status: 'failed', why: error.message };
+      }
     }
     async function resumeActive(state) {
-      await startLessons(state);
-      return { status: 'enrolled', already_enrolled: true };
+      return { status: 'enrolled', already_enrolled: true, first_lesson: await startLessons(state) };
     }
     let existing = currentPayload(await readCurrent(address));
     if (isActive(existing)) return resumeActive(existing);
@@ -347,8 +355,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
       if (isActive(winner)) return resumeActive(winner);
       throw error;
     }
-    await startLessons(state);
-    return { status: 'enrolled', already_enrolled: false };
+    return { status: 'enrolled', already_enrolled: false, first_lesson: await startLessons(state) };
   }
 
   async function captureInterest({ email, consent, course, source }) {

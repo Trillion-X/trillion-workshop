@@ -126,7 +126,7 @@ test('a rejected consent write cannot send a lesson or report enrollment', async
 
 test('enrollment stores consent, schedules later lessons, and sends once', async () => {
   const h = harness();
-  assert.deepEqual(await h.service.enroll({ email: 'Reader@Example.com', basis: agreed, course, source: '/contact' }), { status: 'enrolled', already_enrolled: false });
+  assert.deepEqual(await h.service.enroll({ email: 'Reader@Example.com', basis: agreed, course, source: '/contact' }), { status: 'enrolled', already_enrolled: false, first_lesson: { status: 'sent' } });
   const state = [...h.records.values()].find((row) => row.kind === 'email-course-subscription');
   assert.equal(state.consent_text, course.consent_text);
   assert.equal(state.source, '/contact');
@@ -197,7 +197,7 @@ const receiptCourse = {
 
 test('a receipt step is sent without unsubscribe headers, unsubscribe copy or mailing address', async () => {
   const h = harness();
-  assert.deepEqual(await h.service.enroll({ email: 'reader@example.com', basis: agreed, course: receiptCourse }), { status: 'enrolled', already_enrolled: false });
+  assert.deepEqual(await h.service.enroll({ email: 'reader@example.com', basis: agreed, course: receiptCourse }), { status: 'enrolled', already_enrolled: false, first_lesson: { status: 'sent' } });
   const [receiptSend] = h.asks.filter((ask) => ask.target === 'send-email');
   assert.deepEqual(receiptSend.input.headers, {});
   assert.equal(receiptSend.input.variables.articleUrl, 'https://example.com/lesson-1');
