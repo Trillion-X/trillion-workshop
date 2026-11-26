@@ -109,6 +109,18 @@ async function pageOfStarted(store: Store, attemptId: string) {
   return { sitting, page: await loadLivePage(store, sitting.page) };
 }
 
+// An instant as the calendar tool reads one: whole seconds in UTC, like 2026-08-10T00:00:00Z.
+const instantText = (ms: number) => `${new Date(Math.floor(ms / 1000) * 1000).toISOString().slice(0, 19)}Z`;
+
+// The span a sitting's open times are worked out over: from now to the end of its page's horizon, the two instants
+// tool:check-when-i-am-busy reads the calendar between. It is read with the booking's own login, so a caller (a site's row)
+// needs no read of the sittings or the pages to ask the calendar.
+export async function bookingWindow(store: Store, { attemptId }: { attemptId: string }, { nowMs = () => Date.now() }: Clock = {}) {
+  const { page } = await pageOfStarted(store, attemptId);
+  const now = nowMs();
+  return { from: instantText(now), to: instantText(now + page.horizon_days * DAY_MS) };
+}
+
 // The open times for a sitting, from the busy times given.
 export async function readOpenTimes(store: Store, { attemptId, busy_read }: { attemptId: string; busy_read: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
   const { page } = await pageOfStarted(store, attemptId);

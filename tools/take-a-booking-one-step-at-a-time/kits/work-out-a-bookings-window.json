@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Work out the span my booking's open times are read over.\" It runs tool:work-out-a-bookings-window, which answers from and to for tool:check-when-i-am-busy and changes nothing.",
+  "lists": [],
+  "no_lists_because": "It keeps no list of its own: it works on the form_rows the pursuit database you name already holds, and a sitting is one row there.",
+  "workflows": [],
+  "tools": [
+    "tool:work-out-a-bookings-window",
+    "tool:check-when-i-am-busy"
+  ],
+  "instructions": [
+    "1. Name the pursuit database that holds the form rows, such as example_for_who_runs_it; the computer opens it with the login its vault holds.",
+    "2. Say what you want in plain words; your AI calls tools:run with tool tool:work-out-a-bookings-window and the input.",
+    "3. Give its answer, from and to, to tool:check-when-i-am-busy; that answer is the busy_read of the steps that work out open times."
+  ],
+  "worked_examples": [
+    {
+      "title": "Work out a booking's window",
+      "ask": "Work out the span my booking's open times are read over.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:work-out-a-bookings-window",
+            "input": {
+              "database": "example_for_who_runs_it",
+              "attemptId": "b1"
+            }
+          }
+        }
+      },
+      "given": "The database holds the sitting b1, whose page has a 3-day horizon; the time now is 2026-11-23T12:00:00Z (made-up values).",
+      "hands_back": "{\"from\":\"2026-11-23T12:00:00Z\",\"to\":\"2026-11-26T12:00:00Z\"}"
+    }
+  ],
+  "drafted_from": "tool row in tools/take-a-booking-one-step-at-a-time/tool-rows.json and steps/serve-booking.ts"
+}

@@ -4,7 +4,8 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { PGlite } from '@electric-sql/pglite';
-import { answerBookingQuestion, busyOf, checkBookingReady, chooseSlot, keepBooking, loadLivePage, readOpenTimes, startBooking } from '../steps/booking-steps.ts';
+import { answerBookingQuestion, bookingWindow, busyOf, checkBookingReady, chooseSlot, keepBooking, loadLivePage, readOpenTimes, startBooking } from '../steps/booking-steps.ts';
+import { BOOKING_STEPS } from '../steps/serve-booking.ts';
 import { sqlStore, type Store } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 
 const DDL = `
@@ -66,6 +67,23 @@ test('the email opens the sitting and the first question follows; a bad email is
   const second = await answerBookingQuestion(store, { attemptId: started.attemptId, value: 'Win my league.' }, clock);
   assert.equal(second.next?.key, 'question:1');
   assert.equal((await answerBookingQuestion(store, { attemptId: started.attemptId, value: '' }, clock)).next?.key, 'slot');
+});
+
+test('a sitting\'s window is worked out by the booking step from its own rows, no SQL from the caller: from now to the page\'s horizon', async () => {
+  const { db, store, clock } = await freshDb();
+  const attemptId = await toTheSlotStep(store, clock);
+  const window = await bookingWindow(store, { attemptId }, clock);
+  assert.deepEqual(window, { from: '2026-11-23T12:00:00Z', to: '2026-11-26T12:00:00Z' });
+  // The span the site's row read before with its own SQL over the sitting and its page, at the same instant.
+  const { rows: [read] } = await db.query<{ from_at: string; to_at: string }>(`SELECT to_char(t AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS from_at,
+      to_char((t + make_interval(days => b.horizon_days)) AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"') AS to_at
+    FROM form_rows f JOIN booking_pages b ON b.slug = f.value->>'page', (SELECT $2::timestamptz AS t) now
+    WHERE f.id = 'form-sitting:' || $1 AND f.type = 'form-sitting'`, [attemptId, new Date(NOW).toISOString()]);
+  assert.deepEqual(window, { from: read.from_at, to: read.to_at });
+  assert.deepEqual(Object.keys(await BOOKING_STEPS.window(store, { attemptId })), ['from', 'to']);
+  await assert.rejects(bookingWindow(store, { attemptId: 'no-such-sitting' }, clock));
+  await db.query('UPDATE booking_pages SET live = false WHERE slug = $1', [SLUG]);
+  await assert.rejects(bookingWindow(store, { attemptId }, clock), /not open/);
 });
 
 test('the open times are the windows minus the busy times given; a missing read is refused, never taken for a free calendar', async () => {
