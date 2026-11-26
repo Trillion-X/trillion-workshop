@@ -78,3 +78,18 @@ test('the self-driving screen draws the intro of the page it is given from plain
   assert.match(html, />Begin</);
   assert.doesNotMatch(html, /Go on/);
 });
+
+test('a rating question (a 1 to 10 scale) draws a number box bounded by its range, not a text box, and the check takes a number in range', async () => {
+  const rating = { questionId: 'q1', questionTypeId: 'rating', min: 1, max: 10 };
+  const html = await renderAView(entry, { screen: question({ question: rating }), info, answer: '7' });
+  assert.match(html, /<input[^>]*type="number"[^>]*>/);
+  assert.match(html, /<input[^>]*min="1"[^>]*max="10"[^>]*>|<input[^>]*max="10"[^>]*min="1"[^>]*>/);
+  assert.match(html, /placeholder="1–10"/);
+  assert.doesNotMatch(html, /<textarea/);
+  // The booking page draws its questions with this same AnswerControl (take-a-booking-one-step-at-a-time/show/BookingPage.tsx).
+  // The server's own check: the form's rows say rating 1..10; a number in range is taken, words or 11 are refused.
+  const { checkAnswers } = await import('../do-work/check-answers.mjs');
+  const asked = [{ questionId: 'q1', questionTypeId: 'rating', label: 'Rate your forehand', required: true, validation: { min: 1, max: 10 } }];
+  assert.equal(checkAnswers({ questions: asked, answers: { q1: '7' } }).all_valid, true);
+  for (const bad of ['very good', '11', '0']) assert.equal(checkAnswers({ questions: asked, answers: { q1: bad } }).all_valid, false, bad);
+});

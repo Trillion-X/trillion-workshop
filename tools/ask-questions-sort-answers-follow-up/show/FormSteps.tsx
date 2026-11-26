@@ -9,8 +9,9 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Pure: nothing here fetches or reads the window. The host answers each step and sends each answer; these parts only
 //      draw what they are given and report a change through `onChange`.
-//   2. The control follows the question's type: picks (one or several, with an optional other), link, number, text; any
-//      other type is a longer answer.
+//   2. The control follows the question's type: picks (one or several, with an optional other), link, a number for number and
+//      for rating (a score on a scale: the same number box, bounded by the question's min and max, its placeholder the range
+//      when the question gives none, because the server takes only a number there), text; any other type is a longer answer.
 //   3. `answered` is the one rule for whether Next may be pressed on a required question.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -48,6 +49,11 @@ export type AnswerControlProps = {
   textPlaceholder?: string;
 };
 
+// The types whose answer is a number: the server coerces them to one and refuses anything else ("Enter a valid value").
+const NUMBER_TYPES = new Set(['number', 'rating']);
+// A scale's range as its placeholder ("1–10"), when the question bounds it at both ends.
+const rangeOf = (asked: Asked) => (typeof asked.min === 'number' && typeof asked.max === 'number' ? `${asked.min}–${asked.max}` : undefined);
+
 // The control a question's type asks for: answers to pick (one or several, Other opening a box), a link, a number, a line or a
 // longer answer. Every control is a shared part with the page's field colour.
 export function AnswerControl({ id, label, asked, required, value, onChange, textPlaceholder = '' }: AnswerControlProps) {
@@ -58,7 +64,7 @@ export function AnswerControl({ id, label, asked, required, value, onChange, tex
     return <ChoiceRows label={label} options={asked.options ?? []} multiple={asked.multiple} other={asked.other} otherPlaceholder={asked.placeholder} value={value && typeof value === 'object' ? value : null} onChange={onChange} />;
   }
   if (asked.questionTypeId === 'link') return <Input id={id} type="url" inputMode="url" autoComplete="url" placeholder={asked.placeholder ?? 'https://'} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
-  if (asked.questionTypeId === 'number') return <Input id={id} type="number" inputMode="numeric" min={asked.min} max={asked.max} placeholder={asked.placeholder} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
+  if (NUMBER_TYPES.has(asked.questionTypeId)) return <Input id={id} type="number" inputMode="numeric" min={asked.min} max={asked.max} placeholder={asked.placeholder ?? rangeOf(asked)} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
   if (asked.questionTypeId === 'text') return <Input id={id} placeholder={placeholder} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
   return <Textarea id={id} placeholder={placeholder} required={required} className={['min-h-32 resize-y', field].join(' ')} value={text} onChange={event => onChange(event.target.value)} />;
 }
