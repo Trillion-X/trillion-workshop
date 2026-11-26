@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "ab9869a1e8644160896853d2a9cd7c065b442c68d78326f7702b635eb1e6d7b6",
+  "blake3": "8b4449683e3989488e48bc5f9d5f351d89bde1a50ad37d83d30422f225205129",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -446,7 +446,9 @@
     "write-one-components-documentation-from-its-sources",
     "write-product-words",
     "write-short-email-copy-and-subject-lines-that-sell",
-    "x-mode"
+    "x-mode",
+    "workflow:run-a-course-from-list-rows",
+    "workflow:onboard-new-buyers-in-five-days"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
@@ -11988,7 +11990,7 @@
      "L082",
      "tool:sign-someone-up-for-an-email-course input_schema"
     ],
-    "do": "Call tool:sign-someone-up-for-an-email-course with input {\"email\": \"<the buyer's email>\", \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root>\", \"checkout_url\": \"<the payment link>\", \"from\": \"<verified sending address>\", \"mailing_address\": \"<mailing address>\", \"consent_text\": \"<the words the buyer agreed to>\", \"consent_version\": \"1\", \"lessons\": \"<the five lessons>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"buyer-after-payment\"}. consent is true only when the buyer agreed to the consent words in this run. A buyer who did not agree is not signed up.",
+    "do": "Call tool:sign-someone-up-for-an-email-course with input {\"email\": \"<the buyer's email>\", \"basis\": {\"kind\": \"consent\", \"text\": \"<the words the buyer agreed to>\"}, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root>\", \"checkout_url\": \"<the payment link>\", \"from\": \"<verified sending address>\", \"mailing_address\": \"<mailing address>\", \"consent_text\": \"<the words the buyer agreed to>\", \"consent_version\": \"1\", \"lessons\": \"<the five lessons>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"buyer-after-payment\"}. basis is consent (with course.consent_text as its text) only when the buyer agreed to those words in this run. A buyer who did not agree is not signed up.",
     "done_when": "signed_up is true with the tool's answer for this buyer.",
     "flags": [
      "public"
@@ -12002,7 +12004,7 @@
     "recipe": [
      "onboard-new-buyers-in-five-days"
     ],
-    "run_tool": "{\"tool_id\": \"tool:sign-someone-up-for-an-email-course\", \"input\": {\"email\": \"<the buyer's email>\", \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root>\", \"checkout_url\": \"<the payment link>\", \"from\": \"<verified sending address>\", \"mailing_address\": \"<mailing address>\", \"consent_text\": \"<the words the buyer agreed to>\", \"consent_version\": \"1\", \"lessons\": \"<the five lessons>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"buyer-after-payment\"}}",
+    "run_tool": "{\"tool_id\": \"tool:sign-someone-up-for-an-email-course\", \"input\": {\"basis\": {\"kind\": \"consent\", \"text\": \"<the words the buyer agreed to>\"}, \"course\": {\"checkout_url\": \"<the payment link>\", \"consent_text\": \"<the words the buyer agreed to>\", \"consent_version\": \"1\", \"from\": \"<verified sending address>\", \"id\": \"five-day-start\", \"lessons\": \"<the five lessons>\", \"mailing_address\": \"<mailing address>\", \"public_origin\": \"<https site root>\"}, \"email\": \"<the buyer's email>\", \"provider\": \"<the id of the person's email provider>\", \"source\": \"buyer-after-payment\"}}",
     "step": "sign-up-the-buyer",
     "submit": "{\"type\": \"object\", \"required\": [\"signed_up\"], \"properties\": {\"signed_up\": {\"type\": \"boolean\"}}}",
     "title": "Sign a new buyer up for the five-day course",
@@ -13607,7 +13609,7 @@
      "L082",
      "tool:sign-someone-up-for-an-email-course input_schema"
     ],
-    "do": "Call tool:sign-someone-up-for-an-email-course with input {\"email\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}, \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root of the person's site>\", \"checkout_url\": \"<the payment link from take-payments-with-stripe>\", \"from\": \"<the verified sending address>\", \"mailing_address\": \"<the mailing address the person gives>\", \"consent_text\": \"<the consent words the person's sign-up form shows>\", \"consent_version\": \"1\", \"lessons\": \"<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"business-setup-test\"}. consent is true ONLY when the person agreed to the words in course.consent_text. For a test the owner agrees to it themselves in this step's answer; say so.",
+    "do": "Call tool:sign-someone-up-for-an-email-course with input {\"email\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}, \"basis\": {\"kind\": \"consent\", \"text\": \"<the consent words the person's sign-up form shows>\"}, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root of the person's site>\", \"checkout_url\": \"<the payment link from take-payments-with-stripe>\", \"from\": \"<the verified sending address>\", \"mailing_address\": \"<the mailing address the person gives>\", \"consent_text\": \"<the consent words the person's sign-up form shows>\", \"consent_version\": \"1\", \"lessons\": \"<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"business-setup-test\"}. basis is consent (with course.consent_text as its text) ONLY when the person agreed to the words in course.consent_text. For a test the owner agrees to it themselves in this step's answer; say so.",
     "done_when": "signed_up is true and lesson_1_sent is true, with the tool's answer.",
     "flags": [
      "public"
@@ -13621,7 +13623,7 @@
     "recipe": [
      "run-a-course-from-list-rows"
     ],
-    "run_tool": "{\"tool_id\": \"tool:sign-someone-up-for-an-email-course\", \"input\": {\"email\": {\"from\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}, \"consent\": true, \"course\": {\"id\": \"five-day-start\", \"public_origin\": \"<https site root of the person's site>\", \"checkout_url\": \"<the payment link from take-payments-with-stripe>\", \"from\": \"<the verified sending address>\", \"mailing_address\": \"<the mailing address the person gives>\", \"consent_text\": \"<the consent words the person's sign-up form shows>\", \"consent_version\": \"1\", \"lessons\": \"<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>\"}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"business-setup-test\"}}",
+    "run_tool": "{\"tool_id\": \"tool:sign-someone-up-for-an-email-course\", \"input\": {\"basis\": {\"kind\": \"consent\", \"text\": \"<the consent words the person's sign-up form shows>\"}, \"course\": {\"checkout_url\": \"<the payment link from take-payments-with-stripe>\", \"consent_text\": \"<the consent words the person's sign-up form shows>\", \"consent_version\": \"1\", \"from\": \"<the verified sending address>\", \"id\": \"five-day-start\", \"lessons\": \"<lessons 1 to 5 from write-the-lessons, each with delay_hours (0 for day 1, 24 times day minus 1 otherwise), subject, article_url, text_lines>\", \"mailing_address\": \"<the mailing address the person gives>\", \"public_origin\": \"<https site root of the person's site>\"}, \"email\": {\"$kind\": \"binding\", \"values\": [\"steps\", \"read-facts\", \"facts\", \"owner_email\"]}, \"provider\": \"<the id of the person's email provider>\", \"source\": \"business-setup-test\"}}",
     "step": "test-sign-up",
     "submit": "{\"type\": \"object\", \"required\": [\"signed_up\"], \"properties\": {\"signed_up\": {\"type\": \"boolean\"}, \"lesson_1_sent\": {\"type\": \"boolean\"}}}",
     "title": "Test one sign-up with the owner's own address and consent",

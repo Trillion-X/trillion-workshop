@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "1a8c65a84bc61c8fbe7fe5e3036fa2beeafb3072c3e00e706d3f8b8ed104baa4",
+  "blake3": "8c87b88f7ca5e54e664859343021d1f747f6b527c016e1d6d57c4835e31e8dbc",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -446,7 +446,9 @@
     "write-one-components-documentation-from-its-sources",
     "write-product-words",
     "write-short-email-copy-and-subject-lines-that-sell",
-    "x-mode"
+    "x-mode",
+    "workflow:run-a-course-from-list-rows",
+    "workflow:onboard-new-buyers-in-five-days"
    ],
    "verified_public_mode_recipes": 10,
    "verified_public_mode_steps": 41,
