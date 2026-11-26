@@ -196,6 +196,11 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 
 - `door.pass_credential`: the site's own pass, used for public pages and every row read.
 - `pages.answer_seconds`: how long a public page's tool answer is kept (0 keeps none). A members page's answers are never kept.
+- `pages.settings`: the site's name in its pages database's `site_settings` table (`do-work/site-settings.ts`). That row
+  (`site`, `use`, `site_head`, `served_files`, `actions`) then says what the site runs as itself instead of this file, and is
+  read again with the rows; its `use` must equal `pages.use` (another use is refused, and the last good set stays), and this
+  file then gives none of `site_head`, `served_files` and `actions`. The act the site's key is granted is derived from the same
+  row (`rights.ts` `siteRowsOf`), so the program and its rights read one source.
 - `pass_on`: `[{ "name", "address", "paths", "exact", "hosts", "first", "site_head" }]`. The program is asked for its answer
   uncompressed and it is passed back byte for byte; with `"site_head": true` its whole HTML pages carry the site head (the
   consent bar on the sign-in tool's pages too). A request under one of `paths` (a path and what is under it),

@@ -34,7 +34,9 @@
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login; left out, the
 //                    caller's own login, which only a local run through a command should do), how often the rows
 //                    are read again, and how long a public page's tool answer is kept. The use is also given to every tool
-//                    run whose input names a database and no use (withPagesUse), so a row's tool opens its database under it
+//                    run whose input names a database and no use (withPagesUse), so a row's tool opens its database under it.
+//                    With `settings` (the site's name), the site's site_settings row (site-settings.ts) says site_head,
+//                    served_files and actions instead of this file, read again with the rows; its use must be this use
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
 //                    signed_out "redirect" (302 to page?next=<address>, when left out) or "draw" (the page row at `page` is
@@ -92,6 +94,8 @@ import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyO
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { closedOnHost, ListedPaths, LISTING_UNREAD, NOT_LISTED, servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
 import type { ServedFiles } from './served-files.ts';
+import { actionsTableOf, SITE_NAME, SITE_SETTINGS_SQL, siteHeadOf, siteSettingsOf } from './site-settings.ts';
+import type { SiteSettings } from './site-settings.ts';
 import { filledInput, hasWordsPlace, matchPage, NOT_FOUND, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
 import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, outcomeOf, sendableAddress, setCookieOf } from './actions.ts';
@@ -113,7 +117,9 @@ export interface Settings {
   hosts: string[];
   lang: string;
   door: { address: string; pass_credential?: string; pins?: string[]; origin?: string; key_credential?: string; peer?: boolean };
-  pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number };
+  /** settings: the site's name in its pages database's site_settings table (site-settings.ts), whose row says site_head,
+   *  served_files and actions instead of this file. */
+  pages: { database: string; use?: { purpose: string; surface: string }; refresh_seconds: number; answer_seconds: number; settings?: string };
   sign_in: SignIn & { page: string; signed_out: 'redirect' | 'draw' };
   pass_on: PassOn[];
   addresses?: Record<string, string>;
@@ -203,6 +209,11 @@ export function settingsOf(value: unknown): Settings {
     || !Number.isInteger(p.refresh_seconds) || p.refresh_seconds < 1 || !Number.isInteger(p.answer_seconds) || p.answer_seconds < 0) {
     throw new Error('pages is { database, use?: { purpose, surface }, refresh_seconds (1 or more), answer_seconds (0 or more) }.');
   }
+  if (p.settings !== undefined) {
+    if (typeof p.settings !== 'string' || !SITE_NAME.test(p.settings)) throw new Error('pages.settings is the site\'s name in its site_settings row, such as example.com.');
+    const both = (['site_head', 'served_files', 'actions'] as const).filter(key => (given as Record<string, unknown>)[key] !== undefined);
+    if (both.length) throw new Error(`pages.settings names the site's settings row, which says ${both.join(', ')}; this file does not say them too.`);
+  }
   const i = s.sign_in;
   if (!i || ['address', 'page', 'issuer', 'audience', 'team_claim', 'members_team'].some(key => typeof (i as unknown as Record<string, unknown>)[key] !== 'string') || !i.page.startsWith('/')) {
     throw new Error('sign_in is { address, page (a site path), issuer, audience, team_claim, members_team }.');
@@ -228,12 +239,9 @@ export function settingsOf(value: unknown): Settings {
     if (!Object.hasOwn(named, name)) throw new Error(`pass_on ${on.name} names the address ${name}, which addresses does not hold.`);
     on.address = named[name];
   }
-  if (s.site_head !== undefined && (!s.site_head || typeof s.site_head.tool !== 'string' || !s.site_head.tool.startsWith('tool:')
-    || !s.site_head.input || typeof s.site_head.input !== 'object' || Array.isArray(s.site_head.input))) {
-    throw new Error('site_head is { tool: "tool:<id>", input: { ... } }: the tool whose answer { head, body_start } every page carries.');
-  }
+  siteHeadOf(s.site_head);
   s.address_cookies = addressCookiesOf((given as { address_cookies?: unknown }).address_cookies);
-  if (s.actions !== undefined && (typeof s.actions !== 'string' || !/^[a-z_][a-z0-9_]*$/.test(s.actions))) throw new Error('actions is the table name of the site\'s action rows, such as "site_actions".');
+  actionsTableOf(s.actions);
   if (s.files_store !== undefined) {
     filesStoreOf(s.files_store);
     if (typeof s.files_store.credential !== 'string') throw new Error('files_store.credential names the store\'s read key in the unit\'s credentials.');
@@ -306,8 +314,14 @@ export class Site {
   // The paths each served_files rule's only_listed_by tool names, run with the site's own key.
   #listed: ListedPaths;
 
+  // What the site runs as itself: the settings file's, or, when it names a settings row, that row's as last read.
+  #own: SiteSettings;
+
   constructor(parts: SiteParts) {
     this.#parts = parts;
+    // A site whose settings name a settings row runs nothing of its own until that row is read (read()).
+    const { site_head, served_files, actions } = parts.settings.pages.settings === undefined ? parts.settings : { served_files: [] } as Partial<Settings>;
+    this.#own = { use: parts.settings.pages.use, ...(site_head ? { site_head } : {}), served_files: served_files ?? [], ...(actions ? { actions } : {}) };
     this.#log = parts.log ?? (line => console.error(line));
     this.#listed = new ListedPaths(call => parts.run(parts.sitePass, call));
   }
@@ -325,8 +339,10 @@ export class Site {
 
   /** Reads the page and look rows; throws when they cannot be read or a row is broken. */
   async read(): Promise<void> {
-    const table = this.#parts.settings.actions;
-    const [pages, look, head, actionRows] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL), this.#siteHead(), table ? this.#sql(actionsSql(table)) : []]);
+    const { settings: site, use } = this.#parts.settings.pages;
+    const own = site === undefined ? this.#own : siteSettingsOf(await this.#sql(SITE_SETTINGS_SQL, [site]), site, use);
+    const table = own.actions;
+    const [pages, look, head, actionRows] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL), this.#siteHead(own.site_head), table ? this.#sql(actionsSql(table)) : []]);
     const { actions, refused: refusedActions } = actionsOf(actionRows);
     for (const { path, why } of refusedActions) if (!this.#refusedActions.some(r => r.path === path && r.why === why)) this.#log(`action row set aside: ${why}`);
     const { pages: good, refused } = pagesOf(pages);
@@ -345,12 +361,17 @@ export class Site {
     const formFailed = look.find(row => row.name === FORM_FAILED_ROW)?.value;
     this.#formFailed = typeof formFailed === 'string' && formFailed.trim() ? formFailed.trim() : null;
     this.#head = head;
+    this.#own = own;
     this.#readAt = Date.now();
   }
 
+  /** What the site runs as itself, as last read: its site head, served files and action table. */
+  get own(): SiteSettings {
+    return this.#own;
+  }
+
   // The site head's markup, read by its tool with the rows; a site with no site_head carries none.
-  async #siteHead(): Promise<SiteHeadMarkup | null> {
-    const call = this.#parts.settings.site_head;
+  async #siteHead(call: SiteSettings['site_head']): Promise<SiteHeadMarkup | null> {
     if (!call) return null;
     const answer = await this.#parts.run(this.#parts.sitePass, call) as { head?: unknown; body_start?: unknown } | null;
     if (typeof answer?.head !== 'string' || typeof answer.body_start !== 'string') throw new DoorError(`${call.tool} answered no { head, body_start }.`);
@@ -486,7 +507,7 @@ export class Site {
 
   /** True when a served_files rule closes this host to every path it does not name (rest "not_found"). */
   closed(host: string, pathname: string): boolean {
-    return closedOnHost(this.#parts.settings.served_files, host, pathname);
+    return closedOnHost(this.#own.served_files, host, pathname);
   }
 
   /** True when an action row answers this method at this host and path. Asking keeps the rows fresh, as every request does. */
@@ -618,8 +639,8 @@ export class Site {
     const file = this.#parts.files.answer(pathname);
     if (file) return file;
     this.#fresh();
-    const { files_store: store, member_files: memberFiles, public_files: publicFiles, served_files: servedFiles } = this.#parts.settings;
-    const served = this.#parts.storeFiles ? servedKeyOf(servedFiles, host, pathname) : null;
+    const { files_store: store, member_files: memberFiles, public_files: publicFiles } = this.#parts.settings;
+    const served = this.#parts.storeFiles ? servedKeyOf(this.#own.served_files, host, pathname) : null;
     if (served) {
       const listing = served.rule.only_listed_by;
       if (listing) {
@@ -1036,7 +1057,8 @@ export async function start(settingsFile: string): Promise<http.Server[]> {
     sitePass,
     passes: new MemberPasses(settings.sign_in),
     storeKey,
-    storeFiles: settings.served_files.length > 0 && settings.files_store && storeKey ? new StoreFiles(settings.files_store, storeKey) : null,
+    // A settings row may name served files at any read, so the reader is there whenever the store is.
+    storeFiles: (settings.served_files.length > 0 || settings.pages.settings !== undefined) && settings.files_store && storeKey ? new StoreFiles(settings.files_store, storeKey) : null,
     bundles: new PageBundles(tools, styles, files),
     palette: theme => styles.palette(theme),
     keepFont: async src => {

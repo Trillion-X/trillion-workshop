@@ -93,6 +93,9 @@ const ACTIONS = [
 const LOOK = [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' },
   { name: 'words.form-failed', value: 'The site could not take that. Try again soon.' }];
 
+// The site_settings rows the door answers (a test sets them).
+let siteSettingsRows: Record<string, unknown>[] = [];
+
 // The clips tool:read-the-listed-files lists (each as its .mp4 and .jpg); a test changes it to withdraw one.
 let listedClips: string[] = [];
 
@@ -111,7 +114,7 @@ async function door(look = LOOK, pages = PAGES) {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
-        result = { rows: sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? pages : sql.includes('FROM site_look') ? look : [{ slug: 'first' }, { slug: 'second one' }] };
+        result = { rows: sql.includes('FROM site_settings') ? siteSettingsRows.filter(row => row.site === (run.input as { params?: unknown[] }).params?.[0]) : sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? pages : sql.includes('FROM site_look') ? look : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:start-a-checkout') {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
       } else if (run.tool === 'tool:refuses') {
@@ -948,4 +951,36 @@ test('an answer a row names in outcomes ends the request with its own status and
     assert.deepEqual(d.calls.map(call => call.run.tool), ['tool:say-an-outcome', 'tool:keep-a-lead', 'tool:keep-a-lead']);
     assert.equal((await site.act('/bad-outcomes', undefined, host, form({}))).status, 404, 'an outcome whose status is not 400 to 599 sets the row aside');
   } finally { d.server.close(); }
+});
+
+test('a site whose settings name its settings row reads its site head, served files and action table from that row, read again with the rows', async () => {
+  const d = await door();
+  const store = { endpoint: 'https://store.example.test', region: 'r1', bucket: 'site-files', style: 'path' as const };
+  const storeFiles = new StoreFiles(store, { id: 'key-id', secret: 'key-secret' }, { fetchImpl: (async () => new Response('app', { status: 200 })) as typeof fetch });
+  const use = { purpose: 'serve the site', surface: 'site pages' };
+  const row = { site: 'site.example.test', use, site_head: { tool: 'tool:read-the-site-head', input: { database: 'a_site_for_who_uses_it' } },
+    served_files: [{ paths: ['/app.js'], key_prefix: 'site-files/', cache_seconds: 60 }], actions: 'site_actions' };
+  siteSettingsRows = [row];
+  const told: string[] = [];
+  try {
+    const more = { files_store: { ...store, credential: 'store-read' }, pages: { database: 'a_site_for_who_uses_it', use, refresh_seconds: 60, answer_seconds: 60, settings: 'site.example.test' } };
+    const site = await siteOn(d.address, more, { storeFiles, storeKey: { id: 'key-id', secret: 'key-secret' }, log: line => told.push(line) });
+    assert.match(String((await site.answer('GET', '/', undefined)).body), /consentFirst/, 'the row\'s site head');
+    assert.equal((await site.answer('GET', '/app.js', undefined)).status, 200, 'the row\'s served files');
+    assert.ok(site.acts('POST', 'site.example.test', '/checkout'), 'the row\'s action table');
+    siteSettingsRows = [{ ...row, served_files: null, site_head: null, actions: null }];
+    await site.read();
+    assert.doesNotMatch(String((await site.answer('GET', '/', undefined)).body), /consentFirst/, 'read again: no site head');
+    assert.notEqual((await site.answer('GET', '/app.js', undefined)).status, 200, 'read again: no served file');
+    assert.ok(!site.acts('POST', 'site.example.test', '/checkout'), 'read again: no action table');
+    siteSettingsRows = [{ ...row, use: { purpose: 'other', surface: 'site pages' } }];
+    await assert.rejects(site.read(), /is not the use its rows are read under/, 'a row naming another use is refused, never followed');
+    siteSettingsRows = [];
+    await assert.rejects(site.read(), /holds 0 rows for the site site\.example\.test/);
+    assert.ok(!site.acts('POST', 'site.example.test', '/checkout'), 'a refused read keeps the last good set');
+    for (const key of ['site_head', 'served_files', 'actions']) {
+      assert.throws(() => settings(d.address, { ...more, [key]: key === 'actions' ? 'site_actions' : key === 'served_files' ? [] : row.site_head }), /says .* this file does not say them too/, key);
+    }
+    assert.throws(() => settings(d.address, { ...more, pages: { ...more.pages, settings: 'Not A Site' } }), /pages\.settings/);
+  } finally { d.server.close(); siteSettingsRows = []; }
 });

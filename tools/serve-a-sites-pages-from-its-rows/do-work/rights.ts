@@ -41,6 +41,12 @@
 //   are made from the same rows and cannot disagree. An action whose path has a ":name" part cannot be passed on exactly and
 //   is refused.
 //
+//   siteRowsOf(rows, { database, use, site }) reads a site's rows as its program reads them when its settings name its
+//   site_settings row (site-settings.ts): that row (its use checked), the pages and the action table it names. A computer's
+//   apply derives the act its row applies from them (tools/start-a-computer apply-a-computer-row.mjs, an act given as
+//   { derive_from }), and grantDifference(applied, derived) says what a derived grant adds (widened: never applied without a
+//   person) and drops (narrowed) against the one applied; askedBy names the rows that ask for each tool.
+//
 //   Run as `node do-work/rights.ts SETTINGS_FILE PAGES_FILE ACTIONS_FILE [--reads]`, with the rows as run-sql answers them (the
 //   statements of pages.ts PAGES_SQL and actions.ts actionsSql), it prints { grant, refused } (and pass_on_exact with --reads).
 //
@@ -52,9 +58,10 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { actionsOf } from './actions.ts';
-import { pagesOf } from './pages.ts';
+import { actionsOf, actionsSql } from './actions.ts';
+import { PAGES_SQL, pagesOf } from './pages.ts';
 import type { LayoutNode } from './pages.ts';
+import { SITE_SETTINGS_SQL, siteSettingsOf } from './site-settings.ts';
 
 const RUN_SQL = 'tool:run-sql-in-my-database';
 
@@ -211,6 +218,63 @@ export function derivedGrantOf(site: SiteRows, heldOf: (tool: string) => Held[] 
   const byTool = Object.fromEntries(Object.keys(held).sort().map(tool => [tool,
     Object.fromEntries(Object.keys(held[tool]).sort().map(path => [path, [...held[tool][path]].sort()]))]));
   return { grant: { tools: sorted, identity: 'none', journal: 'input', held_inputs_by_tool: byTool }, refused, ...(options.actions === 'pass_on' ? { pass_on_exact } : {}) };
+}
+
+/** Runs one statement on the site's pages database and answers its rows. */
+export type RowsOf = (sql: string, params: unknown[]) => Promise<Record<string, unknown>[]>;
+
+/** Where a site's rows are: its pages database, the use they are read under, and its name in the site_settings table. */
+export interface SiteRowsAt {
+  database: string;
+  use: { purpose: string; surface: string };
+  site: string;
+}
+
+/** A site's rows as its program reads them: its settings row (site-settings.ts), its pages and its action rows. */
+export async function siteRowsOf(rows: RowsOf, at: SiteRowsAt): Promise<SiteRows> {
+  const own = siteSettingsOf(await rows(SITE_SETTINGS_SQL, [at.site]), at.site, at.use);
+  const [pages, actions] = await Promise.all([rows(PAGES_SQL, []), own.actions ? rows(actionsSql(own.actions), []) : []]);
+  return {
+    settings: { pages: { database: at.database, use: at.use }, ...(own.site_head ? { site_head: own.site_head } : {}), served_files: own.served_files },
+    pages, actions,
+  };
+}
+
+export type Grant = DerivedGrant['grant'];
+
+export interface GrantDifference {
+  /** True when the two grants let the site do exactly the same. */
+  same: boolean;
+  /** What the derived grant lets the site do that the applied one does not: tools, and held names by tool and input path. */
+  widened: { tools: string[]; held: { tool: string; path: string; name: string }[]; other: string[] };
+  /** What the applied grant lets the site do that the derived one no longer asks for. */
+  narrowed: { tools: string[]; held: { tool: string; path: string; name: string }[] };
+}
+
+/**
+ * How a grant derived from the rows differs from the one applied. A change of identity or journal is counted as widening
+ * (`other`), never as narrowing, so it is never applied without a person.
+ */
+export function grantDifference(applied: Grant | null, derived: Grant): GrantDifference {
+  const heldOf = (grant: Grant | null) => Object.entries(grant?.held_inputs_by_tool ?? {})
+    .flatMap(([tool, paths]) => Object.entries(paths).flatMap(([path, names]) => names.map(name => ({ tool, path, name }))));
+  const key = (item: { tool: string; path: string; name: string }) => JSON.stringify([item.tool, item.path, item.name]);
+  const appliedTools = new Set(applied?.tools ?? []), derivedTools = new Set(derived.tools);
+  const appliedHeld = new Map(heldOf(applied).map(item => [key(item), item])), derivedHeld = new Map(heldOf(derived).map(item => [key(item), item]));
+  const other = [
+    ...(applied?.identity !== derived.identity ? [`identity ${JSON.stringify(applied?.identity ?? null)} becomes ${JSON.stringify(derived.identity)}`] : []),
+    ...(applied?.journal !== derived.journal ? [`journal ${JSON.stringify(applied?.journal ?? null)} becomes ${JSON.stringify(derived.journal)}`] : []),
+  ];
+  const widened = { tools: derived.tools.filter(tool => !appliedTools.has(tool)), held: [...derivedHeld].filter(([k]) => !appliedHeld.has(k)).map(([, item]) => item), other };
+  const narrowed = { tools: [...appliedTools].filter(tool => !derivedTools.has(tool)).sort(), held: [...appliedHeld].filter(([k]) => !derivedHeld.has(k)).map(([, item]) => item) };
+  const same = !widened.tools.length && !widened.held.length && !other.length && !narrowed.tools.length && !narrowed.held.length;
+  return { same, widened, narrowed };
+}
+
+/** For each tool, the rows that ask the site to run it (siteCallsOf's `where`), so a finding can name them. */
+export function askedBy(site: SiteRows, tools: string[], options: DeriveOptions = {}): Record<string, string[]> {
+  const { calls } = siteCallsOf(site, options);
+  return Object.fromEntries(tools.map(tool => [tool, [...new Set(calls.filter(call => call.tool === tool).map(call => call.where))].sort()]));
 }
 
 /** Where each tool of a tools folder names a held value from its input, read from every tool folder's tool-rows.json. */

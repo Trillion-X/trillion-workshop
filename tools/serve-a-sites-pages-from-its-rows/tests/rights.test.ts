@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { join } from 'node:path';
-import { derivedGrantOf, heldInputsOfTools, siteCallsOf } from '../do-work/rights.ts';
+import { askedBy, derivedGrantOf, grantDifference, heldInputsOfTools, siteCallsOf, siteRowsOf } from '../do-work/rights.ts';
 import type { Held } from '../do-work/rights.ts';
 
 const USE = { purpose: 'show-the-site', surface: 'site-pages' };
@@ -158,4 +158,39 @@ test('in the reads mode no action is granted, and each public action is one exac
     'the page row named no use: the pages\' use is given to it, as the site gives it');
   assert.deepEqual(pass_on_exact, [{ path: '/target/keep', host: null, method: 'POST' }, { path: '/observe/visit', host: null, method: 'POST' }], 'members actions run as the member and are not passed on');
   assert.deepEqual(refused.map(item => [item.where, item.why]), [['action POST /book/:offer', 'its path has a :name part, so no exact pass_on entry can send it on']]);
+});
+
+test('a site\'s rows are read as its program reads them: the settings row first, its use checked, then its pages and its action table', async () => {
+  const asked: string[] = [];
+  const settingsRow = { site: 'one.example', use: USE, site_head: { tool: 'tool:read-the-site-head', input: { database: 'site_pages' } }, served_files: null, actions: 'site_actions' };
+  const rows = async (sql: string, params: unknown[]) => {
+    asked.push(sql.split(' FROM ')[1]?.split(' ')[0] ?? sql);
+    if (sql.includes('site_settings')) return params[0] === 'one.example' ? [settingsRow] : [];
+    if (sql.includes('FROM pages')) return [page({ path: '/courses', tool: 'tool:read-the-courses', input: { database: 'site_pages' } })];
+    return [action({ path: '/do' })];
+  };
+  const site = await siteRowsOf(rows, { database: 'site_pages', use: USE, site: 'one.example' });
+  assert.deepEqual(asked, ['site_settings', 'pages', '"site_actions"']);
+  const { grant, refused } = derivedGrantOf(site, heldOf);
+  assert.deepEqual(refused, []);
+  assert.deepEqual(grant.tools, ['tool:check-when-i-am-busy', 'tool:read-the-courses', 'tool:read-the-site-head', RUN_SQL]);
+  assert.deepEqual(grant.held_inputs_by_tool['tool:read-the-courses'], { database: ['site_pages'] }, 'the pages\' use is given as the site gives it');
+  await assert.rejects(siteRowsOf(rows, { database: 'site_pages', use: { purpose: 'other', surface: 'x' }, site: 'one.example' }), /is not the use its rows are read under/);
+  await assert.rejects(siteRowsOf(rows, { database: 'site_pages', use: USE, site: 'two.example' }), /holds 0 rows/);
+  assert.deepEqual(askedBy(site, ['tool:read-the-courses', 'tool:check-when-i-am-busy']), { 'tool:read-the-courses': ['page /courses'], 'tool:check-when-i-am-busy': ['action POST /do'] });
+});
+
+test('a derived grant against the applied one: tools and held names it adds widen, ones it drops narrow, identity or journal changes widen', () => {
+  const applied = { tools: ['tool:a', 'tool:b'], identity: 'none' as const, journal: 'input' as const, held_inputs_by_tool: { 'tool:a': { database: ['one', 'two'] } } };
+  assert.deepEqual(grantDifference(applied, structuredClone(applied)), { same: true, widened: { tools: [], held: [], other: [] }, narrowed: { tools: [], held: [] } });
+  const wider = { ...applied, tools: ['tool:a', 'tool:b', 'tool:c'], held_inputs_by_tool: { 'tool:a': { database: ['one', 'two', 'three'] } } };
+  const up = grantDifference(applied, wider);
+  assert.equal(up.same, false);
+  assert.deepEqual(up.widened, { tools: ['tool:c'], held: [{ tool: 'tool:a', path: 'database', name: 'three' }], other: [] });
+  assert.deepEqual(up.narrowed, { tools: [], held: [] });
+  const down = grantDifference(applied, { ...applied, tools: ['tool:a'], held_inputs_by_tool: { 'tool:a': { database: ['one'] } } });
+  assert.deepEqual(down.widened, { tools: [], held: [], other: [] });
+  assert.deepEqual(down.narrowed, { tools: ['tool:b'], held: [{ tool: 'tool:a', path: 'database', name: 'two' }] });
+  assert.deepEqual(grantDifference(applied, { ...applied, journal: 'none' as unknown as 'input' }).widened.other, ['journal "input" becomes "none"']);
+  assert.deepEqual(grantDifference(null, applied).widened.tools, ['tool:a', 'tool:b'], 'nothing applied: everything widens');
 });
