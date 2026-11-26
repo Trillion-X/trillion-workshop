@@ -121,8 +121,13 @@ def widen(crop: dict[str, float], aspect: float, frames: list[dict[str, Any]], s
     return {"crop": widened}
 
 
+HELD_SPAN_S = 0.25  # long enough for the measure tool's 6 fps sampling to take the held frame
+
+
 def cell_check(source: dict[str, Any], aspect: float, measure: Measure, margin: float) -> dict[str, Any]:
-    start, end = float(source["in"]), float(source["out"])
+    start = float(source["in"])
+    # a held frame (a still pass) carries `in` only: what shows is that one frame, measured on the short span from it
+    end = float(source["out"]) if "out" in source else start + HELD_SPAN_S
     measured = measure(source["source"], start, end)
     crop = source["crop"]
     found = crossings(measured["frames"], crop)
