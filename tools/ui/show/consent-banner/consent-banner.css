@@ -13,8 +13,8 @@
   gap: 12px;
   padding: 12px 16px;
   padding-bottom: calc(12px + env(safe-area-inset-bottom));
-  background: var(--bg-surface, #fffdf8);
-  color: var(--text-primary, #191919);
+  background: var(--consent-banner-bg, var(--bg-surface, #fffdf8));
+  color: var(--consent-banner-ink, var(--text-primary, #191919));
   border-top: 1px solid var(--border-primary, #1919191a);
   font: 14px/1.4 var(--font-body, system-ui, sans-serif);
 }
@@ -33,9 +33,9 @@
   font: inherit;
   padding: 8px 14px;
   border-radius: 11px;
-  border: 1px solid var(--text-primary, #191919);
+  border: 1px solid var(--consent-banner-ink, var(--text-primary, #191919));
   background: transparent;
-  color: var(--text-primary, #191919);
+  color: var(--consent-banner-ink, var(--text-primary, #191919));
   cursor: pointer;
 }
 

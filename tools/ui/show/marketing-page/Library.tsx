@@ -82,6 +82,7 @@ export function View({ intro, introHighlight, tabs, entries, selectedTab, select
           <Text as="div" className={styles.mainPreview} data-library-preview={chosen?.id}>
             {chosen?.video ? <MediaFrame url={chosen.video} mediaType="video/mp4" label={chosen.title} className={styles.previewMedia} fill autoPlay muted loop playsInline poster={chosen.still} />
               : chosen?.still ? <MediaFrame url={chosen.large ?? chosen.still} mediaType="image/jpeg" label={chosen.title} className={styles.previewMedia} fill /> : null}
+            {chosen ? <Text as="div" aria-hidden="true" className={styles.previewShade} /> : null}
             {chosen ? (
               <Text as="div" className={styles.previewCopy}>
                 <Text as="strong">{chosen.title}</Text>

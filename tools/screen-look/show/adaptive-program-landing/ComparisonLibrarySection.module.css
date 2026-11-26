@@ -237,11 +237,13 @@
 }
 
 .previewCopy strong {
+  color: white;
   font-size: clamp(1.12rem, 2vw, 1.55rem);
   line-height: 1.15;
 }
 
 .previewCopy small {
+  color: white;
   font-size: 15px;
   line-height: 1.5;
   opacity: 0.72;
@@ -334,6 +336,9 @@
 
 .itemCopy span {
   color: var(--swing-muted);
+  /* An entry's detail line is lighter than its title: the look may give it a family and weight of its own. */
+  font-family: var(--library-detail-font, inherit);
+  font-weight: var(--library-detail-weight, 400);
   font-size: 0.9375rem;
   line-height: 1.5;
   margin-top: 4px;

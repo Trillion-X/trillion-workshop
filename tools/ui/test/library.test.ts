@@ -42,3 +42,10 @@ test('an entry with a picture and no video shows the picture; a shelf with none 
 test('the library is pure: no script', async () => {
   assert.doesNotMatch(await renderAView(entry, { tabs, entries }), /<script/);
 });
+
+// The chosen entry's title sits on its picture under a dark shade, and the part's words are white by their own rules (a Text's
+// default ink would be lost on the picture).
+test('the chosen entry draws a shade under its title', async () => {
+  const html = await renderAView(entry, { tabs, entries });
+  assert.match(html, /previewShade/);
+});

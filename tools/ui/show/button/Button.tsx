@@ -84,7 +84,7 @@ const buttonVariants = cva(
          *  passkey": the page's card colour, the look's firmer line and its words, no sheen and no drop. */
         /** Strong: the look's strongest ink as the fill (a checkout beside softer choices), the page's ground as its words. */
         strong: 'border-[color:var(--button-strong-border-color,transparent)] border-[length:var(--button-strong-border-width,0px)] bg-[var(--button-strong-bg,var(--text-primary))] bg-[image:var(--button-strong-sheen,none)] text-[var(--button-strong-text,var(--bg-primary))] shadow-[var(--button-strong-shadow,0_0_0_0_transparent)] hover:opacity-90',
-        quiet: 'border border-[var(--border-secondary)] bg-[var(--bg-surface)] text-[var(--text-primary)] font-[number:var(--button-font-weight,600)] hover:bg-[var(--glass-bg-hover)]',
+        quiet: 'border border-[var(--border-secondary)] bg-[var(--button-quiet-bg,var(--bg-surface))] text-[var(--button-quiet-text,var(--text-primary))] font-[number:var(--button-font-weight,600)] hover:bg-[var(--glass-bg-hover)]',
         /** Destructive: the look's danger colour in the words and edge on a neutral face, never a fill, so it can never
          *  be mistaken for the strong action, which wears the look's accent (one-look-rules `destructive-is-never-a-fill`). */
         danger: 'border border-status-error/40 bg-transparent text-status-error font-semibold hover:bg-status-error/10',
