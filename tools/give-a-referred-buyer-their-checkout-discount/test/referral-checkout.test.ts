@@ -108,3 +108,14 @@ test('own_code answers from the real table whatever search_path the caller sets,
   for (const text of [...messages, ...notices, ownCode.replace(/--.*$/gm, '')]) assert.equal(/member@example\.com|attacker@example\.com/.test(text), false, 'no stored email in any error or in the function');
   assert.equal(/\bRAISE\b/i.test(ownCode.replace(/--.*$/gm, '')), false, 'the function raises nothing');
 });
+
+test('a temp table named referral_codes made by the caller is not read: own_code answers from public.referral_codes', async () => {
+  const rows = await database();
+  const { db } = rows;
+  await db.exec(`RESET ROLE; GRANT TEMPORARY ON DATABASE postgres TO site_reader; SET ROLE site_reader;
+    CREATE TEMP TABLE referral_codes (email text, code text, made_at timestamptz);
+    INSERT INTO pg_temp.referral_codes VALUES ('attacker@example.com', 'SITE-AB12CD', now());`);
+  const own = async (email: string) => (await rows('select own_code($1, $2) as own', ['SITE-AB12CD', email]))[0].own;
+  assert.equal(await own('attacker@example.com'), false, 'the temp table is not read');
+  assert.equal(await own('member@example.com'), true, 'the real table is');
+});
