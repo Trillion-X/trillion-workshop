@@ -206,7 +206,10 @@ export function requestFromRow(row, { computer, workshop_commit, edits, ...rest 
     filled.push({ at: edit.at, ...(found ? { from: structuredClone(container[key]) } : {}), ...(op === 'to' ? { to: edit.to } : { remove: true }) });
   }
   applyEdits(row, filled);
-  return checkRequest({ computer, workshop_commit, edits: filled, ...rest });
+  // The request as its author would write it: checked as the apply checks it, and handed back unnormalized, so it reads the same.
+  const request = { computer, workshop_commit, edits: filled, ...rest };
+  checkRequest(request);
+  return request;
 }
 
 /** Set the links and return their undo. If installation fails partway through, undo the links already set. */

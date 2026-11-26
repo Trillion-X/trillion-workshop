@@ -234,6 +234,8 @@ test('a request made from the row gives each to and remove edit the from the row
   const made = requestFromRow(live, { computer: 'example-box', workshop_commit: TREE, edits: [{ at: edit.at, to: NEW }, { at: edit.at, to: 'again' }, { at: 'runs.units', add: { unit: 'b.service' } }] });
   assert.deepEqual(made.edits, [{ at: edit.at, from: OLD, to: NEW }, { at: edit.at, from: NEW, to: 'again' }, { at: 'runs.units', add: { unit: 'b.service' } }]);
   assert.equal(applyEdits(live, made.edits).row.runs.units.at(-1).unit, 'b.service');
+  assert.deepEqual(Object.keys(made), ['computer', 'workshop_commit', 'edits'], 'the made request is one the apply reads again as it is');
+  assert.doesNotThrow(() => requestFromRow(live, made));
   const moved = applyEdits(row(), [{ at: edit.at, to: 'someone else' }]).row;
   assert.throws(() => applyEdits(moved, made.edits), /The row changed or the request is stale/);
   assert.throws(() => requestFromRow(live, { computer: 'example-box', workshop_commit: TREE, edits: [{ at: 'runs.nothing[unit=x].y', to: 1 }] }), /no nothing to enter|no element|is not an array/);
