@@ -282,12 +282,15 @@ export function mailSender({ row, door, binding, provider, readLook }) {
   /** The message the binding is given, exactly: { from, to, bcc?, replyTo?, subject, text, html, headers? }, its words
    * drawn in `palette` with the account's mark; a caller's own html, or a template the sending seam fills, goes as it
    * is. mail: the sending row's own choices, { reply_to?, sender_name? }, or nothing. */
-  function composeMail(mail, { to, subject, bcc = null, text = null, markdown = null, headers = null, ...shown }, palette) {
+  function composeMail(mail, { to, subject, bcc = null, text = null, markdown = null, headers = null, reply_to: askedReplyTo = null, ...shown }, palette) {
     const own = Boolean(shown.html || shown.template);
+    // The caller's own reply_to (invariant 1) is the one a send gives when the sending row names none. Before Nov 26 2026 a plain
+    // send's reply_to stayed in the message as a field no binding reads, so a site newsletter's confirm mail went with no Reply-To.
+    const replyTo = mail?.reply_to ?? replyToOf(askedReplyTo);
     const { preheader, action, footer_lines, footer_links, mark, people, ...kept } = shown;
     const drawn = own ? null : drawEmail({ preheader, action, footer_lines, footer_links, mark, people, markdown: markdown ?? text }, settings.site ?? null, palette, settings.made_with ?? null);
     return {
-      from: mail?.sender_name ? { email: settings.from.email, name: mail.sender_name } : mail?.from ?? settings.from, to, ...(bcc?.length ? { bcc } : {}), ...(mail?.reply_to ? { replyTo: mail.reply_to } : {}), subject,
+      from: mail?.sender_name ? { email: settings.from.email, name: mail.sender_name } : mail?.from ?? settings.from, to, ...(bcc?.length ? { bcc } : {}), ...(replyTo ? { replyTo } : {}), subject,
       ...(own ? { ...kept, ...(text ? { text } : {}) } : { ...kept, text: drawn.text, html: drawn.html }),
       ...(headers ? { headers } : {}),
     };
@@ -305,7 +308,12 @@ export function mailSender({ row, door, binding, provider, readLook }) {
     const { from: ignoredMessageFrom, ...words } = message;
     const look = await currentPalette(readLook);
     if (look.error) return { sent: false, error: look.error };
-    const composed = composeMail(mail ? row : null, words, look.palette);
+    let composed;
+    try {
+      composed = composeMail(mail ? row : null, words, look.palette);
+    } catch (error) {
+      return { sent: false, error: error.message };
+    }
     const sent = await deliver(env, composed, kind);
     return sent;
   }
@@ -318,6 +326,13 @@ export function mailSender({ row, door, binding, provider, readLook }) {
   };
 
   const EMAIL_SHAPE = /^[^\s@<>()[\]\\,;:"]{1,64}@[a-z0-9-]+(\.[a-z0-9-]+)+$/i;
+
+  /** A caller's reply_to as the binding takes it: one address, trimmed, or none; anything else is refused in words. */
+  const replyToOf = given => {
+    if (given === null || given === undefined || given === '') return null;
+    if (typeof given !== 'string' || !EMAIL_SHAPE.test(given.trim())) throw new Error(`${given} is not an email address to reply to.`);
+    return given.trim();
+  };
 
   // Who gets a copy of every written email, from the mail row's `written_email_copies`: `account_owner` is the
   // sending account's own address (`owner`, the mail row's own), left out when the email already goes to it.

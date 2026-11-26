@@ -141,6 +141,21 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
     assert.equal(slow.sends, 1);
   });
 
+  it('a plain send carries the caller\'s own reply_to to the binding, and a reply_to that is no address sends nothing', async () => {
+    const { sender, binding } = await senderWith();
+    assert.equal((await sender.sendMail(null, { to: 'proof@example.com', subject: 'Confirm', text: 'hi', reply_to: ' Replies@Example.test ' })).sent, true);
+    assert.equal(binding.sends[0].replyTo, 'Replies@Example.test', 'the binding is given the caller\'s reply_to');
+    assert.ok(!('reply_to' in binding.sends[0]), 'and no stray reply_to field');
+    assert.equal((await sender.sendMail(null, { to: 'proof@example.com', subject: 'No reply', text: 'hi' })).sent, true);
+    assert.ok(!('replyTo' in binding.sends[1]), 'none given, none set');
+    const refused = await sender.sendMail(null, { to: 'proof@example.com', subject: 'Bad', text: 'hi', reply_to: 'not an address' });
+    assert.deepEqual([refused.sent, binding.sends.length], [false, 2], 'refused in words, never sent');
+    assert.match(refused.error, /not an email address to reply to/);
+    const viaRow = await sendAnEmail({ provider: 'resend', to: 'proof@example.com', subject: 'Confirm', text: 'hi', reply_to: 'replies@example.test' }, { provider: 'resend', sender });
+    assert.equal(viaRow.sent[0].messageId, 'm3');
+    assert.equal(binding.sends[2].replyTo, 'replies@example.test', 'the row\'s own input reaches the binding the same way');
+  });
+
   it('the sender comes from the mail row alone, and an account with none sends nothing', async () => {
     const { sender, binding, settings } = await senderWith();
     await sender.sendMail({ from: { email: 'user-76664ba3@example.com', name: 'Someone' } }, { to: 'a@example.com', from: 'Else <else@example.com>', subject: 's', text: 'hi' });
