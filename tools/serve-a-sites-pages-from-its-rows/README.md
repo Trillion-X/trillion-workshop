@@ -290,6 +290,9 @@ site's rows (`rights.ts` `siteRowsOf`); this tool derives it again from the rows
 the granted Workshop folder with git archive), and answers `same`, `widened` (what the rows now ask for that the applied act does
 not give, with `asked_by` naming the rows; `needs_a_person`, never applied on its own), `narrowed` (what the applied act gives that
 the rows no longer ask for; `narrowed_only` may be applied), `refused` and `difference_id` (the BLAKE3 identity of what differs).
+It judges only what the engine it runs on enforces: every tool of the applied and the derived act is read from that engine's own
+`tools:list` and compared with its row at the pin (label, job, description, input and output schema), and a tool the engine runs
+with another row, or does not have, refuses the check by name, so another commit's `rights.ts` never judges silently.
 It reads the computer row and the site's rows through `tool:run-sql-in-my-database` on the run's door and writes nothing. Input:
 `{ "computer_row", "uid", "store" }` (the computer row, the site program's vault reader uid, the held connection of the computer rows).
 

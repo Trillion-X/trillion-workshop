@@ -12,6 +12,10 @@
 //     refused   calls the rows make that no grant can let the site make as written (rights.ts), which need a person too.
 //   It reads the computer's row and the site's rows by running tool:run-sql-in-my-database through the run's door (descriptor
 //   3), by the held connection names the row and its act give; it holds no login and writes nothing.
+//   It judges only with the rows the engine it runs on enforces: every tool of the applied and the derived act is read from the
+//   engine's own tools:list (installedRows) and compared with that tool's row at the pin, and any tool the engine runs with
+//   another row, or does not have, refuses the check by name. So a rights.ts of another commit never judges an engine's tools
+//   silently: the pin and the engine agree on every tool the act names, or there is no answer.
 //
 //   Input: { computer_row, uid, store }: the computer row's name (named so, since a workflow step's `computer` carries the run's
 //   grants), the uid of the vault reader whose act is checked, and the held
@@ -26,10 +30,12 @@
 //      as its program reads them (siteRowsOf). Nothing about any one site is in this file.
 //   2. Read only: nothing is written to either database, and the granted folder is only read.
 //   3. An act that is not given as { derive_from } is refused by name: a hand list has no rows to be checked against.
+//   4. The act's tools as the engine has them (tools:list: label, job, description, input and output schema) equal their rows at
+//      the pin, or the check is refused naming each that differs.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { DerivedGrant, Grant, GrantDifference, RowsOf, SiteRows, SiteRowsAt } from './rights.ts';
@@ -52,8 +58,10 @@ export interface Rights {
 export interface Deps {
   /** Runs one statement through tool:run-sql-in-my-database with the held connection named. */
   runSql(credential: string, sql: string, params: unknown[]): Promise<Record<string, unknown>[]>;
-  /** The rights.ts of a Workshop commit, and its tools folder. */
-  rightsAt(pin: string): Promise<{ rights: Rights; tools: string }>;
+  /** The rights.ts of a Workshop commit, its tools folder, and each tool's row there. */
+  rightsAt(pin: string): Promise<{ rights: Rights; tools: string; rowOf(tool: string): Record<string, unknown> | null }>;
+  /** The rows of these tools as the engine the run is on has them (its tools:list); a tool it does not have is left out. */
+  installedRows(tools: string[]): Promise<Map<string, Record<string, unknown>>>;
   /** The BLAKE3 identity of a JSON value (content-identity). */
   identity(value: unknown): string;
 }
@@ -61,6 +69,25 @@ export interface Deps {
 const NAME = /^[A-Za-z0-9._-]+$/;
 const COMMIT = /^[0-9a-f]{40}$/;
 const isObject = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+/** The fields of a tool's row the engine's tools:list answers as they are in the row. */
+export const LISTED_FIELDS = ['label', 'job', 'description', 'input_schema', 'output_schema'] as const;
+const canonical = (value: unknown): string => JSON.stringify(value, (_key, item) => (isObject(item) ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item)) ?? 'null';
+
+/** Each tool the engine does not run with its row at the pin, and why: not installed there, or the fields that differ. */
+export function differingTools(tools: string[], rowOf: (tool: string) => Record<string, unknown> | null, installed: Map<string, Record<string, unknown>>) {
+  const differing: { tool: string; why: string }[] = [];
+  for (const tool of [...new Set(tools)].sort()) {
+    const row = rowOf(tool);
+    const there = installed.get(tool);
+    if (!row) differing.push({ tool, why: 'no row at the pin' });
+    else if (!there) differing.push({ tool, why: 'not installed on this engine' });
+    else {
+      const fields = LISTED_FIELDS.filter(field => canonical(row[field]) !== canonical(there[field]));
+      if (fields.length) differing.push({ tool, why: `its ${fields.join(', ')} differ` });
+    }
+  }
+  return differing;
+}
 
 /** The input, checked; a wrong one throws naming what each field should be. */
 export function askedOf(value: unknown): Asked {
@@ -86,9 +113,14 @@ export async function checkASitesAct(asked: Asked, deps: Deps) {
     throw new Error(`The act of uid ${asked.uid} on ${asked.computer_row} names no held connection and Workshop commit to derive from.`);
   }
   const applied = act?.derived?.grant ?? null;
-  const { rights, tools } = await deps.rightsAt(from.pin);
+  const { rights, tools, rowOf } = await deps.rightsAt(from.pin);
   const site = await rights.siteRowsOf((sql, params) => deps.runSql(from.connection, sql, params), { database: from.database, use: from.use, site: from.site });
   const { grant, refused } = rights.derivedGrantOf(site, rights.heldInputsOfTools(tools));
+  const named = [...grant.tools, ...(applied?.tools ?? [])];
+  const differing = differingTools(named, rowOf, await deps.installedRows([...new Set(named)]));
+  if (differing.length) {
+    throw new Error(`This engine does not run the act's pin ${from.pin}: ${differing.map(item => `${item.tool} (${item.why})`).join('; ')}. Check on an engine that runs that commit, or move the act's pin to this engine's source.`);
+  }
   const difference = rights.grantDifference(applied, grant);
   const widened = difference.widened.tools.length > 0 || difference.widened.held.length > 0 || difference.widened.other.length > 0;
   const needsAPerson = widened || refused.length > 0;
@@ -104,7 +136,8 @@ export async function checkASitesAct(asked: Asked, deps: Deps) {
   };
 }
 
-/** The pinned commit's tools unpacked once into the kept folder (git archive of the granted Workshop folder), and its rights. */
+/** The pinned commit's tools unpacked once into the kept folder (git archive of the granted Workshop folder), its rights, and
+ * each tool's row there (every tools/<folder>/tool-rows.json record's payload, by id). */
 export function rightsFrom(workshop: string, kept: string) {
   return async (pin: string) => {
     const tree = join(kept, `workshop-${pin}`);
@@ -126,7 +159,37 @@ export function rightsFrom(workshop: string, kept: string) {
     if (typeof rights.siteRowsOf !== 'function' || typeof rights.grantDifference !== 'function' || typeof rights.askedBy !== 'function') {
       throw new Error(`The Workshop commit ${pin} cannot derive a site's act from its settings row; pin the act to a later commit.`);
     }
-    return { rights: rights as Rights, tools: join(tree, 'tools') };
+    const rows = new Map<string, Record<string, unknown>>();
+    for (const folder of readdirSync(join(tree, 'tools'))) {
+      let file: { records?: { payload?: Record<string, unknown> }[] };
+      try { file = JSON.parse(readFileSync(join(tree, 'tools', folder, 'tool-rows.json'), 'utf8')); } catch { continue; }
+      for (const { payload } of file.records ?? []) if (payload && typeof payload.id === 'string') rows.set(payload.id, payload);
+    }
+    return { rights: rights as Rights, tools: join(tree, 'tools'), rowOf: (tool: string) => rows.get(tool) ?? null };
+  };
+}
+
+/** A door that answers the engine's own methods: `operation(method, input, { at })` (records-door.mjs). */
+interface ToolsDoor { toolsAddress: string; operation(method: string, input: unknown, options: { at: string }): Promise<unknown> }
+
+/** The rows of these tools as the engine has them: every id its tools:list pages through (by `after`), then each named one read
+ * with tools:list { tool }, which answers its label, job, description and schemas as they are in the row it installed. */
+export function installedRowsFrom(door: ToolsDoor) {
+  return async (tools: string[]) => {
+    const ids = new Set<string>();
+    let after: string | null = null;
+    do {
+      const page = await door.operation('tools:list', after === null ? {} : { after }, { at: door.toolsAddress }) as { tools?: { id?: unknown }[]; next?: unknown };
+      for (const item of page?.tools ?? []) if (typeof item?.id === 'string') ids.add(item.id);
+      after = typeof page?.next === 'string' && page.next ? page.next : null;
+    } while (after !== null);
+    const rows = new Map<string, Record<string, unknown>>();
+    for (const tool of tools) {
+      if (!ids.has(tool)) continue;
+      const row = await door.operation('tools:list', { tool }, { at: door.toolsAddress });
+      if (isObject(row)) rows.set(tool, row);
+    }
+    return rows;
   };
 }
 
@@ -146,6 +209,7 @@ if (started) {
         return ran.rows as Record<string, unknown>[];
       },
       rightsAt: rightsFrom(workshop, kept),
+      installedRows: installedRowsFrom(door),
       identity: makeHashCodeHexFromJson,
     });
     process.stdout.write(`${JSON.stringify(answer)}\n`);
