@@ -38,7 +38,7 @@
         { "env": "EMAIL_FROM", "input": "from" }
       ],
       "credentials": [
-        { "env": "RESEND_API_KEY", "secret_name_from_input": "key_name", "fd": 4 }
+        { "env": "RESEND_API_KEY", "secret_name_from_input": "key_name", "share_by_listing": true, "fd": 4 }
       ]
     },
     {

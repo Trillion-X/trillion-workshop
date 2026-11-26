@@ -332,7 +332,7 @@
           },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
-            { "secret_name_from_input": "key_name", "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
+            { "secret_name_from_input": "key_name", "share_by_listing": true, "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
             { "secret_name": "amazon-ses-secret-access-key", "fd": 5, "only_when": { "input": "provider", "equals": "amazon-ses" } }
           ]
@@ -1465,7 +1465,7 @@
           },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
-            { "secret_name_from_input": "key_name", "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
+            { "secret_name_from_input": "key_name", "share_by_listing": true, "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
             { "secret_name": "amazon-ses-secret-access-key", "fd": 5, "only_when": { "input": "provider", "equals": "amazon-ses" } }
           ]
@@ -1776,7 +1776,7 @@
           },
           "credential_mounts": [
             { "secret_name": "resend-api-key", "fd": 4, "only_when": { "input": "provider", "equals": "resend" } },
-            { "secret_name_from_input": "key_name", "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
+            { "secret_name_from_input": "key_name", "share_by_listing": true, "fd": 4, "only_when": { "input": "provider", "equals": "resend-keyed" } },
             { "secret_name": "amazon-ses-access-key-id", "fd": 4, "only_when": { "input": "provider", "equals": "amazon-ses" } },
             { "secret_name": "amazon-ses-secret-access-key", "fd": 5, "only_when": { "input": "provider", "equals": "amazon-ses" } }
           ]

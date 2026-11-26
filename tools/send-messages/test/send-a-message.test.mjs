@@ -23,7 +23,7 @@ import { MessageRejectedError } from '../read-data/check-message-headers.ts';
 import { buildSendInvocation, isTccDenial } from '../read-data/render-a-send.ts';
 import { MessageBlockedError, heldKeys, providerOf, providers, runAdapter, sendMessage } from '../do-work/send-a-message.mjs';
 import { SHIPPED } from '../do-work/mail-sender.mjs';
-import { mountsFor, mountsOf } from './mounts-for.test.mjs';
+import { mountOf, mountsFor, mountsOf } from './mounts-for.test.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const stub = fileURLToPath(new URL('./stub-fetch.mjs', import.meta.url));
@@ -364,7 +364,7 @@ describe('the keys and the rows', () => {
       }
       const row = rows.find(item => item.id === toolOf[provider.channel]);
       const mounted = row.invoke.credential_mounts.filter(mount => mount.only_when.equals === provider.id);
-      assert.deepEqual(mounted, provider.credentials.map(({ secret_name, secret_name_from_input, fd }) => ({ ...(secret_name ? { secret_name } : { secret_name_from_input }), fd, only_when: { input: 'provider', equals: provider.id } })), provider.id);
+      assert.deepEqual(mounted, provider.credentials.map(mountOf(provider)), provider.id);
       assert.equal(row.invoke.internet, true);
     }
   });
