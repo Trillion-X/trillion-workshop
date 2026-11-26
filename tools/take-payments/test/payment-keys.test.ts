@@ -7,7 +7,7 @@ import { createHmac } from 'node:crypto';
 import { describe, it } from 'node:test';
 import { PGlite } from '@electric-sql/pglite';
 import { checkAStripeEvent, listCompletedCheckoutsAsPaymentEvents } from '../do-work/take-payments.mjs';
-import { countsSql, keepPaymentEventSql, paymentEventsShape, paymentKeyMoves, paymentKindsOf, planPaymentKeyMoves, rekeySql, type Reference } from '../do-work/payment-keys.ts';
+import { countsSql, keepPaymentEvent, keepPaymentEventSql, paymentEventsShape, paymentKeyMoves, paymentKindsOf, planPaymentKeyMoves, rekeySql, type Reference } from '../do-work/payment-keys.ts';
 
 const NOW = 1_790_000_000;
 const SECRET = 'whsec_payment_keys_fixture';
@@ -122,6 +122,21 @@ describe('the payment_events keys', () => {
     const clash = keepPaymentEventSql({ ...other, event_id: 'checkout:cs_old' });
     await assert.rejects(db.query(clash.sql, clash.params), /payment_events_event_id_key/);
     assert.equal(await count(db, `SELECT count(*) n FROM payment_events WHERE id = '${other.id}'`), 0);
+  });
+
+  it('a keep that answers no id (a keep of the same id at the same moment) reads the stored row again; with none there the step fails', async () => {
+    const db = await store();
+    const event = await webhook(oneTime('cs_race', 'pi_race'));
+    const raced = { ...event };
+    await keep(db, raced);
+    // The answer a keep gives when it waited on the same id kept at that moment and could not see it yet.
+    const unseen = (sql: string, params: unknown[]) => (sql.startsWith('WITH kept AS') ? Promise.resolve([{ id: null, kept: 0 }]) : db.query(sql, params).then(r => r.rows as Record<string, unknown>[]));
+    assert.deepEqual(await keepPaymentEvent(unseen, event), { id: 'payment-event:payment:pi_race', kept: 0 });
+    const empty = await store();
+    const nothing = (sql: string, params: unknown[]) => (sql.startsWith('WITH kept AS') ? Promise.resolve([{ id: null, kept: 0 }]) : empty.query(sql, params).then(r => r.rows as Record<string, unknown>[]));
+    await assert.rejects(keepPaymentEvent(nothing, event), /was neither kept nor found kept/);
+    const real = (sql: string, params: unknown[]) => db.query(sql, params).then(r => r.rows as Record<string, unknown>[]);
+    assert.deepEqual(await keepPaymentEvent(real, await webhook(oneTime('cs_next', 'pi_next'))), { id: 'payment-event:payment:pi_next', kept: 1 });
   });
 
   it('a real new payment is still kept once, and a refund of it is its own row', async () => {

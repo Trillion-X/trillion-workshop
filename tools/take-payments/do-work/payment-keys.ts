@@ -104,8 +104,8 @@ const KEPT_COLUMNS = ['id', 'event_id', 'occurred_at', 'event_kind', 'offer_id',
  * swallowed: two keeps of one payment under two ids at the same moment raise on the payment's key for the later one, which
  * reads the store again and finds the row; a clash on a key that is not the payment's is an error to see, not a payment kept.
  * `id` is the id the store holds for the payment (the event's own when it was added), `kept` is 1 when this statement added it.
- * `id` null with `kept` 0 is a keep of the same id at the same moment that this statement waited for and could not yet see: run
- * it again, and it names the stored id. On PostgreSQL 16 two keeps of one payment at once give exactly that, or the raise.
+ * `id` null with `kept` 0 is a keep of the same id at the same moment that this statement waited for and could not yet see:
+ * keepPaymentEvent reads the stored row again then (storedPaymentIdSql), and fails if there is none.
  */
 export function keepPaymentEventSql(event: PaymentEvent, kinds: string[] = paymentKindsOf()): { sql: string; params: unknown[] } {
   const a = event.attributes ?? {};
@@ -128,6 +128,36 @@ export function keepPaymentEventSql(event: PaymentEvent, kinds: string[] = payme
 SELECT coalesce((SELECT id FROM kept), (SELECT p.id FROM ${table} p WHERE p.id = ${at('id')}::text OR (${samePayment}) ORDER BY p.id = ${at('id')}::text DESC, p.made_at LIMIT 1)) AS id,
   (SELECT count(*) FROM kept)::int AS kept`;
   return { sql, params: [...params, kinds] };
+}
+
+/** The id the store holds for one payment event's payment: its own id, or a row of a payment kind with the same PaymentIntent
+ * or checkout. Answers { id } rows, none when the store holds no such row. */
+export function storedPaymentIdSql(event: PaymentEvent, kinds: string[] = paymentKindsOf()): { sql: string; params: unknown[] } {
+  const a = event.attributes ?? {};
+  return {
+    sql: `SELECT p.id FROM ${PAYMENT_EVENTS_TABLE} p WHERE p.id = $1::text OR (p.event_kind = ANY ($5::text[]) AND $2::text = ANY ($5::text[])
+  AND (p.provider_object_ref = $3::text OR p.completion_ref = $4::text)) ORDER BY p.id = $1::text DESC, p.made_at LIMIT 1`,
+    params: [event.id, event.event_kind, a.provider_object_ref ?? null, a.completion_ref ?? null, kinds],
+  };
+}
+
+/** Runs one statement and answers its rows (a store's own client: pg, PGlite, a run's SQL tool). */
+export type Query = (sql: string, params: unknown[]) => Promise<Record<string, unknown>[]>;
+
+/**
+ * A keep step whole: keepPaymentEventSql, and when it answers no id (a keep of the same id at the same moment it could not yet
+ * see) the stored row read again with storedPaymentIdSql. Answers { id, kept }: the stored id, and 1 when this keep added it. A
+ * clash on any other key raises as it came; no stored row after the read again throws, so the step fails rather than submit a
+ * payment that is not kept.
+ */
+export async function keepPaymentEvent(query: Query, event: PaymentEvent, kinds: string[] = paymentKindsOf()): Promise<{ id: string; kept: number }> {
+  const keep = keepPaymentEventSql(event, kinds);
+  const [answer] = await query(keep.sql, keep.params);
+  if (typeof answer?.id === 'string') return { id: answer.id, kept: Number(answer.kept) };
+  const read = storedPaymentIdSql(event, kinds);
+  const [stored] = await query(read.sql, read.params);
+  if (typeof stored?.id !== 'string') throw new Error(`payment keys: ${event.id} was neither kept nor found kept; the keep failed.`);
+  return { id: stored.id, kept: 0 };
 }
 
 /**
