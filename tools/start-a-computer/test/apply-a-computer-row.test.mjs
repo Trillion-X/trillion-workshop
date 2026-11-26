@@ -16,6 +16,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
 import { actsToDerive, applyARow, applyEdits, deriveActs, checkApplyProtocol, heldNamesOf, hostsOf, isAncestorIn, parsePath, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
 import { ROW_APPLY_RESULT_PROTOCOL, SLOT_SWITCH_UNCONFIRMED_EXIT } from '../do-work/start-a-computer.mjs';
+import { grantDifference } from '../../serve-a-sites-pages-from-its-rows/do-work/rights.ts';
 
 const OLD = '1'.repeat(40), NEW = '2'.repeat(40), TREE = '3'.repeat(40);
 const row = () => ({
@@ -662,6 +663,7 @@ test('a site\'s act given as { derive_from } is made from its rows at the pinned
     siteRowsOf: async (rows, at) => { await rows('SELECT 1', []); return { at }; },
     derivedGrantOf: () => ({ grant, refused: refusals }),
     heldInputsOfTools: tools => tools,
+    grantDifference,
   });
   const withDerive = (deps, refusals = []) => Object.assign(deps, {
     rowsFor: name => async (sql, params) => { asked.rows.push({ name, sql, params }); return []; },
@@ -670,11 +672,24 @@ test('a site\'s act given as { derive_from } is made from its rows at the pinned
   const { deps, seen, log } = world();
   seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, names: ['x'], act: { derive_from: from } }, { uid: 1104, operations: ['wake:arrive'] }] };
   withDerive(deps);
-  const { code, summary } = await applyARow(request(), {}, deps);
+  await assert.rejects(applyARow(request(), {}, deps), /rows now ask for more than the computer runs \(tool:a; tool:b; tool:a database site_db; identity null becomes "none"; journal null becomes "input"\); give widen_acts: true/, 'an act that widens is refused unless the request says so');
+  assert.equal(seen.writes.length, 0);
+  asked.pins.length = 0; asked.rows.length = 0;
+  const { code, summary } = await applyARow(request({ widen_acts: true }), {}, deps);
   assert.equal(code, 0);
   assert.deepEqual(asked.pins, [PIN]);
   assert.deepEqual(asked.rows.map(r => r.name), ['site-rows-connection']);
-  assert.deepEqual(summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2 }]);
+  assert.deepEqual(summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2, widened: ['tool:a', 'tool:b', 'tool:a database site_db', 'identity null becomes "none"', 'journal null becomes "input"'] }]);
+  // Applied again from the kept row: nothing widens, so no consent is needed.
+  const again = await applyARow({ computer: 'example-box', workshop_commit: TREE, edits: [] }, {}, deps);
+  assert.deepEqual(again.summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2 }]);
+  // A hand list the derived act replaces counts as what runs: a derived act inside it is no widening.
+  const handed = world();
+  handed.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { ...grant, tools: ['tool:a', 'tool:b', 'tool:z'] } }] };
+  withDerive(handed.deps);
+  const swap = await applyARow({ computer: 'example-box', workshop_commit: TREE, edits: [{ at: 'runs.units[0].settings.vault_readers[uid=1106].act', to: { derive_from: from } }] }, {}, handed.deps);
+  assert.equal(swap.code, 0, 'narrowing from a hand list needs no consent');
+  await assert.rejects(applyARow(request({ widen_acts: 'yes' }), {}, deps), /widen_acts/);
   assert.deepEqual(seen.stored.runs.units[0].settings.vault_readers[0].act, { derive_from: from, derived: { pin: PIN, grant } }, 'the row keeps what was derived');
   const given = JSON.parse(readFileSync(join(log, 'row/computer.json'), 'utf8'));
   assert.deepEqual(given.runs.units[0].settings.vault_readers[0].act, grant, 'the computer is given the grant itself');
@@ -684,13 +699,13 @@ test('a site\'s act given as { derive_from } is made from its rows at the pinned
   const refusedRun = world();
   refusedRun.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { derive_from: from } }] };
   withDerive(refusedRun.deps, [{ where: 'page /x', tool: 'tool:c', why: 'its held input database is filled from the request' }]);
-  await assert.rejects(applyARow(request(), {}, refusedRun.deps), /the site one's rows ask for calls its grant cannot let it make: page \/x: tool:c/);
+  await assert.rejects(applyARow(request({ widen_acts: true }), {}, refusedRun.deps), /the site one's rows ask for calls its grant cannot let it make: page \/x: tool:c/);
   assert.equal(refusedRun.seen.writes.length, 0, 'nothing is written');
 
   const dry = world();
   dry.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { derive_from: from } }] };
   withDerive(dry.deps);
-  const shown = await applyARow(request(), { dryRun: true }, dry.deps);
+  const shown = await applyARow(request({ widen_acts: true }), { dryRun: true }, dry.deps);
   assert.deepEqual(shown.summary.derived_acts.map(a => a.tools), [2]);
   assert.equal(dry.seen.writes.length, 0);
 

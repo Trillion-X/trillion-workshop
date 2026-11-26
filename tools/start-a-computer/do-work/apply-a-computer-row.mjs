@@ -6,7 +6,7 @@
 // compare-and-set edits, write it back (read back equal), unpack the Workshop commit whose start-a-computer applies, probe the
 // computer's public addresses while the apply runs, run the apply, and print one JSON summary. The exit code is the apply's.
 //
-// The request file: { computer, workshop_commit, edits: [{ at, from?, to?, remove?, add? }], links?: { folder, set: { name: target } } }.
+// The request file: { computer, workshop_commit, edits: [{ at, from?, to?, remove?, add? }], links?: { folder, set: { name: target } }, widen_acts?: true }.
 //  - `at` is a path of dotted keys whose array steps may select an element by one of its fields, runs.units[unit=example.service].source.commit,
 //    or by position, runs.units[0]. `from` is compared (deep equal) with what is at `at` before `to` is written or `remove` deletes
 //    it; `add` appends its value to the array at `at` unless an equal element is there. One edit that cannot be made, a `from`
@@ -28,7 +28,8 @@
 //    is made by the apply from the site's own rows at the Workshop commit `pin` (serve-a-sites-pages-from-its-rows rights.ts over
 //    every tool row of that commit, the rows read with the held connection `connection`), never written by hand. The row keeps
 //    { derive_from, derived: { pin, grant } }, written by the same compare-and-set; the computer is given the grant itself. Rows the
-//    grant cannot serve as written refuse the request before anything is written.
+//    grant cannot serve as written refuse the request before anything is written, and so does a grant wider than the act the computer
+//    runs now unless the request says widen_acts: true.
 // The machine's ssh identity, known_hosts and pages folder, by the row's address, and the program that reads a held value by vault
 // name are the person's own: they come from the file `--targets` names (its `machines` and `held_value_reader`), laid over the
 // defaults of read-data/apply-a-computer-row.json (the SQL process, the probe's timings). A shared tool names no one's machine. The row is read and written by the SQL
@@ -307,10 +308,13 @@ const atPath = (root, path) => path.reduce((value, key) => value[key], root);
  * commit): the site's runs settings row, its pages and its action rows, read from `database` with the held connection
  * `connection`. The row keeps { derive_from, derived: { pin, grant } } (what this apply rendered, for a check that compares);
  * the copy answered as `rendered` carries the grant itself as the act, which is what the computer is given. A grant with a
- * refusal refuses the apply: a site's rows the grant cannot serve as written are never rendered over a working act.
+ * refusal refuses the apply: a site's rows the grant cannot serve as written are never rendered over a working act. A grant
+ * that gives more than the act the computer runs now (`before`'s act at the same place: its derived grant, or the hand list
+ * it replaces) is refused unless the request says `widen_acts: true`: an apply made for another reason never grants a site a
+ * tool its rows began asking for meanwhile, and the refusal names what would widen.
  * `deps.rowsFor(connection)` answers a statement runner; `deps.rightsAt(pin)` answers { rights, tools } of that commit.
  */
-export async function deriveActs(row, deps) {
+export async function deriveActs(row, deps, { before = null, widen = false } = {}) {
   const places = actsToDerive(row);
   if (!places.length) return { rendered: row, derived: [] };
   const rendered = structuredClone(row);
@@ -327,9 +331,16 @@ export async function deriveActs(row, deps) {
     const site = await rights.siteRowsOf(deps.rowsFor(from.connection), { database: from.database, use: from.use, site: from.site });
     const { grant, refused: refusals } = rights.derivedGrantOf(site, rights.heldInputsOfTools(tools));
     if (refusals.length) throw refused(`${where}.act: the site ${from.site}'s rows ask for calls its grant cannot let it make: ${refusals.map(r => `${r.where}: ${r.tool} ${r.why}`).join('; ')}.`);
+    let was;
+    try { was = before ? atPath(before, path)?.act : undefined; } catch { was = undefined; }
+    const running = isObject(was?.derived?.grant) ? was.derived.grant : isObject(was) && Array.isArray(was.tools) ? was : null;
+    if (typeof rights.grantDifference !== 'function') throw refused(`${where}.act: the Workshop commit ${from.pin} cannot compare a derived act; pin it to a later commit.`);
+    const { widened } = rights.grantDifference(running, grant);
+    const wider = [...widened.tools, ...widened.held.map(item => `${item.tool} ${item.path} ${item.name}`), ...widened.other];
+    if (wider.length && !widen) throw refused(`${where}.act: the site ${from.site}'s rows now ask for more than the computer runs (${wider.join('; ')}); give widen_acts: true to grant it.`);
     atPath(row, path).act = { derive_from: from, derived: { pin: from.pin, grant } };
     atPath(rendered, path).act = grant;
-    derived.push({ at: where, site: from.site, pin: from.pin, tools: grant.tools.length });
+    derived.push({ at: where, site: from.site, pin: from.pin, tools: grant.tools.length, ...(wider.length && { widened: wider }) });
   }
   return { rendered, derived };
 }
@@ -339,7 +350,7 @@ const timeOf = ms => new Date(ms).toLocaleTimeString('en-US', { timeZoneName: 's
 /** The request, checked: every field it may carry and nothing the program would have to guess. */
 export function checkRequest(request) {
   if (!isObject(request)) throw refused('the request is one JSON object.');
-  const unknown = Object.keys(request).find(key => !['computer', 'workshop_commit', 'edits', 'links', 'scope'].includes(key));
+  const unknown = Object.keys(request).find(key => !['computer', 'workshop_commit', 'edits', 'links', 'scope', 'widen_acts'].includes(key));
   if (unknown) throw refused(`unknown apply request field: ${unknown}.`);
   const scope = Object.hasOwn(request, 'scope') ? readEngineScope(request.scope) : undefined;
   if (scope && Object.hasOwn(request, 'links')) throw refused('the engine scope does not accept page links.');
@@ -351,7 +362,8 @@ export function checkRequest(request) {
     throw refused('`links` is { folder, set: { name: target } }.');
   }
   if (links && Object.keys(links.set).some(name => !name || name.includes('/'))) throw refused('a link name is one folder entry, with no "/".');
-  return { computer: request.computer, workshop_commit: request.workshop_commit, edits: request.edits ?? [], links, scope };
+  if (request.widen_acts !== undefined && request.widen_acts !== true) throw refused('`widen_acts` is true or left out.');
+  return { computer: request.computer, workshop_commit: request.workshop_commit, edits: request.edits ?? [], links, scope, widen_acts: request.widen_acts === true };
 }
 
 /**
@@ -374,7 +386,7 @@ async function applyHeld(request, { dryRun }, deps, hold) {
   const { computer, siteSetting } = await deps.store.read(request.computer);
   const { row, changes } = applyEdits(computer, request.edits);
   // A site's act given as { derive_from } is made here from its rows; the row keeps what was derived, the computer gets the grant.
-  const { rendered, derived } = await deriveActs(row, deps);
+  const { rendered, derived } = await deriveActs(row, deps, { before: computer, widen: request.widen_acts });
   const scope = request.scope ? engineScopeForEdit(computer, row, request.scope) : undefined;
   const engineProbe = scope ? engineProbeOf(row, scope) : undefined;
   const machine = deps.targets.machines?.[row.address];
