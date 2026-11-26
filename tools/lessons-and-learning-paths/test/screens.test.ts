@@ -105,6 +105,13 @@ test('the catalogue draws a linked card per course, a picture only when it has o
   assert.match(await renderAView(at('CourseList.tsx'), { courses: [], heading: 'Courses' }), /Courses/);
 });
 
+test('the catalogue sits in the site section frame under the page heading, its last word solid', async () => {
+  const html = await renderAView(at('CourseList.tsx'), { courses: [], heading: 'Every video course.' });
+  assert.match(html, /^<section class="bitfield-section-shell[^"]*"/);
+  assert.match(html, /<h1[^>]*><div[^>]*>.*Every video .*<span[^>]*>course\.<\/span>/);
+  assert.doesNotMatch(await renderAView(at('CourseList.tsx'), { courses: [] }), /<h1/);
+});
+
 test('a course card and a course link wrap their words inside their column, never one line wider than it', async () => {
   const long = 'A long description that runs far wider than one column of three on a laptop screen, word after word.';
   const courses = [{ slug: 'a', title: 'Diagnostic Library: Self-Correction System', short_description: long, category: 'Technique', image: 'abc', lesson_count: 3 }, { slug: 'b', title: 'B', short_description: '', category: '', image: '' }];
