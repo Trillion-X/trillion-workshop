@@ -82,10 +82,23 @@ export function invoiceNeedingPaymentIntent(stripeEvent) {
 }
 
 /**
+ * The Stripe event types that are a payment's own events, so their row is named by the payment's PaymentIntent. The
+ * kinds the event map keeps them as are a payment's kinds (paymentKindsOf in payment-keys.ts), which the store's
+ * one-row-per-payment keys are drawn over.
+ */
+export const PAYMENT_EVENT_TYPES = Object.freeze([
+  'payment_intent.succeeded',
+  'invoice.paid',
+  'checkout.session.completed',
+  'checkout.session.async_payment_succeeded',
+]);
+
+/**
  * The PaymentIntent a Stripe event's payment is named by, or null when the event names none. A paid invoice's, and a
  * subscription Checkout's, come from the caller's read (`paymentIntent`), because those events do not carry it.
  */
 export function paymentIntentOf(stripeEvent, paymentIntent = null) {
+  if (!PAYMENT_EVENT_TYPES.includes(stripeEvent.type)) return null;
   const object = stripeEvent.data?.object;
   if (stripeEvent.type === 'payment_intent.succeeded') return typeof object?.id === 'string' && object.id ? object.id : null;
   if (stripeEvent.type === 'invoice.paid') return typeof paymentIntent === 'string' && paymentIntent ? paymentIntent : null;
