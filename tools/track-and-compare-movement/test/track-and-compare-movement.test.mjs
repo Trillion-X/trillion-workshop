@@ -24,6 +24,8 @@ for (const [file, what] of [
   ['test_make_matched_clips.py', 'a clip key follows its identity, dates come from names, a clip name carries both dates, a failed stage prints one error'],
   ['test_whole_stroke.py', 'a window cut at a clip edge is whole only when the edge is quiet and contact is far enough inside, in both describe_clip copies'],
   ['test_perceive_reuse.py', 'a kept descriptor is reused only when it was made with the same salience rules'],
+  ['test_contact_moment.py', 'contact is the sharp sound of the hit near the wrist peak, else the wrist peak, never outside the window'],
+  ['test_whole_movement_check.py', 'a cell whose crop cuts off the body or racket is widened to the smallest crop that holds it, or refused'],
   ['test_labelled_match.py', 'with labelled references a partner must be its class by a margin over every other class, and no contrast class fails closed'],
 ]) {
   test(what, { skip: !ready && 'python3 with numpy is needed', timeout: 900000 }, () => {
