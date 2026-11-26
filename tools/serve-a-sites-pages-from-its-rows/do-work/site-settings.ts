@@ -6,13 +6,14 @@
 //   between the two all read the same row. The settings file names the row (`pages.settings`: the site's name) and keeps only
 //   what the program needs to reach it: the database and the use the rows are read under.
 //
-//   The row (table site_settings, one row per site):
-//     site          the site's name, as the settings file's pages.settings names it
-//     use           jsonb: { purpose, surface }, the use every read of the site's rows runs under; it must equal the settings
+//   The row is the site's `runs` setting in the pages database's site_settings table, the table a site keeps its settings in,
+//   one row per site and key (site, key, value json): site is the site's name, as the settings file's pages.settings names it,
+//   key is "runs", and value is
+//     use           { purpose, surface }, the use every read of the site's rows runs under; it must equal the settings
 //                   file's pages.use, which reads this very row (a row that says another use is refused, never followed)
-//     site_head     jsonb or null: { tool, input }, the tool whose answer { head, body_start } every page carries
-//     served_files  jsonb or null: the served_files rules (served-files.ts)
-//     actions       text or null: the table of the site's action rows (actions.ts), such as site_actions
+//     site_head     { tool, input } or absent: the tool whose answer { head, body_start } every page carries
+//     served_files  the served_files rules (served-files.ts), or absent
+//     actions       the table of the site's action rows (actions.ts), such as site_actions, or absent
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A row that breaks a rule is refused whole, with why; nothing of it is used.
@@ -27,8 +28,10 @@ import type { ServedFiles } from './served-files.ts';
 
 /** The table of the site settings rows. */
 export const SITE_SETTINGS_TABLE = 'site_settings';
-/** The statement that reads one site's settings row ($1: the site's name). */
-export const SITE_SETTINGS_SQL = `SELECT site, use, site_head, served_files, actions FROM ${SITE_SETTINGS_TABLE} WHERE site = $1`;
+/** The key of the setting that says what a site runs as itself. */
+export const RUNS_KEY = 'runs';
+/** The statement that reads one site's `runs` setting ($1: the site's name). */
+export const SITE_SETTINGS_SQL = `SELECT value FROM ${SITE_SETTINGS_TABLE} WHERE site = $1 AND key = '${RUNS_KEY}'`;
 
 export interface SiteHead {
   tool: string;
@@ -64,9 +67,12 @@ export function actionsTableOf(value: unknown): string | undefined {
 
 /** One site's settings row, checked against the use its rows are read under; a broken row throws with why. */
 export function siteSettingsOf(rows: Record<string, unknown>[], site: string, use: SiteSettings['use']): SiteSettings {
-  if (rows.length !== 1) throw new Error(`${SITE_SETTINGS_TABLE} holds ${rows.length} rows for the site ${site}; it holds exactly one.`);
-  const row = rows[0];
+  if (rows.length !== 1) throw new Error(`${SITE_SETTINGS_TABLE} holds ${rows.length} ${RUNS_KEY} rows for the site ${site}; it holds exactly one.`);
   const parse = (value: unknown) => (typeof value === 'string' ? JSON.parse(value) : value);
+  const row = parse(rows[0].value) as Record<string, unknown> | null;
+  if (!row || typeof row !== 'object' || Array.isArray(row) || Object.keys(row).some(key => !['use', 'site_head', 'served_files', 'actions'].includes(key))) {
+    throw new Error(`${SITE_SETTINGS_TABLE} ${site} ${RUNS_KEY}: its value is { use, site_head?, served_files?, actions? }.`);
+  }
   const rowUse = parse(row.use) ?? undefined;
   if (!isDeepStrictEqual(rowUse, use)) {
     throw new Error(`${SITE_SETTINGS_TABLE} ${site}: its use ${JSON.stringify(rowUse ?? null)} is not the use its rows are read under (${JSON.stringify(use ?? null)}).`);

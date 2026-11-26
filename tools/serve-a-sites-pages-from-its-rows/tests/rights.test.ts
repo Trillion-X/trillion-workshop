@@ -162,7 +162,7 @@ test('in the reads mode no action is granted, and each public action is one exac
 
 test('a site\'s rows are read as its program reads them: the settings row first, its use checked, then its pages and its action table', async () => {
   const asked: string[] = [];
-  const settingsRow = { site: 'one.example', use: USE, site_head: { tool: 'tool:read-the-site-head', input: { database: 'site_pages' } }, served_files: null, actions: 'site_actions' };
+  const settingsRow = { site: 'one.example', key: 'runs', value: { use: USE, site_head: { tool: 'tool:read-the-site-head', input: { database: 'site_pages' } }, actions: 'site_actions' } };
   const rows = async (sql: string, params: unknown[]) => {
     asked.push(sql.split(' FROM ')[1]?.split(' ')[0] ?? sql);
     if (sql.includes('site_settings')) return params[0] === 'one.example' ? [settingsRow] : [];
@@ -176,7 +176,7 @@ test('a site\'s rows are read as its program reads them: the settings row first,
   assert.deepEqual(grant.tools, ['tool:check-when-i-am-busy', 'tool:read-the-courses', 'tool:read-the-site-head', RUN_SQL]);
   assert.deepEqual(grant.held_inputs_by_tool['tool:read-the-courses'], { database: ['site_pages'] }, 'the pages\' use is given as the site gives it');
   await assert.rejects(siteRowsOf(rows, { database: 'site_pages', use: { purpose: 'other', surface: 'x' }, site: 'one.example' }), /is not the use its rows are read under/);
-  await assert.rejects(siteRowsOf(rows, { database: 'site_pages', use: USE, site: 'two.example' }), /holds 0 rows/);
+  await assert.rejects(siteRowsOf(rows, { database: 'site_pages', use: USE, site: 'two.example' }), /holds 0 runs rows/);
   assert.deepEqual(askedBy(site, ['tool:read-the-courses', 'tool:check-when-i-am-busy']), { 'tool:read-the-courses': ['page /courses'], 'tool:check-when-i-am-busy': ['action POST /do'] });
 });
 

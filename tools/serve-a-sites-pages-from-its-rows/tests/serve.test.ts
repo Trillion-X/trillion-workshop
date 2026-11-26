@@ -958,9 +958,10 @@ test('a site whose settings name its settings row reads its site head, served fi
   const store = { endpoint: 'https://store.example.test', region: 'r1', bucket: 'site-files', style: 'path' as const };
   const storeFiles = new StoreFiles(store, { id: 'key-id', secret: 'key-secret' }, { fetchImpl: (async () => new Response('app', { status: 200 })) as typeof fetch });
   const use = { purpose: 'serve the site', surface: 'site pages' };
-  const row = { site: 'site.example.test', use, site_head: { tool: 'tool:read-the-site-head', input: { database: 'a_site_for_who_uses_it' } },
+  const row = { use, site_head: { tool: 'tool:read-the-site-head', input: { database: 'a_site_for_who_uses_it' } },
     served_files: [{ paths: ['/app.js'], key_prefix: 'site-files/', cache_seconds: 60 }], actions: 'site_actions' };
-  siteSettingsRows = [row];
+  const rowOf = (value: Record<string, unknown>) => ({ site: 'site.example.test', key: 'runs', value });
+  siteSettingsRows = [rowOf(row)];
   const told: string[] = [];
   try {
     const more = { files_store: { ...store, credential: 'store-read' }, pages: { database: 'a_site_for_who_uses_it', use, refresh_seconds: 60, answer_seconds: 60, settings: 'site.example.test' } };
@@ -968,15 +969,17 @@ test('a site whose settings name its settings row reads its site head, served fi
     assert.match(String((await site.answer('GET', '/', undefined)).body), /consentFirst/, 'the row\'s site head');
     assert.equal((await site.answer('GET', '/app.js', undefined)).status, 200, 'the row\'s served files');
     assert.ok(site.acts('POST', 'site.example.test', '/checkout'), 'the row\'s action table');
-    siteSettingsRows = [{ ...row, served_files: null, site_head: null, actions: null }];
+    siteSettingsRows = [rowOf({ use })];
     await site.read();
     assert.doesNotMatch(String((await site.answer('GET', '/', undefined)).body), /consentFirst/, 'read again: no site head');
     assert.notEqual((await site.answer('GET', '/app.js', undefined)).status, 200, 'read again: no served file');
     assert.ok(!site.acts('POST', 'site.example.test', '/checkout'), 'read again: no action table');
-    siteSettingsRows = [{ ...row, use: { purpose: 'other', surface: 'site pages' } }];
+    siteSettingsRows = [rowOf({ ...row, use: { purpose: 'other', surface: 'site pages' } })];
     await assert.rejects(site.read(), /is not the use its rows are read under/, 'a row naming another use is refused, never followed');
+    siteSettingsRows = [rowOf({ ...row, extra: 1 })];
+    await assert.rejects(site.read(), /its value is \{ use, site_head\?, served_files\?, actions\? \}/);
     siteSettingsRows = [];
-    await assert.rejects(site.read(), /holds 0 rows for the site site\.example\.test/);
+    await assert.rejects(site.read(), /holds 0 runs rows for the site site\.example\.test/);
     assert.ok(!site.acts('POST', 'site.example.test', '/checkout'), 'a refused read keeps the last good set');
     for (const key of ['site_head', 'served_files', 'actions']) {
       assert.throws(() => settings(d.address, { ...more, [key]: key === 'actions' ? 'site_actions' : key === 'served_files' ? [] : row.site_head }), /says .* this file does not say them too/, key);

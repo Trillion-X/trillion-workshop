@@ -35,7 +35,7 @@
 //                    caller's own login, which only a local run through a command should do), how often the rows
 //                    are read again, and how long a public page's tool answer is kept. The use is also given to every tool
 //                    run whose input names a database and no use (withPagesUse), so a row's tool opens its database under it.
-//                    With `settings` (the site's name), the site's site_settings row (site-settings.ts) says site_head,
+//                    With `settings` (the site's name), the site's runs row of site_settings (site-settings.ts) says site_head,
 //                    served_files and actions instead of this file, read again with the rows; its use must be this use
 //     sign_in        { address, page, issuer, audience, team_claim, members_team }: the site's sign-in tool, the site path a
 //                    visitor is sent to for a members page, and how a member's pass is checked (member-pass.ts);
