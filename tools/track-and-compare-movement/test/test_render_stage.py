@@ -52,6 +52,7 @@ class RenderStage(unittest.TestCase):
                     json.dump({"spine": {"segments": []}}, f)
             return {"result": {"segments": [5, 5]}}
         if piece == "whole_movement_check.py":
+            self.assertTrue(os.path.exists(self.arg(cmd, "--edit")), "the framing check must get the edit the author wrote")
             with open(self.arg(cmd, "--write-edit"), "w") as f:
                 json.dump({"spine": {"segments": []}}, f)
             return {"result": {"cells_refused": 0, "passes": True}}
@@ -74,11 +75,14 @@ class RenderStage(unittest.TestCase):
         self.assertIn("sync", spec["left"])          # the reference (top / left) is the synced side
         self.assertEqual(spec["left"]["flip"], "h")  # mirrored when the matcher says reflected
 
-    def test_a_refused_sync_makes_no_clip(self):
+    def test_a_refused_sync_is_cut_on_contact_alone_and_says_so(self):
         self.refuse = {"phase_sync.py"}
         got = m.render(self.job)
-        self.assertEqual((got["made"], got["failed"]), (0, 1))
-        self.assertNotIn("render-an-edit.mjs", self.calls)
+        self.assertEqual((got["made"], got["failed"]), (2, 0))
+        made = json.load(open(os.path.join(self.work, "rendered.json")))["made"]
+        self.assertEqual(made[0]["steps"]["sync"]["aligned"], "contact only")
+        spec = json.load(open(made[0]["file"].rsplit(".", 2)[0] + ".spec.json"))
+        self.assertNotIn("sync", spec["left"])
 
     def test_a_refused_framing_makes_no_clip_of_that_format(self):
         self.refuse = {"whole_movement_check.py"}

@@ -217,15 +217,17 @@ def render(job):
                 json.dump(sync_spec, f, indent=1)
             got = run_json([sys.executable, os.path.join(HERE, "phase_sync.py"), "--spec", base + ".sync-spec.json",
                             "--out", base + ".sync.json"])
-            if "error" in got:
-                raise RuntimeError(f"phase sync refused: {got['error']}")
-            steps["sync"] = got["result"]
+            # a refused sync never distorts the reference: the pair is cut on contact alone (both contacts meet, the
+            # phases around them play as recorded) and the clip's row says which alignment it has
+            synced = "error" not in got
+            steps["sync"] = got["result"] if synced else {"aligned": "contact only", "refused": got["error"]}
 
             def side(clip, k, index, peak, flip, sync=None):
                 return {"clip": clip["path"], "kp": kp_of(index, k), "peak": peak, "label": "",
                         **({"flip": "h"} if flip else {}), **({"sync": sync} if sync else {})}
             spec = {"encode": {"fps": 30, "crf": 18, "preset": "medium"}, "bg": "black",
-                    "left": side(r, pair["reference"], "references", rc, pair.get("parity") == "reflected", base + ".sync.json"),
+                    "left": side(r, pair["reference"], "references", rc, pair.get("parity") == "reflected",
+                                 base + ".sync.json" if synced else None),
                     "right": side(t, pair["target"], "targets", tc, False)}
             with open(base + ".spec.json", "w") as f:
                 json.dump(spec, f, indent=1)
@@ -238,7 +240,7 @@ def render(job):
             continue
         for fmt in variants["formats"]:
             fid = fmt["id"]
-            edit, out = f"{base}.{fid}.json", f"{base}.{fid}.mp4"
+            edit, out = f"{base}.edit.{fid}.json", f"{base}.{fid}.mp4"   # author_comparison_edl --variants names OUT.FORMAT.json
             framed = f"{base}.{fid}.edit.json"
             got = run_json([sys.executable, os.path.join(HERE, "whole_movement_check.py"), "--edit", edit, "--model", seg_model,
                             "--work", base + f".{fid}.framing", "--write-edit", framed])
