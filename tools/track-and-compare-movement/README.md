@@ -21,8 +21,8 @@ comparison clips had been made by hand scripts around this tool's matcher, conta
 | Stage | What it runs |
 |-------|--------------|
 | prepare | `files_road.fetch` of the perception models and every clip by Files identity |
-| perceive | `perception/run_perception.py` (pose, then `describe_clip` with the physical stroke rules on), as the index folder `select_partner` reads; a described clip is reused |
-| match | `match/select_partner.py` per target window; only admitted pairs (camera direction verified) are kept |
+| perceive | `perception/run_perception.py` (pose, then `describe_clip` with the physical stroke rules on), as the index folder `select_partner` reads; a clip described with the same salience rules is reused. A tightly cut one-swing clip never reaches a sustained rest, so `quiet_edge_frac`, `min_lead_s` and `min_follow_s` let an edge cut while the body is quiet, with contact far enough inside, count as a whole swing |
+| match | `match/select_partner.py` per target window; only admitted pairs (camera direction verified) are kept. With `reference_classes` (each reference folder and the class a person labelled it with) it runs the labelled mode: a window is admitted only when its nearest `movement`-class reference is within `class_admit` and every other class is at least `class_margin` further; a view family with no contrast class refuses. `class_admit` 0 admits nothing and records every window's class distances, the run the bound and margin are calibrated on |
 | render | `author_comparison_edl.py` (stacked or side by side, crop on each person, centred on contact), rendered by media-composition `render-an-edit.mjs` |
 | check | `side_by_side.py check` (two sources, same stroke and direction, contact within one output frame) |
 | keep | `files_road.keep` (any size, in 32 MiB pieces) and one row per clip |
