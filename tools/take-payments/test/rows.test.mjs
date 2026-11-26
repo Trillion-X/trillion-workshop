@@ -139,7 +139,7 @@ const mountsFor = (row, input) => {
 
 test('a seller key is named by exactly one of secret_name, account and seller_connection; two together are refused', () => {
   const seller = rows.filter(row => row.invoke.connection?.from_input === 'seller_connection' && row.invoke.credential_mounts?.some(mount => mount.field_id === 'secret_key'));
-  assert.equal(seller.length, 20);
+  assert.equal(seller.length, 22);
   const named = 'a-sellers-stripe-key';
   for (const row of seller) {
     assert.deepEqual(row.invoke.credential_mounts.filter(mount => mount.secret_name_from_input !== 'database' && mount.fd !== 5), [

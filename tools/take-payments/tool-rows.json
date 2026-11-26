@@ -2259,6 +2259,799 @@
           "trillion-workshop/write-a-post-for-each-place"
         ],
         "kind": "ai-tool-descriptor",
+        "id": "tool:list-stripe-events-as-payment-events",
+        "label": "List Stripe events as payment events",
+        "job": "Read the Stripe events since a time, of the kinds my event map keeps, as the payment rows the webhook check would keep for them, so a renewal, refund or ended subscription no webhook delivered is still kept",
+        "description": "Give since_unix (whole seconds) and optionally types (Stripe event kinds, at most 20; left out: every kind the event map names), starting_after (the next_cursor of the page before), limit (up to 100), now_unix and event_map. Reads the seller's Stripe events from that time, newest pages first as Stripe lists them, and answers each one the event map reads as the payment event the webhook check would make for it (the same id, so keeping it twice keeps it once), with next_cursor and complete (true when no page is left), cursor_too_old (Stripe keeps events 30 days) and left_out (events the map does not read). Keeps nothing: the caller keeps each row once by its id (payment-keys.ts keepPaymentEvent, or payment-catch-up.ts for a page). Uses the Stripe key named by exactly one of secret_name, account and seller_connection.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "since_unix": {
+              "type": "number"
+            },
+            "starting_after": {
+              "type": "string"
+            },
+            "limit": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "types": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 20
+            },
+            "now_unix": {
+              "type": "number"
+            },
+            "event_map": {
+              "type": "object"
+            },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
+            }
+          },
+          "required": [
+            "since_unix"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "payment_events": {
+              "type": "array"
+            },
+            "next_cursor": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "cursor_too_old": {
+              "type": "boolean"
+            },
+            "left_out": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "payment_events",
+            "complete"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/build-provider-request.mjs",
+                  "src/encode-provider-form.mjs",
+                  "src/provider-operation-map.json",
+                  "src/provider-request-mapper.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "listStripeEventsAsPaymentEvents"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {
+                "input": "secret_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
+              "fd": 4,
+              "only_when": {
+                "input": "account",
+                "present": true
+              }
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {
+                "input": "seller_connection",
+                "present": true
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-and-offers",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:give-a-stripe-customer-a-credit",
+        "label": "Give a Stripe customer a credit",
+        "job": "Give one of my Stripe customers a credit that Stripe takes off their next invoices, once per key, so a reward is paid as money off without anyone sending money",
+        "description": "Give customer (the Stripe customer id), amount_cents (a whole number above 0), currency (three letters), description (what the credit is for, up to 350 characters) and idempotency_key (so a repeated ask makes one credit). Books a negative customer balance transaction, which Stripe takes off the customer's next invoices by itself, and answers balance_transaction, customer, credit_cents, currency and ending_balance; it refuses the answer when Stripe did not book the amount asked. This moves money: prove it with Stripe test-mode keys before a live key ever reaches it. Uses the Stripe key named by exactly one of secret_name, account and seller_connection.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "customer": {
+              "type": "string",
+              "minLength": 1
+            },
+            "amount_cents": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Za-z]{3}$"
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 350
+            },
+            "idempotency_key": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255
+            },
+            "secret_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]{1,128}$",
+              "description": "The vault name of the seller's Stripe secret key, mounted as it is. Give exactly one of secret_name, account and seller_connection: two given together are refused before the run starts."
+            },
+            "seller_connection": {
+              "type": "string",
+              "pattern": "^service_connection:stripe(:[^:]+)?$",
+              "description": "The seller's Stripe connection: service_connection:stripe:<account> names one account, and service_connection:stripe with no account is the person's own: the key held under that name, or else the one Stripe account the vault holds (several held: refused, naming them). The key comes from that connection's row in the person's service connections."
+            }
+          },
+          "required": [
+            "customer",
+            "amount_cents",
+            "currency",
+            "description",
+            "idempotency_key"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "balance_transaction": {
+              "type": "string"
+            },
+            "customer": {
+              "type": "string"
+            },
+            "credit_cents": {
+              "type": "integer"
+            },
+            "currency": {
+              "type": "string"
+            },
+            "ending_balance": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "balance_transaction",
+            "credit_cents"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/build-provider-request.mjs",
+                  "src/encode-provider-form.mjs",
+                  "src/provider-operation-map.json",
+                  "src/provider-request-mapper.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "giveACustomerCredit"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "secret_name",
+              "share_by_listing": true,
+              "fd": 4,
+              "only_when": {
+                "input": "secret_name",
+                "present": true
+              }
+            },
+            {
+              "secret_name_from_input": "account",
+              "held_suffix": "-stripe-secret-key",
+              "fd": 4,
+              "only_when": {
+                "input": "account",
+                "present": true
+              }
+            },
+            {
+              "fd": 4,
+              "field_id": "secret_key",
+              "only_when": {
+                "input": "seller_connection",
+                "present": true
+              }
+            }
+          ],
+          "connection": {
+            "vendor": "stripe",
+            "from_input": "seller_connection"
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "stripe-payment-provider, stripe-payment-elements (client-safe parts), payment-adapter and checkout, pure decisions only"
+        }
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-and-offers",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
         "id": "tool:find-a-completed-stripe-checkout",
         "label": "Find a completed Stripe checkout",
         "job": "Find the completed Stripe checkout for one buyer and offer when the buyer browser never came back",

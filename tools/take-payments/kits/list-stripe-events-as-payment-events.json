@@ -1,0 +1,42 @@
+{
+  "drafted_from": "tool:list-stripe-events-as-payment-events's own row (its words and input schema) and the take-payments function it runs, whose tests use made-up Stripe replies; read it before relying on it",
+  "start_here": "Say to your AI: \"List my Stripe renewals and refunds since a time as payment events\", with {\"since_unix\": 1793750400, \"types\": [\"invoice.paid\", \"charge.refunded\"], \"secret_name\": \"bakery-stripe-secret-key-test\"}. It runs tool:list-stripe-events-as-payment-events and answers {\"payment_events\": [{\"kind\": \"payment-event\", \"id\": \"payment-event:payment:pi_test_sample0201\", \"event_kind\": \"subscription.renewed\", \"occurred_at\": \"2026-11-04T00:00:00.000Z\"}], \"next_cursor\": null, \"complete\": true, \"cursor_too_old\": false, \"left_out\": 0}.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, asks Stripe with your own key, and answers; it keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:list-stripe-events-as-payment-events"
+  ],
+  "instructions": [
+    "1. Say to your AI: \"List my Stripe renewals and refunds since a time as payment events\", and give it since_unix and your Stripe key's vault name in secret_name.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:list-stripe-events-as-payment-events and that input (the worked example shows one).",
+    "3. Read what comes back: payment_events to keep once each by its id, and next_cursor to ask for the next page while complete is false.",
+    "4. Keep each payment event where you keep your payments, by its id, so the same event kept twice is one row."
+  ],
+  "worked_examples": [
+    {
+      "title": "List my Stripe renewals and refunds since a time as payment events",
+      "ask": "List my Stripe renewals and refunds since a time as payment events",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:list-stripe-events-as-payment-events",
+            "input": {
+              "since_unix": 1793750400,
+              "types": [
+                "invoice.paid",
+                "charge.refunded"
+              ],
+              "secret_name": "bakery-stripe-secret-key-test"
+            }
+          }
+        }
+      },
+      "given": "The input {\"since_unix\": 1793750400, \"types\": [\"invoice.paid\", \"charge.refunded\"], \"secret_name\": \"bakery-stripe-secret-key-test\"}.",
+      "hands_back": "It answered {\"payment_events\": [{\"kind\": \"payment-event\", \"id\": \"payment-event:payment:pi_test_sample0201\", \"event_kind\": \"subscription.renewed\", \"occurred_at\": \"2026-11-04T00:00:00.000Z\"}], \"next_cursor\": null, \"complete\": true, \"cursor_too_old\": false, \"left_out\": 0}."
+    }
+  ]
+}

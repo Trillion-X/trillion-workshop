@@ -20671,6 +20671,109 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:give-a-stripe-customer-a-credit": [
+  {
+   "package": "take-payments",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "read-data/read-offers.ts",
+    "read-data/offer-variants.mjs"
+   ],
+   "at": "/opt/funnels-and-offers"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/build-provider-request.mjs",
+    "src/encode-provider-form.mjs",
+    "src/provider-operation-map.json",
+    "src/provider-request-mapper.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "take-payments",
+   "paths": [
+    "things-to-store-and-run.json"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:give-a-task": [
   {
    "package": "plan-tasks-and-todo-lists",
@@ -29114,6 +29217,109 @@
     "do-work"
    ],
    "at": "/opt/email-sending-domains"
+  }
+ ],
+ "tool:list-stripe-events-as-payment-events": [
+  {
+   "package": "take-payments",
+   "paths": [
+    "do-work",
+    "read-data"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "read-data/read-offers.ts",
+    "read-data/offer-variants.mjs"
+   ],
+   "at": "/opt/funnels-and-offers"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/build-provider-request.mjs",
+    "src/encode-provider-form.mjs",
+    "src/provider-operation-map.json",
+    "src/provider-request-mapper.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "take-payments",
+   "paths": [
+    "things-to-store-and-run.json"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
   }
  ],
  "tool:list-tasks-and-what-blocks-them": [

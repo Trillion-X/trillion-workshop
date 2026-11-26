@@ -1,0 +1,42 @@
+{
+  "drafted_from": "tool:give-a-stripe-customer-a-credit's own row (its words and input schema) and the take-payments function it runs, whose tests use made-up Stripe replies; read it before relying on it",
+  "start_here": "Say to your AI: \"Give my Stripe customer a credit off their next invoice\", with {\"customer\": \"cus_test_sample0301\", \"amount_cents\": 1500, \"currency\": \"usd\", \"description\": \"Referral reward for a friend's first lesson\", \"idempotency_key\": \"referral-reward:friend-0302\", \"secret_name\": \"bakery-stripe-secret-key-test\"}. It runs tool:give-a-stripe-customer-a-credit and answers {\"balance_transaction\": \"cbtxn_test_sample0303\", \"customer\": \"cus_test_sample0301\", \"credit_cents\": 1500, \"currency\": \"usd\", \"ending_balance\": -1500}.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it takes its input, asks Stripe with your own key, and answers; it keeps no row.",
+  "workflows": [],
+  "tools": [
+    "tool:give-a-stripe-customer-a-credit"
+  ],
+  "instructions": [
+    "1. Prove it first with a Stripe test-mode key: say to your AI \"Give my Stripe customer a credit off their next invoice\" with a test customer and your test key's vault name in secret_name.",
+    "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:give-a-stripe-customer-a-credit and that input (the worked example shows one).",
+    "3. Read what comes back: the balance transaction Stripe booked and the customer's ending balance; asking again with the same idempotency_key books nothing more.",
+    "4. Only then give it the live key's name, from the workflow that decides the reward, never by hand."
+  ],
+  "worked_examples": [
+    {
+      "title": "Give my Stripe customer a credit off their next invoice",
+      "ask": "Give my Stripe customer a credit off their next invoice",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:give-a-stripe-customer-a-credit",
+            "input": {
+              "customer": "cus_test_sample0301",
+              "amount_cents": 1500,
+              "currency": "usd",
+              "description": "Referral reward for a friend's first lesson",
+              "idempotency_key": "referral-reward:friend-0302",
+              "secret_name": "bakery-stripe-secret-key-test"
+            }
+          }
+        }
+      },
+      "given": "The input {\"customer\": \"cus_test_sample0301\", \"amount_cents\": 1500, \"currency\": \"usd\", \"description\": \"Referral reward for a friend's first lesson\", \"idempotency_key\": \"referral-reward:friend-0302\", \"secret_name\": \"bakery-stripe-secret-key-test\"}.",
+      "hands_back": "It answered {\"balance_transaction\": \"cbtxn_test_sample0303\", \"customer\": \"cus_test_sample0301\", \"credit_cents\": 1500, \"currency\": \"usd\", \"ending_balance\": -1500}."
+    }
+  ]
+}
