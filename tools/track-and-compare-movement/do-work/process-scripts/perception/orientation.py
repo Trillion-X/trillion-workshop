@@ -103,18 +103,15 @@ def load_model():
 def _crops(video, t0, t1, frames, pad=0.35):
     """Sample `frames` evenly across [t0,t1] (whole clip if t1<=t0); YOLO largest-person crop each."""
     import cv2
-    cap = cv2.VideoCapture(str(video))
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    tot = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
+    import window_frames
+    fps, tot = window_frames.clip_props(str(video))
     f0 = int(max(0, t0*fps)) if t1 > t0 else 0
     f1 = int(min(tot-1, t1*fps)) if t1 > t0 else tot-1
     if f1 <= f0: f0, f1 = 0, tot-1
     b = load_model()["yolo"]; out = []
-    for k in range(frames):
-        fi = int(f0 + (f1-f0) * (k + 0.5) / frames)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, fi)
-        ok, fr = cap.read()
-        if not ok: continue
+    picked = [int(f0 + (f1-f0) * (k + 0.5) / frames) for k in range(frames)]
+    for fr in window_frames.read_frames(video, picked):
+        if fr is None: continue
         H, W = fr.shape[:2]
         r = b(fr, classes=[0], verbose=False)[0]
         if not len(r.boxes): continue
@@ -123,7 +120,6 @@ def _crops(video, t0, t1, frames, pad=0.35):
         x=int(max(0,cx-sz/2)); y=int(max(0,cy-sz/2)); s=int(min(sz,W-x,H-y))
         if s < 40: continue
         out.append(cv2.cvtColor(fr[y:y+s, x:x+s], cv2.COLOR_BGR2RGB))
-    cap.release()
     return out
 
 def facing_for_window(video, t0=0.0, t1=0.0, frames=12, bundle=None, bins=5):

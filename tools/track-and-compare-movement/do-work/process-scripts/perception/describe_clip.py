@@ -501,6 +501,13 @@ def whole_stroke(sm, lo, hi, peak_t, clip_t0, clip_t1, t0, t1, cfg):
     return bool(edge(not t0 > clip_t0 + 0.05, lo, (peak_t or 0) - clip_t0, cfg.min_lead_s)
                 and edge(not t1 < clip_t1 - 0.05, hi, clip_t1 - (peak_t or 0), cfg.min_follow_s))
 
+def _file_md5(path, chunk=1<<20):
+    """md5 of a file read a megabyte at a time (the whole recording was read into memory before: 1 GB for a 10-minute 1080p clip)."""
+    h=hashlib.md5()
+    with open(path,"rb") as f:
+        for block in iter(lambda: f.read(chunk), b""): h.update(block)
+    return h.hexdigest()
+
 def describe(kp, source, salience_cfg=DEFAULT_SALIENCE_CONFIG):
     person=main_track(kp)
     if not person: return None
@@ -539,7 +546,7 @@ def describe(kp, source, salience_cfg=DEFAULT_SALIENCE_CONFIG):
             # multimodal slots the index layer fills later (Codex: pose isn't universal):
             "visual_embedding_ref":None,"motion_embedding_ref":None,"identity_ref":None
         })
-    fp=hashlib.md5(Path(source).read_bytes()).hexdigest() if Path(source).exists() else hashlib.md5(source.encode()).hexdigest()
+    fp=_file_md5(source) if Path(source).exists() else hashlib.md5(source.encode()).hexdigest()
     return {"schema":"motion-clip-descriptor.v1","source":{"path":str(source),"fingerprint":fp},
             "fps":round(fps,3),"frames":len(person["frames"]),
             "clip_t0":clip_t0,"clip_t1":clip_t1,                # clip time bounds — consumers verify truncation

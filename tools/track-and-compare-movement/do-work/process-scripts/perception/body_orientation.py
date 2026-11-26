@@ -120,24 +120,17 @@ def heading_for_window(video, t0=0.0, t1=0.0, frames=16, bundle=None, smooth=Tru
     """Per-frame body heading (deg) across [t0,t1], temporally ordered. Fail-closed: None if the clip is
     gone or no person is ever detected. `smooth` applies a sliding circular-median (window 3) — a swing
     rotation is smooth, so this removes per-frame jitter without erasing the real rotation."""
-    import cv2
+    import window_frames
     if not Path(video).exists():
         return None
     b = bundle or load_model()
-    cap = cv2.VideoCapture(str(video))
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-    tot = int(cap.get(cv2.CAP_PROP_FRAME_COUNT)) or 1
+    fps, tot = window_frames.clip_props(str(video))
     f0 = int(max(0, t0 * fps)) if t1 > t0 else 0
     f1 = int(min(tot - 1, t1 * fps)) if t1 > t0 else tot - 1
     if f1 <= f0:
         f0, f1 = 0, tot - 1
-    raw = []
-    for k in range(frames):
-        fi = int(f0 + (f1 - f0) * (k + 0.5) / frames)
-        cap.set(cv2.CAP_PROP_POS_FRAMES, fi)
-        ok, fr = cap.read()
-        raw.append(_heading_frame(fr, b) if ok else None)
-    cap.release()
+    picked = [int(f0 + (f1 - f0) * (k + 0.5) / frames) for k in range(frames)]
+    raw = [_heading_frame(fr, b) if fr is not None else None for fr in window_frames.read_frames(video, picked)]
     vals = [(i, r[0], r[1]) for i, r in enumerate(raw) if r is not None]
     if not vals:
         return None
