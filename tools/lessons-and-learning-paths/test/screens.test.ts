@@ -105,6 +105,20 @@ test('the catalogue draws a linked card per course, a picture only when it has o
   assert.match(await renderAView(at('CourseList.tsx'), { courses: [], heading: 'Courses' }), /Courses/);
 });
 
+test('a course card and a course link wrap their words inside their column, never one line wider than it', async () => {
+  const long = 'A long description that runs far wider than one column of three on a laptop screen, word after word.';
+  const courses = [{ slug: 'a', title: 'Diagnostic Library: Self-Correction System', short_description: long, category: 'Technique', image: 'abc', lesson_count: 3 }, { slug: 'b', title: 'B', short_description: '', category: '', image: '' }];
+  for (const [file, props] of [['CourseList.tsx', { courses }], ['CourseLinks.tsx', { courses, current: 'b' }]] as const) {
+    const links = (await renderAView(at(file), props)).match(/<a [^>]*class="[^"]*"/g) ?? [];
+    assert.ok(links.length > 0, file);
+    for (const link of links) {
+      assert.match(link, /whitespace-normal/, `${file}: ${link}`);
+      assert.doesNotMatch(link, /whitespace-nowrap/, `${file}: ${link}`);
+      assert.match(link, /grid-cols-1/, `${file}: ${link}`);
+    }
+  }
+});
+
 test('a course draws its picture at the address the template makes of its picture id, and none without one', async () => {
   const lessons = [{ id: 'l1', position: 1, title: 'One', href: '/c/l1', done: false }];
   const drawn = await renderAView(at('Course.tsx'), { course: { slug: 'c', title: 'The Course', description: '', image: 'abcdefghijk' }, lessons, doneCount: 0, image_template: 'https://i.ytimg.com/vi/{image}/hqdefault.jpg' });

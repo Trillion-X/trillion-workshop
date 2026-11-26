@@ -10,6 +10,8 @@
 //   2. A course's address is base_path and its slug; the count is the answer's own lesson_count, left out when the answer has none.
 //   3. Nothing is drawn when no course is left after leaving out `current`.
 //   4. Everything drawn is a shared part (Text, Button, Card); no raw HTML and no inline styling.
+//   5. A link stays inside its column at every width: its Button is given `wrap`, so a long title wraps instead of
+//      setting the link's width (a Button keeps its label on one line otherwise).
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
@@ -38,7 +40,7 @@ export function View({ courses, heading, base_path = '/courses', current, lesson
       <Text as="ul" className="m-0 grid list-none gap-3 p-0 sm:grid-cols-2 lg:grid-cols-3">
         {others.map(course => (
           <Text as="li" key={course.slug} data-course={course.slug}>
-            <Button variant="ghost" href={`${base}/${encodeURIComponent(course.slug)}`} className="grid h-auto w-full gap-1 text-start">
+            <Button variant="ghost" wrap href={`${base}/${encodeURIComponent(course.slug)}`} className="grid h-auto w-full grid-cols-1 gap-1 text-start">
               <Text as="span">{course.title}</Text>
               {course.lesson_count === undefined ? null : <Text as="span" variant="label" color="muted">{`${course.lesson_count} ${course.lesson_count === 1 ? lessonWords.one : lessonWords.many}`}</Text>}
             </Button>

@@ -12,6 +12,10 @@
 //   2. A course with no picture draws no picture; no courses draws the heading alone.
 //   3. A card's address is base_path plus the slug, encoded; the screen makes no other address.
 //   4. Everything drawn is a shared part (Text, Button, MediaFrame); no raw HTML and no inline styling.
+//   5. A card stays inside its column at every width: its link is a Button given `wrap` (a Button keeps its label on one
+//      line otherwise, so a long description set the card's width and the cards ran over each other and past the page's
+//      left edge, live on /courses Nov 25-26 2026), and one column of `grid-cols-1` so the picture fills the card whatever
+//      the length of its words.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
@@ -34,7 +38,7 @@ export function View({ courses, heading, base_path = '/courses', image_template 
       <Text as="ul" className="m-0 grid list-none gap-4 p-0 sm:grid-cols-2 lg:grid-cols-3">
         {courses.map(course => (
           <Text as="li" key={course.slug} data-course={course.slug}>
-            <Button variant="ghost" href={`${base}/${encodeURIComponent(course.slug)}`} className="grid h-auto w-full gap-3 p-0 text-start">
+            <Button variant="ghost" wrap href={`${base}/${encodeURIComponent(course.slug)}`} className="grid h-auto w-full grid-cols-1 gap-3 p-0 text-start">
               {course.image === '' ? null : <MediaFrame url={image_template.replace('{image}', course.image)} mediaType="image/jpeg" label={course.title} />}
               {course.category === '' ? null : <Text as="span" variant="label" color="muted">{course.category}</Text>}
               <Text as="span" variant="heading-lg">{course.title}</Text>
