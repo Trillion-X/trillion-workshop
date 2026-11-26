@@ -27,7 +27,10 @@ import { realpathSync } from 'node:fs';
 // table, and USAGE on its schema, and nothing else in that schema (a schema's other tables may hold rows no row rule guards).
 // Named tables also mean no whole-public read: the public_grants block (every public table) is given only when no tables are named.
 // A recipe that grants per write (`per_write`, may-write-named-columns-under-a-use) takes { writes: [{ table, select?, insert?,
-// update?, delete? } | { function }] }: each right an entry names, on exactly the columns it names, and nothing it does not name.
+// update?, delete?, rows?, keeps_out? } | { function }] }: each right an entry names, on exactly the columns it names, and nothing it
+// does not name. An entry's `rows: { key }` limits the login to the rows whose key column holds the digest of a key its run presented
+// after claiming its use (use_binding.present_key), and `keeps_out` to writes that put no value under the named jsonb keys: one
+// restrictive row rule for the login, written by the server.
 // A recipe runs in one transaction unless it says `in_one_transaction: false`: Postgres runs CREATE DATABASE and DROP
 // DATABASE only outside a transaction block, so such a recipe's statements run one by one on the same connection.
 // A recipe that takes a held value (`takes_held_value`) is handed it on descriptor 6 (value_credential_name) and fills it in
@@ -169,8 +172,12 @@ const writesOf = (name, writes) => {
       if (entry.function.startsWith('use_binding.')) throw new Error(`${at} may not name the use_binding schema: the recipe gives its claim and nothing else there.`);
       continue;
     }
-    const unknown = Object.keys(entry).filter(key => !['table', ...COLUMN_RIGHTS, 'delete'].includes(key));
-    if (unknown.length) throw new Error(`${at} names ${unknown.join(', ')}: an entry has table, select, insert, update and delete only.`);
+    const unknown = Object.keys(entry).filter(key => !['table', ...COLUMN_RIGHTS, 'delete', 'rows', 'keeps_out'].includes(key));
+    if (unknown.length) throw new Error(`${at} names ${unknown.join(', ')}: an entry has table, select, insert, update, delete, rows and keeps_out only.`);
+    const plainName = name => typeof name === 'string' && /^[a-z_][a-z0-9_]{0,62}$/.test(name);
+    if (entry.rows !== undefined && (entry.rows === null || typeof entry.rows !== 'object' || Object.keys(entry.rows).join() !== 'key' || !plainName(entry.rows.key))) throw new Error(`${at}.rows must be { key: column }: the column holding the digest of the key that opens a row.`);
+    if (entry.keeps_out !== undefined && (entry.keeps_out === null || typeof entry.keeps_out !== 'object' || Array.isArray(entry.keeps_out) || Object.keys(entry.keeps_out).length === 0
+      || Object.entries(entry.keeps_out).some(([column, keys]) => !plainName(column) || !Array.isArray(keys) || keys.length === 0 || keys.some(key => typeof key !== 'string' || key === '')))) throw new Error(`${at}.keeps_out must be { column: [key, ...] }: the keys of a jsonb column the login may never write a value into.`);
     if (typeof entry.table !== 'string' || !TABLE_NAME.test(entry.table)) throw new Error(`${at}.table must be a schema.table name.`);
     if (entry.table.startsWith('use_binding.')) throw new Error(`${at}.table may not be in the use_binding schema: its keys and claims are never the login's to read or change.`);
     for (const right of COLUMN_RIGHTS) {
@@ -327,9 +334,18 @@ const perWriteSteps = async (client, recipe, shape) => {
       continue;
     }
     const [schema, table] = entry.table.split('.');
+    const ruled = entry.rows !== undefined || entry.keeps_out !== undefined;
+    // The key binding is made (or taken from the login) once, before the first entry whose rows it opens.
+    if (entry.rows !== undefined && !steps.some(([template]) => rights.row_binding.includes(template))) steps.push(...rights.row_binding.map(template => [template, null, null, null]));
     if (shape.action === 'drop') {
+      if (ruled) steps.push(...rights.row_rules.map(template => [template, schema, table, null]));
       steps.push([rights.table, schema, table, null], [rights.usage, schema, table, null]);
       continue;
+    }
+    // The key column is made before any column right names it.
+    if (entry.rows !== undefined) {
+      const { rows: [{ key }] } = await runOne(client, "SELECT format('%I', $1::text) AS key", [entry.rows.key]);
+      steps.push([rights.row_key, schema, table, key]);
     }
     steps.push([rights.usage, schema, table, null]);
     for (const right of COLUMN_RIGHTS) {
@@ -338,6 +354,12 @@ const perWriteSteps = async (client, recipe, shape) => {
       steps.push([rights[right], schema, table, listed]);
     }
     if (entry.delete === true) steps.push([rights.delete, schema, table, null]);
+    // The login's own rule, written by the server from the entry: only rows its key opens, and no value under a kept-out key.
+    if (ruled) {
+      const { rows: [{ rule }] } = await runOne(client, `SELECT format('USING (%s) WITH CHECK (%s%s)', opened, opened, coalesce(kept, '')) AS rule FROM (SELECT CASE WHEN $1::text IS NULL THEN 'true' ELSE format('%I = ANY (use_binding.presented_keys())', $1::text) END AS opened,
+        (SELECT string_agg(format(' AND coalesce(%I -> %L, ''null''::jsonb) = ''null''::jsonb', c.key, k), '') FROM jsonb_each($2::jsonb) c CROSS JOIN LATERAL jsonb_array_elements_text(c.value) k) AS kept) given`, [entry.rows?.key ?? null, JSON.stringify(entry.keeps_out ?? {})]);
+      for (const template of rights.row_rules) steps.push([template, schema, table, template.includes('%13$s') ? rule : null]);
+    }
   }
   return steps;
 };

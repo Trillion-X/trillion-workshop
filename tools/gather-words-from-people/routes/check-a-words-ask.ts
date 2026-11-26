@@ -58,6 +58,10 @@ export async function checkAWordsAsk(input: Given, { content, asks }: { content:
   const consent = consentOf(gathers, input.consent);
   if (!said || !consent) return { status: 400, error: page.invalid };
   if (said.length > WORDS_MOST) return { status: 400, error: page.too_long };
+  // Under a use the words login reaches only the row this ask's token opens (writer-rights.json `rows`): the token is presented
+  // in the run's transaction first; the ask wrote the token's digest into the row when it made it (ask_key_digest).
+  const fenced = input.use !== undefined && input.use !== null;
+  if (fenced) await content('SELECT use_binding.present_key($1)', [token]);
   const [found] = await content(`SELECT id, text, author, consent_basis, words_state FROM ${table} WHERE id = $1`, [asked.row_id]) as any[];
   if (!found) return notFound;
   const row = { id: found.id, value: valueOf(found) };

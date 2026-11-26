@@ -184,6 +184,68 @@ test('a writes entry is refused unless it names known rights on a schema.table, 
   await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-read-under-row-rules', action: 'create', role: READER, writes: WRITES } } }), /grants per write/);
 });
 
+// A words table whose rows are opened by a key (writes entry `rows`): the words page's writer reaches only the row of the ask
+// whose token its run presented, never another person's row or a row kept before the fence, and never gives itself an approval.
+test('a writes entry with rows reaches only the row its presented key opens, and keeps_out refuses an approval', async () => {
+  const WORDS = 'p_runs_words_writer', WORDS_PW = randomBytes(32).toString('base64url');
+  const words = connectionFor(WORDS, WORDS_PW);
+  const entry = { table: 'public.words', select: ['id', 'text', 'words_state'], insert: ['id', 'text', 'words_state', 'ask_key_digest'], update: ['text', 'words_state'], rows: { key: 'ask_key_digest' }, keeps_out: { words_state: ['approved_identity'] } };
+  await runSql({ connection: owner, input: { sql: "CREATE TABLE words (id text PRIMARY KEY, text text, words_state jsonb NOT NULL DEFAULT '{}', shown boolean NOT NULL DEFAULT false)" } });
+  await runSql({ connection: owner, input: { sql: "INSERT INTO words (id, text, shown) VALUES ('kept-before', 'Words shown on the page.', true)" } });
+  await runSql({ connection: maker, roleConnection: words, input: { recipe: { name: 'a-login', action: 'create' } } });
+  const create = () => runSql({ connection: owner, input: { recipe: { name: 'may-write-named-columns-under-a-use', action: 'create', role: WORDS, writes: [entry] } } });
+  await create();
+  await create();
+  const run = work => withSqlWrite({ connection: words, ticket: ticketOf(publish), use: publish }, work);
+  const tokenA = randomBytes(32).toString('base64url'), tokenB = randomBytes(32).toString('base64url');
+  const add = (token, id) => run(async query => {
+    await query('SELECT use_binding.present_key($1)', [token]);
+    return (await query("INSERT INTO words (id, text, ask_key_digest) VALUES ($1, 'first words', encode(sha256(convert_to($2, 'UTF8')), 'hex')) ON CONFLICT (id) DO NOTHING RETURNING id", [id, token])).rows;
+  });
+  assert.deepEqual(await add(tokenA, 'asked-a'), [{ id: 'asked-a' }]);
+  assert.deepEqual(await add(tokenB, 'asked-b'), [{ id: 'asked-b' }]);
+  // Holding A's token: A's row is read and changed; B's row and the row kept before the fence are neither read nor changed.
+  const changed = await run(async query => {
+    await query('SELECT use_binding.present_key($1)', [tokenA]);
+    const seen = (await query('SELECT id FROM words ORDER BY id')).rows.map(row => row.id);
+    const counts = [];
+    for (const id of ['asked-a', 'asked-b', 'kept-before']) counts.push((await query("UPDATE words SET text = 'rewritten' WHERE id = $1", [id])).row_count);
+    return { seen, counts };
+  });
+  assert.deepEqual(changed, { seen: ['asked-a'], counts: [1, 0, 0] });
+  // A row added under a key the run did not present, or moved to another key, is refused by the rule.
+  await assert.rejects(run(async query => {
+    await query('SELECT use_binding.present_key($1)', [tokenA]);
+    await query("INSERT INTO words (id, text, ask_key_digest) VALUES ('forged', 'x', encode(sha256(convert_to($1, 'UTF8')), 'hex'))", [tokenB]);
+  }), /new row violates row-level security policy/);
+  await assert.rejects(run(async query => {
+    await query('SELECT use_binding.present_key($1)', [tokenA]);
+    await query("UPDATE words SET text = 'x' WHERE id = 'asked-b'");
+    await query("INSERT INTO words (id, text, ask_key_digest) VALUES ('asked-b', 'x', 'made-up') ON CONFLICT (id) DO UPDATE SET text = 'x'");
+  }), /permission denied|violates row-level security/);
+  // No approval: a write that puts a value under words_state.approved_identity is refused, on its own row too.
+  await assert.rejects(run(async query => {
+    await query('SELECT use_binding.present_key($1)', [tokenA]);
+    await query(`UPDATE words SET words_state = '{"status": "approved", "approved_identity": "made-up"}' WHERE id = 'asked-a'`);
+  }), /new row violates row-level security policy/);
+  // A key is presented only after the run claimed its use, and is never readable.
+  await assert.rejects(withSqlWrite({ connection: words }, query => query('SELECT use_binding.present_key($1)', [tokenA])), /claimed its use/);
+  await assert.rejects(run(query => query('SELECT * FROM use_binding.presented_keys')), /permission denied for table presented_keys/);
+  await assert.rejects(run(query => query('SELECT ask_key_digest FROM words')), /permission denied for table words/);
+  const rows = await runSql({ connection: owner, input: { sql: 'SELECT id, text, shown FROM words ORDER BY id' } });
+  assert.deepEqual(rows.rows, [{ id: 'asked-a', text: 'rewritten', shown: false }, { id: 'asked-b', text: 'first words', shown: false }, { id: 'kept-before', text: 'Words shown on the page.', shown: true }]);
+  // Every other login keeps what it had: the writer of the other tables, which holds no right here, is refused as before, and the
+  // drop takes this login's rule and rights away and leaves the rows, the key column and the other logins as they were.
+  await assert.rejects(one('SELECT id FROM words'), /permission denied for table words/);
+  await runSql({ connection: owner, input: { recipe: { name: 'may-write-named-columns-under-a-use', action: 'drop', role: WORDS, writes: [entry] } } });
+  const rules = await runSql({ connection: owner, input: { sql: "SELECT polname FROM pg_policy WHERE polrelid = 'public.words'::regclass ORDER BY 1" } });
+  assert.deepEqual(rules.rows, [{ polname: 'rows_as_they_were' }]);
+  const fn = await runSql({ connection: owner, input: { sql: "SELECT has_function_privilege($1, 'use_binding.present_key(text)', 'EXECUTE') AS may", params: [WORDS] } });
+  assert.equal(fn.rows[0].may, false);
+  await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-write-named-columns-under-a-use', action: 'create', role: WORDS, writes: [{ ...entry, rows: { key: 'Bad Name' } }] } } }), /rows must be \{ key: column \}/);
+  await assert.rejects(runSql({ connection: owner, input: { recipe: { name: 'may-write-named-columns-under-a-use', action: 'create', role: WORDS, writes: [{ ...entry, keeps_out: { words_state: [] } }] } } }), /keeps_out must be/);
+});
+
 test('the drop takes every right the writes named back and leaves the login', async () => {
   await runSql({ connection: owner, input: { recipe: { name: 'may-write-named-columns-under-a-use', action: 'drop', role: WRITER, writes: WRITES } } });
   const rights = await runSql({ connection: owner, input: { sql: "SELECT count(*)::int AS n FROM information_schema.role_table_grants WHERE grantee = $1", params: [WRITER] } });

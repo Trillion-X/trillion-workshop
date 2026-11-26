@@ -203,7 +203,7 @@
         "REVOKE EXECUTE ON FUNCTION use_binding.claim_use(text) FROM %1$I",
         "REVOKE CONNECT ON DATABASE %4$I FROM %1$I"
       ],
-      "_per_write_what": "Each recipe.writes entry is { table: schema.table, select?, insert?, update?: [column, ...], delete?: true } or { function: 'schema.name(argument types)' }. Each right the entry names is one statement below, %11$I the schema, %12$I the table and %13$s the server-quoted columns (or the function the server resolves by to_regprocedure); a right the entry does not name is never granted. The drop runs the drop statements once per entry.",
+      "_per_write_what": "Each recipe.writes entry is { table: schema.table, select?, insert?, update?: [column, ...], delete?: true } or { function: 'schema.name(argument types)' }. Each right the entry names is one statement below, %11$I the schema, %12$I the table and %13$s the server-quoted columns (or the function the server resolves by to_regprocedure); a right the entry does not name is never granted. The drop runs the drop statements once per entry. A table entry may also name `rows: { key: column }`: the login then reads, adds and changes only the rows whose key column holds the digest of a key its run presented in the same transaction, after it claimed its use (use_binding.present_key(key): the words page's ask token, say), so a run that holds one row's key reaches that row and no other. The key column is made (text, empty in every row there now, so the login reaches none of them) and the table's row rules switched on, with rows_as_they_were letting every other login read and write as it did before; the login's own rule (%9$I) is restrictive, so it holds on top of that. `keeps_out: { column: [key, ...] }` names keys of a jsonb column the login may never write a value into (an approval it must not give itself). %13$s is the server-quoted key column, or the rule's USING and WITH CHECK the server writes from the entry. The drop takes the login's rule away and leaves the key column, the row rules and rows_as_they_were, which other logins' rules and the rows themselves may rest on.",
       "per_write": {
         "create": {
           "usage": "GRANT USAGE ON SCHEMA %11$I TO %1$I",
@@ -211,12 +211,33 @@
           "insert": "GRANT INSERT (%13$s) ON TABLE %11$I.%12$I TO %1$I",
           "update": "GRANT UPDATE (%13$s) ON TABLE %11$I.%12$I TO %1$I",
           "delete": "GRANT DELETE ON TABLE %11$I.%12$I TO %1$I",
-          "function": "GRANT EXECUTE ON FUNCTION %13$s TO %1$I"
+          "function": "GRANT EXECUTE ON FUNCTION %13$s TO %1$I",
+          "row_binding": [
+            "CREATE TABLE IF NOT EXISTS use_binding.presented_keys (xact xid8 NOT NULL, key_digest text NOT NULL, until timestamptz NOT NULL, PRIMARY KEY (xact, key_digest))",
+            "REVOKE ALL ON TABLE use_binding.presented_keys FROM PUBLIC",
+            "CREATE OR REPLACE FUNCTION use_binding.present_key(key text) RETURNS void LANGUAGE plpgsql VOLATILE SECURITY DEFINER SET search_path = pg_catalog, use_binding, pg_temp AS $body$ BEGIN IF key IS NULL OR length(key) < 16 THEN RAISE EXCEPTION 'A row key is at least 16 characters.' USING ERRCODE = 'insufficient_privilege'; END IF; IF NOT EXISTS (SELECT 1 FROM use_binding.claims c WHERE c.xact = pg_current_xact_id()) THEN RAISE EXCEPTION 'A row key is presented only in a transaction that claimed its use.' USING ERRCODE = 'insufficient_privilege'; END IF; DELETE FROM use_binding.presented_keys p WHERE p.until < clock_timestamp(); INSERT INTO use_binding.presented_keys (xact, key_digest, until) VALUES (pg_current_xact_id(), encode(sha256(convert_to(key, 'UTF8')), 'hex'), clock_timestamp() + interval '1 hour') ON CONFLICT DO NOTHING; END $body$",
+            "CREATE OR REPLACE FUNCTION use_binding.presented_keys() RETURNS text[] LANGUAGE sql STABLE SECURITY DEFINER SET search_path = pg_catalog, use_binding, pg_temp AS $body$ SELECT coalesce(array_agg(p.key_digest), '{}') FROM use_binding.presented_keys p WHERE p.xact = pg_current_xact_id_if_assigned() $body$",
+            "REVOKE EXECUTE ON FUNCTION use_binding.present_key(text), use_binding.presented_keys() FROM PUBLIC",
+            "GRANT EXECUTE ON FUNCTION use_binding.present_key(text), use_binding.presented_keys() TO %1$I"
+          ],
+          "row_key": "ALTER TABLE %11$I.%12$I ADD COLUMN IF NOT EXISTS %13$s text",
+          "row_rules": [
+            "ALTER TABLE %11$I.%12$I ENABLE ROW LEVEL SECURITY",
+            "DO $rule$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_catalog.pg_policy WHERE polrelid = pg_catalog.format('%%I.%%I', %11$L, %12$L)::regclass AND polname = 'rows_as_they_were') THEN CREATE POLICY rows_as_they_were ON %11$I.%12$I AS PERMISSIVE FOR ALL TO PUBLIC USING (true) WITH CHECK (true); END IF; END $rule$",
+            "DROP POLICY IF EXISTS %9$I ON %11$I.%12$I",
+            "CREATE POLICY %9$I ON %11$I.%12$I AS RESTRICTIVE FOR ALL TO %1$I %13$s"
+          ]
         },
         "drop": {
           "table": "REVOKE ALL ON TABLE %11$I.%12$I FROM %1$I",
           "usage": "REVOKE USAGE ON SCHEMA %11$I FROM %1$I",
-          "function": "REVOKE EXECUTE ON FUNCTION %13$s FROM %1$I"
+          "function": "REVOKE EXECUTE ON FUNCTION %13$s FROM %1$I",
+          "row_binding": [
+            "REVOKE EXECUTE ON FUNCTION use_binding.present_key(text), use_binding.presented_keys() FROM %1$I"
+          ],
+          "row_rules": [
+            "DROP POLICY IF EXISTS %9$I ON %11$I.%12$I"
+          ]
         }
       }
     }
