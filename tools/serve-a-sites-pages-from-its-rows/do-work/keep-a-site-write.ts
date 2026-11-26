@@ -11,7 +11,9 @@
 //      input, and a value goes into the statement only as a parameter.
 //   2. A value the write does not take, a required value not given, a text past its most, or a list past its count is refused
 //      before anything is sent.
-//   3. The statement runs in one transaction that claims the use first (run-sql.mjs withSqlWrite), as the writer login, whose
+//   3. A json value (a tool's answer the row hands on, such as a course stop's keep) goes in as its JSON text, so the statement
+//      reads it with $n::jsonb; it is refused past `most` bytes of that text.
+//   4. The statement runs in one transaction that claims the use first (run-sql.mjs withSqlWrite), as the writer login, whose
 //      grants (role recipe may-write-named-columns-under-a-use) are the only rights it has.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -19,7 +21,7 @@ import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { sayWithout, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 
-type Value = { name: string; type: 'text' | 'texts'; most: number; required?: boolean };
+type Value = { name: string; type: 'text' | 'texts' | 'json'; most: number; required?: boolean };
 type Write = { sql: string; values: Value[] };
 type Asked = { database?: unknown; use?: unknown; write?: unknown; values?: unknown };
 type Query = (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[]; row_count: number }>;
@@ -44,6 +46,11 @@ export function statementOf(asked: Asked, writes: Record<string, Write> = WRITES
     if (type === 'text') {
       if (typeof value !== 'string' || value.length > most) throw new Error(`${key} must be text of at most ${most} characters.`);
       return value;
+    }
+    if (type === 'json') {
+      const text = JSON.stringify(value);
+      if (typeof value !== 'object' || Buffer.byteLength(text) > most) throw new Error(`${key} must be a JSON list or object of at most ${most} bytes.`);
+      return text;
     }
     if (!Array.isArray(value) || value.length > most || value.some(each => typeof each !== 'string' || each.length > 400)) throw new Error(`${key} must be a list of at most ${most} texts.`);
     return value;

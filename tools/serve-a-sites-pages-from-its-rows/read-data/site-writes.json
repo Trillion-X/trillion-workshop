@@ -1,5 +1,5 @@
 {
-  "_what": "The writes a site's action rows may ask tool:keep-a-site-write for, by name. Each is one fixed statement and the values it takes, in parameter order ($1 is the first value): a caller sends a name and values only, never SQL. A value is text (at most `most` characters) or a list of texts (at most `most` of them); one not given is null, unless it is required. The statements are the ones a site's run-sql action rows sent (Nov 25 2026), changed only where the writer login may not do what they did: no RETURNING (the login cannot read the rows it adds), and the welcome stop through the owner's stop_welcome_series(token), so the login never reads a token.",
+  "_what": "The writes a site's action rows may ask tool:keep-a-site-write for, by name. Each is one fixed statement and the values it takes, in parameter order ($1 is the first value): a caller sends a name and values only, never SQL. A value is text (at most `most` characters), a list of texts (at most `most` of them), or json (a list or object a tool answered, handed to the statement as its JSON text, at most `most` bytes); one not given is null, unless it is required. The statements are the ones a site's run-sql action rows sent (Nov 25 2026), changed only where the writer login may not do what they did: no RETURNING (the login cannot read the rows it adds), and the welcome stop through the owner's stop_welcome_series(token), so the login never reads a token.",
   "writes": {
     "site-lead": {
       "_what": "A lead from a site form (book a call): one statement of meaning lead, kept only when the email has an email's shape.",
@@ -41,6 +41,13 @@
       "sql": "INSERT INTO price_views (offer_id, day, views) SELECT id, (now() AT TIME ZONE 'UTC')::date, 1 FROM offers WHERE id = ANY(($1::text[])[1:20]) ON CONFLICT (offer_id, day) DO UPDATE SET views = price_views.views + 1",
       "values": [
         { "name": "offer_ids", "type": "texts", "most": 20, "required": true }
+      ]
+    },
+    "email-course-stop": {
+      "_what": "Keeps what tool:stop-an-email-course answered for a stop link (its keep) through the owner's keep_an_email_course_stop, which writes only subscription, token and stop rows, all or nothing (keep_email_course_rows); the login holds no read or write of email_course_records itself. Answers how many rows were kept.",
+      "sql": "SELECT public.keep_an_email_course_stop($1::jsonb) AS kept",
+      "values": [
+        { "name": "keep", "type": "json", "most": 65536, "required": true }
       ]
     },
     "welcome-series-stop": {

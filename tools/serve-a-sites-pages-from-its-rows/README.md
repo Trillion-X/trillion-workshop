@@ -276,11 +276,14 @@ Example, a page's visit beacon (a visitor id only with consent, set as a cookie 
 ## Named writes
 
 `tool:keep-a-site-write` keeps one of the site's named writes (`read-data/site-writes.json`: `site-lead`, `site-checkout`, `site-visit`,
-`price-view`, `welcome-series-stop`) from the values an action row gives: `{ database, use, write, values }`, the statement fixed in the file and
+`price-view`, `email-course-stop`, `welcome-series-stop`) from the values an action row gives: `{ database, use, write, values }`, the statement fixed in the file and
 every value a parameter, so a post never sends SQL. Under the site's use the computer opens the database with its writer login
 (`<database>-writer-connection`, role recipe `may-write-named-columns-under-a-use` in run-sql-in-my-database: only the columns and
 functions these writes need), and the write's one transaction claims the use first. The welcome stop calls the owner's
-`stop_welcome_series(token)` (SECURITY DEFINER), so the writer never reads a token. Example, the visit beacon above as a named write:
+`stop_welcome_series(token)` (SECURITY DEFINER), so the writer never reads a token. The course stop hands on what
+`tool:stop-an-email-course` answered as a `json` value (its `keep`, the JSON text read with `$1::jsonb`) to the owner's
+`keep_an_email_course_stop(keep)` (send-messages `sql/email-course-stop-from-a-link.sql`), which writes only subscription, token and
+stop rows; the row reads that tool's records through the reader's `email_course_stop_records(token)`. Example, the visit beacon above as a named write:
 
 ```json
 { "path": "/observe/visit", "access": "public", "tool": "tool:keep-a-site-write", "failed": "The visit was not kept.",

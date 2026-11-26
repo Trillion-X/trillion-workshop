@@ -83,11 +83,21 @@ test('the welcome stop answers where to go: stopped for a token that matched, in
 });
 
 test('only a named write with the values it takes is sent: never SQL from the input', () => {
-  assert.throws(() => statementOf({ write: 'drop-everything', values: {} }), /write must be one of site-lead, site-checkout, site-visit, price-view, welcome-series-stop/);
+  assert.throws(() => statementOf({ write: 'drop-everything', values: {} }), /write must be one of site-lead, site-checkout, site-visit, price-view, email-course-stop, welcome-series-stop/);
   assert.throws(() => statementOf({ write: 'site-lead', values: { key: 'k', sql: 'delete from statements' } }), /takes no sql/);
   assert.throws(() => statementOf({ write: 'site-lead', values: { email: 'made.up@example.test' } }), /needs key/);
   assert.throws(() => statementOf({ write: 'site-lead', values: { key: 'k', email: 'x'.repeat(321) } }), /at most 320 characters/);
   assert.throws(() => statementOf({ write: 'price-view', values: { offer_ids: Array.from({ length: 21 }, (_, n) => `offer:${n}`) } }), /at most 20 texts/);
   assert.throws(() => statementOf({ write: 'site-lead', values: [] }), /values must be an object/);
   assert.deepEqual(statementOf({ write: 'price-view', values: { offer_ids: ['offer:one'] } }).params, [['offer:one']]);
+});
+
+test('a json value goes in as its JSON text, a list or object only, bounded by its bytes', () => {
+  const keep = [{ id: 'email-course-stop:a', type: 'email-course-stop', value: { account_id: 'a' }, expected: null }];
+  const { sql, params } = statementOf({ write: 'email-course-stop', values: { keep } });
+  assert.match(sql, /keep_an_email_course_stop\(\$1::jsonb\)/);
+  assert.deepEqual(params, [JSON.stringify(keep)], 'the JSON text, so node-pg never makes a list a Postgres array');
+  assert.throws(() => statementOf({ write: 'email-course-stop', values: {} }), /needs keep/);
+  for (const value of ['[]', 7, true]) assert.throws(() => statementOf({ write: 'email-course-stop', values: { keep: value } }), /JSON list or object/, String(value));
+  assert.throws(() => statementOf({ write: 'email-course-stop', values: { keep: [{ id: 'x'.repeat(65536) }] } }), /at most 65536 bytes/);
 });
