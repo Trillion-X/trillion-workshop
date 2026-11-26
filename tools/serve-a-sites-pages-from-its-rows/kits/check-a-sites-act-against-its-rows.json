@@ -26,7 +26,7 @@
           "input": {
             "tool": "tool:check-a-sites-act-against-its-rows",
             "input": {
-              "computer": "example-computer",
+              "computer_row": "example-computer",
               "uid": 1106,
               "store": "example_for_who_runs_it-connection"
             },

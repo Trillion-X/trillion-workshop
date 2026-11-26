@@ -40,7 +40,7 @@ function world(applied: rights.Grant | null, { pages = [page('/courses', 'tool:r
     },
   };
 }
-const asked = { computer: 'box', uid: 1106, store: 'computers' };
+const asked = { computer_row: 'box', uid: 1106, store: 'computers' };
 const grantOf = (tools: string[], heldBy: Record<string, Record<string, string[]>> = {}): rights.Grant => ({ tools, identity: 'none', journal: 'input', held_inputs_by_tool: heldBy });
 const NOW = grantOf([RUN_SQL, 'tool:read-the-courses'], { [RUN_SQL]: { database: ['site_db'] }, 'tool:read-the-courses': { database: ['site_db'] } });
 
@@ -78,13 +78,13 @@ test('a call no grant can make as written needs a person; an act given by hand, 
   assert.equal(answer.needs_a_person, true);
   assert.equal(answer.refused.length, 1);
   await assert.rejects(checkASitesAct(asked, world(NOW, { act: NOW }).deps), /is not given as \{ derive_from \}/);
-  await assert.rejects(checkASitesAct({ ...asked, computer: 'other' }, world(NOW).deps), /No computer row is named other/);
+  await assert.rejects(checkASitesAct({ ...asked, computer_row: 'other' }, world(NOW).deps), /No computer row is named other/);
   await assert.rejects(checkASitesAct({ ...asked, uid: 7 }, world(NOW).deps), /has 0 vault readers with uid 7/);
   const first = await checkASitesAct(asked, world(null).deps);
   assert.equal(first.needs_a_person, true, 'an act never applied widens from nothing');
 });
 
-test('the input is { computer, uid, store } and nothing else', () => {
+test('the input is { computer_row, uid, store } and nothing else', () => {
   assert.deepEqual(askedOf(asked), asked);
-  for (const bad of [{}, { ...asked, uid: '1106' }, { ...asked, store: 'a b' }, { ...asked, extra: 1 }, null]) assert.throws(() => askedOf(bad), /Give \{ computer/, JSON.stringify(bad));
+  for (const bad of [{}, { ...asked, uid: '1106' }, { ...asked, store: 'a b' }, { ...asked, extra: 1 }, null]) assert.throws(() => askedOf(bad), /Give \{ computer_row/, JSON.stringify(bad));
 });

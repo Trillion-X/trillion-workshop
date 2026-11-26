@@ -13,10 +13,11 @@
 //   It reads the computer's row and the site's rows by running tool:run-sql-in-my-database through the run's door (descriptor
 //   3), by the held connection names the row and its act give; it holds no login and writes nothing.
 //
-//   Input: { computer, uid, store }: the computer row's name, the uid of the vault reader whose act is checked, and the held
+//   Input: { computer_row, uid, store }: the computer row's name (named so, since a workflow step's `computer` carries the run's
+//   grants), the uid of the vault reader whose act is checked, and the held
 //   connection of the database the computer rows are kept in. The command line names the granted Workshop folder (a git
 //   checkout holding the pinned commit) and the run's kept folder, where each pinned commit is unpacked once.
-//   Answer: { computer, uid, site, pin, same, needs_a_person, narrowed_only, widened, narrowed, refused, asked_by,
+//   Answer: { computer_row, uid, site, pin, same, needs_a_person, narrowed_only, widened, narrowed, refused, asked_by,
 //   derived_tools, applied_tools, difference_id } (difference_id: the BLAKE3 identity of what differs, so one difference is one
 //   finding however often it is checked).
 //
@@ -34,7 +35,7 @@ import { pathToFileURL } from 'node:url';
 import type { DerivedGrant, Grant, GrantDifference, RowsOf, SiteRows, SiteRowsAt } from './rights.ts';
 
 export interface Asked {
-  computer: string;
+  computer_row: string;
   uid: number;
   store: string;
 }
@@ -64,25 +65,25 @@ const isObject = (value: unknown): value is Record<string, unknown> => Boolean(v
 /** The input, checked; a wrong one throws naming what each field should be. */
 export function askedOf(value: unknown): Asked {
   const given = value as Partial<Asked> | null;
-  if (!isObject(given) || Object.keys(given).some(key => !['computer', 'uid', 'store'].includes(key)) || typeof given.computer !== 'string' || !given.computer
+  if (!isObject(given) || Object.keys(given).some(key => !['computer_row', 'uid', 'store'].includes(key)) || typeof given.computer_row !== 'string' || !given.computer_row
     || !Number.isInteger(given.uid) || typeof given.store !== 'string' || !NAME.test(given.store)) {
-    throw new Error('Give { computer: the computer row\'s name, uid: the vault reader\'s uid, store: the held connection of the database its row is kept in }.');
+    throw new Error('Give { computer_row: the computer row\'s name, uid: the vault reader\'s uid, store: the held connection of the database its row is kept in }.');
   }
   return given as Asked;
 }
 
 /** How the act a computer row applies for one vault reader differs from the one its site's rows ask for now. */
 export async function checkASitesAct(asked: Asked, deps: Deps) {
-  const [row] = await deps.runSql(asked.store, 'SELECT runs::text AS runs FROM computer WHERE name = $1', [asked.computer]);
-  if (!row) throw new Error(`No computer row is named ${asked.computer}.`);
+  const [row] = await deps.runSql(asked.store, 'SELECT runs::text AS runs FROM computer WHERE name = $1', [asked.computer_row]);
+  if (!row) throw new Error(`No computer row is named ${asked.computer_row}.`);
   const runs = JSON.parse(String(row.runs)) as { units?: { settings?: { vault_readers?: Record<string, unknown>[] } }[] };
   const readers = (runs.units ?? []).flatMap(unit => unit.settings?.vault_readers ?? []).filter(reader => reader.uid === asked.uid);
-  if (readers.length !== 1) throw new Error(`${asked.computer} has ${readers.length} vault readers with uid ${asked.uid}; the check needs exactly one.`);
+  if (readers.length !== 1) throw new Error(`${asked.computer_row} has ${readers.length} vault readers with uid ${asked.uid}; the check needs exactly one.`);
   const act = readers[0].act as { derive_from?: SiteRowsAt & { connection: string; pin: string }; derived?: { grant?: Grant } } | undefined;
   const from = act?.derive_from;
-  if (!from) throw new Error(`The act of uid ${asked.uid} on ${asked.computer} is not given as { derive_from }, so there are no rows to check it against.`);
+  if (!from) throw new Error(`The act of uid ${asked.uid} on ${asked.computer_row} is not given as { derive_from }, so there are no rows to check it against.`);
   if (typeof from.connection !== 'string' || !NAME.test(from.connection) || typeof from.pin !== 'string' || !COMMIT.test(from.pin)) {
-    throw new Error(`The act of uid ${asked.uid} on ${asked.computer} names no held connection and Workshop commit to derive from.`);
+    throw new Error(`The act of uid ${asked.uid} on ${asked.computer_row} names no held connection and Workshop commit to derive from.`);
   }
   const applied = act?.derived?.grant ?? null;
   const { rights, tools } = await deps.rightsAt(from.pin);
@@ -92,14 +93,14 @@ export async function checkASitesAct(asked: Asked, deps: Deps) {
   const widened = difference.widened.tools.length > 0 || difference.widened.held.length > 0 || difference.widened.other.length > 0;
   const needsAPerson = widened || refused.length > 0;
   return {
-    computer: asked.computer, uid: asked.uid, site: from.site, pin: from.pin,
+    computer_row: asked.computer_row, uid: asked.uid, site: from.site, pin: from.pin,
     same: difference.same && refused.length === 0,
     needs_a_person: needsAPerson,
     narrowed_only: !needsAPerson && !difference.same,
     widened: difference.widened, narrowed: difference.narrowed, refused,
     asked_by: rights.askedBy(site, [...new Set([...difference.widened.tools, ...difference.widened.held.map(item => item.tool)])]),
     derived_tools: grant.tools.length, applied_tools: applied?.tools.length ?? 0,
-    difference_id: deps.identity({ computer: asked.computer, uid: asked.uid, pin: from.pin, applied, derived: grant, refused }),
+    difference_id: deps.identity({ computer_row: asked.computer_row, uid: asked.uid, pin: from.pin, applied, derived: grant, refused }),
   };
 }
 

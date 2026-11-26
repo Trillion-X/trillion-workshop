@@ -470,15 +470,15 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "computer",
+            "computer_row",
             "uid",
             "store"
           ],
           "properties": {
-            "computer": {
+            "computer_row": {
               "type": "string",
               "minLength": 1,
-              "description": "The computer row's name."
+              "description": "The computer row's name (not `computer`, which carries a run's grants)."
             },
             "uid": {
               "type": "integer",
@@ -503,7 +503,7 @@
             "difference_id"
           ],
           "properties": {
-            "computer": {
+            "computer_row": {
               "type": "string"
             },
             "uid": {
