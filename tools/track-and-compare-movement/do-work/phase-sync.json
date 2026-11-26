@@ -1,0 +1,9 @@
+{
+  "min_speed": 0.25,
+  "max_speed": 4.0,
+  "max_pieces": 6,
+  "min_piece_seconds": 0.1,
+  "tolerance_frames": 1.0,
+  "refuse_above_frames": 1.5,
+  "gamma": 0.0
+}

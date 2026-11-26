@@ -29,11 +29,15 @@
 //       every branch the same length. A slow-mo contact pass is its OWN split segment
 //       with speed:0.4; video-compose drops audio on a sped split (setpts retimes only
 //       video). crop/label are spatial and stay per-cell; speed is temporal and global.
+//   • TEMPORAL, PER-SOURCE, LENGTH-CHECKED (`sources[i].hold|ramp|smooth`): a cell may hold
+//       one frame or play its own speed envelope (a phase-synced reference) when the
+//       compositor has checked that every cell still comes out the same length, which
+//       keeps the stack from desyncing. Identity when absent.
 
 /**
  * Build the video filter graph for a split.
  * @param {{count:number, layout?:string, weights?:number[], width:number, height:number, fps:string|number, speed?:number, sources?:SourceTransform[]}} spec
- * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', label?:LabelSpec}} SourceTransform
+ * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:boolean, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
  * @typedef {{textfile:string, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
  * @returns {{ filter:string, videoLabel:string, cells:{w:number,h:number}[], cols?:number, rows?:number }}
  */
@@ -62,8 +66,16 @@ export function buildSplitLayout({ count, layout = 'h', weights, width, height, 
     }
     if (t.flip === 'h' || t.flip === 'hv') parts.push('hflip');
     if (t.flip === 'v' || t.flip === 'hv') parts.push('vflip');
+    // A cell's own time: a held frame (`hold`), or a speed envelope (`ramp`, a setpts expression of
+    // input time made by the compositor), then the segment-wide speed on top. `smooth` (a filter fragment) makes the
+    // in-between frames of a slowed cell. Every cell must come out the same length; the compositor checks that.
+    if (t.hold) parts.push('trim=end_frame=1,setpts=PTS-STARTPTS');
+    if (t.ramp) parts.push(`setpts=(${t.ramp})/TB`);
     if (retime) parts.push(`setpts=PTS/${speed}`);
+    if (t.smooth) parts.push(t.smooth);
     parts.push(`scale=${cw}:${ch}`, norm);
+    // `frames`: the cell's exact length; its last frame is held past its end and the compositor stops the output there.
+    if (Number.isInteger(t.frames)) parts.push(`tpad=stop_mode=clone:stop=${t.frames}`);
     if (t.label && t.label.textfile) parts.push(drawtextFilter(t.label, ch));
     return `[${i}:v]${parts.join(',')}[${scaleLabel(i)}]`;
   };

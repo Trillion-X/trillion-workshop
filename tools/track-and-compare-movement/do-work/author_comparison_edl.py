@@ -32,6 +32,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+HERE = Path(__file__).resolve().parent
 CROP_DEFAULTS = {"min_confidence": 0.3, "pad_height": 1.6, "pad_width": 1.35}
 
 
@@ -92,6 +93,25 @@ def cell_aspect(layout: str, width: int, height: int) -> float:
     return (width / 2) / height if layout == "h" else width / (height / 2)
 
 
+def synced_side(sides: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """The phase sync (phase_sync.v1) of the one side that names `sync`, checked against both peaks; None when no
+    side is synced. The synced side is the sync's reference; the other side is its target and plays as recorded."""
+    named = [side for side in sides if side.get("sync")]
+    if not named:
+        return None
+    if len(named) > 1:
+        raise ValueError("only one side can be retimed by a sync; the other plays as recorded")
+    retimed = named[0]
+    sync = retimed["sync"] if isinstance(retimed["sync"], dict) else read_json(retimed["sync"])
+    if sync.get("kind") != "phase_sync.v1":
+        raise ValueError(f"sync must be a phase_sync.v1 made by phase_sync.py, not {sync.get('kind')!r}")
+    other = sides[1 - sides.index(retimed)]
+    for side, part in ((retimed, "reference"), (other, "target")):
+        if abs(float(side["peak"]) - sync[part]["contact"]) > 1e-3:
+            raise ValueError(f"the {part} peak {side['peak']} is not the sync's {part} contact {sync[part]['contact']}; make the sync for these peaks")
+    return sync
+
+
 def build_edl(spec: dict[str, Any], clip_durations: dict[str, float] | None = None) -> dict[str, Any]:
     encode = spec.get("encode", {})
     width = encode.get("width", 1920)
@@ -102,28 +122,51 @@ def build_edl(spec: dict[str, Any], clip_durations: dict[str, float] | None = No
     aspect = cell_aspect(layout, width, height)
     sides = [spec["left"], spec["right"]]
     durations = clip_durations or {}
+    sync = synced_side(sides)
+    if sync:
+        sys.path.insert(0, str(HERE))
+        from phase_sync import reference_window  # the sync's owner does its window arithmetic (numpy only when synced)
     segments = []
     for one_pass in spec["passes"]:
         target = float(one_pass.get("half", 1.0))
         # One symmetric half clamped to BOTH clips keeps the two cells phase-aligned and in bounds.
         half = min(safe_half(target, float(side["peak"]), durations[side["clip"]]) if durations.get(side["clip"]) else target for side in sides)
+        if sync:
+            window = sync["target"]
+            half = min(half, window["contact"] - window["in"], window["out"] - window["contact"])
         suffix = one_pass.get("label_suffix", "")
+        still = one_pass.get("still")
         sources = []
         for side in sides:
-            crop = player_crop(side["kp"], float(side["peak"]), max(half, 0.6), aspect, side.get("track_id"), spec.get("crop"))
+            peak = float(side["peak"])
+            seconds: dict[str, Any] = {"in": round(peak - half, 3), "out": round(peak + half, 3)}
+            centre, reach = peak, half
+            if side.get("sync") and not still:
+                seconds = reference_window(sync, sync["target"]["contact"] - half, sync["target"]["contact"] + half)
+                centre, reach = (seconds["in"] + seconds["out"]) / 2, (seconds["out"] - seconds["in"]) / 2
+            if still:
+                seconds = {"in": round(peak, 3)}
+            crop = player_crop(side["kp"], centre, max(reach, 0.6), aspect, side.get("track_id"), spec.get("crop"))
             source: dict[str, Any] = {
                 "source": side["clip"],
-                "in": round(float(side["peak"]) - half, 3),
-                "out": round(float(side["peak"]) + half, 3),
+                **{key: seconds[key] for key in ("in", "out") if key in seconds},
                 "crop": crop,
                 "label": {"text": str(side.get("label", "")) + suffix, "corner": side.get("corner", "tl"), "size": int(side.get("label_size", 54))},
             }
             if side.get("flip"):
                 source["flip"] = side["flip"]
+            if "speed_ramp" in seconds:
+                source["speed_ramp"] = seconds["speed_ramp"]
             sources.append(source)
         segment: dict[str, Any] = {"id": one_pass["id"], "kind": "split", "layout": layout, "sources": sources}
-        if one_pass.get("speed"):
+        if still:
+            segment["still"] = {"duration": float(still)}
+        if one_pass.get("speed") and not still:
             segment["speed"] = float(one_pass["speed"])
+        if one_pass.get("smooth") and not still:
+            if not 0 < float(one_pass.get("speed") or 1) < 1:
+                raise ValueError(f"pass {one_pass['id']!r} asks for smooth motion, which makes in-between frames for a slowed pass only (speed below 1)")
+            segment["speed_smooth"] = True
         segments.append(segment)
     edl: dict[str, Any] = {
         "encode": {"width": width, "height": height, "fps": encode.get("fps", 30), "crf": encode.get("crf", 20), "preset": encode.get("preset", "medium")},
@@ -133,6 +176,16 @@ def build_edl(spec: dict[str, Any], clip_durations: dict[str, float] | None = No
     if spec.get("voice_audio"):
         edl["audio_graph"] = {"replace_audio": spec["voice_audio"]}
     return edl
+
+
+def variant_specs(spec: dict[str, Any], variants: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    """One spec per format of `variants` (comparison-variants.json): the format's picture size and layout, and the
+    variants' passes unless the spec names its own. Keyed by the format id."""
+    made = {}
+    for one_format in variants["formats"]:
+        encode = {**spec.get("encode", {}), "width": int(one_format["width"]), "height": int(one_format["height"])}
+        made[one_format["id"]] = {**spec, "encode": encode, "layout": one_format["layout"], "passes": spec.get("passes") or variants["passes"]}
+    return made
 
 
 def probe_duration(path: str) -> float | None:
@@ -147,18 +200,28 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="two pose-tracked clips -> a media-composition side-by-side edit")
     parser.add_argument("--spec", required=True)
     parser.add_argument("--out", required=True)
+    parser.add_argument("--variants", help="a comparison-variants.json: write one edit per format, OUT with .FORMAT before .json")
     args = parser.parse_args()
     try:
         spec = read_json(args.spec)
         durations = {side["clip"]: probe_duration(side["clip"]) for side in (spec["left"], spec["right"])}
-        edl = build_edl(spec, {clip: seconds for clip, seconds in durations.items() if seconds is not None})
+        known = {clip: seconds for clip, seconds in durations.items() if seconds is not None}
+        if args.variants:
+            out = Path(args.out)
+            edls = {str(out.with_name(f"{out.stem}.{name}{out.suffix}")): build_edl(one, known) for name, one in variant_specs(spec, read_json(args.variants)).items()}
+        else:
+            edls = {args.out: build_edl(spec, known)}
     except (OSError, ValueError, KeyError) as error:
         print(json.dumps({"error": f"{type(error).__name__}: {error}; check the spec against the shape in the file's header"}))
         return 2
-    Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-    with open(args.out, "w", encoding="utf-8") as handle:
-        json.dump(edl, handle, indent=2)
-    print(json.dumps({"result": {"out": args.out, "segments": len(edl["spine"]["segments"])}}))
+    for path, edl in edls.items():
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(edl, handle, indent=2)
+    if args.variants:
+        print(json.dumps({"result": {"outs": list(edls), "segments": [len(edl["spine"]["segments"]) for edl in edls.values()]}}))
+    else:
+        print(json.dumps({"result": {"out": args.out, "segments": len(edls[args.out]["spine"]["segments"])}}))
     return 0
 
 

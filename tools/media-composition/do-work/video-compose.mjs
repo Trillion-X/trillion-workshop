@@ -1831,12 +1831,45 @@ function buildSplit(segment) {
   const sources = specs.map((s) => s.source);
   if (sources.length === 0) throw new Error(`[video.compose] split ${segment.id} has no sources`);
 
-  // SPATIAL per-source transforms (crop/label). TEMPORAL speed is SEGMENT-uniform.
+  // SPATIAL per-source transforms (crop/label). TEMPORAL speed is segment-uniform, and a cell's own time
+  // (held frame, speed envelope) is allowed only when every cell still plays the same length.
   // Label text is written to a file here (I/O layer) and passed to the pure builder as
   // a `textfile` path — using textfile, not text=, sidesteps ffmpeg's escaping entirely.
+  const speed = typeof segment.speed === 'number' ? segment.speed : 1;
+  const uniform = speed > 0 ? speed : 1;
+  // TEMPORAL, PER-SOURCE: `still {duration}` holds each source's frame at its `in`; a source's `speed_ramp`
+  // [{t, speed}] (source seconds from its `in`, as a clip's) is its own speed envelope; `speed_smooth` makes the
+  // in-between frames of every slowed cell (motion-compensated, the clip's smooth_motion).
+  const still = segment.still && typeof segment.still === 'object' ? segment.still : null;
+  if (still && !(Number.isFinite(still.duration) && still.duration > 0))
+    throw new Error(`[video.compose] split ${segment.id} still needs duration, how long each source's frame at its in is held`);
+  const timing = specs.map((s) => {
+    if (still) return { hold: true, seconds: still.duration, slowest: 0 };
+    const len = Number.isFinite(s.out) ? s.out - (s.in ?? 0) : segment.duration;
+    const ramp = Array.isArray(s.speed_ramp) && s.speed_ramp.length ? speedRampSecondsExpr(s.speed_ramp, len) : null;
+    const played = ramp ? speedRampOutSeconds(s.speed_ramp, len) : len;
+    const slowest = Math.min(1, ...(ramp ? s.speed_ramp.map((p) => p.speed) : [1])) * uniform;
+    return { ramp, seconds: played / uniform, slowest };
+  });
+  // Only a split with timing of its own is checked and cut frame-exact; any other split renders as it always has.
+  const ownTiming = still !== null || segment.speed_smooth === true || timing.some((c) => c.ramp);
+  if (ownTiming && timing.every((c) => Number.isFinite(c.seconds))) {
+    const lengths = timing.map((c) => c.seconds);
+    if (Math.max(...lengths) - Math.min(...lengths) > 1 / fpsNum + 1e-6)
+      throw new Error(`[video.compose] split ${segment.id} cells would play ${lengths.map((n) => round3(n)).join(', ')} seconds; every cell must be the same length (within one frame)`);
+  }
+  // Such a split is cut to an exact frame count (a slowed or held picture otherwise ends a frame or two early, at its
+  // last real frame), so the cut of every pass lands frame-exact.
+  const exactFrames = ownTiming && Number.isFinite(timing[0].seconds)
+    ? Math.max(1, Math.round(timing[0].seconds * fpsNum))
+    : null;
   const transforms = specs.map((s, i) => {
     const t = { crop: s.crop };
     if (s.flip) t.flip = s.flip;
+    if (timing[i].hold) t.hold = true;
+    if (exactFrames) t.frames = exactFrames;
+    if (timing[i].ramp) t.ramp = timing[i].ramp;
+    if (segment.speed_smooth === true && timing[i].slowest < 1) t.smooth = COMPUTE_EFFECTS.smooth_motion();
     if (s.label && s.label.text) {
       const lf = join(T, `label-${segment.id}-${i}.txt`);
       writeFileSync(lf, translateText(String(s.label.text), s.label.translate));
@@ -1844,8 +1877,8 @@ function buildSplit(segment) {
     }
     return t;
   });
-  const speed = typeof segment.speed === 'number' ? segment.speed : 1;
-  const anySped = speed > 0 && speed !== 1;
+  // A sped, ramped or held split is silent (setpts retimes only video; the music bed rides the spine).
+  const anySped = (speed > 0 && speed !== 1) || still !== null || timing.some((c) => c.ramp);
 
   const layout = buildSplitLayout({
     count: sources.length,
@@ -1863,7 +1896,8 @@ function buildSplit(segment) {
   specs.forEach((s) => {
     const seek = [];
     if (Number.isFinite(s.in)) seek.push('-ss', String(s.in));
-    if (Number.isFinite(s.out)) seek.push('-t', String(+(s.out - (s.in ?? 0)).toFixed(3)));
+    if (still) seek.push('-t', String(+(2 / fpsNum).toFixed(3)));
+    else if (Number.isFinite(s.out)) seek.push('-t', String(+(s.out - (s.in ?? 0)).toFixed(3)));
     else if (segment.duration) seek.push('-t', String(segment.duration));
     inputs.push(...seek, '-i', s.source);
   });
@@ -1880,11 +1914,11 @@ function buildSplit(segment) {
     fc += `;${audioSources.map((a) => `[${a.i}:a]`).join('')}amix=inputs=${audioSources.length}:duration=longest:normalize=0[aout]`;
     audioMap = '[aout]';
   } else {
-    inputs.push('-f', 'lavfi', '-i', 'anullsrc=r=48000:cl=stereo');
+    inputs.push('-f', 'lavfi', ...(exactFrames ? ['-t', String(exactFrames / fpsNum)] : []), '-i', 'anullsrc=r=48000:cl=stereo');
     audioMap = `${sources.length}:a`;
   }
   ff([...inputs, '-filter_complex', fc, '-map', `[${layout.videoLabel}]`, '-map', audioMap,
-    '-shortest', ...V, ...A, out], `split ${segment.id}`);
+    ...(exactFrames ? ['-frames:v', String(exactFrames)] : ['-shortest']), ...V, ...A, out], `split ${segment.id}`);
   push(out);
 }
 
@@ -2565,11 +2599,15 @@ writeFileSync(args.get('result') ?? `${OUT}.result.json`, JSON.stringify(result)
 //       every branch the same length. A slow-mo contact pass is its OWN split segment
 //       with speed:0.4; video-compose drops audio on a sped split (setpts retimes only
 //       video). crop/label are spatial and stay per-cell; speed is temporal and global.
+//   • TEMPORAL, PER-SOURCE, LENGTH-CHECKED (`sources[i].hold|ramp|smooth`): a cell may hold
+//       one frame or play its own speed envelope (a phase-synced reference) when the
+//       compositor has checked that every cell still comes out the same length, which
+//       keeps the stack from desyncing. Identity when absent.
 
 /**
  * Build the video filter graph for a split.
  * @param {{count:number, layout?:string, weights?:number[], width:number, height:number, fps:string|number, speed?:number, sources?:SourceTransform[]}} spec
- * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', label?:LabelSpec}} SourceTransform
+ * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:boolean, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
  * @typedef {{textfile:string, x?:number, y?:number, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
  * @returns {{ filter:string, videoLabel:string, cells:{w:number,h:number}[], cols?:number, rows?:number }}
  */
@@ -2598,8 +2636,16 @@ export function buildSplitLayout({ count, layout = 'h', weights, width, height, 
     }
     if (t.flip === 'h' || t.flip === 'hv') parts.push('hflip');
     if (t.flip === 'v' || t.flip === 'hv') parts.push('vflip');
+    // A cell's own time: a held frame (`hold`), or a speed envelope (`ramp`, a setpts expression of
+    // input time made by the compositor), then the segment-wide speed on top. `smooth` (a filter fragment) makes the
+    // in-between frames of a slowed cell. Every cell must come out the same length; the compositor checks that.
+    if (t.hold) parts.push('trim=end_frame=1,setpts=PTS-STARTPTS');
+    if (t.ramp) parts.push(`setpts=(${t.ramp})/TB`);
     if (retime) parts.push(`setpts=PTS/${speed}`);
+    if (t.smooth) parts.push(t.smooth);
     parts.push(`scale=${cw}:${ch}`, norm);
+    // `frames`: the cell's exact length; its last frame is held past its end and the compositor stops the output there.
+    if (Number.isInteger(t.frames)) parts.push(`tpad=stop_mode=clone:stop=${t.frames}`);
     if (t.label && t.label.textfile) parts.push(drawtextFilter(t.label, ch));
     return `[${i}:v]${parts.join(',')}[${scaleLabel(i)}]`;
   };
