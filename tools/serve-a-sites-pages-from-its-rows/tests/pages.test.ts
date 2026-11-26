@@ -89,3 +89,20 @@ test('a literal path part may hold a colon after its first character, and matche
   assert.deepEqual(matchPage(pages, '/before-booking/offer:two')?.params, { offer: 'offer:two' });
   assert.throws(() => pageOf(row({ path: '/:offer:one' })), /path is/);
 });
+
+test('a query_path value takes the address\'s query value only when it is a path on this site, else its own path; a broken one refuses the row', () => {
+  const back = { $: 'query_path', key: 'source', else: '/articles' };
+  const query = (source: string) => new URLSearchParams({ source });
+  assert.equal(filledInput(back, {}, query('/articles/one?x=1')), '/articles/one?x=1');
+  for (const source of ['https://elsewhere.example/x', '//elsewhere.example/x', '/\\elsewhere.example', 'javascript:alert(1)', 'articles', '/a b']) {
+    assert.equal(filledInput(back, {}, query(source)), '/articles', source);
+  }
+  assert.equal(filledInput(back, {}, new URLSearchParams()), '/articles', 'no source: the else path');
+  assert.deepEqual(filledInput({ href: back, label: 'Back' }, {}, query('/subscribe')), { href: '/subscribe', label: 'Back' });
+  const row = (props: unknown) => ({ path: '/subscribe/check-inbox', title: 'Check your inbox', access: 'public', tool: null, input: {}, collection: null, updated_at: null,
+    layout: { part: 'ui/show/button/Button.tsx', export: 'Button', props } });
+  assert.doesNotThrow(() => pageOf(row({ href: back })));
+  for (const bad of [{ ...back, else: 'https://elsewhere.example' }, { ...back, else: '//x' }, { $: 'query_path', key: 'source' }, { ...back, extra: 1 }, { ...back, key: 'a b' }]) {
+    assert.throws(() => pageOf(row({ href: bad })), /query_path/, JSON.stringify(bad));
+  }
+});

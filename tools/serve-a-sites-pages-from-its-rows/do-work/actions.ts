@@ -41,6 +41,11 @@
 //               always); their input may read { "$": "input" } and { "$": "answer" } (the row's own tool's). A step that fails
 //               runs its `failed` step (a newsletter's "send_failed", so the signup is not left waiting) and the visitor gets
 //               the row's failure, as when the row's own tool fails; a `failed` step's own failure is only logged.
+//     outcomes  jsonb or null: { "<answer key>": { "<value>": { "redraw": <status>, "words": "<words>" } } }: when the row's own
+//               tool answers that value at that key (a signup's "outcome": "invalid_email"), the request ends there, as a
+//               failure the tool chose to name: a browser's form is drawn again with that status (400 to 599) and those words
+//               at the form, its typed values put back, and a page script gets { "error": words, "outcome": value } with that
+//               status. No next step and no then runs, and nothing is undone (the tool did its job; it answered no).
 //     undo      jsonb or null: { "tool": "tool:<id>", "input": <value> }, run when the row's own tool was started and failed, to
 //               put back what the tools its input ran had done (a calendar event put before the booking could be kept); its
 //               input may read { "$": "input" } (what the failed tool was given). The visitor still gets the failure.
@@ -147,6 +152,23 @@ export interface ActionRow {
   then: ActionStep | null;
   undo: ActionStep | null;
   next: NextStep[];
+  /** Answer values that end the request as a named failure: { "<answer key>": { "<value>": { redraw, words } } }. */
+  outcomes: Record<string, Record<string, OutcomeAnswer>>;
+}
+
+/** What a request gets when the row's own tool answers a value its row names in `outcomes`. */
+export interface OutcomeAnswer {
+  redraw: number;
+  words: string;
+}
+
+/** The first `outcomes` entry the tool's answer gives, with the value it matched, or null. */
+export function outcomeOf(outcomes: ActionRow['outcomes'], answer: Record<string, unknown> | null): (OutcomeAnswer & { value: string }) | null {
+  for (const [key, values] of Object.entries(outcomes)) {
+    const given = answer?.[key];
+    if (typeof given === 'string' && Object.hasOwn(values, given)) return { ...values[given], value: given };
+  }
+  return null;
 }
 
 /** What one request carries, for filling an action's input. */
@@ -313,6 +335,20 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
     checkValue(given.input ?? {}, `${where} ${name}.input`);
     return { tool: given.tool, input: given.input ?? {} };
   };
+  const outcomesGiven = (row.outcomes ?? {}) as Record<string, unknown>;
+  const outcomesWords = `${where}: outcomes is { "<answer key>": { "<value>": { "redraw": 400 to 599, "words": "<words>" } } } or null.`;
+  if (typeof outcomesGiven !== 'object' || Array.isArray(outcomesGiven)) throw new PageRowError(outcomesWords);
+  const outcomes: ActionRow['outcomes'] = {};
+  for (const [key, values] of Object.entries(outcomesGiven)) {
+    if (!key || !values || typeof values !== 'object' || Array.isArray(values)) throw new PageRowError(outcomesWords);
+    outcomes[key] = {};
+    for (const [value, given] of Object.entries(values as Record<string, unknown>)) {
+      const one = given as Record<string, unknown> | null;
+      if (!value || !one || typeof one !== 'object' || Array.isArray(one) || Object.keys(one).some(name => name !== 'redraw' && name !== 'words')
+        || !Number.isInteger(one.redraw) || (one.redraw as number) < 400 || (one.redraw as number) > 599 || typeof one.words !== 'string' || !one.words.trim()) throw new PageRowError(outcomesWords);
+      outcomes[key][value] = { redraw: one.redraw as number, words: one.words };
+    }
+  }
   const nextGiven = row.next ?? null;
   if (nextGiven !== null && !Array.isArray(nextGiven)) throw new PageRowError(`${where}: next is a list of { when?, tool, input, failed? } or null.`);
   const next = ((nextGiven ?? []) as Record<string, unknown>[]).map((given, i): NextStep => {
@@ -330,7 +366,7 @@ export function actionOf(row: Record<string, unknown>): ActionRow {
   });
   return {
     path, host: host as string | null, method, access: row.access, tool: row.tool, input: row.input ?? {}, answer: answer as ActionAnswer, failed: row.failed as string, says_why: row.says_why === true,
-    then: step('then'), undo: step('undo'), next,
+    then: step('then'), undo: step('undo'), next, outcomes,
   };
 }
 
@@ -354,7 +390,7 @@ export function actionsOf(rows: Record<string, unknown>[]): { actions: ActionRow
 /** The sql that reads a site's action rows from its table. */
 export function actionsSql(table: string): string {
   if (!TABLE.test(table)) throw new PageRowError(`actions ${JSON.stringify(table)} is not a table name.`);
-  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo, to_jsonb(a)->'then' AS then, to_jsonb(a)->'next' AS next, (to_jsonb(a)->'says_why') AS says_why FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
+  return `SELECT a.path, a.access, a.tool, a.input, a.answer, a.failed, to_jsonb(a)->>'host' AS host, to_jsonb(a)->>'method' AS method, to_jsonb(a)->'undo' AS undo, to_jsonb(a)->'then' AS then, to_jsonb(a)->'next' AS next, (to_jsonb(a)->'says_why') AS says_why, to_jsonb(a)->'outcomes' AS outcomes FROM "${table}" a ORDER BY 1, 7 NULLS LAST, 8`;
 }
 
 /** The action a request's method, host and path are (HEAD asks a GET row); a host's own row wins over a row for every host. */

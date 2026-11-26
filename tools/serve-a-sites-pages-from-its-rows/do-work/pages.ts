@@ -12,7 +12,10 @@
 //     layout      the page's tree of parts (LayoutNode below), or null when the page is only its tool's screen
 //     tool        the tool whose screen is the page's main screen (a template page), or null
 //     input       that tool's input; a string value ":name" takes the path's value for :name; a string ":query.key" takes the address's
-//                 query value for key (left out when the address has none), so a page reads ?token= into a hidden field
+//                 query value for key (left out when the address has none), so a page reads ?token= into a hidden field; a
+//                 value { "$": "query_path", "key": "source", "else": "/articles" } takes the query value only when it is a
+//                 path on this site, else the `else` path (a words page's Back link to the form it came from). The same holds
+//                 in any layout node's props and a layout tool node's input.
 //     collection  for a template page: the table of the same database whose `slug` column lists its addresses (the sitemap)
 //     updated_at  when the row last changed (the sitemap's lastmod)
 //     host        the one host name the page answers on, or null for every host the site answers
@@ -104,7 +107,23 @@ export const PAGES_SQL = "SELECT p.path, p.title, p.access, p.layout, p.tool, p.
 function propsOf(props: unknown, where: string): { props?: Record<string, unknown> } {
   if (props === undefined || props === null) return {};
   if (typeof props !== 'object' || Array.isArray(props)) throw new PageRowError(`${where}: props is an object.`);
+  checkQueryPaths(props, `${where} props`);
   return { props: props as Record<string, unknown> };
+}
+
+/** Every { "$": "query_path" } value inside a value is { "$", "key": a query key, "else": a path on this site }. */
+function checkQueryPaths(value: unknown, where: string): void {
+  if (Array.isArray(value)) return value.forEach((item, i) => checkQueryPaths(item, `${where}[${i}]`));
+  if (!value || typeof value !== 'object') return;
+  if ((value as { $?: unknown }).$ === 'query_path') {
+    const given = value as Record<string, unknown>;
+    if (Object.keys(given).some(key => !['$', 'key', 'else'].includes(key)) || typeof given.key !== 'string' || !/^[A-Za-z0-9_.~-]+$/.test(given.key)
+      || typeof given.else !== 'string' || !SITE_PATH.test(given.else)) {
+      throw new PageRowError(`${where}: a query_path value is { "$": "query_path", "key": a query key, "else": a path on this site such as /articles }.`);
+    }
+    return;
+  }
+  for (const [key, item] of Object.entries(value)) checkQueryPaths(item, `${where}.${key}`);
 }
 
 function partOf(part: unknown, where: string): string {
@@ -145,6 +164,7 @@ function checkNode(node: unknown, where: string, hasTool: boolean, wordsPage: bo
     if (typeof n.tool !== 'string' || !TOOL_ID.test(n.tool)) throw new PageRowError(`${where}: tool is a tool id such as tool:read-the-courses.`);
     if (n.required !== undefined && n.required !== true) throw new PageRowError(`${where}: required is true or left out.`);
     const required = n.required === true ? { required: true as const } : {};
+    checkQueryPaths(n.input ?? {}, `${where} input`);
     if (n.part === undefined) {
       if (n.export !== undefined) throw new PageRowError(`${where}: export names a part's export, and this tool node names no part.`);
       return { tool: n.tool, input: n.input ?? {}, ...propsOf(n.props, where), ...required };
@@ -154,6 +174,7 @@ function checkNode(node: unknown, where: string, hasTool: boolean, wordsPage: bo
   const name = exportOf(n.export, where);
   const part = partOf(n.part, where);
   if (n.props !== undefined && (typeof n.props !== 'object' || n.props === null || Array.isArray(n.props))) throw new PageRowError(`${where}: props is an object.`);
+  checkQueryPaths(n.props, `${where} props`);
   if (n.children !== undefined && !Array.isArray(n.children)) throw new PageRowError(`${where}: children is a list of nodes.`);
   const children = (n.children as unknown[] | undefined)?.map((child, i) => checkNode(child, `${where}.children[${i}]`, hasTool, wordsPage));
   return { part, export: name, ...(n.props ? { props: n.props as Record<string, unknown> } : {}), ...(children ? { children } : {}) };
@@ -180,6 +201,7 @@ export function pageOf(row: Record<string, unknown>): PageRow {
   const host = row.host ?? null;
   if (host !== null && (typeof host !== 'string' || !HOST.test(host))) throw new PageRowError(`${where}: host is a lower-case host name or null.`);
   const params = paramsOf(path);
+  checkQueryPaths(row.input, `${where} input`);
   for (const name of placeholdersIn(row.input)) {
     if (!params.includes(name)) throw new PageRowError(`${where}: input names ":${name}", which the path does not hold.`);
   }
@@ -236,16 +258,29 @@ function placeholdersIn(value: unknown): string[] {
 }
 
 const QUERY_VALUE = /^:query\.([A-Za-z0-9_.~-]+)$/;
+// A path on the site itself: one leading "/", never "//" (another host), no backslash and no control character or space.
+const SITE_PATH = /^\/(?![/\\])[^\s\\\u0000-\u001f\u007f]*$/;
+
+/** A value written { "$": "query_path", "key": "<query key>", "else": "<path>" }: a way back the address names. */
+interface QueryPath { $: 'query_path'; key: string; else: string }
+const isQueryPath = (value: unknown): value is QueryPath => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+  && (value as { $?: unknown }).$ === 'query_path';
 
 /**
- * The input with each ":name" string replaced by the path's value for name, and each ":query.key" string by the address's
- * query value for key (a key the address does not carry leaves its object key out, and is null in a list).
+ * The input with each ":name" string replaced by the path's value for name, each ":query.key" string by the address's query
+ * value for key (a key the address does not carry leaves its object key out, and is null in a list), and each
+ * { "$": "query_path", "key", "else" } by the address's query value for key when it is a path on this site ("/...", never
+ * "//" or another host), else by `else` (a words page's way back to the form it came from, ?source=/articles/one).
  */
 export function filledInput(input: unknown, params: Record<string, string>, query: URLSearchParams = new URLSearchParams()): unknown {
   if (typeof input === 'string') {
     const key = QUERY_VALUE.exec(input)?.[1];
     if (key !== undefined) return query.get(key) ?? undefined;
     return /^:[a-z_][a-z0-9_]*$/.test(input) && input.slice(1) in params ? params[input.slice(1)] : input;
+  }
+  if (isQueryPath(input)) {
+    const given = query.get(input.key);
+    return given !== null && SITE_PATH.test(given) ? given : input.else;
   }
   if (Array.isArray(input)) return input.map(item => filledInput(item, params, query) ?? null);
   if (input && typeof input === 'object') {

@@ -94,7 +94,7 @@ import { closedOnHost, ListedPaths, LISTING_UNREAD, NOT_LISTED, servedFilesOf, s
 import type { ServedFiles } from './served-files.ts';
 import { filledInput, hasWordsPlace, matchPage, NOT_FOUND, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
-import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, sendableAddress, setCookieOf } from './actions.ts';
+import { actionsOf, actionsSql, bodyOf, cookiesOf, filled, matchAction, outcomeOf, sendableAddress, setCookieOf } from './actions.ts';
 import type { ActionReply, ActionRow, Asked } from './actions.ts';
 import { pageStyles } from './page-styles.ts';
 import { withSiteHead } from '../../site-head-from-its-rows/do-work/site-head.ts';
@@ -567,6 +567,13 @@ export class Site {
         throw error;
       }
       const answered: Asked = { ...asked, answer, input };
+      // An answer the row names in `outcomes` ends the request as that named failure: its status and words, nothing run after.
+      const named = outcomeOf(action.outcomes, answer);
+      if (named) {
+        return posted.form
+          ? this.failedForm(named.redraw, host, { action: pathname, words: named.words, referer: request.referer, cookie, values: typedValuesOf(posted.body) })
+          : json(named.redraw, { error: named.words, outcome: named.value });
+      }
       // The row's next steps, in order, each when its `when` gives true: one that fails runs its failed step and fails the request.
       for (const step of action.next) {
         if ((await filled(step.when, answered)) !== true) continue;

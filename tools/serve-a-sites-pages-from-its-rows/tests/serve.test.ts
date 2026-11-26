@@ -30,6 +30,10 @@ const PAGES = [
 ];
 
 const ACTIONS = [
+  { path: '/signup', host: null, access: 'public', tool: 'tool:say-an-outcome', failed: 'Nothing was kept.', input: { outcome: { $: 'body', key: 'pick' }, email: { $: 'body', key: 'email' } },
+    answer: { redirect_to: '/signup/check-inbox' }, next: [{ tool: 'tool:keep-a-lead', input: {} }], then: { tool: 'tool:keep-a-lead', input: {} },
+    outcomes: { outcome: { invalid_email: { redraw: 400, words: 'That address does not look right.' }, too_many: { redraw: 429, words: 'Too many sign-ups from here.' } } } },
+  { path: '/bad-outcomes', host: null, access: 'public', tool: 'tool:say-an-outcome', failed: 'x', input: {}, answer: { json: ['outcome'] }, outcomes: { outcome: { no: { redraw: 302, words: 'x' } } } },
   { path: '/checkout', host: null, access: 'public', tool: 'tool:start-a-checkout', failed: 'Checkout could not start.', answer: { redirect_from: 'redirectUrl' }, input: {
     offerId: { $: 'body', key: 'offerId' }, amount: { $: 'number', of: { $: 'body', key: 'amount' } }, email: { $: 'member', claim: 'email' },
     visitor: { $: 'cookie', name: 'visitor', when: { cookie: 'consent', is: 'granted' } }, offers: { $: 'rows', database: 'a_site_for_who_runs_it', sql: 'SELECT * FROM offers WHERE id = $1', params: [{ $: 'body', key: 'offerId' }] },
@@ -124,6 +128,8 @@ async function door(look = LOOK, pages = PAGES) {
         result = { kept: 1 };
       } else if (run.tool === 'tool:read-the-site-head') {
         result = { head: '<script>window.consentFirst=1</script>', body_start: '<noscript>tags off</noscript>' };
+      } else if (run.tool === 'tool:say-an-outcome') {
+        result = { outcome: (run.input as { outcome?: string }).outcome ?? 'check_inbox' };
       } else if (run.tool === 'tool:read-the-listed-files') {
         result = { clips: listedClips.map(name => ({ cut_url: `/published-clips/${name}.mp4`, picture_url: `/published-clips/${name}.jpg` })) };
       } else if (run.tool === 'tool:read-a-greeting') {
@@ -916,5 +922,30 @@ test('a row naming a part export the running commit lacks draws that node as not
       `/ahead: ${TEXT} has no export Section, so that part of the page is left out.`,
     ]);
     assert.equal((await site.answer('GET', '/ahead', undefined)).status, 200, 'and again, from the kept reads');
+  } finally { d.server.close(); }
+});
+
+test('an answer a row names in outcomes ends the request with its own status and words: a form drawn again with them, a script given JSON, nothing run after', async () => {
+  const d = await door();
+  try {
+    const site = await siteOn(d.address, { actions: 'site_actions' });
+    const host = 'site.example.test';
+    const form = (fields: Record<string, string>) => ({ contentType: 'application/x-www-form-urlencoded', origin: 'https://site.example.test', referer: 'https://site.example.test/', bytes: Buffer.from(new URLSearchParams(fields).toString()) });
+    d.calls.length = 0;
+    const bad = await site.act('/signup', undefined, host, form({ pick: 'invalid_email', email: 'not-an-address' }));
+    assert.equal(bad.status, 400);
+    assert.match(String(bad.body), /That address does not look right\./, 'the row\'s words at the form');
+    assert.match(String(bad.body), /not-an-address/, 'what the visitor typed is put back');
+    assert.match(String(bad.body), /Hello, everyone/, 'on the page the form was posted from');
+    assert.deepEqual(d.calls.filter(call => call.run.tool !== 'tool:run-sql-in-my-database' && call.run.tool !== 'tool:read-a-greeting').map(call => call.run.tool), ['tool:say-an-outcome'], 'no next step and no then runs');
+    const many = await site.act('/signup', undefined, host, { contentType: 'application/json', bytes: Buffer.from(JSON.stringify({ pick: 'too_many' })) });
+    assert.equal(many.status, 429);
+    assert.deepEqual(JSON.parse(String(many.body)), { error: 'Too many sign-ups from here.', outcome: 'too_many' });
+    d.calls.length = 0;
+    const good = await site.act('/signup', undefined, host, form({ pick: 'check_inbox', email: 'a@example.test' }));
+    assert.equal(good.status, 303, 'an outcome the row does not name goes on as before');
+    assert.equal(good.headers.location, '/signup/check-inbox');
+    assert.deepEqual(d.calls.map(call => call.run.tool), ['tool:say-an-outcome', 'tool:keep-a-lead', 'tool:keep-a-lead']);
+    assert.equal((await site.act('/bad-outcomes', undefined, host, form({}))).status, 404, 'an outcome whose status is not 400 to 599 sets the row aside');
   } finally { d.server.close(); }
 });
