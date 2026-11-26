@@ -237,7 +237,8 @@ def render(job):
             failed.append({"pair": pair, "why": str(e), "steps": steps})
             continue
         for fmt in variants["formats"]:
-            fid, edit, out = fmt["id"], f"{base}.{fid}.json", f"{base}.{fid}.mp4"
+            fid = fmt["id"]
+            edit, out = f"{base}.{fid}.json", f"{base}.{fid}.mp4"
             framed = f"{base}.{fid}.edit.json"
             got = run_json([sys.executable, os.path.join(HERE, "whole_movement_check.py"), "--edit", edit, "--model", seg_model,
                             "--work", base + f".{fid}.framing", "--write-edit", framed])

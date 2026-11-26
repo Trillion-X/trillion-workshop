@@ -28,6 +28,7 @@ for (const [file, what] of [
   ['test_contact_moment.py', 'contact is the sharp sound of the hit near the wrist peak, else the wrist peak, never outside the window'],
   ['test_whole_movement_check.py', 'a cell whose crop cuts off the body or racket is widened to the smallest crop that holds it, or refused'],
   ['test_reference_length.py', 'prepare leaves out a reference longer than reference_max_seconds and names it'],
+  ['test_render_stage.py', 'render runs contact, phase sync, the edit per format, the framing check and the renderer in order; a refused sync or framing makes no clip'],
   ['test_labelled_match.py', 'with labelled references a partner must be its class by a margin over every other class, and no contrast class fails closed'],
   ['../do-work/process-scripts/perception/test_window_frames.py', 'describing a long clip reads each window\'s frames in bounded memory and fingerprints the recording in chunks, with the same pictures as a seek-and-read'],
   ['../do-work/process-scripts/match/test_window_frames_use.py', 'the match copy hands the model the same frames in order through the one frame reader'],
