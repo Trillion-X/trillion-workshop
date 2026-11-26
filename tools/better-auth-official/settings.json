@@ -124,6 +124,13 @@
     "before_delete_secret": null,
     "before_delete_timeout_ms": 10000
   },
+  "after_sign_up": {
+    "_what": "After a person's account is made, by any way (an email and password, an email code, a passkey, a magic link, another sign-in), this tool tells the business, so whatever it keeps for a new person (a referral join, a welcome) starts from the moment the account exists. url: an http address on this computer (127.0.0.1 or localhost only, refused at start otherwise; null: no call is made) that receives POST {user_id, email, made_at, cookies} signed as before-delete-url.mjs says (x-sign-in-timestamp and x-sign-in-signature), with secret the name of the credential holding the key (the credentials folder) and timeout_ms how long to wait. cookies holds only the request's cookies that carried_cookies names (each value at most 256 characters; a missing one is left out), so the business learns what the person arrived with (a referral code) and nothing else of the browser. An account made by an admin for someone else carries no cookies. The account is made before the call and stands whatever the call answers: a failed call is logged, never shown to the person.",
+    "url": null,
+    "secret": null,
+    "timeout_ms": 5000,
+    "carried_cookies": []
+  },
   "email_code": {
     "digits": 6,
     "expires_in_seconds": 600,

@@ -35,7 +35,7 @@ test-fixtures/embedded-store.mjs), with no install and no sudo.
 ## settings.json
 
 `port`, `base_url`, `base_path`, `issuer`, `audience`, `store` (`credential`, `env`, and the driver Better Auth is handed as its database: `module`, its `export`, the constructor's `arguments` with `{connection}` for the connection string, `close`, the method that ends it, and `migration_lock`, the store's own `take` and `give` statements held around a migration, or null; another store is a settings change), `session_cookie_name`, `api_key` (`prefix`, `rate_limit` in the plugin's own `rateLimit` shape, `default_permissions`: the scope names a new key reaches, `{"<resource>": [names]}`, none by default; `scoped_create`: `path` and `allowed_patterns`, the keys a program on the computer may make, and `by_pass` (`create_path`, `revoke_path`, `most_seconds`, `mark`), the same asked by a person's own engine with its caller's pass, see below), `internal` (`host`, `port`, `verify_path`), `passkey` (`rp_id`, `rp_name`),
-`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default) and
+`trusted_origins`, `attached_origins` (`ask_url`, `cache_ms`, `related_url`), `two_factor_issuer`, `mcp` (`login_page`, `consent_page`, `resource`, `scopes`: what a client may ask for, `resource_scopes`: what the MCP resource allows), `disabled_paths`, `device` (`verification_uri`), `admin` (`user_ids`: the users the admin plugin treats as admins, its `adminUserIds`; none by default), `delete_user` (`enabled`: Better Auth's `user.deleteUser`, so a signed-in person may delete their own user; false by default), `after_sign_up` (`url`, `secret`, `timeout_ms`, `carried_cookies`: the signed call after an account is made; none by default) and
 `email` (`from`: the address mail comes from; `sender`: a description of an email provider's request, the published one at
 email-providers/resend.json or the person's own, named in their computer's layout row: `name`, `vault_key` (the name of the credential its auth header carries, read at each
 send from the unit's credentials folder, `CREDENTIALS_DIRECTORY`, never a value in settings), `request` (`url`, `method`, `headers`,
@@ -112,6 +112,18 @@ The person's API keys are removed once the account is gone.
 An admin cannot remove themself, so the last admin of a cleanup deletes itself this way. test/delete-user.test.mjs proves the
 switch, the password, the business hook and the keys; test/delete-hook-url.test.mjs proves the address: 2xx deletes, any other answer,
 a timeout or a refused connection keeps, the signature checks, and a non-local address is refused at start.
+
+After a person's account is made, by any way (an email and password, an email code, a passkey, a magic link), the business is told
+when `after_sign_up.url` is set: Better Auth's after-create hook on the user (`databaseHooks.user.create.after`, after-sign-up.ts)
+POSTs `{user_id, email, made_at, cookies}` to that address, signed exactly as the before-delete call is (`postSigned` in
+before-delete-url.mjs, under the credential `after_sign_up.secret`; the Workshop's signed-call receiver checks it under the signing
+rule `sign-in-tool-call`). The address is this computer's own (`127.0.0.1` or `localhost`, refused at start otherwise). `cookies`
+holds only the request's cookies `after_sign_up.carried_cookies` names (each value at most 256 characters), so the business learns
+what the person arrived with, such as a referral code, and nothing else of the browser; an account an admin makes for someone else
+carries none. The call is made once, after the account's own transaction commits; a later sign-in makes none. The account stands
+whatever the call answers: a refused, failed or late call (`after_sign_up.timeout_ms`, default 5000) is logged, never shown to
+the person. test/after-sign-up.test.ts proves both ways of making an account, the one call, the cookies, the signature under the
+receiver's rule, an account that stands when the business refuses or cannot be reached, and the refusals at start.
 
 ## The engine's API key check
 

@@ -1,5 +1,5 @@
 {
-  "_what": "The signing rules services use, as verify rows (the format signed-service-calls.mjs reads). A waiter row names one in its mechanism_settings as \"verify\": \"<rule name>\", or gives its own verify object. A rule here is DATA: a new service is a new entry, never an edit to the mechanism. Each rule was checked against the vectors its service publishes (tests/signed-service-calls.test.mjs). The secret is never in a rule: the waiter names it by its vault name (credential_name).",
+  "_what": "The signing rules services use, as verify rows (the format signed-service-calls.mjs reads). A waiter row names one in its mechanism_settings as \"verify\": \"<rule name>\", or gives its own verify object. A rule here is DATA: a new service is a new entry, never an edit to the mechanism. Each rule was checked against the vectors its service publishes (tests/signed-service-calls.test.mjs). The secret is never in a rule: the waiter names it by its vault name (credential_name). sign-in-tool-call is the Workshop sign-in tool's own signed call (tools/better-auth-official before-delete-url.mjs postSigned, used by its after-sign-up call and its before-delete clean-up): x-sign-in-timestamp holds whole seconds, x-sign-in-signature holds sha256= and the lower-case hex HMAC-SHA256 of <timestamp>.<body>.",
   "rules": {
     "stripe-signature": {
       "parts": {
@@ -38,6 +38,18 @@
       "url_ports": "either",
       "hash": "sha1",
       "encoding": "base64"
+    },
+    "sign-in-tool-call": {
+      "parts": {
+        "t": { "header": "x-sign-in-timestamp" },
+        "sig": { "header": "x-sign-in-signature", "match": "^sha256=([0-9a-f]{64})$" }
+      },
+      "signed": "{t}.{body}",
+      "signature": "sig",
+      "hash": "sha256",
+      "encoding": "hex",
+      "timestamp": "t",
+      "tolerance_seconds": 300
     },
     "meta-x-hub-signature-256": {
       "parts": { "sig": { "header": "x-hub-signature-256", "match": "sha256=([0-9a-fA-F]+)" } },

@@ -26,15 +26,28 @@ function objectIn(file) {
   return value;
 }
 
-// The clean-up address is this computer's own: plain http to 127.0.0.1 or localhost, with the secret that signs it named. Refused at start
-// otherwise, so no request can ever leave the computer with the person's email in it.
+// A signed local call's address is this computer's own: plain http to 127.0.0.1 or localhost, with the secret that signs it named.
+// Refused at start otherwise, so no request can ever leave the computer with the person's email in it. Two calls are made that
+// way: the clean-up before an account is deleted (delete_user.before_delete_url) and the call after one is made (after_sign_up.url).
 const LOCAL_HOSTS = ['127.0.0.1', 'localhost'];
-function checkBeforeDelete(deleting) {
-  if (!deleting?.before_delete_url) return;
+function checkLocalCall(name, url, secretKey, secretName) {
   let address;
-  try { address = new URL(deleting.before_delete_url); } catch { throw new Error(`settings.delete_user.before_delete_url is not an address: ${deleting.before_delete_url}`); }
-  if (address.protocol !== 'http:' || !LOCAL_HOSTS.includes(address.hostname)) throw new Error(`settings.delete_user.before_delete_url must be an http address on 127.0.0.1 or localhost, not ${deleting.before_delete_url}`);
-  if (!deleting.before_delete_secret) throw new Error('settings.delete_user.before_delete_url needs before_delete_secret, the name of the credential that signs the request');
+  try { address = new URL(url); } catch { throw new Error(`settings.${name} is not an address: ${url}`); }
+  if (address.protocol !== 'http:' || !LOCAL_HOSTS.includes(address.hostname)) throw new Error(`settings.${name} must be an http address on 127.0.0.1 or localhost, not ${url}`);
+  if (!secretName) throw new Error(`settings.${name} needs ${secretKey}, the name of the credential that signs the request`);
+}
+function checkBeforeDelete(deleting) {
+  if (deleting?.before_delete_url) checkLocalCall('delete_user.before_delete_url', deleting.before_delete_url, 'before_delete_secret', deleting.before_delete_secret);
+}
+// A cookie name as RFC 6265 allows it (a token): the after-sign-up call carries only the cookies settings.after_sign_up names.
+const COOKIE_NAME = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+function checkAfterSignUp(after) {
+  if (!after?.url) return;
+  checkLocalCall('after_sign_up.url', after.url, 'after_sign_up.secret', after.secret);
+  if (!Array.isArray(after.carried_cookies) || !after.carried_cookies.every(name => typeof name === 'string' && COOKIE_NAME.test(name))) {
+    throw new Error('settings.after_sign_up.carried_cookies must be a list of cookie names');
+  }
+  if (!(Number.isInteger(after.timeout_ms) && after.timeout_ms > 0)) throw new Error('settings.after_sign_up.timeout_ms must be a whole number of milliseconds above 0');
 }
 
 export function readSettings() {
@@ -47,5 +60,6 @@ export function readSettings() {
   settings.passkey = { ...settings.passkey, rp_name: settings.passkey?.rp_name ?? name };
   settings.two_factor_issuer ??= name;
   checkBeforeDelete(settings.delete_user);
+  checkAfterSignUp(settings.after_sign_up);
   return { settings };
 }

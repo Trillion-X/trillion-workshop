@@ -193,3 +193,19 @@ test('over HTTP: a Twilio call signed under its rule is answered with the row re
   assert.equal(told.length, 1, 'a forged call is told to nobody');
   control.abort();
 });
+
+test('the sign-in-tool-call rule accepts the sign-in tool\'s after-sign-up call and reads it as one person added; a stale, altered or re-encoded one is refused', () => {
+  const rule = signingRuleNamed('sign-in-tool-call');
+  const secret = 'made-up-sign-in-call-secret';
+  const body = JSON.stringify({ user_id: 'u-41', email: 'new@example.test', made_at: '2026-11-25T21:00:00.000Z', cookies: { site_ref: 'FRIEND-7K3Q' } });
+  const headers = (t = NOW, text = body) => ({ 'x-sign-in-timestamp': String(t), 'x-sign-in-signature': `sha256=${createHmac('sha256', secret).update(`${t}.${text}`).digest('hex')}` });
+  const check = (given, text = body, nowSeconds = NOW) => checkSignature({ verify: rule, headers: given, body: text, secret, nowSeconds }).reason ?? 'ok';
+  assert.equal(check(headers()), 'ok');
+  assert.equal(check(headers(), body.replace('FRIEND-7K3Q', 'FRIEND-0000')), 'signature-mismatch');
+  assert.equal(check(headers(NOW - 301)), 'outside-replay-window');
+  assert.equal(check({ ...headers(), 'x-sign-in-signature': headers()['x-sign-in-signature'].toUpperCase() }), 'no-signature');
+  assert.equal(check({ 'x-sign-in-signature': headers()['x-sign-in-signature'] }), 'missing-signed-part');
+  const shape = { place: { value: 'person' }, change: { path: 'change', map: {}, otherwise: 'added' }, key: 'user_id', at: 'made_at', at_unit: 'iso' };
+  const { changes } = changesOf({ shape, where: 'site-sign-ins', body });
+  assert.deepEqual(changes.map(one => one.detail), [{ where: 'site-sign-ins', place: 'person', change: 'added', at: '2026-11-25T21:00:00.000Z', key: 'u-41', before: null, after: body }]);
+});

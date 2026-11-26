@@ -22,6 +22,7 @@ import { holdLoopbackResources } from './loopback-resource.mjs';
 import { storeDriver } from './store.mjs';
 import { teamIdsOf, teamClaim } from './teams-claim.mjs';
 import { callBeforeDelete } from './before-delete-url.mjs';
+import { afterSignUpHook } from './after-sign-up.ts';
 import { safeNext } from './pages/safe-next.mjs';
 import { CHECKOUT_API_PATH, sellPlugins, stripCheckoutVisitor } from './sell.mjs';
 import { mintScopedKeyByPass, revokeScopedKeyByPass } from './scoped-key.mjs';
@@ -156,6 +157,8 @@ function narrowConsent(ctx) {
 // the local address it names (before_delete_url, before-delete-url.mjs); a throw from either keeps the account. After it is gone, this tool
 // removes the API keys the person held (apikey names its owner by id, with no foreign key). The consent and token rows go with the user by
 // their foreign keys.
+// After an account is made, by any way, the business is told (settings.after_sign_up, after-sign-up.ts); null tells nobody.
+const afterSignUp = afterSignUpHook(settings.after_sign_up);
 const ownRowsModule = settings.delete_user?.before_delete_module ? new URL(settings.delete_user.before_delete_module, import.meta.url).href : null;
 const ownRowsHook = ownRowsModule ? (await import(ownRowsModule)).beforeDelete : null;
 async function deleteOwnRows(user, request) {
@@ -337,6 +340,7 @@ export const auth = betterAuth({
   },
   // The signed session cookie answers a read for cookie_cache_seconds without a store read; the store stays the authority for
   // revocation, so a signed-out session is refused by the engine's standing check at once and by this tool when the cache ends.
+  ...(afterSignUp ? { databaseHooks: { user: { create: { after: afterSignUp } } } } : {}),
   session: { freshAge: settings.session.fresh_age_seconds, cookieCache: { enabled: true, maxAge: settings.session.cookie_cache_seconds, strategy: 'compact' } },
   rateLimit: { enabled: settings.rate_limit.enabled },
   // A message that did not go is an error the page shows ("The code could not be sent just now"), never a promise that it is on its
