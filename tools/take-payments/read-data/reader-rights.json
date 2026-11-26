@@ -1,0 +1,34 @@
+{
+  "_what": "The columns tool:start-a-stripe-checkout's offer reads take through a pursuit's reader login (held as <database>-reader-connection): the offers and the amounts a buyer may choose. It is a reads file: a computer row's database unit names it in a reader's grants reads_from, and prepare-a-database-unit renders the reader's grant as the union of every such file. A column the checkout stops reading comes out of this list and so out of the grant.",
+  "reads": [
+    {
+      "table": "public.offer_amount_choices",
+      "columns": [
+        "changed_at",
+        "custom",
+        "id",
+        "label",
+        "multiple",
+        "offer",
+        "shown"
+      ]
+    },
+    {
+      "table": "public.offers",
+      "columns": [
+        "access_refs",
+        "benefits",
+        "content_refs",
+        "for_sale",
+        "id",
+        "label",
+        "post_purchase_route_path",
+        "price_options",
+        "public_offer_id",
+        "sort_order",
+        "summary",
+        "supersedes_offer_ids"
+      ]
+    }
+  ]
+}

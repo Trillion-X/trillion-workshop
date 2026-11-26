@@ -1,0 +1,65 @@
+{
+  "_what": "The columns the published-clip reads (this tool's, and tool:show-published-clips') take through a pursuit's reader login (held as <database>-reader-connection): the published clips, their verdicts, pieces and the posts that name them. It is a reads file: a computer row's database unit names it in a reader's grants reads_from, and prepare-a-database-unit renders the reader's grant as the union of every such file. These are the columns the reader is granted for these tables as of Nov 25 2026; a column the clip reads stop using comes out of this list and so out of the grant.",
+  "reads": [
+    {
+      "table": "public.clip_verdict",
+      "columns": [
+        "clip",
+        "end",
+        "extra",
+        "id",
+        "recording",
+        "recording_name",
+        "spoken_words",
+        "start",
+        "verdict"
+      ]
+    },
+    {
+      "table": "public.post",
+      "columns": [
+        "person",
+        "post_id",
+        "status",
+        "updated_at",
+        "value"
+      ]
+    },
+    {
+      "table": "public.recording_moment",
+      "columns": [
+        "aa_buckets",
+        "captured_day",
+        "cut",
+        "end",
+        "evidence",
+        "extra",
+        "id",
+        "moment",
+        "picture",
+        "pillars",
+        "published_file_name",
+        "recording",
+        "recording_name",
+        "relevance",
+        "seen",
+        "seen_at",
+        "speaker_identity",
+        "spoken_words",
+        "start",
+        "timing"
+      ]
+    },
+    {
+      "table": "public.recording_piece",
+      "columns": [
+        "coverage",
+        "duration",
+        "extra",
+        "id",
+        "piece",
+        "recording"
+      ]
+    }
+  ]
+}

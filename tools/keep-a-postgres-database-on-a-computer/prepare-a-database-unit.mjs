@@ -12,8 +12,14 @@
 // run-sql-in-my-database role recipe (run-sql.mjs perWritePlan, the plan run-sql itself fills), for the writes a tool's own rights
 // file names, each statement filled by the server's format() as run-sql fills it. The row names the login, the database, its
 // owner, the recipe and the rights file; it holds no statement, no column and no row rule.
+//
+// A reader's `grants` (reads_from, Nov 25 2026) name the rights files of every tool that reads through that login, each the
+// tool's own reads ({ reads: [{ table, columns }] }). The file renders their union, exactly: every table the login may read
+// in a schema the files name has its read taken back, then each named table gets the union of the columns the files name for
+// it (the per-table recipe's own grants, as run-sql fills them), all in one transaction, so no read stops between the two. A
+// tool that stops reading a column takes it out of the grant, and a table no tool reads any more is read by none.
 import { readFileSync } from 'node:fs';
-import { namedExpression, perWritePlan, shapeOf } from '../run-sql-in-my-database/do-work/run-sql.mjs';
+import { namedExpression, perTablePlan, perWritePlan, shapeOf } from '../run-sql-in-my-database/do-work/run-sql.mjs';
 
 const WORKSHOP = new URL('../../', import.meta.url);
 const ROLE_RECIPES = 'tools/run-sql-in-my-database/read-data/role-recipes.json';
@@ -31,16 +37,74 @@ const IDENTIFIER = /^[a-z_][a-z0-9_]*$/;
 const RIGHTS_FILE = /^tools\/[a-z0-9-]+\/read-data\/[a-z0-9-]+\.json$/;
 const literal = text => (text === null ? 'NULL' : `'${String(text).replace(/'/g, "''")}'`);
 
-/** A unit's `grants` as the file the database's owner runs: { login, database, owner, recipe, writes_from, table_names?, file,
- * action? }. `writes_from` is a tool's rights file ({ writes: [...] }, the shape run-sql's per_write recipes take); a table it
+/** A unit's `grants` as the file the database's owner runs: a writer's { login, database, owner, recipe, writes_from,
+ * table_names?, file, action? }, or a reader's { login, database, owner, recipe, reads_from, table_names?, file }. `writes_from` is a tool's rights file ({ writes: [...] }, the shape run-sql's per_write recipes take); a table it
  * names with a <placeholder> gets its name from `table_names`. `action` drop renders the recipe's drop: the way back. Each step
  * is one `SELECT format(...) \gexec` with format()'s arguments in runRecipe's order (%1$I the login, %4$I the database, %9$I its
  * rule's name, %11$I the schema, %12$I the table, %13$s the step's value the server works out). */
-const grantsFile = (grants, unit, where) => {
-  const { login, database, owner, recipe: recipeName, writes_from: from, table_names: names = {}, file, action = 'create' } = grants;
+const grantsFile = (grants, unit, where) => (grants.reads_from === undefined ? writesFile(grants, unit, where) : readsFile(grants, unit, where));
+
+/** The checks every grants entry shares, and the step each plan entry becomes in the file. */
+const entryOf = (grants, unit, where) => {
+  const { login, database, owner, file, action = 'create' } = grants;
   if (![login, database, owner].every(word => typeof word === 'string' && IDENTIFIER.test(word))) throw new Error(`${where} grants need login, database and owner, each a lower-case name`);
   if (typeof file !== 'string' || !file.startsWith('/') || !POSTGRES_WORD.test(file)) throw new Error(`${where} grants need file: the absolute path of the SQL file the owner runs`);
   if (action !== 'create' && action !== 'drop') throw new Error(`${where} grants action is create or drop`);
+  const socket = (unit.environment ?? []).find(line => line.startsWith('PGHOST='))?.slice('PGHOST='.length);
+  if (!socket?.startsWith('/')) throw new Error(`${where} grants are run over the unit's own socket: its environment needs PGHOST=/a/socket/folder`);
+  const step = ([template, schema, table, named]) => [
+    ...(named?.refuse ? [`DO $check$ BEGIN IF ${namedExpression(named)} IS NULL THEN RAISE EXCEPTION '%', ${literal(named.refuse)}; END IF; END $check$;\n`] : []),
+    `SELECT pg_catalog.format(${literal(template)}, ${literal(login)}, NULL, NULL, ${literal(database)}, NULL, NULL, NULL, NULL, left(${literal(`rule_${login}`)}, 63), NULL, ${literal(schema)}, ${literal(table)}, ${namedExpression(named)}) \\gexec\n`,
+  ];
+  const then = [['runuser', '-u', 'postgres', '--', 'psql', '-X', '-q', '-v', 'ON_ERROR_STOP=1', '-h', socket, '-d', database, '-f', file]];
+  return { login, database, owner, file, action, step, then };
+};
+
+/** A rights file's table, its <placeholder> named by table_names. */
+const tableNamed = (table, names, from, where) => {
+  const named = String(table).replace(/<[a-z_]+>/g, placeholder => names[placeholder] ?? placeholder);
+  if (!/^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$/.test(named)) throw new Error(`${where} grants: ${from} names ${table}, which is not schema.table${/</.test(named) ? ' (table_names gives no name for its placeholder)' : ''}`);
+  return named;
+};
+
+/** A reader's grants: { login, database, owner, recipe (a per-table recipe), reads_from: [rights files], table_names?, file }. */
+const readsFile = (grants, unit, where) => {
+  const { login, database, owner, file, action, step, then } = entryOf(grants, unit, where);
+  const { recipe: recipeName, reads_from: files, table_names: names = {} } = grants;
+  if (grants.writes_from !== undefined) throw new Error(`${where} grants name reads_from or writes_from, not both`);
+  if (action !== 'create') throw new Error(`${where} grants with reads_from are always the union of what the tools read: to take every read back, name no file that reads`);
+  if (!Array.isArray(files) || files.length === 0 || files.some(from => typeof from !== 'string' || !RIGHTS_FILE.test(from))) throw new Error(`${where} grants reads_from is a list of tools' read-data JSON files`);
+  const recipe = JSON.parse(readFileSync(new URL(ROLE_RECIPES, WORKSHOP), 'utf8')).recipes[recipeName];
+  if (!recipe?.per_table || recipe.grants_only !== true) throw new Error(`${where} grants recipe must be a grants-only per-table recipe of ${ROLE_RECIPES}`);
+  const union = new Map();
+  for (const from of files) {
+    const { reads } = JSON.parse(readFileSync(new URL(from, WORKSHOP), 'utf8'));
+    if (!Array.isArray(reads) || reads.length === 0) throw new Error(`${where} grants: ${from} names no reads`);
+    for (const entry of reads) {
+      const table = tableNamed(entry?.table, names, from, where);
+      if (!Array.isArray(entry.columns) || entry.columns.length === 0 || entry.columns.some(column => typeof column !== 'string' || !column)) throw new Error(`${where} grants: ${from} reads ${table} with no columns named`);
+      union.set(table, new Set([...(union.get(table) ?? []), ...entry.columns]));
+    }
+  }
+  const tables = [...union].sort(([a], [b]) => a.localeCompare(b)).map(([table, columns]) => ({ table, columns: [...columns].sort() }));
+  // run-sql's own reading of the request it would be given, then its per-table steps.
+  const shape = shapeOf({ recipe: { name: recipeName, action, role: login, tables } });
+  const schemas = [...new Set(tables.map(({ table }) => table.split('.')[0]))];
+  const takeBack = `SELECT pg_catalog.format('REVOKE SELECT ON TABLE %I.%I FROM %I', n.nspname, c.relname, ${literal(login)}) FROM pg_catalog.pg_class c JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace`
+    + ` WHERE n.nspname = ANY (ARRAY[${schemas.map(literal).join(', ')}]::text[]) AND c.relkind IN ('r', 'p', 'v', 'm', 'f')`
+    + ` AND (pg_catalog.has_table_privilege(${literal(login)}, c.oid, 'SELECT') OR pg_catalog.has_any_column_privilege(${literal(login)}, c.oid, 'SELECT')) ORDER BY 1 \\gexec\n`;
+  return {
+    path: file,
+    text: `-- Rendered from this computer's row: the reads of ${files.join(', ')} for the login ${login} in ${database} (${recipeName}), exactly.\n`
+      + `BEGIN;\nSELECT pg_catalog.format('SET ROLE %I', ${literal(owner)}) \\gexec\n${takeBack}${perTablePlan(recipe, shape).flatMap(step).join('')}COMMIT;\n`,
+    then,
+  };
+};
+
+/** A writer's grants: { login, database, owner, recipe (a per-write recipe), writes_from, table_names?, file, action? }. */
+const writesFile = (grants, unit, where) => {
+  const { login, database, owner, file, action, step, then } = entryOf(grants, unit, where);
+  const { recipe: recipeName, writes_from: from, table_names: names = {} } = grants;
   if (typeof from !== 'string' || !RIGHTS_FILE.test(from)) throw new Error(`${where} grants writes_from names a tool's read-data JSON file`);
   const recipe = JSON.parse(readFileSync(new URL(ROLE_RECIPES, WORKSHOP), 'utf8')).recipes[recipeName];
   if (!recipe?.per_write || recipe.grants_only !== true) throw new Error(`${where} grants recipe must be a grants-only per-write recipe of ${ROLE_RECIPES}`);
@@ -48,16 +112,8 @@ const grantsFile = (grants, unit, where) => {
   if (!Array.isArray(given) || given.length === 0) throw new Error(`${where} grants: ${from} names no writes`);
   const writes = given.map(entry => {
     if (entry.table === undefined) return entry;
-    const table = String(entry.table).replace(/<[a-z_]+>/g, placeholder => names[placeholder] ?? placeholder);
-    if (!/^[a-z_][a-z0-9_]*\.[a-z_][a-z0-9_]*$/.test(table)) throw new Error(`${where} grants: ${from} names ${entry.table}, which is not schema.table${/</.test(table) ? ' (table_names gives no name for its placeholder)' : ''}`);
-    return { ...entry, table };
+    return { ...entry, table: tableNamed(entry.table, names, from, where) };
   });
-  const socket = (unit.environment ?? []).find(line => line.startsWith('PGHOST='))?.slice('PGHOST='.length);
-  if (!socket?.startsWith('/')) throw new Error(`${where} grants are run over the unit's own socket: its environment needs PGHOST=/a/socket/folder`);
-  const step = ([template, schema, table, named]) => [
-    ...(named?.refuse ? [`DO $check$ BEGIN IF ${namedExpression(named)} IS NULL THEN RAISE EXCEPTION '%', ${literal(named.refuse)}; END IF; END $check$;\n`] : []),
-    `SELECT pg_catalog.format(${literal(template)}, ${literal(login)}, NULL, NULL, ${literal(database)}, NULL, NULL, NULL, NULL, left(${literal(`rule_${login}`)}, 63), NULL, ${literal(schema)}, ${literal(table)}, ${namedExpression(named)}) \\gexec\n`,
-  ];
   // The request run-sql would be given, checked by run-sql's own reading of it; then runRecipe's order: the recipe's own
   // statements, then its per-write steps.
   const shape = shapeOf({ recipe: { name: recipeName, action, role: login, writes } });
@@ -66,7 +122,7 @@ const grantsFile = (grants, unit, where) => {
     path: file,
     text: `-- Rendered from this computer's row: ${recipeName} (${action}) for the login ${login} in ${database}, the writes ${from} names.\n`
       + `SELECT pg_catalog.format('SET ROLE %I', ${literal(owner)}) \\gexec\n${plan.flatMap(step).join('')}`,
-    then: [['runuser', '-u', 'postgres', '--', 'psql', '-X', '-q', '-v', 'ON_ERROR_STOP=1', '-h', socket, '-d', database, '-f', file]],
+    then,
   };
 };
 
