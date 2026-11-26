@@ -668,7 +668,7 @@
             "database": {
               "type": "string",
               "minLength": 1,
-              "description": "Instead of offers and suggestions: the name of the pursuit database the checkout reads them from itself (its offers and offer_amount_choices tables, only the columns read-data/checkout-offer-reads.ts declares), bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login. Ignored when offers are given; a read that is refused stops the checkout before anything is sent."
+              "description": "Instead of offers and suggestions: the name of the pursuit database the checkout reads them from itself (its offers and offer_amount_choices tables, only the columns read-data/checkout-offer-reads.ts declares), bound by the trusted caller. Given with use (required: a checkout reads offers only under a use), the engine opens it with the reader login its vault holds as that name and -reader-connection, never the owner's, and hands the use ticket; no caller supplies a login. Ignored when offers are given; a read that is refused stops the checkout before anything is sent."
             },
             "use": {
               "type": "object",
@@ -677,7 +677,7 @@
                 "purpose",
                 "surface"
               ],
-              "description": "The use the offers are read for, given with database. The computer opens the database with its reader login instead of the owner's and hands the run a ticket of this use that it signed; the read's transaction claims it first, so the database's row rules read this use.",
+              "description": "The use the offers are read for, required with database. The computer opens the database with its reader login instead of the owner's and hands the run a ticket of this use that it signed; the read's transaction claims it first, so the database's row rules read this use.",
               "properties": {
                 "purpose": {
                   "type": "string",
@@ -701,7 +701,7 @@
           ],
           "anyOf": [
             {"required": ["offers"]},
-            {"required": ["database"]}
+            {"required": ["database", "use"]}
           ]
         },
         "output_schema": {
@@ -1066,7 +1066,7 @@
             },
             {
               "secret_name_from_input": "database",
-              "held_suffix": "-connection",
+              "held_suffix": "-reader-connection",
               "fd": 6,
               "only_when": {"input": "database", "present": true},
               "under_use": {

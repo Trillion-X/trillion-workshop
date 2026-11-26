@@ -14,7 +14,10 @@
 //      declared `use`, the use ticket on descriptor 7; the read is run-sql's readInDatabase (one read transaction that claims the
 //      use first, under the reader login the use opens). A read that is refused stops the checkout before Stripe is asked
 //      anything, and its reason is told without the connection or the ticket.
-//   3. Descriptor 7 is read only when a use is given (an unmounted descriptor may be Node's own); 6 only when a database is.
+//   3. A checkout reads offers only under a use, and only through the database's reader login: given a `database` and no `use`,
+//      it is refused in these words before any descriptor is read or Stripe is asked anything. The row mounts the reader login
+//      (-reader-connection) on 6 whether or not a use is given, so the owner's login is never handed to this run; under a use the
+//      engine also hands the use ticket on 7, which the read's transaction claims first.
 //   4. `context.readOffers`, when given (tests), stands in for the descriptor read; nothing else of the context is read here.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -25,6 +28,7 @@ import { readInDatabase } from '../../run-sql-in-my-database/do-work/serve-a-rea
 import { sayWithout } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 
 const DATABASE_DESCRIPTOR = 6;
+const NO_USE = 'A checkout reads offers only under a use.';
 const TICKET_DESCRIPTOR = 7;
 
 type Given = Record<string, unknown> & { offers?: unknown; database?: unknown; use?: unknown };
@@ -33,6 +37,7 @@ type ReadOffers = (input: Given & { database: string }) => Promise<CheckoutLists
 /** Starts a Stripe Checkout as take-payments.mjs does, reading the offers from `database` first when none are handed in. */
 export async function startAStripeCheckout(given: Given, context: { readOffers?: ReadOffers } & Record<string, unknown> = {}) {
   if (Array.isArray(given.offers) || typeof given.database !== 'string' || given.database === '') return startWithLists(given, context);
+  if (!isUse(given.use)) throw new Error(`${NO_USE} Give use ({ purpose, surface }) with database ${given.database}, or hand the offers in.`);
   const read = context.readOffers ?? readOffersFromDescriptors;
   let lists: CheckoutLists;
   try {
@@ -43,12 +48,16 @@ export async function startAStripeCheckout(given: Given, context: { readOffers?:
   return startWithLists({ ...given, offers: lists.offers, suggestions: lists.suggestions }, context);
 }
 
+function isUse(use: unknown): boolean {
+  return !!use && typeof use === 'object' && !Array.isArray(use) && typeof (use as { purpose?: unknown }).purpose === 'string' && (use as { purpose: string }).purpose !== '';
+}
+
 // The run's own read: the connection and ticket the row mounted, through run-sql's one read seam, told without either.
 async function readOffersFromDescriptors(input: Given & { database: string }): Promise<CheckoutLists> {
   let connection = '', ticket = '';
   try {
     connection = readFileSync(DATABASE_DESCRIPTOR, 'utf8').trim();
-    if (input.use !== undefined && input.use !== null) ticket = readFileSync(TICKET_DESCRIPTOR, 'utf8').trim();
+    ticket = readFileSync(TICKET_DESCRIPTOR, 'utf8').trim();
     return await readInDatabase(input as never, readCheckoutLists, { connection, ticket });
   } catch (error) {
     throw new Error(sayWithout(error, connection, ticket));

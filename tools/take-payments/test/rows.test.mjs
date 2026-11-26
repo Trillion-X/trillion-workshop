@@ -49,8 +49,8 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     // only under a declared use with the reader login; it is not a key and never reaches Stripe.
     const reads = (row.invoke.credential_mounts ?? []).filter(mount => mount.secret_name_from_input === 'database');
     for (const mount of reads) {
-      assert.deepEqual(mount, { secret_name_from_input: 'database', held_suffix: '-connection', fd: 6, only_when: { input: 'database', present: true },
-        under_use: { use_from_input: 'use', ticket_fd: 7, held_suffix: '-reader-connection', key_suffix: '-use-key' } }, `${row.id} reads its database on 6 under a use`);
+      assert.deepEqual(mount, { secret_name_from_input: 'database', held_suffix: '-reader-connection', fd: 6, only_when: { input: 'database', present: true },
+        under_use: { use_from_input: 'use', ticket_fd: 7, held_suffix: '-reader-connection', key_suffix: '-use-key' } }, `${row.id} reads its database on 6 only with the reader login`);
     }
     const mounts = (row.invoke.credential_mounts ?? []).filter(mount => !reads.includes(mount));
     if (row.invoke.internet) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);

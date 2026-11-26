@@ -150,16 +150,39 @@ test('a run as the row starts it reads the connection on 6 through run-sql, and 
   const held = 'postgres://bakery_reader:held-login-word@127.0.0.1:1/bakery_for_who_runs_it';
   const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
   const child = spawn(process.execPath, ['--no-warnings', here('../../workflows/do-work/run-a-function.mjs'), here('../reads/start-a-checkout-reading-its-offers.ts'), 'startAStripeCheckout'],
-    { stdio: ['pipe', 'pipe', 'pipe', null, null, null, 'pipe'] });
+    { stdio: ['pipe', 'pipe', 'pipe', null, null, null, 'pipe', 'pipe'] });
   const out: Buffer[] = [];
   child.stdout!.on('data', chunk => out.push(chunk));
   (child.stdio[6] as NodeJS.WritableStream).end(held);
-  child.stdin!.end(JSON.stringify({ ...choice, database: 'bakery_for_who_runs_it' }));
+  (child.stdio[7] as NodeJS.WritableStream).end('made-up-ticket-word');
+  child.stdin!.end(JSON.stringify({ ...choice, database: 'bakery_for_who_runs_it', use: USE }));
   const [code] = await once(child, 'close');
   const line = JSON.parse(Buffer.concat(out).toString('utf8'));
   assert.equal(code, 1);
   assert.match(line.error, /^The offers could not be read from bakery_for_who_runs_it: .*ECONNREFUSED/);
-  assert.ok(!line.error.includes('held-login-word'), line.error);
+  assert.ok(!line.error.includes('held-login-word') && !line.error.includes('made-up-ticket-word'), line.error);
+});
+
+test('a database without a use is refused before any read or descriptor, and nothing reaches Stripe', async () => {
+  for (const use of [undefined, null, {}, { purpose: '' }, 'publish']) {
+    const none = stripe();
+    let reads = 0;
+    await assert.rejects(
+      startAStripeCheckout({ ...choice, database: 'bakery_for_who_runs_it', ...(use === undefined ? {} : { use }) }, { send: none.send, readOffers: async () => { reads += 1; return { offers: [], suggestions: [] }; } }),
+      /^Error: A checkout reads offers only under a use\./,
+    );
+    assert.equal(reads, 0, `no read for use ${JSON.stringify(use)}`);
+    assert.equal(none.sent.length, 0);
+  }
+  // The row's own process: no descriptor is mounted at all, and the refusal is the same.
+  const here = (path: string) => fileURLToPath(new URL(path, import.meta.url));
+  const child = spawn(process.execPath, ['--no-warnings', here('../../workflows/do-work/run-a-function.mjs'), here('../reads/start-a-checkout-reading-its-offers.ts'), 'startAStripeCheckout'], { stdio: ['pipe', 'pipe', 'pipe'] });
+  const out: Buffer[] = [];
+  child.stdout!.on('data', chunk => out.push(chunk));
+  child.stdin!.end(JSON.stringify({ ...choice, database: 'bakery_for_who_runs_it' }));
+  const [code] = await once(child, 'close');
+  assert.equal(code, 1);
+  assert.match(JSON.parse(Buffer.concat(out).toString('utf8')).error, /^A checkout reads offers only under a use\./);
 });
 
 test('the row reads the database on 6 and its use ticket on 7, and the Stripe key mounts are as they were', () => {
@@ -171,8 +194,8 @@ test('the row reads the database on 6 and its use ticket on 7, and the Stripe ke
     { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },
     { fd: 4, field_id: 'secret_key', only_when: { input: 'seller_connection', present: true } },
   ]);
-  assert.deepEqual(mounts[3], { secret_name_from_input: 'database', held_suffix: '-connection', fd: 6, only_when: { input: 'database', present: true },
+  assert.deepEqual(mounts[3], { secret_name_from_input: 'database', held_suffix: '-reader-connection', fd: 6, only_when: { input: 'database', present: true },
     under_use: { use_from_input: 'use', ticket_fd: 7, held_suffix: '-reader-connection', key_suffix: '-use-key' } });
-  assert.deepEqual(row.input_schema.anyOf, [{ required: ['offers'] }, { required: ['database'] }]);
+  assert.deepEqual(row.input_schema.anyOf, [{ required: ['offers'] }, { required: ['database', 'use'] }]);
   assert.ok(!row.input_schema.required.includes('offers'));
 });
