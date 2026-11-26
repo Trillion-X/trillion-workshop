@@ -547,16 +547,18 @@ export class Site {
    * What a browser's form post that did not go through gets, whichever program it went to, never raw JSON: the page it was
    * posted from (the Referer's path, drawn as this site's page for this host) drawn again with the failure's status, the shared
    * FormAlert at the form that posted to `post.action` and what the visitor typed put back (show/FormOutcome.tsx). When the
-   * Referer is no page of this site, the site's page of the same words with a way back. The words are `post.words` (an action
-   * row's own `failed`) when given, else the site's look row words.form-failed, else the tool's own FORM_FAILED_WORDS.
+   * Referer is no page of this site (none was sent, it is not an address, or it names another host), the site's page of the
+   * same words with a way back: never the home page drawn in its place, which would answer a failure with a page that looks
+   * like nothing went wrong. The words are `post.words` (an action row's own `failed`) when given, else the site's look row
+   * words.form-failed, else the tool's own FORM_FAILED_WORDS.
    */
   async failedForm(status: number, host: string, post: FailedPost): Promise<Answer> {
     const message = post.words ?? this.#formFailed ?? FORM_FAILED_WORDS;
-    const back = backTo(post.referer);
+    const back = backTo(post.referer, name => this.hostOf(name, undefined) === name);
     const outcome: FormOutcomeProps = { action: post.action, title: FORM_FAILED_TITLE, message, values: post.values };
-    const again = await this.answer('GET', back, post.cookie, host, undefined, outcome).catch(() => null);
+    const again = back === null ? null : await this.answer('GET', back, post.cookie, host, undefined, outcome).catch(() => null);
     if (again && again.status === 200 && again.headers['content-type']?.startsWith('text/html')) return { ...again, status, headers: { ...again.headers, 'cache-control': 'no-store' } };
-    return this.#words(status, FORM_FAILED_TITLE, message, host, post.action, { href: back, label: 'Back' });
+    return this.#words(status, FORM_FAILED_TITLE, message, host, post.action, { href: back ?? '/', label: 'Back' });
   }
 
   async #notFound(pages: PageRow[], host: string, pathname: string): Promise<Answer> {
@@ -863,12 +865,18 @@ export function networkOf(request: http.IncomingMessage): string | null {
 }
 
 /** A same-site path to send a visitor back to: the Referer's path and query, or the home page. */
-export function backTo(referer: string | undefined): string {
+/**
+ * The page of this site a form was posted from: the Referer's path and query when it is an http(s) address on one of the
+ * site's own hosts (`own` says whether a host name is one), else null, so a failure with no page to go back to is never drawn
+ * as some other page of the site.
+ */
+export function backTo(referer: string | undefined, own: (hostname: string) => boolean): string | null {
+  if (referer === undefined || referer === '') return null;
   try {
-    const url = new URL(String(referer));
-    return url.protocol === 'https:' || url.protocol === 'http:' ? `${url.pathname}${url.search}` : '/';
+    const url = new URL(referer);
+    return (url.protocol === 'https:' || url.protocol === 'http:') && own(url.hostname.toLowerCase()) ? `${url.pathname}${url.search}` : null;
   } catch {
-    return '/';
+    return null;
   }
 }
 

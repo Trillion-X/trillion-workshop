@@ -102,8 +102,9 @@ test('a site with no words_gathering row, or a table name that is not plain, is 
 });
 
 // A site's act runs the tool as the words database's writer login, holding only the column rights read-data/writer-rights.json
-// names (its words table given its own name), and the asks database's reader login, which only reads.
-test('words are kept by logins holding only the column rights writer-rights.json names, the asks read only', async () => {
+// names (its words table given its own name), and the asks database's reader login, holding only the columns
+// read-data/reader-rights.json names.
+test('words are kept by logins holding only the column rights writer-rights.json and reader-rights.json name, the asks read only', async () => {
   const { content, asks } = await fresh();
   const rights = JSON.parse(readFileSync(new URL('../read-data/writer-rights.json', import.meta.url), 'utf8')).writes;
   await content.exec('create role words_writer nologin');
@@ -113,16 +114,23 @@ test('words are kept by logins holding only the column rights writer-rights.json
       if (write[right]) await content.exec(`grant ${right} (${write[right].map((column: string) => `"${column}"`).join(', ')}) on table ${table} to words_writer`);
     }
   }
-  await asks.exec('create role asks_reader nologin; grant select on words_asks to asks_reader');
+  await asks.exec('create role asks_reader nologin');
+  for (const read of JSON.parse(readFileSync(new URL('../read-data/reader-rights.json', import.meta.url), 'utf8')).reads) {
+    await asks.exec(`grant select (${read.columns.map((column: string) => `"${column}"`).join(', ')}) on table ${read.table} to asks_reader`);
+  }
   await content.exec('set role words_writer');
   await asks.exec('set role asks_reader');
   const on = (db: PGlite) => async (sql: string, params: unknown[] = []) => (await db.query(sql, params)).rows as Record<string, unknown>[];
   const ask = (extra: Partial<Given>) => checkAWordsAsk({ database: 'd', asks_database: 'a', site: 'example', words_table: 'example_words', token: TOKEN, ...extra } as Given, { content: on(content), asks: on(asks) });
   assert.equal((await ask({})).state, 'form');
+  const notFound = await ask({ token: 'u'.repeat(43) });
+  assert.deepEqual(notFound, await ask({ token: 'not a token' }), 'a well-formed token no ask holds answers as a malformed one does: 404 not_found, the same words');
+  assert.equal(notFound.status, 404);
   assert.deepEqual(await ask({ words: 'It helped a lot.', consent: 'full-name' }), { status: 200, state: 'thanks' });
   await content.exec('reset role');
   assert.equal(((await content.query('select text from example_words')).rows[0] as { text: string }).text, 'It helped a lot.');
   await assert.rejects(asks.query("insert into words_asks values ('x@example.test', 'b', 'r')"), /permission denied/, 'the asks login only reads');
+  await assert.rejects(asks.query('select email from words_asks'), /permission denied/, 'the asks login reads no address');
 });
 
 // Under a site's use the words login reaches only the row of the ask whose token the run presents (writer-rights.json `rows`), and

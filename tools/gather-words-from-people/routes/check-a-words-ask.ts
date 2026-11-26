@@ -21,7 +21,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { sayWithout, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
+import { refusal, refusalLine, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 import type { Execute } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 import { keepTheWordsAPersonGave } from '../do-work/gather-words.mjs';
 import { consentOf, readGathers } from '../read-data/gathered-words.mjs';
@@ -40,12 +40,12 @@ function columnsOf(value: Record<string, unknown>) {
 }
 
 export async function checkAWordsAsk(input: Given, { content, asks }: { content: Execute; asks: Execute }): Promise<Answer> {
-  if (typeof input.site !== 'string' || input.site === '') throw new Error('Give site: the words_gathering row\'s site.');
+  if (typeof input.site !== 'string' || input.site === '') throw refusal('Give site: the words_gathering row\'s site.', 500);
   const site = input.site;
-  if (typeof input.words_table !== 'string' || !/^[a-z_][a-z0-9_]{0,62}$/.test(input.words_table)) throw new Error('Give words_table: a plain lower-case table name.');
+  if (typeof input.words_table !== 'string' || !/^[a-z_][a-z0-9_]{0,62}$/.test(input.words_table)) throw refusal('Give words_table: a plain lower-case table name.', 500);
   const table = input.words_table;
   const [words] = await content('SELECT ask_days, page_url, "case", came_from, list, page FROM words_gathering WHERE site = $1', [site]) as any[];
-  if (!words) throw new Error('No words_gathering row for this site.');
+  if (!words) throw refusal('No words_gathering row for this site.', 500);
   const page = words.page;
   const gathers = readGathers(words.list);
   const notFound: Answer = { status: 404, state: 'not_found', error: page.not_found.body };
@@ -105,7 +105,7 @@ if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpath
     const answer = await withSqlWrite({ connection: contentConnection, ticket: contentTicket, use }, (content: Run) => withSqlWrite({ connection: asksConnection, ticket: asksTicket, use }, (asks: Run) => checkAWordsAsk(input, { content: executeOn(content), asks: executeOn(asks) })));
     console.log(JSON.stringify(answer));
   } catch (error) {
-    console.error(sayWithout(error, ...held));
+    console.error(refusalLine(error, ...held));
     process.exitCode = 1;
   }
 }

@@ -22,7 +22,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { readFileSync } from 'node:fs';
-import { sayWithout, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
+import { refusalLine, withSqlWrite } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 import { refusal } from './sitting.ts';
 import { sqlStore, type Execute, type Store } from './store.ts';
 
@@ -43,9 +43,7 @@ export async function serveSteps(steps: Record<string, Step>): Promise<void> {
     });
     console.log(JSON.stringify(answer));
   } catch (error) {
-    const words = sayWithout(error, connection, ticket);
-    const status = (error as { status?: unknown } | null)?.status;
-    console.error(typeof status === 'number' && Number.isInteger(status) && status >= 400 && status <= 499 ? JSON.stringify({ error: words, status }) : words);
+    console.error(refusalLine(error, connection, ticket));
     process.exitCode = 1;
   }
 }

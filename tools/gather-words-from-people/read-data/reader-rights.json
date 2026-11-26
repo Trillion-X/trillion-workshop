@@ -1,0 +1,12 @@
+{
+  "_what": "The columns tool:check-a-words-ask-token reads through the asks database's reader login (held as <database>-reader-connection, under a site's use): an ask's token, to find it, and the row it opened. It is a reads file: a computer row's database unit names it in that reader's grants reads_from, and prepare-a-database-unit renders the reader's grant as the union of every such file. Without it the reader may not read words_asks, so every well-formed token fails as a fault of ours (a 502, seen Nov 26 2026) where an unknown one answers not_found. test/check-a-words-ask.test.ts runs the tool as a reader holding exactly these.",
+  "reads": [
+    {
+      "table": "public.words_asks",
+      "columns": [
+        "row_id",
+        "token"
+      ]
+    }
+  ]
+}

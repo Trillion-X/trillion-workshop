@@ -27,6 +27,7 @@ Every value is the person's: a field id from the list's `fields`, a consent id a
 | File | Purpose |
 |------|---------|
 | `read-data/gathered-words.mjs` | `readGathers` (the list's block checked against the list's own fields, every problem named in one refusal), `shownIdentity` (the BLAKE3 identity of the speaker, words and consent together), `headingFor`, and the row ids for an asked person and for words nobody asked for. Pure. |
+| `read-data/reader-rights.json` | The columns `tool:check-a-words-ask-token` reads through the asks database's reader login (`words_asks` token and row_id): a computer row's database unit names this file in that reader's `reads_from`. Without it every well-formed token is a fault of ours (502) instead of not found. |
 | `do-work/gather-words.mjs` | The four tools as functions with no records door, run by `tools/workflows/do-work/run-a-function.mjs`; the list's definition and rows come in as `list` and `rows`, and a tool that changes a row answers `keep` (records with `expected`) for the caller's AI to keep in its store: `askPeopleForWords`, `keepTheWordsAPersonGave`, `approveWordsToShow`, `readWordsThatMayShow`. |
 | `tool-rows.json` | The four tool rows. Each is granted the list (read) and the list's own row type, which it names in its input (`type`, `record:<row_type>`), so a row type is never guessed. |
 | `part.json` | No public files: only the tools run this code. |

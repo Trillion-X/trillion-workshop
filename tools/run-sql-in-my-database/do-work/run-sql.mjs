@@ -551,6 +551,19 @@ export function sayWithout(error, ...connections) {
   return said;
 }
 
+// A refusal that names its own HTTP status: 400 to 499 when the cause is the visitor's own (what they gave, or the state of what
+// they asked about), 500 to 599 when it is a fault of ours. Every tool a site's door runs throws its refusals through this.
+export const refusal = (message, status) => Object.assign(new Error(message), { status });
+
+// What a failed run leaves on standard error, its words without any held value (sayWithout): a refusal that names 400 to 499
+// leaves one JSON line { "error": <its words>, "status": <its status> }, which the site's door (serve-a-sites-pages-from-its-rows
+// door.ts refusalOf) answers with that very status; anything else leaves its plain words, and the door answers 502.
+export function refusalLine(error, ...connections) {
+  const words = sayWithout(error, ...connections);
+  const status = error?.status;
+  return Number.isInteger(status) && status >= 400 && status <= 499 ? JSON.stringify({ error: words, status }) : words;
+}
+
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) {
   let connection = '', roleConnection = '', ticket = '', heldValue = '';
   try {

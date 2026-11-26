@@ -572,13 +572,13 @@ test('a browser form post that fails, by its action\'s tool, a refused right or 
     await redrawn(await formPost('/target/broken'), 500, 'The site could not take that. Try again soon.', '/target/broken');
     // A program that does not answer at all is the same page, 502.
     await redrawn(await formPost('/target/down'), 502, 'The site could not take that. Try again soon.', '/target/down');
-    // A Referer that is no page of this site: the site's page of the same words, with a way back.
+    // A Referer on another host is no page of this site: the site's page of the same words, with a way back to this site.
     const lost = await formPost('/target/broken', { referer: 'https://elsewhere.example.test/nowhere?x=1' });
     assert.equal(lost.status, 500);
     const words = await lost.text();
     assert.match(words, /That did not go through/);
     assert.match(words, /The site could not take that\. Try again soon\./);
-    assert.match(words, /href="\/nowhere\?x=1"/, 'a way back to the path it came from');
+    assert.match(words, /href="\/"/, 'a way back to this site: another host\'s path is no page of this site');
     assert.equal(outcomeOf(words), null);
     const pay = await formPost('/target/pay');
     assert.equal(pay.status, 303, 'a JSON answer naming an address sends the browser there');
@@ -791,7 +791,14 @@ test('every words page (not found, a failed form with no page to go back to) wea
     const failed = await site.failedForm(502, 'site.example.test', { action: '/target/x', words: null, referer: 'https://elsewhere.example.test/away', cookie: undefined, values: {} });
     assert.equal(failed.status, 502);
     assert.equal(failed.headers['cache-control'], 'no-store');
-    assert.match(String(failed.body), /The site nav[\s\S]*The site could not take that\. Try again soon\.[\s\S]*href="\/away"/, 'a failed form with no page to go back to: the frame, the words, a way back');
+    assert.match(String(failed.body), /The site nav[\s\S]*The site could not take that\. Try again soon\.[\s\S]*href="\/"/, 'a failed form posted from another host: the frame, the words, a way back to this site, never that host\'s path');
+    const home = String((await site.answer('GET', '/', undefined, 'site.example.test')).body);
+    for (const referer of [undefined, '', 'not an address', 'javascript:alert(1)', 'https://elsewhere.example.test/']) {
+      const none = await site.failedForm(502, 'site.example.test', { action: '/target/x', words: null, referer, cookie: undefined, values: {} });
+      assert.equal(none.status, 502);
+      assert.notEqual(String(none.body), home, `${JSON.stringify(referer)}: a failure is never the home page drawn in its place`);
+      assert.match(String(none.body), /The site could not take that\. Try again soon\.[\s\S]*href="\/"/, `${JSON.stringify(referer)}: the words and a way back`);
+    }
     assert.equal((await site.answer('GET', '/404', undefined, 'site.example.test')).status, 404, 'the frame row is never a page of its own');
   } finally { d.server.close(); }
 });

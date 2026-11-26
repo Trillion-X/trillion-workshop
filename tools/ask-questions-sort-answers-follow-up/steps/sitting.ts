@@ -18,6 +18,7 @@
 import { nextStepOf, askedStep, checkAnswer, checkSpecOf, stepsOf } from '../../take-a-booking-one-step-at-a-time/read-data/booking-steps.mjs';
 import { answerFactId, ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
 import { questionSequenceId } from '../do-work/save-question-sequence.ts';
+import { refusal } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
 import type { Store } from './store.ts';
 
 export const SITTING_KIND = 'form-sitting';
@@ -27,8 +28,9 @@ export const sittingId = (submissionId: string) => `${SITTING_KIND}:${submission
 // throw), so none reaches the site without a status. A visitor's own state answers 400 (what they gave is not valid), 401 or 403,
 // 404 (nothing is there) or 409 (the sitting or the time is not at the state asked for); serve-steps.ts passes those on, so the site
 // answers that very status. A fault of ours (a store or a calendar that did not answer, a caller that left out what it must give)
-// names 500, 502 or 503; serve-steps.ts leaves those as plain words and the door answers 502. The one helper every page's steps use.
-export const refusal = (message: string, status: number) => Object.assign(new Error(message), { status });
+// names 500, 502 or 503; serve-steps.ts leaves those as plain words and the door answers 502. The one helper every page's steps use
+// is run-sql.mjs's, which every tool a site's door runs shares (its refusalLine is what such a run leaves on standard error).
+export { refusal };
 
 // The status of each named refusal of a sitting or a page, whatever words a page gives it.
 export const REFUSAL_STATUS: Record<string, number> = { closed: 404, unknown: 404, finished: 409, not_answering: 409, out_of_order: 409, not_done: 409, someone_else: 403 };
