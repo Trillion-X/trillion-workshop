@@ -641,19 +641,29 @@ export class Site {
     // The row's own tool's words for why, when the row says to tell them; never a nested tool's, never a transport failure's.
     const why = (error: unknown): string | null => (action.says_why && error instanceof DoorError && error.refusal?.tool === action.tool ? error.refusal.words : null);
     try {
-      // A tool source that names one tool with one input is one run in this request, however many keys of its answer are read.
+      // A tool source that names one tool with one input is one run in this request, however many keys of its answer are read;
+      // a rows read with one statement and its values is one read.
       const ran = new Map<string, Promise<unknown>>();
+      const read = new Map<string, Promise<Record<string, unknown>[]>>();
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
         referer: request.referer ?? null, network: request.network ?? null,
         raw: request.bytes.length ? request.bytes.toString('utf8') : undefined, headers: headersOf(request.headers),
-        rows: (sql, values, database) => this.#sql(sql, values, database), answer: null, input: null,
+        rows: (sql, values, database) => {
+          const key = JSON.stringify([sql, values, database ?? null]);
+          if (!read.has(key)) read.set(key, this.#sql(sql, values, database));
+          return read.get(key)!;
+        },
+        answer: null, input: null,
         tool: (tool, input) => {
           const key = JSON.stringify([tool, input]);
           if (!ran.has(key)) ran.set(key, this.#parts.run(pass, { tool, input }));
           return ran.get(key)!;
         },
       };
+      // Every rows read the row's later steps make that waits on nothing its tool gives is read now, before anything is written:
+      // a read the site may not make refuses the request with nothing kept, and each step later takes the rows read here.
+      for (const early of readsBeforeWrite(action)) await filled(early, asked);
       const input = await filled(action.input, asked);
       let answer: Record<string, unknown> | null;
       try {
@@ -969,6 +979,24 @@ const STREAM_HOP = new Set(['connection', 'keep-alive', 'transfer-encoding', 'up
  * and whose GET stays open): nothing is kept, every header but a connection's own passes unchanged both ways (Host too, so
  * the door answers for the name the visitor asked), and the other program's call ends when the visitor's does.
  */
+/**
+ * The rows reads an action row's later parts make (its next steps' when, input and failed input, its then, its undo and its answer)
+ * that wait on nothing its own tool gives: no answer or input source in them, and no tool source, which would run a tool early.
+ */
+function readsBeforeWrite(action: ActionRow): unknown[] {
+  const reads: unknown[] = [];
+  const waits = (value: unknown): boolean => (Array.isArray(value) ? value.some(waits) : value !== null && typeof value === 'object'
+    && (['answer', 'input', 'tool'].includes(String((value as { $?: unknown }).$)) || Object.values(value).some(waits)));
+  const walk = (value: unknown): void => {
+    if (Array.isArray(value)) return value.forEach(walk);
+    if (value === null || typeof value !== 'object') return;
+    if ((value as { $?: unknown }).$ === 'rows') { if (!waits(value)) reads.push(value); return; }
+    Object.values(value).forEach(walk);
+  };
+  walk([action.next.map(step => [step.when, step.input, step.failed?.input]), action.then?.input, action.undo?.input, action.answer]);
+  return reads;
+}
+
 function streamTo(address: string, host: string, request: http.IncomingMessage, response: http.ServerResponse): Promise<void> {
   return new Promise((resolve, reject) => {
     const headers: Record<string, string | string[]> = {};

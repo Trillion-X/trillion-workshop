@@ -60,7 +60,9 @@
 //     { "$": "origin", "then": "/welcome" }         the request's own site address, then the words given
 //     { "$": "rows", "sql": "SELECT ...", "params": [values], "database": "name", "key": "0.a" }
 //                                                   the rows of a statement, run as the site, on the site's own pages database
-//                                                   or the one named; with key, that place in them
+//                                                   or the one named; with key, that place in them. Rows reads are made once
+//                                                   per request, before the tool writes; a read that must see the row's own
+//                                                   write names { "$": "answer" } or { "$": "input" }
 //     { "$": "tool", "tool": "tool:<id>", "input": <value>, "key": "a.b" }
 //                                                   the answer of another tool, run first as the action runs (the member, or the
 //                                                   site); with key, that key of it. Tools that feed each other nest: a tool's
