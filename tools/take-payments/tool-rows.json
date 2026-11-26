@@ -664,6 +664,30 @@
             "suggestions": {
               "type": "array",
               "description": "Your suggested-amount rows (offer-amount-choice), when an offer names a suggestion list."
+            },
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Instead of offers and suggestions: the name of the pursuit database the checkout reads them from itself (its offers and offer_amount_choices tables, only the columns read-data/checkout-offer-reads.ts declares), bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login. Ignored when offers are given; a read that is refused stops the checkout before anything is sent."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use the offers are read for, given with database. The computer opens the database with its reader login instead of the owner's and hands the run a ticket of this use that it signed; the read's transaction claims it first, so the database's row rules read this use.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
             }
           },
           "required": [
@@ -673,8 +697,11 @@
             "priceOptionId",
             "consent",
             "success_url",
-            "cancel_url",
-            "offers"
+            "cancel_url"
+          ],
+          "anyOf": [
+            {"required": ["offers"]},
+            {"required": ["database"]}
           ]
         },
         "output_schema": {
@@ -703,7 +730,8 @@
                 "package": "take-payments",
                 "paths": [
                   "do-work",
-                  "read-data"
+                  "read-data",
+                  "reads/start-a-checkout-reading-its-offers.ts"
                 ],
                 "at": "/opt/take-payments"
               },
@@ -766,8 +794,243 @@
                   "send-settings.json"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work/run-sql.mjs",
+                  "do-work/serve-a-read.ts",
+                  "do-work/through-the-run-proxy.mjs",
+                  "read-data/role-recipes.json",
+                  "read-data/time-limits.json",
+                  "tool-rows.json"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
               }
             ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
           },
           "workdir": "/opt/take-payments",
           "internet": true,
@@ -775,7 +1038,7 @@
           "argv": [
             "node",
             "/opt/workflows/do-work/run-a-function.mjs",
-            "/opt/take-payments/do-work/take-payments.mjs",
+            "/opt/take-payments/reads/start-a-checkout-reading-its-offers.ts",
             "startAStripeCheckout"
           ],
           "stdin": {
@@ -800,6 +1063,18 @@
               "fd": 4,
               "field_id": "secret_key",
               "only_when": {"input": "seller_connection", "present": true}
+            },
+            {
+              "secret_name_from_input": "database",
+              "held_suffix": "-connection",
+              "fd": 6,
+              "only_when": {"input": "database", "present": true},
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 7,
+                "held_suffix": "-reader-connection",
+                "key_suffix": "-use-key"
+              }
             }
           ],
           "connection": {

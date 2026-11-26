@@ -32,19 +32,27 @@ const onThisComputer = word => (word.startsWith('/opt/') ? join(tools, word.slic
 const pointsAtRunner = row => row.invoke.argv[1] === '/opt/workflows/do-work/run-a-function.mjs';
 
 test('every row runs the one function runner on a function this folder exports, and mounts no records door', async () => {
-  const module = await import(join(import.meta.dirname, '..', 'do-work', 'take-payments.mjs'));
   for (const row of rows) {
+    // take-payments.mjs, or for the checkout that reads its own offers the file that wraps its function.
+    const module = await import(onThisComputer(row.invoke.argv[2]));
     assert.ok(pointsAtRunner(row), `${row.id} runs through the workflows function runner`);
     assert.ok(!(row.invoke.files?.package_files ?? []).some(spec => spec.package === 'records-door'), `${row.id} mounts no records door`);
     const name = row.invoke.argv.at(-1);
-    assert.equal(typeof module[name], 'function', `${row.id} names ${name}, which take-payments.mjs exports`);
+    assert.equal(typeof module[name], 'function', `${row.id} names ${name}, which ${row.invoke.argv[2]} exports`);
   }
   assert.equal(new Set(rows.map(row => row.invoke.argv.at(-1))).size, rows.length, 'one function per row');
 });
 
 test('a row can reach the internet only to talk to Stripe with the person\'s own key, and no row holds a key', () => {
   for (const row of rows) {
-    const mounts = row.invoke.credential_mounts ?? [];
+    // A row that reads its own offers (start-a-stripe-checkout given a database) also mounts that database's connection, read
+    // only under a declared use with the reader login; it is not a key and never reaches Stripe.
+    const reads = (row.invoke.credential_mounts ?? []).filter(mount => mount.secret_name_from_input === 'database');
+    for (const mount of reads) {
+      assert.deepEqual(mount, { secret_name_from_input: 'database', held_suffix: '-connection', fd: 6, only_when: { input: 'database', present: true },
+        under_use: { use_from_input: 'use', ticket_fd: 7, held_suffix: '-reader-connection', key_suffix: '-use-key' } }, `${row.id} reads its database on 6 under a use`);
+    }
+    const mounts = (row.invoke.credential_mounts ?? []).filter(mount => !reads.includes(mount));
     if (row.invoke.internet) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);
     if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
     // The key is the seller's own: the run's input names it, by its vault name, by the account it is held for, or as a field
@@ -127,7 +135,7 @@ test('a seller key is named by exactly one of secret_name, account and seller_co
   assert.equal(seller.length, 19);
   const named = 'a-sellers-stripe-key';
   for (const row of seller) {
-    assert.deepEqual(row.invoke.credential_mounts, [
+    assert.deepEqual(row.invoke.credential_mounts.filter(mount => mount.secret_name_from_input !== 'database'), [
       { secret_name_from_input: 'secret_name', share_by_listing: true, fd: 4, only_when: { input: 'secret_name', present: true } },
       { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },
       { fd: 4, field_id: 'secret_key', only_when: { input: 'seller_connection', present: true } },
