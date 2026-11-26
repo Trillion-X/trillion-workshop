@@ -26,6 +26,7 @@ import { Input } from '../../ui/show/coss/ui/input.tsx';
 import { Button } from '../../ui/show/coss/ui/button.tsx';
 import { SectionShell, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import { AnswerControl, Labelled, answered, type Answer, type Next } from './FormSteps.tsx';
+import { controlFor } from '../read-data/step-controls.ts';
 
 export type Words = Record<string, string | undefined>;
 export type PageInfo = { title: string | null; words: Words; questions: number; keep_on: string | null; signed_in: boolean };
@@ -96,7 +97,8 @@ function Body({ screen, info, answer = null, email = '', error = '', sending = f
     const { next } = screen;
     const asked = next.question!;
     const required = next.required !== false;
-    const picks = asked.questionTypeId === 'picks';
+    const draw = controlFor(asked.questionTypeId)?.draw;
+    const picks = draw === 'picks' || draw === 'one';
     const place = (next.position ?? 0) + 1;
     const help = asked.help ?? (picks ? (asked.multiple ? words.pick_many : words.pick_one) : required ? undefined : words.optional);
     const submit = (event: React.FormEvent) => { event.preventDefault(); onSend?.(answer); };

@@ -9,9 +9,11 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Pure: nothing here fetches or reads the window. The host answers each step and sends each answer; these parts only
 //      draw what they are given and report a change through `onChange`.
-//   2. The control follows the question's type: picks (one or several, with an optional other), link, a number for number and
-//      for rating (a score on a scale: the same number box, bounded by the question's min and max, its placeholder the range
-//      when the question gives none, because the server takes only a number there), text; any other type is a longer answer.
+//   2. The control is the one the question's type declares in data/question-types.json (read-data/step-controls.ts controlFor,
+//      the file the server's check reads): picks (one or several, with an optional other), one (a single pick answered as its value),
+//      link, number (its step: any number, or whole steps for a rating; bounded by the question's min and max, its placeholder
+//      the range when the question gives none), line, long. Nothing here branches on a type's name. A step with no control
+//      shows "No control for type <type>." and no box, so an answer the server would refuse is never typed.
 //   3. `answered` is the one rule for whether Next may be pressed on a required question.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
@@ -20,6 +22,7 @@ import { Text } from '../../ui/show/text/Text.tsx';
 import { Input } from '../../ui/show/coss/ui/input.tsx';
 import { Textarea, FieldPrimitive } from '../../ui/show/coss/ui/textarea.tsx';
 import { ChoiceRows, type ChoiceRowsValue } from '../../ui/show/coss/choice-rows.tsx';
+import { controlFor, noControlWords } from '../read-data/step-controls.ts';
 
 export type Option = { value: string; label: string };
 // What the program says a question needs drawn: its type, its options and other option, its words and bounds.
@@ -49,24 +52,27 @@ export type AnswerControlProps = {
   textPlaceholder?: string;
 };
 
-// The types whose answer is a number: the server coerces them to one and refuses anything else ("Enter a valid value").
-const NUMBER_TYPES = new Set(['number', 'rating']);
 // A scale's range as its placeholder ("1–10"), when the question bounds it at both ends.
 const rangeOf = (asked: Asked) => (typeof asked.min === 'number' && typeof asked.max === 'number' ? `${asked.min}–${asked.max}` : undefined);
 
-// The control a question's type asks for: answers to pick (one or several, Other opening a box), a link, a number, a line or a
-// longer answer. Every control is a shared part with the page's field colour.
+// The control the question's type declares: answers to pick (one or several, Other opening a box), one answer, a link, a number, a
+// line or a longer answer, or the words that there is none. Every control is a shared part with the page's field colour.
 export function AnswerControl({ id, label, asked, required, value, onChange, textPlaceholder = '' }: AnswerControlProps) {
   const field = 'bg-[var(--bg-primary)]';
   const text = typeof value === 'string' ? value : '';
   const placeholder = asked.placeholder ?? textPlaceholder;
-  if (asked.questionTypeId === 'picks') {
+  const control = controlFor(asked.questionTypeId);
+  const none = <Text as="p" role="alert" variant="caption" className="text-destructive-foreground">{noControlWords(asked.questionTypeId)}</Text>;
+  if (!control) return none;
+  if (control.draw === 'picks') {
     return <ChoiceRows label={label} options={asked.options ?? []} multiple={asked.multiple} other={asked.other} otherPlaceholder={asked.placeholder} value={value && typeof value === 'object' ? value : null} onChange={onChange} />;
   }
-  if (asked.questionTypeId === 'link') return <Input id={id} type="url" inputMode="url" autoComplete="url" placeholder={asked.placeholder ?? 'https://'} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
-  if (NUMBER_TYPES.has(asked.questionTypeId)) return <Input id={id} type="number" inputMode="numeric" min={asked.min} max={asked.max} placeholder={asked.placeholder ?? rangeOf(asked)} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
-  if (asked.questionTypeId === 'text') return <Input id={id} placeholder={placeholder} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
-  return <Textarea id={id} placeholder={placeholder} required={required} className={['min-h-32 resize-y', field].join(' ')} value={text} onChange={event => onChange(event.target.value)} />;
+  if (control.draw === 'one') return <ChoiceRows label={label} options={asked.options ?? []} value={text ? { picked: [text] } : null} onChange={picked => onChange(picked?.picked[0] ?? '')} />;
+  if (control.draw === 'link') return <Input id={id} type="url" inputMode="url" autoComplete="url" placeholder={asked.placeholder ?? 'https://'} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
+  if (control.draw === 'number') return <Input id={id} type="number" inputMode={control.step === 'any' ? 'decimal' : 'numeric'} step={control.step} min={asked.min} max={asked.max} placeholder={asked.placeholder ?? rangeOf(asked)} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
+  if (control.draw === 'line') return <Input id={id} placeholder={placeholder} required={required} size="lg" className={field} value={text} onChange={event => onChange(event.target.value)} />;
+  if (control.draw === 'long') return <Textarea id={id} placeholder={placeholder} required={required} className={['min-h-32 resize-y', field].join(' ')} value={text} onChange={event => onChange(event.target.value)} />;
+  return none;
 }
 
 // Whether a question's answer has anything in it yet, so Next waits for a required one.

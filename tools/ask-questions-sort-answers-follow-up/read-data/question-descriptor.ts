@@ -165,6 +165,9 @@ export interface QuestionTypeCapability {
   coerce: CoerceKind;
   label?: string;
   validate?: { rules?: AnswerValidationRules };
+  /** How a page that asks one question at a time draws this type (read-data/step-controls.ts), or null with why. */
+  control?: unknown;
+  no_control_because?: string;
 }
 
 /** A form: an ordered question sequence (the scene revision stores the same

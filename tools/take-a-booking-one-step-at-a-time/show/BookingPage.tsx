@@ -34,6 +34,7 @@ import { Button } from '../../ui/show/coss/ui/button.tsx';
 import { TimeSlotPicker } from '../../ui/show/coss/time-slot-picker.tsx';
 import { SectionShell, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import { AnswerControl, Labelled, answered, type Answer, type Next as AskedNext } from '../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
+import { controlFor } from '../../ask-questions-sort-answers-follow-up/read-data/step-controls.ts';
 import { callStep as call } from '../../ask-questions-sort-answers-follow-up/show/call-step.ts';
 import type { Definition } from '../../ask-questions-sort-answers-follow-up/show/optimistic-run.ts';
 import { useOptimisticForm } from '../../ask-questions-sort-answers-follow-up/show/use-optimistic-form.ts';
@@ -191,7 +192,8 @@ export function View({ page, title, timezone, duration_minutes, questions, words
     const asked = next.question!;
     const required = next.required !== false;
     const number = questions.findIndex(item => item.position === next.position) + 1;
-    const picks = asked.questionTypeId === 'picks';
+    const draw = controlFor(asked.questionTypeId)?.draw;
+    const picks = draw === 'picks' || draw === 'one';
     const help = asked.help ?? (picks ? (asked.multiple ? words.pick_many : words.pick_one) : required ? undefined : words.optional);
     body = (
       <Step at={number} count={count} progress={fill(words.question_of, { number, count: questions.length })} title={next.prompt ?? ''}>

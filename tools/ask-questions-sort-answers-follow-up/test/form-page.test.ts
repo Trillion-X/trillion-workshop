@@ -93,3 +93,37 @@ test('a rating question (a 1 to 10 scale) draws a number box bounded by its rang
   assert.equal(checkAnswers({ questions: asked, answers: { q1: '7' } }).all_valid, true);
   for (const bad of ['very good', '11', '0']) assert.equal(checkAnswers({ questions: asked, answers: { q1: bad } }).all_valid, false, bad);
 });
+
+test('a number takes any number its bounds allow (a UTR of 8.36 under a top of 16.5); a rating takes whole steps', async () => {
+  const utr = { questionId: 'utr', questionTypeId: 'number', min: 1, max: 16.5 };
+  const html = await renderAView(entry, { screen: question({ question: utr }), info, answer: '8.36' });
+  assert.match(html, /<input[^>]*type="number"[^>]*>/);
+  assert.match(html, /<input[^>]*step="any"[^>]*>/);
+  assert.match(html, /<input[^>]*inputMode="decimal"[^>]*>|<input[^>]*inputmode="decimal"[^>]*>/);
+  const rating = await renderAView(entry, { screen: question({ question: { questionId: 'q1', questionTypeId: 'rating', min: 1, max: 10 } }), info });
+  assert.match(rating, /<input[^>]*step="1"[^>]*>/);
+  const { checkAnswers } = await import('../do-work/check-answers.mjs');
+  const asked = [{ questionId: 'utr', questionTypeId: 'number', label: 'UTR', required: true, validation: { min: 1, max: 16.5 } }];
+  assert.equal(checkAnswers({ questions: asked, answers: { utr: '8.36' } }).all_valid, true);
+  assert.equal(checkAnswers({ questions: asked, answers: { utr: '16.6' } }).all_valid, false);
+});
+
+test('a choice draws its answers and answers the one picked as its value, which the check takes', async () => {
+  const choice = { questionId: 'q1', questionTypeId: 'choice', options: [{ value: 'clay', label: 'Clay' }, { value: 'grass', label: 'Grass' }] };
+  const html = await renderAView(entry, { screen: question({ question: choice }), info, answer: 'clay' });
+  assert.match(html, /Clay/);
+  assert.match(html, /Grass/);
+  assert.match(html, /Pick one\./);
+  assert.doesNotMatch(html, /<textarea/);
+  const { checkAnswers } = await import('../do-work/check-answers.mjs');
+  assert.equal(checkAnswers({ questions: [{ questionId: 'q1', questionTypeId: 'choice', label: 'Surface', required: true }], answers: { q1: 'clay' } }).all_valid, true);
+});
+
+test('a type with no control, or one the types file does not hold, says so and draws no box', async () => {
+  for (const questionTypeId of ['evidence-reference', 'made-up-type']) {
+    const html = await renderAView(entry, { screen: question({ question: { questionId: 'q1', questionTypeId } }), info, answer: 'typed' });
+    assert.match(html, new RegExp(`No control for type ${questionTypeId}\\.`));
+    assert.doesNotMatch(html, /<textarea/);
+    assert.doesNotMatch(html, /<input[^>]*id="[^"]*q1/);
+  }
+});

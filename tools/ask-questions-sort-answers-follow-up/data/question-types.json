@@ -5,6 +5,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.number",
    "questionTypeId": "number",
+   "control": {"draw": "number", "step": "any"},
    "label": "Number",
    "inputComponentKey": "number",
    "validate": {
@@ -22,6 +23,8 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.evidence-reference",
    "questionTypeId": "evidence-reference",
+   "control": null,
+   "no_control_because": "An evidence reference is captured by the owner of the source (a recorder, a file picker), never typed, so a page that asks one question at a time has no control for it.",
    "label": "Source",
    "inputComponentKey": "evidence-reference",
    "validate": {
@@ -39,6 +42,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.text",
    "questionTypeId": "text",
+   "control": {"draw": "line"},
    "label": "Text",
    "inputComponentKey": "text",
    "validate": {
@@ -56,6 +60,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.long-text",
    "questionTypeId": "long-text",
+   "control": {"draw": "long"},
    "label": "Long text",
    "inputComponentKey": "long-text",
    "validate": {
@@ -73,6 +78,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.choice",
    "questionTypeId": "choice",
+   "control": {"draw": "one"},
    "label": "Choice",
    "inputComponentKey": "choice",
    "validate": {
@@ -90,6 +96,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.rating",
    "questionTypeId": "rating",
+   "control": {"draw": "number", "step": 1},
    "label": "Rating",
    "inputComponentKey": "rating",
    "validate": {
@@ -107,6 +114,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.picks",
    "questionTypeId": "picks",
+   "control": {"draw": "picks"},
    "label": "Pick one or several",
    "inputComponentKey": "picks",
    "validate": {
@@ -124,6 +132,7 @@
    "kind": "question-type-capability",
    "id": "ask-questions-sort-answers-follow-up.question-type.link",
    "questionTypeId": "link",
+   "control": {"draw": "link"},
    "label": "Link",
    "inputComponentKey": "link",
    "validate": {

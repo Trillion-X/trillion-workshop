@@ -13,7 +13,7 @@ import { launchChromium } from '../../../test-helpers/chromium.mjs';
 const require = createRequire(import.meta.url);
 const esbuild = require('esbuild');
 const ROOT = new URL('../../../', import.meta.url).pathname;
-const question = (position, id, prompt) => ({ key: `question:${position}`, kind: 'question', position, prompt, required: true, question: { questionId: id, questionTypeId: 'short-text' } });
+const question = (position, id, prompt) => ({ key: `question:${position}`, kind: 'question', position, prompt, required: true, question: { questionId: id, questionTypeId: 'text' } });
 const START = { attemptId: 'attempt-1', next: question(0, 'age', "Player's Age") };
 const SECOND = { next: question(1, 'goal', 'What is your goal?') };
 const SLOT = { next: { key: 'slot', kind: 'slot' } };
