@@ -37,3 +37,24 @@ test('a site form\'s lead statement is kept once as a lead step, its email only 
   assert.equal(JSON.stringify(rows).includes('Ana@Example.com'), false, 'the raw email is never kept in a step');
   assert.deepEqual((await keepStepsFromRows({ query, mappings: [mapping] })).mappings.map(({ kept }) => kept), [0]);
 });
+
+test('a check\'s lead (its page\'s utm_content=check, kept as after.utm_content) is kept as no step, and a proof\'s lead is a proof step', async () => {
+  const db = new PGlite();
+  await db.exec(journeySql);
+  await db.exec(`
+    CREATE TABLE statements (key text PRIMARY KEY, source text, place text, meaning text, after jsonb, at timestamptz, recorded_at timestamptz DEFAULT now());
+    INSERT INTO statements (key, source, place, meaning, after, at) VALUES
+      ('c1', 'site-form', 'site-form', 'lead', '{"email":"walker@example.com","offer_id":"offer:call","utm_content":"check"}', now()),
+      ('p1', 'site-form', 'site-form', 'lead', '{"email":"prover@example.com","offer_id":"offer:call","utm_content":"proof"}', now()),
+      ('r1', 'site-form', 'site-form', 'lead', '{"email":"real@example.com","offer_id":"offer:call","self_reported":"a friend"}', now());
+  `);
+  const query = (sql, params) => db.query(sql, params);
+  const kept = await keepStepsFromRows({ query, mappings: [mapping] });
+  assert.deepEqual(kept.mappings.map(({ read, kept: n }) => ({ read, kept: n })), [{ read: 3, kept: 2 }], 'three read, the check\'s not kept');
+  const { rows } = await db.query("SELECT ref, is_proof, source FROM journey_steps WHERE step = 'lead' ORDER BY ref");
+  assert.deepEqual(rows, [
+    { ref: 'site-form:p1', is_proof: true, source: { utm_content: 'proof' } },
+    { ref: 'site-form:r1', is_proof: false, source: { self_reported: 'a friend' } },
+  ], 'no step for the check; the proof marked; a real lead\'s source as before');
+  assert.deepEqual((await keepStepsFromRows({ query, mappings: [mapping] })).mappings.map(({ kept: n }) => n), [0], 'and a second run keeps none, the check\'s included');
+});

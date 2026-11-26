@@ -71,7 +71,8 @@
         "touch_id": "after->>'touch_id'"
       },
       "source": {
-        "self_reported": "after->>'self_reported'"
+        "self_reported": "after->>'self_reported'",
+        "utm_content": "after->>'utm_content'"
       },
       "joined_by": "email",
       "joined_by_visitor": "cookie",

@@ -42,6 +42,12 @@ test('a lead is kept as the action row kept it, and only when the email has an e
   // The touch the referer named is kept with the lead.
   await keepASiteWrite({ write: 'site-lead', values: { key: 'k4', email: 'made.up@example.test', touch_id: 'touch-1' } }, query);
   assert.deepEqual(await one(db, "select after from statements where key = 'k4'"), [{ after: { email: 'made.up@example.test', touch_id: 'touch-1' } }]);
+  // Only a check's or a proof's marker of the page's utm_content is kept; any other utm_content leaves the lead as before.
+  for (const [key, utm, kept] of [['k5', 'check', 'check'], ['k6', 'proof', 'proof'], ['k7', 'spring-ad', undefined], ['k8', '', undefined]] as const) {
+    await keepASiteWrite({ write: 'site-lead', values: { key, email: 'made.up@example.test', utm_content: utm } }, query);
+    const [row] = await one(db, `select after from statements where key = '${key}'`);
+    assert.equal((row.after as Record<string, unknown>).utm_content, kept, `utm_content ${utm || '(none)'}`);
+  }
 });
 
 test('a started checkout is kept once per attempt, with its offer, visitor and touch', async () => {

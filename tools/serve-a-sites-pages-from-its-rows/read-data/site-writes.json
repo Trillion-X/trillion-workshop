@@ -2,8 +2,8 @@
   "_what": "The writes a site's action rows may ask tool:keep-a-site-write for, by name. Each is one fixed statement and the values it takes, in parameter order ($1 is the first value): a caller sends a name and values only, never SQL. A value is text (at most `most` characters), a list of texts (at most `most` of them), or json (a list or object a tool answered, handed to the statement as its JSON text, at most `most` bytes); one not given is null, unless it is required. The statements are the ones a site's run-sql action rows sent (Nov 25 2026), changed only where the writer login may not do what they did: no RETURNING (the login cannot read the rows it adds), and the welcome stop through the owner's stop_welcome_series(token), so the login never reads a token.",
   "writes": {
     "site-lead": {
-      "_what": "A lead from a site form (book a call): one statement of meaning lead, kept only when the email has an email's shape.",
-      "sql": "INSERT INTO statements (source, told, place, meaning, at, key, after) SELECT 'site-form', 'site-form:lead:' || $1, 'site-form', 'lead', now(), $1, jsonb_strip_nulls(jsonb_build_object('email', lower(trim($2::text)), 'name', nullif(trim($3::text), ''), 'self_reported', nullif(trim($4::text), ''), 'offer_id', $5::text, 'visitor', $6::text, 'touch_id', $7::text)) WHERE $2::text ~ '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'",
+      "_what": "A lead from a site form (book a call): one statement of meaning lead, kept only when the email has an email's shape. utm_content is the page's own utm_content (its row reads it from the referer's query); only a check's or a proof's marker (check, proof) is kept, as after.utm_content, so the journey keep skips a check's lead and marks a proof's, as it does their visits, and a real lead's after is as before.",
+      "sql": "INSERT INTO statements (source, told, place, meaning, at, key, after) SELECT 'site-form', 'site-form:lead:' || $1, 'site-form', 'lead', now(), $1, jsonb_strip_nulls(jsonb_build_object('email', lower(trim($2::text)), 'name', nullif(trim($3::text), ''), 'self_reported', nullif(trim($4::text), ''), 'offer_id', $5::text, 'visitor', $6::text, 'touch_id', $7::text, 'utm_content', CASE WHEN $8::text IN ('check', 'proof') THEN $8::text END)) WHERE $2::text ~ '^[^[:space:]@]+@[^[:space:]@]+\\.[^[:space:]@]+$'",
       "values": [
         { "name": "key", "type": "text", "most": 200, "required": true },
         { "name": "email", "type": "text", "most": 320 },
@@ -11,7 +11,8 @@
         { "name": "self_reported", "type": "text", "most": 2000 },
         { "name": "offer_id", "type": "text", "most": 200 },
         { "name": "visitor", "type": "text", "most": 200 },
-        { "name": "touch_id", "type": "text", "most": 200 }
+        { "name": "touch_id", "type": "text", "most": 200 },
+        { "name": "utm_content", "type": "text", "most": 200 }
       ]
     },
     "site-checkout": {
