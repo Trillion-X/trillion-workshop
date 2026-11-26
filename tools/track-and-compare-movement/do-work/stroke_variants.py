@@ -4,8 +4,9 @@ USAGE: stroke_variants.py --job JOB.json --state STATE.json --work DIR [--spec S
 
 JOB: {call (the engine command up to its method), source_identity, source_name, date, person, files_folder, strokes: STROKES.json from find_strokes.py,
       track: TRACK.json from fast_pose.py}
-SPEC (DATA; the default asked for on Nov 20 2026): aspects 16x9 1920x1080 and 9x16 1080x1920; speeds 1, 0.5, 0.25, 0.1
-(plain: frames repeated, no interpolation); an every-frame copy per aspect (every frame a keyframe, so any frame can be
+SPEC (DATA): the aspects and speeds are comparison-variants.json's, the one list a comparison's variants use too
+(its formats: 9x16 1080x1920 and 16x9 1920x1080; the speeds of its passes that are not a still: 1, 0.5, 0.25, 0.1, here
+plain: frames repeated, no interpolation); --spec can still replace either. An every-frame copy per aspect (every frame a keyframe, so any frame can be
 held as long as wanted); the contact still. Each stroke is cut from its ready to its finish, at most max_pad_s each
 side of contact and never past halfway to the next stroke, so a clip holds one stroke.
 All of a stroke's files come from one decode of the source. Before each decode it waits while the 5-minute load
@@ -19,8 +20,19 @@ import argparse, json, os, subprocess, sys, time
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import files_road  # noqa: E402
 
-SPEC = {"aspects": {"16x9": [1920, 1080], "9x16": [1080, 1920]}, "speeds": [1, 0.5, 0.25, 0.1],
-        "max_pad_s": 2.5, "load_max": 90, "frame_of_body": 1.5}
+VARIANTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "comparison-variants.json")
+
+
+def variant_lists(path=VARIANTS):
+    """The aspects ({id: [width, height]}) and speeds of comparison-variants.json: each format, and the speed of each
+    pass that is not a still (1 when a pass names none)."""
+    with open(path, encoding="utf-8") as handle:
+        variants = json.load(handle)
+    return {"aspects": {one["id"]: [int(one["width"]), int(one["height"])] for one in variants["formats"]},
+            "speeds": [one.get("speed", 1) for one in variants["passes"] if not one.get("still")]}
+
+
+SPEC = {**variant_lists(), "max_pad_s": 2.5, "load_max": 90, "frame_of_body": 1.5}
 
 
 def wait_for_load(limit):

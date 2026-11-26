@@ -17,6 +17,7 @@ for (const [file, what] of [
   ['test_author_comparison_edl.py', 'the side-by-side edit takes labels, layout, mirror and passes from the spec, keeps every crop inside the frame, and refuses a bad spec'],
   ['test_phase_sync.py', 'the reference is retimed in a few bounded speed pieces that reach every phase of the target within one output frame, contact pinned'],
   ['test_synced_render.py', 'a synced comparison renders each pass to its planned frames with the reference on its synced frames and smooth slow motion'],
+  ['test_stroke_variants.py', 'the clip-library variants take their shapes and speeds from comparison-variants.json, the one list'],
   ['test_make_site_clip.py', 'a site clip is cut from its kept stretches, silent unless asked, kept by its identity, and wrong source bytes are refused'],
   ['test_find_strokes.py', 'strokes are found by the physical salience rules, and a lost body or a tracker jump makes no stroke'],
   ['test_files_road.py', 'a file is kept in pieces at offsets, retried, and checked by its identity'],
