@@ -73,7 +73,15 @@ class RenderStage(unittest.TestCase):
         self.assertTrue(all(x["file"].endswith(f".{x['format']}.mp4") for x in made))
         spec = json.load(open(made[0]["file"].rsplit(".", 2)[0] + ".spec.json"))
         self.assertIn("sync", spec["left"])          # the reference (top / left) is the synced side
-        self.assertEqual(spec["left"]["flip"], "h")  # mirrored when the matcher says reflected
+        self.assertNotIn("flip", spec["left"])        # both right-handed, both from behind: no mirror, whatever the parity
+
+    def test_a_left_handed_reference_is_mirrored(self):
+        self.job["references"][0] = {**R, "hand": "left"}
+        m.render(self.job)
+        made = json.load(open(os.path.join(self.work, "rendered.json")))["made"]
+        spec = json.load(open(made[0]["file"].rsplit(".", 2)[0] + ".spec.json"))
+        self.assertEqual(spec["left"]["flip"], "h")
+        self.assertEqual(made[0]["steps"]["mirror"]["matcher_parity"], "reflected")
 
     def test_a_refused_sync_is_cut_on_contact_alone_and_says_so(self):
         self.refuse = {"phase_sync.py"}

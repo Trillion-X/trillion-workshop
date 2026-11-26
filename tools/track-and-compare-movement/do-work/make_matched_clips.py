@@ -222,11 +222,19 @@ def render(job):
             synced = "error" not in got
             steps["sync"] = got["result"] if synced else {"aligned": "contact only", "refused": got["error"]}
 
+            # mirror from facts both sides carry (hand, where the camera stands), by the same rule the check holds
+            # them to; the matcher's pose parity is kept beside it, never used to decide
+            sys.path.insert(0, HERE)
+            from side_by_side import screen_direction
+            facts = lambda c: {"hand": c.get("hand", "right"), "camera": c.get("camera", job.get("camera", "behind"))}
+            flip = screen_direction(facts(r)) != screen_direction(facts(t))
+            steps["mirror"] = {"flip": flip, "reference": facts(r), "target": facts(t), "matcher_parity": pair.get("parity")}
+
             def side(clip, k, index, peak, flip, sync=None):
                 return {"clip": clip["path"], "kp": kp_of(index, k), "peak": peak, "label": "",
                         **({"flip": "h"} if flip else {}), **({"sync": sync} if sync else {})}
             spec = {"encode": {"fps": 30, "crf": 18, "preset": "medium"}, "bg": "black",
-                    "left": side(r, pair["reference"], "references", rc, pair.get("parity") == "reflected",
+                    "left": side(r, pair["reference"], "references", rc, flip,
                                  base + ".sync.json" if synced else None),
                     "right": side(t, pair["target"], "targets", tc, False)}
             with open(base + ".spec.json", "w") as f:
@@ -285,7 +293,7 @@ def check(job):
         cell = [width, height // 2] if item.get("layout", job.get("layout", "v")) == "v" else [width // 2, height]
         spec = {"top": side(top_src, R[pair["reference"]], (contact.get("reference") or {}).get("time", pair["reference_peak"]), "references"),
                 "bottom": side(bottom_src, T[pair["target"]], (contact.get("target") or {}).get("time", pair["target_peak"]), "targets"),
-                "cell": cell, "fps": 30, "before_s": half, "after_s": half}
+                "cell": cell, "layout": item.get("layout", job.get("layout", "v")), "fps": 30, "before_s": half, "after_s": half}
         spec_path = item["file"][:-4] + ".check-spec.json"
         with open(spec_path, "w") as f:
             json.dump(spec, f, indent=1)

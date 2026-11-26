@@ -129,8 +129,10 @@ def source_contact(side, cell):
                  "-pix_fmt", "gray", "-"], (cell[1], cell[0]))[0]
 
 
-def clip_cells(clip, first, last, cell, row):
-    vf = f"select='between(n\\,{first}\\,{last})',crop={cell[0]}:{cell[1]}:0:{row * cell[1]}"
+def clip_cells(clip, first, last, cell, row, layout="v"):
+    """The output's cell `row` (0 = top / left) over frames first..last; layout "h" puts the cells side by side."""
+    x, y = (row * cell[0], 0) if layout == "h" else (0, row * cell[1])
+    vf = f"select='between(n\\,{first}\\,{last})',crop={cell[0]}:{cell[1]}:{x}:{y}"
     return gray(["ffmpeg", "-v", "error", "-i", clip, "-vf", vf, "-fps_mode", "passthrough", "-f", "rawvideo",
                  "-pix_fmt", "gray", "-"], (cell[1], cell[0]))
 
@@ -150,7 +152,7 @@ def check(spec, clip, limits=None):
     k, s = round(before * fps), limits["search"]
     found = {}
     for row, name in enumerate(("top", "bottom")):
-        scores = [round(psnr(source_contact(spec[name], cell), c), 2) for c in clip_cells(clip, k - s, k + s, cell, row)]
+        scores = [round(psnr(source_contact(spec[name], cell), c), 2) for c in clip_cells(clip, k - s, k + s, cell, row, spec.get("layout", "v"))]
         best = int(np.argmax(scores))
         found[name] = {"frame": k - s + best, "match_db": scores[best], "scores": scores}
     distinct = blake3_or_sha(spec["top"]["source"]) != blake3_or_sha(spec["bottom"]["source"])
