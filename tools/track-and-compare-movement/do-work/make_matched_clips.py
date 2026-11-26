@@ -24,6 +24,7 @@ JOB.json (DATA; nothing about a person, a sport or a folder is in this file):
   "salience": {"lost_body_frac": 0.4, "max_body_heights_per_frame": 1.0, "cap_percentile": 0.99},
   "targets":    [{"path": "...", "identity": "1f:...", "name": "...", "date": "2026-09-10", "people": ["..."]}],
   "references": [{"path": "...", "identity": "1f:...", "name": "...", "year": "2019", "people": ["..."], "class": "forehand"}],
+  "reference_max_seconds": 8,                             prepare leaves out longer references (their label may not hold)
   "movement": "forehand", "class_margin": 0.05, "class_admit": 0.6,   when references carry a class (a human label, e.g.
                                                           from their folder), match uses select_partner's labelled mode
   "layout": "v", "padding_s": 2.5, "size": [1080, 1920], "call": ["<engine command>", "op"], "keep_folder": "/Recordings/..."
@@ -348,12 +349,22 @@ def prepare(spec):
     for m in spec["models"]:
         files_road.fetch(call, m["identity"], os.path.join(models, m["name"]))
 
+    left_out = []
+    longest = spec.get("reference_max_seconds")  # a folder's label holds for its one-swing clips, not for a long
+    #                                              practice recording filed under it (measured Nov 25 2026: 5 to 11
+    #                                              minute "backhand" sessions hold forehands too), so those are left out
+
     def clips(rows, people, side):
         out = []
         for row in rows:
             ext = os.path.splitext(row["name"])[1].lower() or ".mp4"
             path = os.path.join(media, side + "-" + row["identity"][3:19] + ext)
             files_road.fetch(call, row["identity"], path)
+            if side == "reference" and longest:
+                seconds = duration(path)
+                if seconds is None or seconds > float(longest):
+                    left_out.append({"name": row["name"], "seconds": seconds, "why": f"longer than {longest} s or unreadable"})
+                    continue
             clip = {"path": path, "identity": row["identity"], "name": row["name"], "people": people}
             if row.get("class"):
                 clip["class"] = row["class"]                  # a human label (e.g. from the clip's folder)
@@ -371,7 +382,17 @@ def prepare(spec):
     path = os.path.join(work, "job.json")
     with open(path, "w") as f:
         json.dump(job, f, indent=1)
-    return {"job": path, "targets": len(job["targets"]), "references": len(job["references"])}
+    return {"job": path, "targets": len(job["targets"]), "references": len(job["references"]), "references_left_out": left_out}
+
+
+def duration(path):
+    """A file's length in seconds by ffprobe, or None when it cannot be read."""
+    r = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", path],
+                       capture_output=True, text=True)
+    try:
+        return float(r.stdout.strip())
+    except ValueError:
+        return None
 
 
 def main():
