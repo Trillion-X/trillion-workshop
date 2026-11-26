@@ -2291,7 +2291,7 @@
         "id": "tool:stop-an-email-course",
         "label": "Stop sending an email course to someone who unsubscribed",
         "job": "End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent",
-        "description": "Give token (the unsubscribe token in the link the person was sent, 32 to 100 characters). Works out the subscription marked unsubscribed with the time and a stop for that contact over the course's stop scope (every enrollment of theirs in the scope is sent nothing more), and answers them in keep for the caller to write (records: the person's token, subscription and stop rows); an unknown or already used token answers unsubscribed too, and a used one still keeps its stop. Answers { status: unsubscribed }.",
+        "description": "Give token (the unsubscribe token in the link the person was sent, 32 to 100 characters). Works out the subscription marked unsubscribed with the time and a stop for that contact over the course's stop scope (every enrollment of theirs in the scope is sent nothing more), and answers them in keep for the caller to write (records: the person's token, subscription and stop rows); an unknown or already used token answers unsubscribed too, and a used one still keeps its stop; a token that is not 32 to 100 letters, digits, - or _ answers malformed and keeps nothing. Answers { status: unsubscribed | malformed }.",
         "status": "active",
         "input_schema": {
           "type": "object",

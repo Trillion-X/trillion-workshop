@@ -10,7 +10,7 @@
   "instructions": [
     "1. Say to your AI: \"End a person's email course subscription from the token in their unsubscribe link, so no further lesson is sent\", and give it token.",
     "2. The AI calls do_one_thing_in_my_account at @tools with method tools:run, tool tool:stop-an-email-course and its input (the worked example shows one).",
-    "3. Read what comes back: Give token (the unsubscribe token in the link the person was sent). Works out the subscription marked unsubscribed with the time and answers it in keep for the caller to write (records: the person's token and subscription rows); an unknown or already used token answers unsubscribed too. Answers { status: unsubscribed }.",
+    "3. Read what comes back: Give token (the unsubscribe token in the link the person was sent). Works out the subscription marked unsubscribed with the time and a stop for that contact over the course's stop scope, and answers them in keep for the caller to write (records: the person's token, subscription and stop rows); an unknown or already used token answers unsubscribed too; a token that is not 32 to 100 letters, digits, - or _ answers malformed and keeps nothing. Answers { status: unsubscribed | malformed }.",
     "4. It keeps nothing and has no records door: it works over the rows you hand in (records) and answers the rows to keep (keep), each with the row it expected, for your AI to write to your store."
   ],
   "worked_examples": [

@@ -409,9 +409,11 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
 
   // The token's link stops its subscription and keeps a stop for the contact over the course's stop scope, so every other
   // enrollment of that contact in the scope is sent nothing more. An old link whose subscription already stopped still
-  // keeps the stop.
+  // keeps the stop. A token that cannot be one of ours (not 32 to 100 letters, digits, - or _) answers malformed and keeps
+  // nothing, so the page that took the link can say the link is broken; an unknown token of the right form answers
+  // unsubscribed, so the answer never says which tokens exist.
   async function unsubscribe(token) {
-    if (typeof token !== 'string' || !TOKEN.test(token)) throw new Error('Invalid unsubscribe link.');
+    if (typeof token !== 'string' || !TOKEN.test(token)) return { status: 'malformed' };
     const mapping = currentPayload(await readCurrent(tokenAddress(token)));
     if (!mapping?.subscription_address) return { status: 'unsubscribed' };
     const current = await readCurrent(mapping.subscription_address);

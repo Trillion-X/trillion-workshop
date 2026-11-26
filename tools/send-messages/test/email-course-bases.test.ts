@@ -250,7 +250,9 @@ describe('lesson counts and token lengths', () => {
       assert.equal(stopped.status, 'unsubscribed');
       assert.ok(stopped.keep.some((row: Row) => row.type === 'email-course-stop'), `a ${length}-character link stops`);
     }
-    await assert.rejects(unsubscribeFromEmailCourse({ token: 'a'.repeat(31), records: [] }, hours(1)), /Invalid unsubscribe link/);
+    for (const token of ['a'.repeat(31), 'a'.repeat(101), `${'a'.repeat(40)}!`, '']) {
+      assert.deepEqual(await unsubscribeFromEmailCourse({ token, records: [] }, hours(1)), { status: 'malformed', keep: [] }, `${JSON.stringify(token.slice(-3))} of ${token.length} characters is malformed`);
+    }
   });
 });
 
