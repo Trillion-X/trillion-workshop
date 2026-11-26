@@ -957,6 +957,168 @@
           "api": "https://resend.com/docs/api-reference/webhooks/replay-event"
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-webhook-event",
+        "label": "Read a webhook event",
+        "job": "See one email event my email-sending account sent to my webhook: its type, time, delivery status, the email, and whether a bounce was hard or soft",
+        "description": "Reads one event the person's connected email-sending account (Resend) sent to one of its webhooks, by the webhook's id and the event's id (msg_...), with the key they connected, and answers its type, time, delivery status (success, failed, attempting or pending), the email it is about and, for a bounce, the bounce's type (Permanent or Temporary) and sub-type. It never shows the key, the addressees or the subject, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "webhook_id",
+            "event_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "webhook_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            },
+            "event_id": {
+              "type": "string",
+              "pattern": "^msg_[A-Za-z0-9]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "type",
+            "created_at",
+            "status",
+            "email_id",
+            "bounce"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "email_id": {
+              "type": "string"
+            },
+            "bounce": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "sub_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": true,
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/email-sending-domains/do-work/read-a-webhook-event.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/get-event"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "webhook_id": "00000000-0000-4000-8000-000000000011",
+              "event_id": "msg_1srOsB4mXhCqCVwAxYRNnpFZhb3"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events/msg_1srOsB4mXhCqCVwAxYRNnpFZhb3"
+                },
+                "status": 200,
+                "body": {
+                  "object": "webhook_event",
+                  "id": "msg_1srOsB4mXhCqCVwAxYRNnpFZhb3",
+                  "type": "email.bounced",
+                  "created_at": "2026-11-22T13:13:02.348Z",
+                  "status": "failed",
+                  "next_attempt_at": null,
+                  "payload": {
+                    "type": "email.bounced",
+                    "created_at": "2026-11-22T13:13:02.348Z",
+                    "data": {
+                      "email_id": "00000000-0000-4000-8000-000000000031",
+                      "to": [
+                        "bounced@example.org"
+                      ],
+                      "subject": "Hello",
+                      "bounce": {
+                        "message": "Mailbox does not exist",
+                        "subType": "General",
+                        "type": "Permanent"
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
     }
   ]
 }
