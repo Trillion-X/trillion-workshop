@@ -91,6 +91,12 @@ const ACTIONS = [
   { path: '/bad-key', host: null, access: 'public', tool: 'tool:x', failed: 'x', answer: { json: ['x'] }, input: { a: { $: 'address', of: 'https://a.example.test/', part: 'path', key: 't' } } },
   { path: '/bad-cookie', host: null, access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'], cookie: { name: 'a b', value: 'x', max_age_days: 1 } } },
   { path: '/target/state', host: null, method: 'PUT', access: 'public', tool: 'tool:x', failed: 'x', input: {}, answer: { json: ['x'] } },
+  // A tool that refuses with a status of its own (tool:refuses-with: the path's code), one that says why and one that does not.
+  { path: '/refuses-with/:code', host: null, access: 'public', tool: 'tool:refuses-with', failed: 'Not kept.', input: { code: { $: 'path', name: 'code' } }, answer: { json: ['x'] }, says_why: true },
+  { path: '/keep-signed-out/:code', host: null, access: 'public', tool: 'tool:refuses-with', failed: 'Sign in to keep your answers.', input: { code: { $: 'path', name: 'code' } }, answer: { json: ['x'] } },
+  { path: '/go-json/:code', host: null, method: 'GET', access: 'public', tool: 'tool:echo', failed: 'That link is not open.', input: {
+    status: { $: 'pick', of: { $: 'path', name: 'code' }, from: { gone: 404 }, else: 200 },
+  }, answer: { reply: { status: { $: 'answer', key: 'echo.status' }, json: ['echo'] } } },
 ];
 
 const LOOK = [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', value: 'Body Sans|400|normal|/assets/fonts/body.woff2' }, { name: 'brand-ink', value: '#123456' },
@@ -132,6 +138,13 @@ async function door(look = LOOK, pages = PAGES, rowChanges: { now: RowChanges } 
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
       } else if (run.tool === 'tool:refuses') {
         return response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 1, error: 'An answer is written as text.', result: null } } }));
+      } else if (run.tool === 'tool:refuses-with') {
+        // A tool's refusal as serve-steps.ts leaves it: one JSON line { error, status }, or plain words when it crashed; a
+        // door that timed out answers 504 itself.
+        const code = String((run.input as { code?: unknown }).code);
+        if (code === '504') { response.writeHead(504, { 'content-type': 'text/plain' }); return response.end('Timed out.'); }
+        const error = code === 'crash' ? 'TypeError: Cannot read properties of undefined' : JSON.stringify({ error: `Refused with ${code}.`, status: Number(code) });
+        return response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 1, error, result: null } } }));
       } else if (run.tool === 'tool:not-yours') {
         response.writeHead(403, { 'content-type': 'text/plain' });
         return response.end('This pass may not run that.');
@@ -884,6 +897,36 @@ test('a posted form or JSON body runs its action row\'s tool with the input made
     const listed = await site.act('/observe/listed', undefined, host, form({}));
     assert.equal(listed.headers['set-cookie'], `n=${(d.calls.at(-1)!.run.input as { params: string[] }).params[0]}; Max-Age=86400; Path=/; SameSite=Lax; Secure`, 'a dotted key reads a place in a list');
   } finally { d.server.close(); }
+});
+
+test('a tool\'s own refusal status (400 to 499) crosses to the visitor unchanged, a crash stays 502, and a reply failure with no json carries the row\'s words', async () => {
+  const d = await door();
+  const server = http.createServer(handlerOf(await siteOn(d.address, { actions: 'site_actions' })));
+  await new Promise<void>(resolve => server.listen(0, '127.0.0.1', resolve));
+  try {
+    const at = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    const post = async (path: string) => {
+      const sent = await fetch(`${at}${path}`, { method: 'POST', body: '{}', headers: { 'content-type': 'application/json', 'x-forwarded-host': 'site.example.test' } });
+      return [sent.status, await sent.json()];
+    };
+    assert.deepEqual(await post('/keep-signed-out/401'), [401, { error: 'Sign in to keep your answers.' }], 'a signed-out keep is the tool\'s 401, not a 502');
+    for (const code of [400, 403, 409, 422]) {
+      assert.deepEqual(await post(`/refuses-with/${code}`), [code, { error: 'Not kept.', why: `Refused with ${code}.` }], `${code} passes through with its words`);
+    }
+    assert.deepEqual(await post('/keep-signed-out/crash'), [502, { error: 'Sign in to keep your answers.' }], 'a tool that crashed is a 502, and its own words are not passed');
+    assert.deepEqual(await post('/keep-signed-out/500'), [502, { error: 'Sign in to keep your answers.' }], 'a status outside 400 to 499 is not the tool\'s to give');
+    assert.deepEqual(await post('/refuses-with/crash'), [422, { error: 'Not kept.', why: 'TypeError: Cannot read properties of undefined' }], 'a row that says why still tells a statusless refusal as 422, as before');
+    assert.deepEqual(await post('/keep-signed-out/504'), [504, { error: 'Sign in to keep your answers.' }], 'a timed-out door is still 504');
+    assert.deepEqual(await post('/busy'), [503, { error: 'Not now.' }], 'a busy door is still 503');
+    const get = async (path: string) => {
+      const sent = await fetch(`${at}${path}`, { redirect: 'manual', headers: { 'x-forwarded-host': 'site.example.test' } });
+      return { status: sent.status, type: sent.headers.get('content-type'), location: sent.headers.get('location'), body: await sent.text() };
+    };
+    assert.deepEqual(await get('/go/gone'), { status: 404, type: 'application/json; charset=utf-8', location: null, body: '{"error":"That link is not open."}' }, 'a 404 with no json carries the row\'s own words');
+    assert.deepEqual(await get('/go-json/gone'), { status: 404, type: 'application/json; charset=utf-8', location: null, body: '{"echo":{"status":404}}' }, 'a 404 with json is that json, unchanged');
+    assert.deepEqual(await get('/go/open'), { status: 302, type: null, location: 'https://elsewhere.example.test/x', body: '' }, 'a redirect is as before: no body, no content type');
+    assert.deepEqual(await get('/go-json/open'), { status: 200, type: 'application/json; charset=utf-8', location: null, body: '{"echo":{"status":200}}' }, 'a 200 reply is byte for byte as before');
+  } finally { server.close(); d.server.close(); }
 });
 
 test('over node:http, an action row\'s request and a page row under a passed-on path are the site\'s; the rest is passed on', async () => {

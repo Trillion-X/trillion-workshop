@@ -106,13 +106,30 @@ export function doorWordsOf(answer: unknown): string {
   return quoted(`${code ? `${code}: ` : ''}${typeof words === 'string' ? words : JSON.stringify(answer)}`);
 }
 
-/** The tool's own answer out of the engine's envelope { tool, exit_code, result }; a run that did not finish throws. */
+/**
+ * What a run that did not finish said: its words and, when the tool named one, its own refusal status (400 to 499). A tool that
+ * names a status leaves one JSON line { error, status }; any other text is plain words, and such a run is a 502.
+ */
+function refusalOf(text: string): { words: string; status: number | null } {
+  let named: { error?: unknown; status?: unknown } | null = null;
+  try { named = JSON.parse(text); } catch { named = null; }
+  const status = named?.status;
+  if (named && typeof named === 'object' && typeof named.error === 'string' && typeof status === 'number' && Number.isInteger(status) && status >= 400 && status <= 499) {
+    return { words: quoted(named.error), status };
+  }
+  return { words: quoted(text), status: null };
+}
+
+/**
+ * The tool's own answer out of the engine's envelope { tool, exit_code, result }; a run that did not finish throws, with the
+ * tool's own refusal status when it named one (refusalOf), else 502.
+ */
 export function toolAnswerOf(envelope: unknown): unknown {
   const run = envelope as { tool?: unknown; exit_code?: unknown; error?: unknown; result?: unknown } | null;
   if (typeof run?.tool !== 'string') throw new DoorError(`The engine door answered this instead of a tool run: ${doorWordsOf(envelope)}`);
   if (run.exit_code !== 0 || run.error) {
-    const words = typeof run.error === 'string' ? quoted(run.error) : '';
-    throw new DoorError(`The engine ran ${run.tool} and it did not finish${words ? `: ${words}` : ''}`, 502, words ? { tool: run.tool, words } : null);
+    const said = typeof run.error === 'string' ? refusalOf(run.error) : { words: '', status: null };
+    throw new DoorError(`The engine ran ${run.tool} and it did not finish${said.words ? `: ${said.words}` : ''}`, said.status ?? 502, said.words ? { tool: run.tool, words: said.words } : null);
   }
   if (!('result' in run)) throw new DoorError(`The engine ran ${run.tool} and it answered nothing.`);
   return run.result;

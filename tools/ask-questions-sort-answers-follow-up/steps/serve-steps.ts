@@ -14,6 +14,8 @@
 //   1. A step's writes are one statement (store.ts oneStatementOf): atomic, one round trip, and a part the database refuses keeps
 //      nothing of the step.
 //   2. A refusal leaves as the step's own plain words on standard error and a failed exit; a database's own words are not passed on.
+//      A refusal that names its own HTTP status (400 to 499: 401 sign in first, 409 a conflict) leaves as one JSON line
+//      { "error": <its words>, "status": <its status> }, so the caller answers that very status.
 //   3. This file names no table, no tool and no page; no login is read except the one the engine mounts, and no ticket except the one
 //      it mounts for a declared use.
 //
@@ -39,7 +41,9 @@ export async function serveSteps(steps: Record<string, Step>): Promise<void> {
     });
     console.log(JSON.stringify(answer));
   } catch (error) {
-    console.error(sayWithout(error, connection, ticket));
+    const words = sayWithout(error, connection, ticket);
+    const status = (error as { status?: unknown } | null)?.status;
+    console.error(typeof status === 'number' && Number.isInteger(status) && status >= 400 && status <= 499 ? JSON.stringify({ error: words, status }) : words);
     process.exitCode = 1;
   }
 }

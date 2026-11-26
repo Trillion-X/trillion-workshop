@@ -685,16 +685,19 @@ export class Site {
       const setCookie = action.answer.cookie ? setCookieOf(action.answer.cookie, await filled(action.answer.cookie.value, answered), asked.cookies) : null;
       const withCookie = (sent: Answer): Answer => (setCookie ? { ...sent, headers: { ...sent.headers, 'set-cookie': setCookie } } : sent);
       if ('json' in action.answer) return withCookie(json(200, Object.fromEntries(action.answer.json.map(key => [key, answer?.[key] ?? null]))));
-      if ('reply' in action.answer) return withCookie(await replyOf(action.answer.reply, answer, answered));
+      if ('reply' in action.answer) return withCookie(await replyOf(action.answer.reply, answer, answered, action.failed));
       const to = sendableAddress('redirect_from' in action.answer ? answer?.[action.answer.redirect_from] : await filled(action.answer.redirect_to, answered));
       if (!to) throw new Error(`${action.tool} answered no address to send the visitor to.`);
       return withCookie(posted.form ? { status: 303, headers: { location: to, 'cache-control': 'no-store' }, body: '' } : json(200, { redirect: to }));
     } catch (error) {
       this.#log(`${method} ${pathname}: ${(error as Error).message}`);
       const said = why(error);
-      // A busy or timed-out door (503, 504) is told as such, so a page tries again; a refusal is 422 or 403; anything else 502.
+      // A tool's own refusal keeps the status it named (400 to 499, door.ts refusalOf); a busy or timed-out door (503, 504) is
+      // told as such, so a page tries again; a refused pass is 403; a refusal the row tells without a status of its own is 422;
+      // anything else 502.
+      const own = error instanceof DoorError && error.refusal !== null && error.status >= 400 && error.status <= 499 ? error.status : null;
       const passed = error instanceof DoorError && [403, 503, 504].includes(error.status) ? error.status : 502;
-      return failed(said ? 422 : passed, said);
+      return failed(own ?? (said ? 422 : passed), said);
     }
   }
 
@@ -994,9 +997,10 @@ async function bytesOf(request: http.IncomingMessage): Promise<Buffer | null> {
 /**
  * An answer as the tool says it (an action row's reply): the status its value gives, each header whose value gives something,
  * and the answer's json keys as the body, or none. A status that is not a whole number from 100 to 599, a location that is not
- * an address a visitor may be sent to, or a header value with a line break or other control character fails the row.
+ * an address a visitor may be sent to, or a header value with a line break or other control character fails the row. A failure
+ * (400 to 599) the row gives no json keys for (a short link's 404) carries the row's own words as { error: failed }.
  */
-async function replyOf(reply: ActionReply, answer: Record<string, unknown> | null, answered: Asked): Promise<Answer> {
+async function replyOf(reply: ActionReply, answer: Record<string, unknown> | null, answered: Asked, failed: string): Promise<Answer> {
   const status = await filled(reply.status, answered);
   if (typeof status !== 'number' || !Number.isInteger(status) || status < 100 || status > 599) throw new Error(`The reply's status gave ${JSON.stringify(status)}, not an HTTP status.`);
   const headers: Record<string, string | string[]> = { 'cache-control': 'no-store' };
@@ -1011,6 +1015,7 @@ async function replyOf(reply: ActionReply, answer: Record<string, unknown> | nul
       headers.location = to;
     } else headers[name] = name === 'set-cookie' ? values as string[] : (values as string[]).join(', ');
   }
+  if (reply.json === null && status >= 400) return { status, headers: { ...headers, 'content-type': 'application/json; charset=utf-8' } as Answer['headers'], body: JSON.stringify({ error: failed }) };
   if (reply.json === null) return { status, headers: headers as Answer['headers'], body: '' };
   return { status, headers: { ...headers, 'content-type': 'application/json; charset=utf-8' } as Answer['headers'], body: JSON.stringify(Object.fromEntries(reply.json.map(key => [key, answer?.[key] ?? null]))) };
 }

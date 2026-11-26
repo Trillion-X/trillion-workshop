@@ -17,6 +17,17 @@ test('a reply that is not a tool run is quoted with its code and words', () => {
   assert.equal(doorWordsOf({ text: 'x'.repeat(500) }).length, 400, 'at most 400 characters');
 });
 
+test('a run that did not finish carries the tool\'s own refusal status (400 to 499) when it named one, else 502', () => {
+  const thrown = (error: string) => { try { toolAnswerOf({ tool: 'tool:keep', exit_code: 1, error, result: null }); } catch (caught) { return caught as { status: number; refusal: unknown }; } throw new Error('no throw'); };
+  for (const status of [400, 401, 403, 409, 422, 499]) {
+    assert.deepEqual([thrown(JSON.stringify({ error: 'Sign in first.', status })).status, thrown(JSON.stringify({ error: 'Sign in first.', status })).refusal], [status, { tool: 'tool:keep', words: 'Sign in first.' }], `${status} is the tool's own`);
+  }
+  for (const error of ['Sign in first.', JSON.stringify({ error: 'x', status: 500 }), JSON.stringify({ error: 'x', status: 302 }), JSON.stringify({ error: 'x', status: 401.5 }), JSON.stringify({ status: 401 }), '[401]']) {
+    assert.equal(thrown(error).status, 502, `${error}: plain words or a status that is not a refusal's is a 502`);
+  }
+  assert.deepEqual(thrown('Sign in first.').refusal, { tool: 'tool:keep', words: 'Sign in first.' }, 'plain words stay the refusal\'s words');
+});
+
 test('over a door: an engine refusal and a 401 throw with the door\'s own words', async () => {
   const server = http.createServer((request, response) => {
     if (request.headers.authorization === 'Bearer busy-pass' || request.headers.authorization === 'Bearer slow-pass') {
