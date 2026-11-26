@@ -24,6 +24,11 @@
 //    renders an older kit over the computer (Nov 22 2026, 6:15 AM CST: an apply from a commit made before the web server kit learned
 //    to send each www name to its first name took that away for ten minutes). Such a request is refused before anything is written;
 //    a commit not found here is fetched once first. A row that records no commit yet is applied and then records one.
+//  - An act a row gives as { derive_from: { connection, database, use, site, pin } } (a site's act: the tools its own key may run)
+//    is made by the apply from the site's own rows at the Workshop commit `pin` (serve-a-sites-pages-from-its-rows rights.ts over
+//    every tool row of that commit, the rows read with the held connection `connection`), never written by hand. The row keeps
+//    { derive_from, derived: { pin, grant } }, written by the same compare-and-set; the computer is given the grant itself. Rows the
+//    grant cannot serve as written refuse the request before anything is written.
 // The machine's ssh identity, known_hosts and pages folder, by the row's address, and the program that reads a held value by vault
 // name are the person's own: they come from the file `--targets` names (its `machines` and `held_value_reader`), laid over the
 // defaults of read-data/apply-a-computer-row.json (the SQL process, the probe's timings). A shared tool names no one's machine. The row is read and written by the SQL
@@ -279,6 +284,56 @@ export function heldNamesOf(row) {
   return [...new Set(names.filter(name => typeof name === 'string' && name))];
 }
 
+const DERIVE_FROM = ['connection', 'database', 'use', 'site', 'pin'];
+
+/** The places in a row whose `act` is given as { derive_from } (a site's act, made from its rows), each as its path of keys. */
+export function actsToDerive(row) {
+  const found = [];
+  const walk = (value, path) => {
+    if (Array.isArray(value)) return value.forEach((item, i) => walk(item, [...path, i]));
+    if (!isObject(value)) return;
+    if (isObject(value.act) && value.act.derive_from !== undefined) found.push(path);
+    for (const [key, item] of Object.entries(value)) if (key !== 'act') walk(item, [...path, key]);
+  };
+  walk(row.runs, ['runs']);
+  return found;
+}
+
+const atPath = (root, path) => path.reduce((value, key) => value[key], root);
+
+/**
+ * Each act the row gives as { derive_from: { connection, database, use, site, pin } } made from the site's own rows, as the site's
+ * program reads them, at the Workshop commit `pin` (its serve-a-sites-pages-from-its-rows rights.ts over every tool row of that
+ * commit): the site's runs settings row, its pages and its action rows, read from `database` with the held connection
+ * `connection`. The row keeps { derive_from, derived: { pin, grant } } (what this apply rendered, for a check that compares);
+ * the copy answered as `rendered` carries the grant itself as the act, which is what the computer is given. A grant with a
+ * refusal refuses the apply: a site's rows the grant cannot serve as written are never rendered over a working act.
+ * `deps.rowsFor(connection)` answers a statement runner; `deps.rightsAt(pin)` answers { rights, tools } of that commit.
+ */
+export async function deriveActs(row, deps) {
+  const places = actsToDerive(row);
+  if (!places.length) return { rendered: row, derived: [] };
+  const rendered = structuredClone(row);
+  const derived = [];
+  for (const path of places) {
+    const where = path.join('.');
+    const from = atPath(row, path).act.derive_from;
+    if (!isObject(from) || Object.keys(from).some(key => !DERIVE_FROM.includes(key)) || typeof from.connection !== 'string' || !/^[A-Za-z0-9._-]+$/.test(from.connection)
+      || typeof from.database !== 'string' || !from.database || !isObject(from.use) || typeof from.use.purpose !== 'string' || typeof from.use.surface !== 'string'
+      || typeof from.site !== 'string' || !from.site || typeof from.pin !== 'string' || !COMMIT.test(from.pin)) {
+      throw refused(`${where}.act.derive_from is { connection (a held connection's vault name), database, use: { purpose, surface }, site, pin (a Workshop commit) }.`);
+    }
+    const { rights, tools } = await deps.rightsAt(from.pin);
+    const site = await rights.siteRowsOf(deps.rowsFor(from.connection), { database: from.database, use: from.use, site: from.site });
+    const { grant, refused: refusals } = rights.derivedGrantOf(site, rights.heldInputsOfTools(tools));
+    if (refusals.length) throw refused(`${where}.act: the site ${from.site}'s rows ask for calls its grant cannot let it make: ${refusals.map(r => `${r.where}: ${r.tool} ${r.why}`).join('; ')}.`);
+    atPath(row, path).act = { derive_from: from, derived: { pin: from.pin, grant } };
+    atPath(rendered, path).act = grant;
+    derived.push({ at: where, site: from.site, pin: from.pin, tools: grant.tools.length });
+  }
+  return { rendered, derived };
+}
+
 const timeOf = ms => new Date(ms).toLocaleTimeString('en-US', { timeZoneName: 'short' });
 
 /** The request, checked: every field it may carry and nothing the program would have to guess. */
@@ -318,12 +373,14 @@ export async function applyARow(rawRequest, { dryRun = false }, deps) {
 async function applyHeld(request, { dryRun }, deps, hold) {
   const { computer, siteSetting } = await deps.store.read(request.computer);
   const { row, changes } = applyEdits(computer, request.edits);
+  // A site's act given as { derive_from } is made here from its rows; the row keeps what was derived, the computer gets the grant.
+  const { rendered, derived } = await deriveActs(row, deps);
   const scope = request.scope ? engineScopeForEdit(computer, row, request.scope) : undefined;
   const engineProbe = scope ? engineProbeOf(row, scope) : undefined;
   const machine = deps.targets.machines?.[row.address];
   if (!machine) throw refused(`${row.name} is at ${row.address}, which the targets file names no ssh identity for.`);
   const workshopCheck = await checkWorkshopCommit(computer, request.workshop_commit, deps.isAncestor);
-  if (dryRun) return { code: 0, summary: { dry_run: true, computer: row.name, workshop_check: workshopCheck, changes, ...(scope && { scope: scope.unit, renderer: request.workshop_commit }) } };
+  if (dryRun) return { code: 0, summary: { dry_run: true, computer: row.name, workshop_check: workshopCheck, changes, ...(derived.length && { derived_acts: derived }), ...(scope && { scope: scope.unit, renderer: request.workshop_commit }) } };
 
   if (!scope) row.runs.rendered_from_workshop = request.workshop_commit;
   const held = scope ? {} : await deps.heldValues(heldNamesOf(row));
@@ -338,7 +395,8 @@ async function applyHeld(request, { dryRun }, deps, hold) {
   const log = deps.runFolder(row.name);
   const rowFolder = join(log, 'row'), tree = join(log, 'tree');
   mkdirSync(rowFolder, { recursive: true });
-  writeFileSync(join(rowFolder, 'computer.json'), `${JSON.stringify(row, null, 1)}\n`);
+  if (rendered !== row) rendered.runs.rendered_from_workshop = row.runs.rendered_from_workshop;
+  writeFileSync(join(rowFolder, 'computer.json'), `${JSON.stringify(rendered, null, 1)}\n`);
   if (siteFile && siteSetting) {
     mkdirSync(dirname(join(rowFolder, siteFile)), { recursive: true });
     writeFileSync(join(rowFolder, siteFile), `${siteSetting}\n`);
@@ -424,6 +482,7 @@ async function applyHeld(request, { dryRun }, deps, hold) {
     code: elsewhere.length ? 6 : code || (probeFailure ? PROBE_EVIDENCE_UNCONFIRMED : 0),
     summary: {
       computer: row.name, workshop_commit: request.workshop_commit, workshop_check: workshopCheck, row_written: written, ...putBack, ...refusal,
+      ...(derived.length && { derived_acts: derived }),
       ...(hold && { row_held_since: hold.holder.since }),
       started: timeOf(started), ended: timeOf(ended), apply_exit: code,
       ...(code === SWITCH_UNCONFIRMED && { apply_outcome: 'slot_switch_unconfirmed' }),
@@ -658,6 +717,25 @@ const realDeps = ({ store, targets, workshop, connection }) => ({
     if (existsSync(join(workshop, 'node_modules'))) symlinkSync(join(workshop, 'node_modules'), join(folder, 'node_modules'));
   },
   checkApplyProtocol,
+  // A site's act made from its rows (deriveActs): the rows read with the held connection the act names, by the SQL tool's own
+  // process, and the rights of the Workshop commit the act pins, unpacked as the apply's own tree is.
+  rowsFor: connectionName => {
+    let sql;
+    return async (statement, params) => {
+      if (!sql) {
+        const held = await heldValuesBy(targets.held_value_reader)([connectionName]);
+        if (!held[connectionName]) throw refused(`the held connection ${connectionName} a site's act derives from could not be read.`);
+        sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), held[connectionName].trim(), connectionName);
+      }
+      return objectsOf(await sql(statement, params));
+    };
+  },
+  async rightsAt(pin) {
+    const folder = join(runFolder(`rights-${pin.slice(0, 12)}`), 'tree');
+    await this.archive(pin, folder);
+    const rights = await import(pathToFileURL(join(folder, 'tools/serve-a-sites-pages-from-its-rows/do-work/rights.ts')).href);
+    return { rights, tools: join(folder, 'tools') };
+  },
   startProbe: startApplyProbe,
   async runApply({ tree, requestFile, held, out, err }) {
     let outFd, errFd, child;

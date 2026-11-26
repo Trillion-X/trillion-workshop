@@ -14,7 +14,7 @@ import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { applyARow, applyEdits, checkApplyProtocol, heldNamesOf, hostsOf, isAncestorIn, parsePath, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
+import { actsToDerive, applyARow, applyEdits, deriveActs, checkApplyProtocol, heldNamesOf, hostsOf, isAncestorIn, parsePath, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
 import { ROW_APPLY_RESULT_PROTOCOL, SLOT_SWITCH_UNCONFIRMED_EXIT } from '../do-work/start-a-computer.mjs';
 
 const OLD = '1'.repeat(40), NEW = '2'.repeat(40), TREE = '3'.repeat(40);
@@ -651,4 +651,53 @@ test('a put-back receipt whose rollback failed a step, or that says it at exit 0
     assert.equal(seen.writes.length, 1);
     assert.equal(seen.stored.runs.units[1].source.commit, NEW);
   }
+});
+
+test('a site\'s act given as { derive_from } is made from its rows at the pinned commit: the row keeps what was derived, the computer gets the grant', async () => {
+  const PIN = '4'.repeat(40);
+  const from = { connection: 'site-rows-connection', database: 'site_db', use: { purpose: 'publish', surface: 'site/one' }, site: 'one', pin: PIN };
+  const grant = { tools: ['tool:a', 'tool:b'], identity: 'none', journal: 'input', held_inputs_by_tool: { 'tool:a': { database: ['site_db'] } } };
+  const asked = { rows: [], pins: [] };
+  const fakeRights = refusals => ({
+    siteRowsOf: async (rows, at) => { await rows('SELECT 1', []); return { at }; },
+    derivedGrantOf: () => ({ grant, refused: refusals }),
+    heldInputsOfTools: tools => tools,
+  });
+  const withDerive = (deps, refusals = []) => Object.assign(deps, {
+    rowsFor: name => async (sql, params) => { asked.rows.push({ name, sql, params }); return []; },
+    rightsAt: async pin => { asked.pins.push(pin); return { rights: fakeRights(refusals), tools: '/tools' }; },
+  });
+  const { deps, seen, log } = world();
+  seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, names: ['x'], act: { derive_from: from } }, { uid: 1104, operations: ['wake:arrive'] }] };
+  withDerive(deps);
+  const { code, summary } = await applyARow(request(), {}, deps);
+  assert.equal(code, 0);
+  assert.deepEqual(asked.pins, [PIN]);
+  assert.deepEqual(asked.rows.map(r => r.name), ['site-rows-connection']);
+  assert.deepEqual(summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2 }]);
+  assert.deepEqual(seen.stored.runs.units[0].settings.vault_readers[0].act, { derive_from: from, derived: { pin: PIN, grant } }, 'the row keeps what was derived');
+  const given = JSON.parse(readFileSync(join(log, 'row/computer.json'), 'utf8'));
+  assert.deepEqual(given.runs.units[0].settings.vault_readers[0].act, grant, 'the computer is given the grant itself');
+  assert.equal(given.runs.rendered_from_workshop, TREE);
+  assert.deepEqual(given.runs.units[0].settings.vault_readers[1], { uid: 1104, operations: ['wake:arrive'] });
+
+  const refusedRun = world();
+  refusedRun.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { derive_from: from } }] };
+  withDerive(refusedRun.deps, [{ where: 'page /x', tool: 'tool:c', why: 'its held input database is filled from the request' }]);
+  await assert.rejects(applyARow(request(), {}, refusedRun.deps), /the site one's rows ask for calls its grant cannot let it make: page \/x: tool:c/);
+  assert.equal(refusedRun.seen.writes.length, 0, 'nothing is written');
+
+  const dry = world();
+  dry.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { derive_from: from } }] };
+  withDerive(dry.deps);
+  const shown = await applyARow(request(), { dryRun: true }, dry.deps);
+  assert.deepEqual(shown.summary.derived_acts.map(a => a.tools), [2]);
+  assert.equal(dry.seen.writes.length, 0);
+
+  for (const bad of [{ ...from, pin: 'main' }, { ...from, connection: 'a b' }, { ...from, extra: 1 }, { ...from, use: 'publish' }]) {
+    await assert.rejects(deriveActs({ runs: { units: [{ settings: { vault_readers: [{ act: { derive_from: bad } }] } }] } }, deps), /derive_from is \{ connection/, JSON.stringify(bad));
+  }
+  const plain = { runs: { units: [{ settings: { vault_readers: [{ act: grant }] } }] } };
+  assert.deepEqual(actsToDerive(plain), [], 'a hand act is not derived');
+  assert.equal((await deriveActs(plain, deps)).rendered, plain, 'a row with none is rendered as it is');
 });
