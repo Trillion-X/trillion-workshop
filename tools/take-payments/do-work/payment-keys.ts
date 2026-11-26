@@ -5,8 +5,9 @@
 // paymentEventsShape(eventMap) is the payment_events table a store keeps payment rows in, with the two keys the database
 // holds a payment to: one row per payment (its PaymentIntent, provider_object_ref) and one row per checkout
 // (completion_ref), each over the kinds a payment's own events are kept as (paymentKindsOf, read from the event map). A
-// second row for a payment already kept is refused by the database whatever its id, so a keep that writes with
-// ON CONFLICT DO NOTHING keeps it 0 times and nothing downstream of a new row runs.
+// second row for a payment already kept is refused by the database whatever its id. keepPaymentEventSql is the keep as one
+// statement: the row is added only when no row of the same payment is kept, a clash on its own id keeps nothing, and any other
+// clash raises (never swallowed), so a payment is reported kept only when it is, and nothing downstream of a new row runs twice.
 //
 // Rows kept before payment rows were named by their PaymentIntent are named by their checkout (payment-event:checkout:cs_…,
 // provider_object_ref the checkout session). paymentKeyMoves works out the id each such row has now, from the same
@@ -89,6 +90,45 @@ export function paymentEventsShape(eventMap: EventMap = webhookEventMap as Event
 }
 
 const text = (value: unknown) => (typeof value === 'string' ? value : '');
+
+/** A payment event as a path answers it: { id, event_id, occurred_at, event_kind, attributes, pursuit_ids? }. */
+export type PaymentEvent = { id: string; event_id: string; occurred_at: string; event_kind: string; attributes?: Record<string, unknown>; pursuit_ids?: unknown };
+
+const KEPT_COLUMNS = ['id', 'event_id', 'occurred_at', 'event_kind', 'offer_id', 'price_option_id', 'customer_email', 'amount_due_today_cents', 'currency',
+  'payment_status', 'subscription_id', 'provider_object_ref', 'completion_ref', 'provider_event_id', 'pursuit_ids', 'attributes'] as const;
+
+/**
+ * One payment event kept once, as one statement: { sql, params }, answering { id, kept }. The row is added only when the store
+ * holds no row of a payment kind with the same PaymentIntent (provider_object_ref) or checkout (completion_ref), and a clash on
+ * its own id alone keeps nothing (ON CONFLICT ON CONSTRAINT on the primary key). A clash on any other key raises, never
+ * swallowed: two keeps of one payment under two ids at the same moment raise on the payment's key for the later one, which
+ * reads the store again and finds the row; a clash on a key that is not the payment's is an error to see, not a payment kept.
+ * `id` is the id the store holds for the payment (the event's own when it was added), `kept` is 1 when this statement added it.
+ * `id` null with `kept` 0 is a keep of the same id at the same moment that this statement waited for and could not yet see: run
+ * it again, and it names the stored id. On PostgreSQL 16 two keeps of one payment at once give exactly that, or the raise.
+ */
+export function keepPaymentEventSql(event: PaymentEvent, kinds: string[] = paymentKindsOf()): { sql: string; params: unknown[] } {
+  const a = event.attributes ?? {};
+  const value = (column: string) => (column in event ? (event as Record<string, unknown>)[column] : a[column]) ?? null;
+  const params = KEPT_COLUMNS.map(column => {
+    if (column === 'attributes') return JSON.stringify(a);
+    if (column === 'pursuit_ids') return event.pursuit_ids === undefined ? null : JSON.stringify(event.pursuit_ids);
+    return value(column);
+  });
+  const at = (column: string) => `$${KEPT_COLUMNS.indexOf(column as never) + 1}`;
+  const kindsAt = `$${KEPT_COLUMNS.length + 1}::text[]`;
+  const table = PAYMENT_EVENTS_TABLE;
+  const samePayment = `p.event_kind = ANY (${kindsAt}) AND ${at('event_kind')}::text = ANY (${kindsAt}) AND (p.provider_object_ref = ${at('provider_object_ref')}::text OR p.completion_ref = ${at('completion_ref')}::text)`;
+  const sql = `WITH kept AS (
+  INSERT INTO ${table} (${KEPT_COLUMNS.join(', ')})
+  SELECT ${KEPT_COLUMNS.map(column => `${at(column)}${column === 'occurred_at' ? '::timestamptz' : column === 'amount_due_today_cents' ? '::numeric' : column === 'pursuit_ids' || column === 'attributes' ? '::jsonb' : '::text'}`).join(', ')}
+  WHERE NOT EXISTS (SELECT 1 FROM ${table} p WHERE ${samePayment})
+  ON CONFLICT ON CONSTRAINT ${table}_pkey DO NOTHING
+  RETURNING id)
+SELECT coalesce((SELECT id FROM kept), (SELECT p.id FROM ${table} p WHERE p.id = ${at('id')}::text OR (${samePayment}) ORDER BY p.id = ${at('id')}::text DESC, p.made_at LIMIT 1)) AS id,
+  (SELECT count(*) FROM kept)::int AS kept`;
+  return { sql, params: [...params, kinds] };
+}
 
 /**
  * The id each kept payment row has now. A row of a payment kind not yet named by its PaymentIntent moves to the id the

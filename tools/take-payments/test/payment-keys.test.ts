@@ -7,7 +7,7 @@ import { createHmac } from 'node:crypto';
 import { describe, it } from 'node:test';
 import { PGlite } from '@electric-sql/pglite';
 import { checkAStripeEvent, listCompletedCheckoutsAsPaymentEvents } from '../do-work/take-payments.mjs';
-import { countsSql, paymentEventsShape, paymentKeyMoves, paymentKindsOf, planPaymentKeyMoves, rekeySql, type Reference } from '../do-work/payment-keys.ts';
+import { countsSql, keepPaymentEventSql, paymentEventsShape, paymentKeyMoves, paymentKindsOf, planPaymentKeyMoves, rekeySql, type Reference } from '../do-work/payment-keys.ts';
 
 const NOW = 1_790_000_000;
 const SECRET = 'whsec_payment_keys_fixture';
@@ -52,17 +52,14 @@ async function store() {
   return db;
 }
 
-// A keep the way a store's keeper writes: one insert that keeps nothing when the store already holds the payment, under any
-// of its keys; only a new row starts what follows it (here, the welcome email's first step).
+// A keep the way the tool's keep statement writes: one statement that adds the row only when the store holds no row of the same
+// payment, keeps nothing on a clash of its own id, and raises on any other; only a new row starts what follows it (here, the
+// welcome email's first step).
 async function keep(db: PGlite, event: Event): Promise<number> {
-  const a = event.attributes;
-  const { rows } = await db.query<{ id: string }>(`INSERT INTO payment_events (id, event_id, occurred_at, event_kind, offer_id, customer_email, amount_due_today_cents, currency,
-      payment_status, subscription_id, provider_object_ref, completion_ref, provider_event_id, attributes)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) ON CONFLICT DO NOTHING RETURNING id`,
-  [event.id, event.event_id, event.occurred_at, event.event_kind, a.offer_id ?? null, a.customer_email ?? null, a.amount_due_today_cents ?? null, a.currency ?? null,
-    a.payment_status ?? null, a.subscription_id ?? null, a.provider_object_ref ?? null, a.completion_ref ?? null, a.provider_event_id ?? null, JSON.stringify(a)]);
-  for (const row of rows) await db.query('INSERT INTO welcome_sent (payment_event_id, step_day) VALUES ($1, 0)', [row.id]);
-  return rows.length;
+  const { sql, params } = keepPaymentEventSql(event);
+  const { rows: [answer] } = await db.query<{ id: string; kept: number }>(sql, params);
+  if (answer.kept === 1) await db.query('INSERT INTO welcome_sent (payment_event_id, step_day) VALUES ($1, 0)', [answer.id]);
+  return answer.kept;
 }
 
 const count = async (db: PGlite, sql: string) => Number((await db.query<{ n: number }>(sql)).rows[0].n);
@@ -112,6 +109,19 @@ describe('the payment_events keys', () => {
     assert.equal(await count(db, 'SELECT count(*) n FROM welcome_sent'), 0);
     await assert.rejects(db.query(`INSERT INTO payment_events (id, event_id, occurred_at, event_kind, provider_object_ref, completion_ref, attributes)
       VALUES ('payment-event:payment:pi_old', 'payment:pi_old', now(), 'payment.confirmed', 'pi_old', 'cs_old', '{}')`), /payment_events_one_row_per_checkout/);
+  });
+
+  it('the keep answers the id the store holds for the payment, and a clash on a key that is not the payment\'s still raises', async () => {
+    const db = await store();
+    await keepOldShaped(db, 'cs_old');
+    const replay = await webhook(oneTime('cs_old', 'pi_old'));
+    const { sql, params } = keepPaymentEventSql(replay);
+    assert.deepEqual((await db.query(sql, params)).rows, [{ id: 'payment-event:checkout:cs_old', kept: 0 }], 'the stored id, not the event\'s');
+    // Another payment whose event id is one already kept: not the same payment, so it is not swallowed as kept.
+    const other = await webhook(oneTime('cs_other', 'pi_other'));
+    const clash = keepPaymentEventSql({ ...other, event_id: 'checkout:cs_old' });
+    await assert.rejects(db.query(clash.sql, clash.params), /payment_events_event_id_key/);
+    assert.equal(await count(db, `SELECT count(*) n FROM payment_events WHERE id = '${other.id}'`), 0);
   });
 
   it('a real new payment is still kept once, and a refund of it is its own row', async () => {
