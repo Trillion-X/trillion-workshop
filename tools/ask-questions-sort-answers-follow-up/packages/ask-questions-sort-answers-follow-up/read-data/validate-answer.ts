@@ -4,8 +4,8 @@
 // value and validate it against the question-type capability's `validate.rules`
 // DATA. Framework-agnostic (zero React), generic (reads rules; never enumerates
 // question types). Adding a question type does NOT change this function — it is
-// driven entirely by the `question-type-capability` registry rows the package
-// ships in `things-to-store-and-run.json`.
+// driven entirely by the `question-type-capability` registry rows of the one
+// types file, `data/question-types.json`.
 //
 // Non-negotiable invariants:
 //  - No `switch(questionTypeId)` / closed union (enum-dissolution, L090).

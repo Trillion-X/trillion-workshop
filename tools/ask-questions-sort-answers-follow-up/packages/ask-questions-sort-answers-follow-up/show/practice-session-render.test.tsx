@@ -10,7 +10,7 @@
 
 import * as React from "react";
 import practiceSession from '../__tests__/fixtures/example-practice-session.json';
-import packageManifest from '../things-to-store-and-run.json';
+import questionTypes from '../../../data/question-types.json';
 import { cleanup, render, fireEvent, within } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -22,20 +22,7 @@ afterEach(() => cleanup());
 // The example template (SSOT DATA record) + the package's shipped capability registry.
 const SEQ = practiceSession.writes[0].payload;
 function shippedRegistry() {
-  const things = packageManifest;
-  const caps: any[] = [];
-  const walk = (v: any) => {
-    if (Array.isArray(v)) return v.forEach(walk);
-    if (v && typeof v === "object") {
-      const p = v.payload ?? v;
-      if (p && p.kind === "question-type-capability" && p.questionTypeId) caps.push(p);
-      for (const k of Object.keys(v)) walk(v[k]);
-    }
-  };
-  walk(things);
-  const byId = new Map<string, any>();
-  for (const c of caps) if (!byId.has(c.questionTypeId)) byId.set(c.questionTypeId, c);
-  return indexCapabilities([...byId.values()]);
+  return indexCapabilities(questionTypes.rows as any[]);
 }
 const REG = shippedRegistry();
 

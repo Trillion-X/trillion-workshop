@@ -6,7 +6,7 @@ Ask people questions, capture their answers as facts, decide a segment from data
 
 | File | Purpose |
 |------|---------|
-| `things-to-store-and-run.json` | Package boundary file. Ships the question-type capability registry (3 seed rows: text/choice/rating). Grows with surface/entry/contract/workflow records as the package is built out. |
+| `things-to-store-and-run.json` | Package boundary file (old engine packaging): its surface, entry, contract and workflow records. It holds no question types: the builder and the fill surface read `data/question-types.json`, the one types file the server's check and the step pages read. |
 | `read-data/validate-answer.ts` | Pure, framework-agnostic answer coercion + validation driven by the capability's `validate.rules` DATA. Generic — never enumerates question types. |
 | `read-data/validate-answer.test.ts` | 11 vitest cases (coerce string/number/boolean, required/optional, string-length bounds, pattern, number-value bounds). |
 | `read-data/question-input-contract.ts` | The shared `QuestionInputProps` every input leaf implements. |

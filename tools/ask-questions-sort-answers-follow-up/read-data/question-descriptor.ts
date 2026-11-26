@@ -158,7 +158,7 @@ export function answerText(question: QuestionDescriptor, value: unknown): string
 /** The input a question whose type is in no registry row falls back to (it coerces to a string). */
 export const FALLBACK_INPUT_COMPONENT_KEY = 'text';
 
-/** The registry row payload (things-to-store-and-run.json `question-type-capability`). */
+/** The registry row payload (a `question-type-capability` row of data/question-types.json, the one types file). */
 export interface QuestionTypeCapability {
   questionTypeId: string;
   inputComponentKey: string;

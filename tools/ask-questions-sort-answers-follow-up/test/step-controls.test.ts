@@ -4,7 +4,7 @@
 // asks one question at a time draws (or says why it has none), and every question row the Workshop ships or seeds (any JSON
 // object under tools/ with a questionTypeId that is not a type row itself) names a type that is in that file and has a control.
 // A type added without a control, or a question row of a type the file does not hold, fails here before a page shows a box the
-// server would refuse.
+// server would refuse. The types are kept in that one file: no other JSON under tools/ holds a type's row.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
@@ -36,14 +36,24 @@ function questionRows(value: unknown, where: string, found: QuestionRow[] = []):
   return found;
 }
 
-test('every question type declares its control, and every question row the Workshop ships or seeds can be drawn', () => {
+// Whether a JSON value holds a question type's own row anywhere in it.
+function holdsTypeRows(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(holdsTypeRows);
+  if (!value || typeof value !== 'object') return false;
+  return (value as Record<string, unknown>).kind === 'question-type-capability' || Object.values(value).some(holdsTypeRows);
+}
+
+test('every question type declares its control in the one types file, and every question row the Workshop ships or seeds can be drawn', () => {
   const shipped: QuestionRow[] = [];
+  const typeFiles: string[] = [];
   for (const file of jsonFiles(tools)) {
     let value: unknown;
     try { value = JSON.parse(readFileSync(file, 'utf8')); } catch { continue; }
     questionRows(value, relative(tools, file), shipped);
+    if (holdsTypeRows(value)) typeFiles.push(relative(tools, file));
   }
   assert.ok(shipped.length > 50, `found ${shipped.length} question rows`);
+  assert.deepEqual(typeFiles, ['ask-questions-sort-answers-follow-up/data/question-types.json'], 'question types are kept in one file');
   assert.deepEqual(controlProblems(types, shipped), []);
 });
 

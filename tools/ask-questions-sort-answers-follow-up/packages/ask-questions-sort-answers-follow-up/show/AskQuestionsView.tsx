@@ -1,7 +1,7 @@
 // packages/ask-questions-sort-answers-follow-up/show/AskQuestionsView.tsx
 //
-// Entry View: reads the live `published-records` aggregate, decodes the
-// question-type-capability registry + the question sequence this surface is
+// Entry View: takes the question types from the one types file (data/question-types.json),
+// reads the live `published-records` aggregate for the question sequence this surface is
 // DATA-bound to, and renders the FillSurface. Persists answers as EEAF facts on
 // submit. All decoding is the pure read-data layer; all rendering/validation is
 // the tested capture pipeline. This file is thin glue — it owns only the
@@ -15,10 +15,14 @@ import React from 'react';
 import { useBitfieldData } from '@/packages/ask-questions-sort-answers-follow-up/.bitfield-entry-scope/ask-questions-sort-answers-follow-up/runtime-kit-react';
 import { FillSurface, type FillResult } from './FillSurface';
 import {
-  readCapabilityRegistry,
   readFirstQuestionSequence,
   readQuestionSequenceById,
 } from '../../../read-data/read-forms-data';
+import { indexCapabilities, type QuestionTypeCapability } from '../../../read-data/question-descriptor';
+import questionTypes from '../../../data/question-types.json' with { type: 'json' };
+
+// The question types: the one types file the server's check and the step pages read.
+const registry = indexCapabilities(questionTypes.rows as QuestionTypeCapability[]);
 import { readDecideConfig } from '../../../read-data/read-decide-config';
 import { processSubmission } from '../do-work/process-submission';
 import { runAfterSavedActions } from '../do-work/run-after-saved-actions';
@@ -82,7 +86,6 @@ function SuggestionFeedReader({
 
 export function AskQuestionsView({ sequenceId, respondentId, runId, onRequestEvidenceReference }: AskQuestionsViewProps = {}) {
   const published = useBitfieldData('published-records');
-  const registry = React.useMemo(() => readCapabilityRegistry(published), [published]);
   const sequence = React.useMemo(
     () => readQuestionSequenceById(published, sequenceId) ?? readFirstQuestionSequence(published),
     [published, sequenceId],

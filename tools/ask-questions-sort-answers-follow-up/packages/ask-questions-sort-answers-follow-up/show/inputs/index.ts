@@ -2,7 +2,7 @@
 //
 // The owner-provided capability map: inputComponentKey -> leaf component. This
 // is the ONE place that binds a question-type-capability's `inputComponentKey`
-// (DATA, from things-to-store-and-run.json) to its render leaf. The fill-surface
+// (DATA, from data/question-types.json) to its render leaf. The fill-surface
 // handler dispatches `resolveInputComponent(key)` — it NEVER switches on a
 // questionTypeId (enum-dissolution / L090). Adding a question type = ship one
 // leaf here + one registry row + one map entry; zero handler/dispatcher change.
