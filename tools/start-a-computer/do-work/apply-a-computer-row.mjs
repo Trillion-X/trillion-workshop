@@ -312,7 +312,8 @@ const atPath = (root, path) => path.reduce((value, key) => value[key], root);
  * that gives more than the act the computer runs now (`before`'s act at the same place: its derived grant, or the hand list
  * it replaces) is refused unless the request says `widen_acts: true`: an apply made for another reason never grants a site a
  * tool its rows began asking for meanwhile, and the refusal names what would widen.
- * `deps.rowsFor(connection)` answers a statement runner; `deps.rightsAt(pin)` answers { rights, tools } of that commit.
+ * `deps.rowsFor(connection, computer)` answers a statement runner on the computer the row is for (the one whose vault holds the
+ * site's connection, and whose engine runs the site); `deps.rightsAt(pin)` answers { rights, tools } of that commit.
  */
 export async function deriveActs(row, deps, { before = null, widen = false } = {}) {
   const places = actsToDerive(row);
@@ -328,7 +329,7 @@ export async function deriveActs(row, deps, { before = null, widen = false } = {
       throw refused(`${where}.act.derive_from is { connection (a held connection's vault name), database, use: { purpose, surface }, site, pin (a Workshop commit) }.`);
     }
     const { rights, tools } = await deps.rightsAt(from.pin);
-    const site = await rights.siteRowsOf(deps.rowsFor(from.connection), { database: from.database, use: from.use, site: from.site });
+    const site = await rights.siteRowsOf(deps.rowsFor(from.connection, row.name), { database: from.database, use: from.use, site: from.site });
     const { grant, refused: refusals } = rights.derivedGrantOf(site, rights.heldInputsOfTools(tools));
     if (refusals.length) throw refused(`${where}.act: the site ${from.site}'s rows ask for calls its grant cannot let it make: ${refusals.map(r => `${r.where}: ${r.tool} ${r.why}`).join('; ')}.`);
     let was;
@@ -602,6 +603,23 @@ export const sqlBy = (argv, connection, connectionName) => (statement, params) =
   child.stdin.end(JSON.stringify({ credential_name: connectionName, sql: statement, params }));
 });
 
+/** A statement runner on a named computer: tool:run-sql-in-my-database run by that computer's own engine (`engineRunner`, the
+ * argv that runs one tool there, from the person's --targets file; the request JSON and `--pin COMPUTER` are added last) with the held connection named. A site's act
+ * derives from rows read this way on the computer whose vault holds the site's connection and whose engine runs the site, so the
+ * connection is never read or held anywhere else. A read that fails refuses, with the engine's own words. */
+export const rowsOnComputer = engineRunner => (connectionName, computer) => async (statement, params) => {
+  if (!Array.isArray(engineRunner) || engineRunner.length === 0) throw refused('the --targets file names no engine_runner (an argv): a site\'s act made from its rows is read with it on the row\'s own computer.');
+  const request = JSON.stringify({ tool: 'tool:run-sql-in-my-database', input: { credential_name: connectionName, sql: statement, params } });
+  let answer;
+  try {
+    answer = JSON.parse((await run(engineRunner[0], [...engineRunner.slice(1), request, '--pin', computer], { maxBuffer: 1 << 28 })).stdout);
+  } catch (error) {
+    throw refused(`the site's rows could not be read on ${computer} with ${connectionName}: ${String(error.stderr || error.stdout || error.message).trim().slice(0, 400)}`);
+  }
+  if (answer?.exit_code !== 0 || !Array.isArray(answer?.result?.rows)) throw refused(`the site's rows could not be read on ${computer} with ${connectionName}: ${String(answer?.error ?? 'no rows came back').slice(0, 400)}`);
+  return objectsOf(answer.result);
+};
+
 /** The held value of each vault name, read by the program the DATA names (`held_value_reader` argv, the name last). A name that
  *  cannot be read is left out: the apply refuses the unit that needs it, and the value is never printed here. */
 const heldValuesBy = reader => async names => {
@@ -729,19 +747,9 @@ const realDeps = ({ store, targets, workshop, connection }) => ({
     if (existsSync(join(workshop, 'node_modules'))) symlinkSync(join(workshop, 'node_modules'), join(folder, 'node_modules'));
   },
   checkApplyProtocol,
-  // A site's act made from its rows (deriveActs): the rows read with the held connection the act names, by the SQL tool's own
-  // process, and the rights of the Workshop commit the act pins, unpacked as the apply's own tree is.
-  rowsFor: connectionName => {
-    let sql;
-    return async (statement, params) => {
-      if (!sql) {
-        const held = await heldValuesBy(targets.held_value_reader)([connectionName]);
-        if (!held[connectionName]) throw refused(`the held connection ${connectionName} a site's act derives from could not be read.`);
-        sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), held[connectionName].trim(), connectionName);
-      }
-      return objectsOf(await sql(statement, params));
-    };
-  },
+  // A site's act made from its rows (deriveActs): the rows read on the row's own computer (rowsOnComputer), and the rights of the
+  // Workshop commit the act pins, unpacked as the apply's own tree is.
+  rowsFor: rowsOnComputer(targets.engine_runner),
   async rightsAt(pin) {
     const folder = join(runFolder(`rights-${pin.slice(0, 12)}`), 'tree');
     await this.archive(pin, folder);

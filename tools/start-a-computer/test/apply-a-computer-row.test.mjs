@@ -14,7 +14,7 @@ import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { actsToDerive, applyARow, applyEdits, deriveActs, checkApplyProtocol, heldNamesOf, hostsOf, isAncestorIn, parsePath, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
+import { actsToDerive, applyARow, applyEdits, checkApplyProtocol, deriveActs, heldNamesOf, hostsOf, isAncestorIn, parsePath, rowsOnComputer, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
 import { ROW_APPLY_RESULT_PROTOCOL, SLOT_SWITCH_UNCONFIRMED_EXIT } from '../do-work/start-a-computer.mjs';
 import { grantDifference } from '../../serve-a-sites-pages-from-its-rows/do-work/rights.ts';
 
@@ -666,7 +666,7 @@ test('a site\'s act given as { derive_from } is made from its rows at the pinned
     grantDifference,
   });
   const withDerive = (deps, refusals = []) => Object.assign(deps, {
-    rowsFor: name => async (sql, params) => { asked.rows.push({ name, sql, params }); return []; },
+    rowsFor: (name, computer) => async (sql, params) => { asked.rows.push({ name, computer, sql, params }); return []; },
     rightsAt: async pin => { asked.pins.push(pin); return { rights: fakeRights(refusals), tools: '/tools' }; },
   });
   const { deps, seen, log } = world();
@@ -678,7 +678,7 @@ test('a site\'s act given as { derive_from } is made from its rows at the pinned
   const { code, summary } = await applyARow(request({ widen_acts: true }), {}, deps);
   assert.equal(code, 0);
   assert.deepEqual(asked.pins, [PIN]);
-  assert.deepEqual(asked.rows.map(r => r.name), ['site-rows-connection']);
+  assert.deepEqual(asked.rows.map(r => [r.name, r.computer]), [['site-rows-connection', 'example-box']], 'the rows are read on the row\'s own computer');
   assert.deepEqual(summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2, widened: ['tool:a', 'tool:b', 'tool:a database site_db', 'identity null becomes "none"', 'journal null becomes "input"'] }]);
   // Applied again from the kept row: nothing widens, so no consent is needed.
   const again = await applyARow({ computer: 'example-box', workshop_commit: TREE, edits: [] }, {}, deps);
@@ -715,4 +715,16 @@ test('a site\'s act given as { derive_from } is made from its rows at the pinned
   const plain = { runs: { units: [{ settings: { vault_readers: [{ act: grant }] } }] } };
   assert.deepEqual(actsToDerive(plain), [], 'a hand act is not derived');
   assert.equal((await deriveActs(plain, deps)).rendered, plain, 'a row with none is rendered as it is');
+});
+
+test('a site\'s rows are read on the named computer by its own engine: the request names the held connection and --pin the computer, and a failed read refuses with the engine\'s words', async () => {
+  // A stand-in for the engine's runner: answers the statement it was given and the computer it was pinned to.
+  const engine = [process.execPath, '-e', `const [request, flag, pin] = process.argv.slice(1); const { tool, input } = JSON.parse(request);
+    if (input.credential_name === 'not-held') { console.log(JSON.stringify({ exit_code: 1, error: 'A credential the tool names is not held' })); process.exit(0); }
+    console.log(JSON.stringify({ exit_code: 0, result: { columns: ['tool', 'sql', 'param', 'flag', 'pin'], rows: [{ tool, sql: input.sql, param: input.params[0], flag, pin }] } }));`];
+  const read = rowsOnComputer(engine)('site-rows-connection', 'example-box');
+  assert.deepEqual(await read('SELECT $1', ['x']), [{ tool: 'tool:run-sql-in-my-database', sql: 'SELECT $1', param: 'x', flag: '--pin', pin: 'example-box' }]);
+  await assert.rejects(rowsOnComputer(engine)('not-held', 'example-box')('SELECT 1', []), /could not be read on example-box with not-held: A credential the tool names is not held/);
+  await assert.rejects(rowsOnComputer(undefined)('site-rows-connection', 'example-box')('SELECT 1', []), /names no engine_runner/);
+  await assert.rejects(rowsOnComputer([process.execPath, '-e', 'process.exit(3)'])('site-rows-connection', 'example-box')('SELECT 1', []), /could not be read on example-box/);
 });
