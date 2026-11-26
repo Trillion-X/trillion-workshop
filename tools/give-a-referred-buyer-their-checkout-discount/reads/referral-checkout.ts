@@ -11,7 +11,9 @@
 //   1. A code that is malformed, unknown, withdrawn or the buyer's own gives nothing: the answer is empty, never an error.
 //   2. A rule row the referral tool refuses stops the read with the refused rows named; a missing target row does too. The
 //      checkout then fails rather than sell without the discount its rules promise.
-//   3. No email leaves this file: the answer holds the code and the discount only.
+//   3. No email is read or leaves this file: the buyer's own code is refused by asking own_code(code, email) (sql/own-code.sql,
+//      a SECURITY DEFINER function the reader may only execute), so the reader holds no right on referral_codes.email, and the
+//      answer holds the code and the discount only.
 //   4. The table names are the one block below; nothing else here names a table. Nothing here holds a login or a client: the
 //      reader is handed `rows` by run-sql-in-my-database/do-work/serve-a-read.ts.
 //
@@ -24,12 +26,17 @@ import { normalizeReferralCode, referralCodeCreatedEvent } from '../../referral-
 import { allowedOnFrom, readRewardRules } from '../../referral-codes-and-rewards/read-data/referral-reward-rules.mjs';
 
 // The one place the tables are named: the codes members made, the reward rules (one row each, as the referral tool keeps
-// them), and what a code points at (one row per name).
+// them), what a code points at (one row per name), and the function that says whether a code is an email's own.
 const SOURCE = {
   codes: 'referral_codes',
   rules: 'referral_reward_rules',
   target: 'referral_code_target',
+  own: 'own_code',
 } as const;
+
+// The referral rules need the account that shares a code, but a friend's discount does not depend on who it is, and the reader
+// may not read it; the rules are handed this stand-in, which never reaches the answer.
+const REFERRER_NOT_READ = 'referrer-not-read';
 
 type Given = { database: string; code?: unknown; buyer_email?: unknown; target: string };
 export type ReferralCheckout = { checkoutCode?: string; adjustments?: unknown[]; metadata?: { referral_code: string } };
@@ -38,16 +45,20 @@ export const referralCheckout: Reader<Given, ReferralCheckout> = async (input, r
   if (typeof input.target !== 'string' || input.target === '') throw new Error('Give target: the name of the referral_code_target row the codes point at.');
   const typed = normalizeReferralCode(input.code);
   if (!typed) return {};
-  const [row] = await rows(`select email, code, made_at from ${SOURCE.codes} where code = $1`, [typed]);
-  const buyer = typeof input.buyer_email === 'string' ? input.buyer_email.trim().toLowerCase() : '';
-  if (!row || (buyer !== '' && buyer === String(row.email).toLowerCase())) return {};
+  const [row] = await rows(`select code, made_at from ${SOURCE.codes} where code = $1`, [typed]);
+  if (!row) return {};
+  const buyer = typeof input.buyer_email === 'string' ? input.buyer_email.trim() : '';
+  if (buyer !== '') {
+    const [{ own }] = await rows(`select ${SOURCE.own}($1, $2) as own`, [typed, buyer]);
+    if (own === true) return {};
+  }
   const ruleRows = await rows(`select id, value from ${SOURCE.rules} order by id`);
   const [target] = await rows(`select target_on, target_value from ${SOURCE.target} where name = $1`, [input.target]);
   if (!target) throw new Error(`No ${SOURCE.target} row is named ${input.target}.`);
   const { rules, refused } = readRewardRules(ruleRows);
   if (refused.length) throw new Error(`${SOURCE.rules} has rows the referral rules refuse: ${JSON.stringify(refused)}`);
   const event = referralCodeCreatedEvent({
-    referrer: row.email, code: row.code, target: { on: target.target_on, value: target.target_value },
+    referrer: REFERRER_NOT_READ, code: row.code, target: { on: target.target_on, value: target.target_value },
     occurredAt: new Date(row.made_at as string).toISOString(), allowedOn: allowedOnFrom(rules),
   });
   const { typed: [answer] } = workOutReferralCodes({ events: [event], codes: [typed], rules: ruleRows });

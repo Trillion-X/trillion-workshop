@@ -11,22 +11,26 @@ action reads its three keys into the checkout's input (one run: two sources nami
   `buyer_email`), or rules with no friend reward: the answer is empty, never an error.
 - **Broken rules stop the sale.** A rule row the referral rules refuse, or no `referral_code_target` row named `target`, is
   refused by name, so nothing is sold without the discount its rules promise.
-- **No email leaves.** The answer holds the code and the discount only.
+- **No email is read, and none leaves.** The buyer's own code is found by `own_code(code, email)`, a `SECURITY DEFINER`
+  function the pursuit's owner makes (`sql/own-code.sql`) and the site's reader may only execute, so the reader holds no right
+  on `referral_codes.email`. The answer holds the code and the discount only.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `reads/referral-checkout.ts` | `referralCheckout(input, rows)`: the read, run by `run-sql-in-my-database/do-work/serve-a-read.ts` (one read-only transaction; the connection on descriptor 3). |
+| `sql/own-code.sql` | For a pursuit whose reader login must not read `referral_codes.email`: `own_code(code, email)`, made by the database's owner (SET ROLE to it first) after `referral_codes`, then `GRANT EXECUTE` to the reader. The email is compared trimmed and without case; null, empty or unknown input answers false, never an error. |
+| `read-data/reader-rights.json` | The reads file: the columns the reader is granted (`referral_codes` `code`, `made_at`; the rules; the target), and no email. A computer row's database unit names it in the reader's grants `reads_from`. |
 | `tool-rows.json` | The tool's row. |
 | `kits/give-a-referred-buyer-their-checkout-discount.json` | How to ask for it, with a worked example. |
-| `test/referral-checkout.test.ts` | The read in PGlite: a friend's discount, the empty answers, the refused rules and target. |
+| `test/referral-checkout.test.ts` | The read in PGlite, run as a reader holding exactly the reads file's columns plus EXECUTE on `own_code`: a friend's discount, the empty answers, the refused rules and target, the reader refused `email`, and `own_code` true for the owner and false for anyone else. |
 
 ## Rows it reads
 
 | Table | Columns |
 |---|---|
-| `referral_codes` | `email`, `code`, `made_at` |
+| `referral_codes` | `code`, `made_at` (never `email`; `own_code(code, email)` answers whether a code is a buyer's own) |
 | `referral_reward_rules` | `id`, `value` (one referral reward rule each) |
 | `referral_code_target` | `name`, `target_on`, `target_value` |
 

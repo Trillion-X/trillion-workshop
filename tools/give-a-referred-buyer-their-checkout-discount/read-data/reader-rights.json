@@ -1,0 +1,8 @@
+{
+  "_what": "The columns tool:give-a-referred-buyer-their-checkout-discount reads through a pursuit's reader login (held as <database>-reader-connection, under a site's use): a code and when it was made, the reward rules, and the target a code points at. It is a reads file: a computer row's database unit names it in the reader's grants reads_from, and prepare-a-database-unit renders the reader's grant as the union of every such file. referral_codes.email is not in it on purpose: the buyer's own code is refused by calling own_code(code, email) (sql/own-code.sql), which the reader holds EXECUTE on, so no email is ever readable by the reader. test/referral-checkout.test.ts runs the tool as a reader holding exactly these.",
+  "reads": [
+    { "table": "public.referral_code_target", "columns": ["name", "target_on", "target_value"] },
+    { "table": "public.referral_codes", "columns": ["code", "made_at"] },
+    { "table": "public.referral_reward_rules", "columns": ["id", "value"] }
+  ]
+}
