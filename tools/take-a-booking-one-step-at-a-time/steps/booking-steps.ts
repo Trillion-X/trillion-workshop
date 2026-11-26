@@ -21,7 +21,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { stepsOf, nextStepOf, checkAnswer, EMAIL_STEP, SLOT_STEP, CONFIRM_STEP } from '../read-data/booking-steps.mjs';
 import { deriveOpenSlots } from '../../book-time/read-data/derive-open-slots.ts';
-import { SITTING_KIND, answerQuestions, definitionOf, formOf, progressOf, questionsOf, sittingId, sittingOf, stepView, type Page } from '../../ask-questions-sort-answers-follow-up/steps/sitting.ts';
+import { SITTING_KIND, answerQuestions, definitionOf, formOf, progressOf, questionsOf, refusal, sittingId, sittingOf, stepView, type Page } from '../../ask-questions-sort-answers-follow-up/steps/sitting.ts';
 import type { Store } from '../../ask-questions-sort-answers-follow-up/steps/store.ts';
 
 const DAY_MS = 86400000;
@@ -34,10 +34,10 @@ type LivePage = Page & { slug: string; title: string; duration_minutes: number; 
 // offers nothing.
 export async function loadLivePage(store: Store, slug: string): Promise<LivePage> {
   const page = await store.bookingPage(slug);
-  if (!page) throw new Error('This booking page is not open.');
-  if (!Array.isArray(page.windows) || page.windows.length === 0) throw new Error('This booking page has no times to offer yet.');
+  if (!page) throw refusal('This booking page is not open.', 404);
+  if (!Array.isArray(page.windows) || page.windows.length === 0) throw refusal('This booking page has no times to offer yet.', 404);
   const form = await formOf(store, page.form_id ?? '');
-  if (!form) throw new Error('This booking page has no questions yet.');
+  if (!form) throw refusal('This booking page has no questions yet.', 404);
   return { ...page, formId: form.formId, questions: questionsOf(form) } as LivePage;
 }
 
@@ -46,13 +46,13 @@ export async function loadLivePage(store: Store, slug: string): Promise<LivePage
 // was not read.
 export function busyOf(given: unknown): Busy[] {
   const answer = given as { status?: unknown; busy?: unknown } | null;
-  if (answer === null || typeof answer !== 'object' || Array.isArray(answer)) throw new Error('Give busy_read: the whole answer of the calendar read.');
-  if (answer.status !== 'read') throw new Error('The calendar could not be read right now. Try again.');
-  if (!Array.isArray(answer.busy)) throw new Error('The calendar answer was not understood.');
+  if (answer === null || typeof answer !== 'object' || Array.isArray(answer)) throw refusal('Give busy_read: the whole answer of the calendar read.', 502);
+  if (answer.status !== 'read') throw refusal('The calendar could not be read right now. Try again.', 503);
+  if (!Array.isArray(answer.busy)) throw refusal('The calendar answer was not understood.', 502);
   return answer.busy.map(block => {
     const startMs = Date.parse(String((block as { start?: unknown })?.start));
     const endMs = Date.parse(String((block as { end?: unknown })?.end));
-    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs < startMs) throw new Error('The calendar answer was not understood.');
+    if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || endMs < startMs) throw refusal('The calendar answer was not understood.', 502);
     return { startMs, endMs };
   });
 }
@@ -61,7 +61,7 @@ export function busyOf(given: unknown): Busy[] {
 export async function startBooking(store: Store, { slug, email }: { slug: string; email: unknown }, { newId = () => crypto.randomUUID(), nowMs = () => Date.now() }: Clock = {}) {
   const page = await loadLivePage(store, slug);
   const checked = checkAnswer(stepsOf(page)[0], email);
-  if (!checked.ok) throw new Error(checked.reason);
+  if (!checked.ok) throw refusal(checked.reason, 400);
   const id = newId();
   const sitting = { kind: SITTING_KIND, formId: page.formId, respondentId: checked.value, submissionId: id, page: slug, status: 'started', lastStep: EMAIL_STEP, startedAt: new Date(nowMs()).toISOString(), steps: {} };
   await store.apply([{ kind: 'insert', id: sittingId(id), type: SITTING_KIND, value: sitting }]);
@@ -132,11 +132,11 @@ export async function readOpenTimes(store: Store, { attemptId, busy_read }: { at
 export async function chooseSlot(store: Store, { attemptId, value, busy_read }: { attemptId: string; value: unknown; busy_read: unknown }, { nowMs = () => Date.now() }: Clock = {}) {
   const { sitting, page } = await pageOfStarted(store, attemptId);
   const progress = await progressOf(store, page, sitting);
-  if (nextStepOf(page, progress)?.key !== SLOT_STEP) throw new Error('The booking is not waiting for a time.');
+  if (nextStepOf(page, progress)?.key !== SLOT_STEP) throw refusal('The booking is not waiting for a time.', 409);
   const checked = checkAnswer({ kind: 'slot' }, value);
-  if (!checked.ok) throw new Error(checked.reason);
+  if (!checked.ok) throw refusal(checked.reason, 400);
   const slot = openSlots(page, { busy: busyOf(busy_read), nowMs: nowMs() }).find(open => new Date(open.startMs).toISOString() === checked.value);
-  if (!slot) throw new Error('That time is not open.');
+  if (!slot) throw refusal('That time is not open.', 409);
   await store.apply([{ kind: 'merge', id: sittingId(sitting.submissionId), changes: { lastStep: SLOT_STEP, steps: { ...sitting.steps, slot: checked.value } } }]);
   const later = { ...progress, slot: checked.value };
   return { next: stepView(page, nextStepOf(page, later), later), slot: { startIso: checked.value, endIso: new Date(slot.endMs).toISOString() } };
@@ -147,10 +147,10 @@ export async function chooseSlot(store: Store, { attemptId, value, busy_read }: 
 export async function checkBookingReady(store: Store, { attemptId, busy_read }: { attemptId: string; busy_read: unknown }, { nowMs = () => Date.now(), newId = () => crypto.randomUUID() }: Clock = {}) {
   const { sitting, page } = await pageOfStarted(store, attemptId);
   const progress = await progressOf(store, page, sitting);
-  if (nextStepOf(page, progress)?.key !== CONFIRM_STEP) throw new Error('The booking is not ready to confirm.');
+  if (nextStepOf(page, progress)?.key !== CONFIRM_STEP) throw refusal('The booking is not ready to confirm.', 409);
   const startMs = Date.parse(progress.slot as string);
   const endMs = startMs + page.duration_minutes * 60000;
-  if (!openSlots(page, { busy: busyOf(busy_read), nowMs: nowMs() }).some(open => open.startMs === startMs)) throw new Error('That time was taken. Choose another time.');
+  if (!openSlots(page, { busy: busyOf(busy_read), nowMs: nowMs() }).some(open => open.startMs === startMs)) throw refusal('That time was taken. Choose another time.', 409);
   const startIso = new Date(startMs).toISOString();
   const endIso = new Date(endMs).toISOString();
   return {
@@ -166,13 +166,13 @@ export async function keepBooking(
   { attemptId, event, source = BOOKING_SOURCE }: { attemptId: string; event: { external_event_id?: unknown; video_link?: unknown } | null; source?: unknown },
   { newId = () => crypto.randomUUID(), nowMs = () => Date.now() }: Clock = {},
 ) {
-  if (typeof source !== 'string' || source.trim() === '') throw new Error('A booking says where it came from.');
+  if (typeof source !== 'string' || source.trim() === '') throw refusal('A booking says where it came from.', 500);
   const eventId = event?.external_event_id;
-  if (typeof eventId !== 'string' || eventId === '') throw new Error('Give event: the answer of the tool that made the event, with its external_event_id.');
+  if (typeof eventId !== 'string' || eventId === '') throw refusal('Give event: the answer of the tool that made the event, with its external_event_id.', 502);
   const meetingLink = typeof event?.video_link === 'string' && event.video_link !== '' ? event.video_link : null;
   const { sitting, page } = await pageOfStarted(store, attemptId);
   const progress = await progressOf(store, page, sitting);
-  if (nextStepOf(page, progress)?.key !== CONFIRM_STEP) throw new Error('The booking is not ready to confirm.');
+  if (nextStepOf(page, progress)?.key !== CONFIRM_STEP) throw refusal('The booking is not ready to confirm.', 409);
   const endIso = new Date(Date.parse(progress.slot as string) + page.duration_minutes * 60000).toISOString();
   const bookingId = newId();
   await store.apply([

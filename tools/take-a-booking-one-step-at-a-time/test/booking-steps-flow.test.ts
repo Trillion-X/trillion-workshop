@@ -18,6 +18,9 @@ const DDL = `
 `;
 // The calendar tool's whole answer, as a read that succeeded.
 const read = (busy: unknown[]) => ({ status: 'read', busy });
+// A refusal with its words and the status it names (sitting.ts refusal): the site answers that status, never a bare 502.
+const said = (words: RegExp, status: number | number[]) => (error: Error & { status?: number }) =>
+  words.test(error.message) && [status].flat().includes(error.status as number);
 const SLUG = 'call';
 const EMAIL = 'invented.booker@example.test';
 // Monday to Friday, 09:00 to 12:00 in the page's zone. The test clock is a Monday 2026-11-23 06:00 Chicago time (12:00 UTC).
@@ -51,16 +54,16 @@ async function toTheSlotStep(store: Store, clock: { nowMs: () => number; newId: 
 
 test('a page that is not live, has no windows or no form is not offered', async () => {
   const { db, store } = await freshDb({ live: false });
-  await assert.rejects(loadLivePage(store, SLUG), /not open/);
+  await assert.rejects(loadLivePage(store, SLUG), said(/not open/, 404));
   await db.query('UPDATE booking_pages SET live = true, windows = $2 WHERE slug = $1', [SLUG, '[]']);
-  await assert.rejects(loadLivePage(store, SLUG), /no times to offer/);
+  await assert.rejects(loadLivePage(store, SLUG), said(/no times to offer/, 404));
   await db.query('UPDATE booking_pages SET windows = $2, form_id = $3 WHERE slug = $1', [SLUG, JSON.stringify(WINDOWS), 'missing']);
-  await assert.rejects(loadLivePage(store, SLUG), /no questions/);
+  await assert.rejects(loadLivePage(store, SLUG), said(/no questions/, 404));
 });
 
 test('the email opens the sitting and the first question follows; a bad email is refused without repeating it', async () => {
   const { db, store, clock } = await freshDb();
-  await assert.rejects(startBooking(store, { slug: SLUG, email: 'not-an-email' }, clock), (error: Error) => !error.message.includes('not-an-email'));
+  await assert.rejects(startBooking(store, { slug: SLUG, email: 'not-an-email' }, clock), (error: Error & { status?: number }) => !error.message.includes('not-an-email') && error.status === 400);
   const started = await startBooking(store, { slug: SLUG, email: EMAIL }, clock);
   assert.equal(started.next?.key, 'question:0');
   assert.deepEqual([(await sittingValue(db, started.attemptId)).respondentId, (await sittingValue(db, started.attemptId)).status], [EMAIL, 'started']);
@@ -83,16 +86,16 @@ test('a sitting\'s window is worked out by the booking step from its own rows, n
     WHERE f.id = 'form-sitting:' || $1 AND f.type = 'form-sitting'`, [attemptId, new Date(NOW).toISOString()]);
   assert.deepEqual(window, { from: read.from_at, to: read.to_at });
   assert.deepEqual(Object.keys(await BOOKING_STEPS.window(store, { attemptId })), ['from', 'to']);
-  await assert.rejects(bookingWindow(store, { attemptId: 'no-such-sitting' }, clock));
+  await assert.rejects(bookingWindow(store, { attemptId: 'no-such-sitting' }, clock), said(/not known/, 404));
   await db.query('UPDATE booking_pages SET live = false WHERE slug = $1', [SLUG]);
-  await assert.rejects(bookingWindow(store, { attemptId }, clock), /not open/);
+  await assert.rejects(bookingWindow(store, { attemptId }, clock), said(/not open/, 404));
 });
 
 test('the open times are the windows minus the busy times given; a missing read is refused, never taken for a free calendar', async () => {
   const { store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(readOpenTimes(store, { attemptId, busy_read: undefined }, clock), /Give busy_read/);
-  await assert.rejects(readOpenTimes(store, { attemptId, busy_read: read([{ start: 'later', end: 'soon' }]) }, clock), /not understood/);
+  await assert.rejects(readOpenTimes(store, { attemptId, busy_read: undefined }, clock), said(/Give busy_read/, 502));
+  await assert.rejects(readOpenTimes(store, { attemptId, busy_read: read([{ start: 'later', end: 'soon' }]) }, clock), said(/not understood/, 502));
   const free = (await readOpenTimes(store, { attemptId, busy_read: read([]) }, clock)).slots;
   assert.ok(free.some(slot => slot.startIso === TEN_AM));
   const busy = [{ start: '2026-11-23T16:00:00Z', end: '2026-11-23T16:30:00Z' }];
@@ -104,10 +107,12 @@ test('the open times are the windows minus the busy times given; a missing read 
 test('a time is chosen only from the open starts; a made-up or taken time is refused and nothing is kept', async () => {
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(chooseSlot(store, { attemptId, value: '2026-11-23T16:07:00.000Z', busy_read: read([]) }, clock), /not open/);
-  await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }]) }, clock), /not open/);
+  await assert.rejects(chooseSlot(store, { attemptId, value: '2026-11-23T16:07:00.000Z', busy_read: read([]) }, clock), said(/not open/, 409));
+  await assert.rejects(chooseSlot(store, { attemptId, value: 'ten', busy_read: read([]) }, clock), (error: Error & { status?: number }) => error.status === 400);
+  await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }]) }, clock), said(/not open/, 409));
   assert.equal((await sittingValue(db, attemptId)).steps.slot, undefined);
   const chosen = await chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock);
+  await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock), said(/not waiting for a time/, 409));
   assert.deepEqual([chosen.next?.key, chosen.slot.startIso, chosen.slot.endIso], ['confirm', TEN_AM, '2026-11-23T16:30:00.000Z']);
   assert.equal((await sittingValue(db, attemptId)).steps.slot, TEN_AM);
 });
@@ -115,12 +120,12 @@ test('a time is chosen only from the open starts; a made-up or taken time is ref
 test('ready answers the event to make, in the zone\'s own clock, and writes nothing; a time taken since is refused', async () => {
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(checkBookingReady(store, { attemptId, busy_read: read([]) }, clock), /not ready/);
+  await assert.rejects(checkBookingReady(store, { attemptId, busy_read: read([]) }, clock), said(/not ready/, 409));
   await chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock);
   const ready = await checkBookingReady(store, { attemptId, busy_read: read([]) }, clock);
   assert.deepEqual(ready.event, { title: 'A call', start_local: '2026-11-23T10:00:00', end_local: '2026-11-23T10:30:00', timezone: 'America/Chicago', attendees: [EMAIL], video_call_request_id: ready.event.video_call_request_id });
   assert.ok(ready.event.video_call_request_id);
-  await assert.rejects(checkBookingReady(store, { attemptId, busy_read: read([{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }]) }, clock), /was taken/);
+  await assert.rejects(checkBookingReady(store, { attemptId, busy_read: read([{ start: TEN_AM, end: '2026-11-23T16:30:00Z' }]) }, clock), said(/was taken/, 409));
   assert.equal(((await db.query('SELECT count(*)::int n FROM bookings')).rows[0] as { n: number }).n, 0);
 });
 
@@ -128,8 +133,8 @@ test('keeping writes the booking row naming its sitting and ends the sitting tog
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
   await chooseSlot(store, { attemptId, value: TEN_AM, busy_read: read([]) }, clock);
-  await assert.rejects(keepBooking(store, { attemptId, event: null }, clock), /external_event_id/);
-  await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'e1' }, source: ' ' }, clock), /says where it came from/);
+  await assert.rejects(keepBooking(store, { attemptId, event: null }, clock), said(/external_event_id/, 502));
+  await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'e1' }, source: ' ' }, clock), said(/says where it came from/, 500));
   const kept = await keepBooking(store, { attemptId, event: { external_event_id: 'event-1', video_link: 'https://meet.example.test/x' } }, clock);
   assert.deepEqual([kept.meetingLink, kept.startIso], ['https://meet.example.test/x', TEN_AM]);
   const [row] = (await db.query('SELECT * FROM bookings')).rows as Record<string, any>[];
@@ -137,24 +142,26 @@ test('keeping writes the booking row naming its sitting and ends the sitting tog
     [kept.bookingId, 'event-1', SLUG, EMAIL, 'booked', 'booking-page', attemptId, TEN_AM, '2026-11-23T16:30:00.000Z']);
   const sitting = await sittingValue(db, attemptId);
   assert.deepEqual([sitting.status, sitting.bookingId, sitting.lastStep], ['finished', kept.bookingId, 'confirm']);
-  await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'event-2' } }, clock), /already made/);
+  await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'event-2' } }, clock), said(/already made/, 409));
   assert.equal(((await db.query('SELECT count(*)::int n FROM bookings')).rows[0] as { n: number }).n, 1);
 });
 
 test('keeping before the time is chosen is refused and writes nothing', async () => {
   const { db, store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
-  await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'event-1' } }, clock), /not ready/);
+  await assert.rejects(keepBooking(store, { attemptId, event: { external_event_id: 'event-1' } }, clock), said(/not ready/, 409));
   assert.equal(((await db.query('SELECT count(*)::int n FROM bookings')).rows[0] as { n: number }).n, 0);
-  await assert.rejects(readOpenTimes(store, { attemptId: 'nothing', busy_read: read([]) }, clock), /not known/);
+  await assert.rejects(readOpenTimes(store, { attemptId: 'nothing', busy_read: read([]) }, clock), said(/not known/, 404));
 });
 
 test('a calendar that was not read is never a free one: unknown, missing or malformed answers are refused by all three steps', async () => {
   const { store, clock } = await freshDb();
   const attemptId = await toTheSlotStep(store, clock);
   for (const unread of [{ status: 'unknown', busy: [] }, { status: 'unknown' }, { busy: [] }, { status: 'read' }, { status: 'read', busy: 'none' }, null, [], 'read']) {
-    await assert.rejects(readOpenTimes(store, { attemptId, busy_read: unread }, clock), /could not be read|not understood|Give busy_read/);
-    await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: unread }, clock), /could not be read|not understood|Give busy_read/);
-    await assert.rejects(checkBookingReady(store, { attemptId, busy_read: unread }, clock), /could not be read|not understood|Give busy_read|not ready/);
+    // A calendar not read is our fault, not the booker's: 503 when it could not be read now, 502 when its answer is missing or
+    // not understood. The door answers 502 for both.
+    await assert.rejects(readOpenTimes(store, { attemptId, busy_read: unread }, clock), said(/could not be read|not understood|Give busy_read/, [502, 503]));
+    await assert.rejects(chooseSlot(store, { attemptId, value: TEN_AM, busy_read: unread }, clock), said(/could not be read|not understood|Give busy_read/, [502, 503]));
+    await assert.rejects(checkBookingReady(store, { attemptId, busy_read: unread }, clock), said(/not ready/, 409));
   }
 });

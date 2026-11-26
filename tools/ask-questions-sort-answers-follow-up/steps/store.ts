@@ -15,6 +15,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
+import { refusal } from './sitting.ts';
 
 export type Write =
   | { kind: 'insert'; id: string; type: string; value: unknown }
@@ -108,7 +109,7 @@ export function sqlStore({ execute }: { execute: Execute }): Store {
       if (writes.length === 0) return;
       known.clear();
       const { sql, params } = oneStatementOf(writes);
-      try { await execute(sql, params); } catch { throw new Error('Something went wrong. Try again.'); }
+      try { await execute(sql, params); } catch { throw refusal('Something went wrong. Try again.', 500); }
     },
   };
 }

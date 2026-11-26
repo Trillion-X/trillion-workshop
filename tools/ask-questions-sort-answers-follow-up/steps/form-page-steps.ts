@@ -23,7 +23,7 @@ import { nextStepOf } from '../../take-a-booking-one-step-at-a-time/read-data/bo
 import { answerFactId, ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
 import { questionSequenceId } from '../do-work/save-question-sequence.ts';
 import { submitFormAnswers } from '../do-work/form-tools.mjs';
-import { SITTING_KIND, anySittingOf, answerQuestions, definitionOf, formOf, progressOf, questionsOf, refusal, sittingId, stepView, type Page, type Refusals, type Sitting } from './sitting.ts';
+import { SITTING_KIND, anySittingOf, answerQuestions, definitionOf, formOf, progressOf, questionsOf, refusal, refused, sittingId, stepView, type Page, type Refusals, type Sitting } from './sitting.ts';
 import type { Store, Write } from './store.ts';
 
 export const FORM_PAGE_KIND = 'form-page';
@@ -47,9 +47,9 @@ type Clock = { now?: () => string; newId?: () => string };
 // The live page with its form's questions: a page that is not live or names no kept form is closed.
 export async function loadFormPage(store: Store, slug: string): Promise<Page & { slug: string; title: string | null; words: any; keep_on: string | null; keep_at: string | null; refusals: Refusals }> {
   const row = await store.value(formPageId(slug), FORM_PAGE_KIND);
-  if (!row || row.live !== true) throw new Error(FORM_PAGE_REFUSALS.closed);
+  if (!row || row.live !== true) throw refused(FORM_PAGE_REFUSALS, 'closed');
   const form = await formOf(store, row.formId ?? '');
-  if (!form) throw new Error(FORM_PAGE_REFUSALS.closed);
+  if (!form) throw refused(FORM_PAGE_REFUSALS, 'closed');
   const refusals = { ...FORM_PAGE_REFUSALS, ...(row.words?.refusals ?? {}) };
   return { slug, formId: form.formId, title: form.title ?? null, around: row.around, words: row.words ?? {}, keep_on: row.keep_on ?? null, keep_at: row.keep_at ?? null, refusals, questions: questionsOf(form) };
 }
@@ -103,7 +103,7 @@ function resultOf(decided: any, rows: { type: string; value: any }[]) {
 async function decide(store: Store, page: Page & { refusals: Refusals }, sitting: Sitting, respondentId: string, now: () => string) {
   const input = await decisionInputOf(store, page, sitting);
   const decided = await submitFormAnswers({ form_id: page.formId, respondent_id: respondentId, answers: input.answers, rows: input.rows, submission_id: sitting.submissionId, answered_at: now() });
-  if (!decided.accepted) throw refusal(page.refusals.not_done, 409);
+  if (!decided.accepted) throw refused(page.refusals, 'not_done');
   return { ...input, decided };
 }
 
@@ -111,7 +111,7 @@ async function decide(store: Store, page: Page & { refusals: Refusals }, sitting
 async function needsEveryAnswer(store: Store, page: Page & { refusals: Refusals }, sitting: Sitting) {
   if (sitting.status !== 'started') return;
   const progress = await progressOf(store, page, sitting);
-  if (nextStepOf(page, progress)?.kind === 'question') throw refusal(page.refusals.not_done, 409);
+  if (nextStepOf(page, progress)?.kind === 'question') throw refused(page.refusals, 'not_done');
 }
 
 // The result step: the sitting has answered every question it was asked. Says whether it is kept yet, and where it is read.
@@ -130,7 +130,7 @@ export async function keepSitting(store: Store, { attemptId, email }: { attemptI
   const sitting = await anySittingOf(store, attemptId, FORM_PAGE_REFUSALS);
   const page = await pageOfSitting(store, sitting);
   const visitor = sitting.respondentId.startsWith(VISITOR);
-  if (!visitor && sitting.respondentId !== email) throw refusal(page.refusals.someone_else, 403);
+  if (!visitor && sitting.respondentId !== email) throw refused(page.refusals, 'someone_else');
   await needsEveryAnswer(store, page, sitting);
   const { decided, rows, facts } = await decide(store, page, sitting, email, now);
   const moved = facts.filter(fact => fact.respondentId !== email);

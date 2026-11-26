@@ -42,11 +42,14 @@ async function freshDb(): Promise<{ db: PGlite; store: Store; ids: () => string 
 }
 const rowsOf = async (db: PGlite, type: string, respondent: string) => (await db.query('SELECT id, value FROM form_rows WHERE type = $1 AND value ->> \'respondentId\' = $2 ORDER BY id', [type, respondent])).rows as { id: string; value: any }[];
 const clock = (ids: () => string) => ({ newId: ids });
+// A refusal with its words and the status it names (sitting.ts refusal): the site answers that status, never a bare 502.
+const said = (words: RegExp, status: number | number[]) => (error: Error & { status?: number }) =>
+  words.test(error.message) && [status].flat().includes(error.status as number);
 
 test('a page that is not live, or names no row, is closed', async () => {
   const { store } = await freshDb();
-  await assert.rejects(loadFormPage(store, 'shut'), /not open/);
-  await assert.rejects(loadFormPage(store, 'nothing'), /not open/);
+  await assert.rejects(loadFormPage(store, 'shut'), said(/not open/, 404));
+  await assert.rejects(loadFormPage(store, 'nothing'), said(/not open/, 404));
   assert.equal((await loadFormPage(store, 'check')).questions.length, 3);
 });
 
@@ -71,7 +74,9 @@ test('the same question answered again replaces its answer; a refused answer kee
   assert.equal((await rowsOf(db, 'answer-fact', `visitor:${attemptId}`)).length, 0);
   await answerFormQuestion(store, { attemptId, value: '12' });
   assert.equal((await rowsOf(db, 'answer-fact', `visitor:${attemptId}`)).length, 1);
-  await assert.rejects(answerFormQuestion(store, { attemptId: 'nothing', value: '1' }), /not known/);
+  await assert.rejects(answerFormQuestion(store, { attemptId: 'nothing', value: '1' }), said(/not known/, 404));
+  await assert.rejects(answerFormQuestion(store, { attemptId, answers: [] }), (error: Error & { status?: number }) => error.status === 400);
+  await assert.rejects(answerFormQuestion(store, { attemptId, questionId: 'hours', value: '13' }), said(/out of order/, 409));
 });
 
 test('the result is the form rules\' segment with its follow-up; it is not kept until an email is proven', async () => {
@@ -106,7 +111,7 @@ test('keeping moves the facts to the proven email and writes the decision; again
   assert.equal(again.segment?.id, 'c');
   assert.equal((await rowsOf(db, 'answer-fact', EMAIL)).length, 3);
   await assert.rejects(keepSitting(store, { attemptId, email: OTHER }), (error: Error & { status?: number }) => error.status === 403);
-  await assert.rejects(answerFormQuestion(store, { attemptId, value: '1' }), /already kept/);
+  await assert.rejects(answerFormQuestion(store, { attemptId, value: '1' }), said(/already kept/, 409));
 });
 
 test('a signed-in member answers as themselves; two sittings are two submissions of the same person', async () => {
@@ -127,7 +132,7 @@ test('a signed-in member answers as themselves; two sittings are two submissions
 test('a write the database refuses keeps nothing of the step: the writes are one statement', async () => {
   const { db, store, ids } = await freshDb();
   const { attemptId } = await startSitting(store, { slug: 'check' }, clock(ids));
-  await assert.rejects(store.apply([{ kind: 'insert', id: `form-sitting:${attemptId}`, type: 'form-sitting', value: {} }, { kind: 'upsert', id: 'later', type: 'x', value: {} }]), /Something went wrong/);
+  await assert.rejects(store.apply([{ kind: 'insert', id: `form-sitting:${attemptId}`, type: 'form-sitting', value: {} }, { kind: 'upsert', id: 'later', type: 'x', value: {} }]), said(/Something went wrong/, 500));
   assert.equal(((await db.query("SELECT count(*)::int n FROM form_rows WHERE id = 'later'")).rows[0] as { n: number }).n, 0);
 });
 

@@ -23,9 +23,16 @@ import type { Store } from './store.ts';
 export const SITTING_KIND = 'form-sitting';
 export const sittingId = (submissionId: string) => `${SITTING_KIND}:${submissionId}`;
 
-// A refusal that names its own HTTP status (serve-steps.ts passes it on, so the site answers that status, not 502): 400 when what the
-// person gave is not a valid answer, 409 when the sitting is not at the step asked for. The one helper every page's steps use.
+// A refusal that names its own HTTP status. Every refusal a page's steps throw is one (test/refusal-statuses.test.ts reads every
+// throw), so none reaches the site without a status. A visitor's own state answers 400 (what they gave is not valid), 401 or 403,
+// 404 (nothing is there) or 409 (the sitting or the time is not at the state asked for); serve-steps.ts passes those on, so the site
+// answers that very status. A fault of ours (a store or a calendar that did not answer, a caller that left out what it must give)
+// names 500, 502 or 503; serve-steps.ts leaves those as plain words and the door answers 502. The one helper every page's steps use.
 export const refusal = (message: string, status: number) => Object.assign(new Error(message), { status });
+
+// The status of each named refusal of a sitting or a page, whatever words a page gives it.
+export const REFUSAL_STATUS: Record<string, number> = { closed: 404, unknown: 404, finished: 409, not_answering: 409, out_of_order: 409, not_done: 409, someone_else: 403 };
+export const refused = (refusals: Refusals, name: string) => refusal(refusals[name] ?? SITTING_REFUSALS[name], REFUSAL_STATUS[name]);
 
 // The refusals of a sitting. A page replaces any of them with its own words.
 export type Refusals = { unknown: string; finished: string; not_answering: string; [name: string]: string };
@@ -54,15 +61,15 @@ export function questionsOf(form: { questions: Record<string, any>[] }): Questio
 // A started sitting, or the refusal for one that is not there. `finished` is refused for one that is no longer started.
 export async function sittingOf(store: Store, attemptId: string, refusals: Refusals = SITTING_REFUSALS): Promise<Sitting> {
   const sitting = await store.value(sittingId(attemptId), SITTING_KIND);
-  if (!sitting) throw new Error(refusals.unknown);
-  if (sitting.status !== 'started') throw new Error(refusals.finished);
+  if (!sitting) throw refused(refusals, 'unknown');
+  if (sitting.status !== 'started') throw refused(refusals, 'finished');
   return sitting;
 }
 
 // A sitting started or kept: a kept one is read too, so a page can answer what a finished sitting reached.
 export async function anySittingOf(store: Store, attemptId: string, refusals: Refusals = SITTING_REFUSALS): Promise<Sitting> {
   const sitting = await store.value(sittingId(attemptId), SITTING_KIND);
-  if (!sitting) throw new Error(refusals.unknown);
+  if (!sitting) throw refused(refusals, 'unknown');
   return sitting;
 }
 
@@ -96,7 +103,7 @@ export async function answerQuestions(
   deps: { pageOf: (sitting: Sitting) => Promise<Page>; refusals?: Refusals },
 ) {
   if (answers === undefined) return answerQuestion(store, { attemptId, value, questionId, now }, deps);
-  if (!Array.isArray(answers) || answers.length === 0 || answers.length > MOST_ANSWERS_IN_ONE_CALL) throw new Error((deps.refusals ?? SITTING_REFUSALS).not_answering);
+  if (!Array.isArray(answers) || answers.length === 0 || answers.length > MOST_ANSWERS_IN_ONE_CALL) throw refusal((deps.refusals ?? SITTING_REFUSALS).not_answering, 400);
   let last: Awaited<ReturnType<typeof answerQuestion>> | null = null;
   for (const item of answers) last = await answerQuestion(store, { attemptId, value: item.value, questionId: item.questionId, now }, deps);
   return last!;
@@ -123,7 +130,7 @@ function sentAgain(page: Page, progress: Progress, questionId: string, value: un
   const asked = stepsOf(page).find((step: any) => step.kind === 'question' && step.question.questionId === questionId);
   const checked = asked ? checkAnswer(asked, value) : null;
   const kept = asked ? progress.answers[asked.position] : undefined;
-  if (!checked?.ok || kept === undefined || JSON.stringify(kept) !== JSON.stringify(checked.value)) throw new Error(refusals.out_of_order ?? 'That answer came out of order.');
+  if (!checked?.ok || kept === undefined || JSON.stringify(kept) !== JSON.stringify(checked.value)) throw refusal(refusals.out_of_order ?? 'That answer came out of order.', REFUSAL_STATUS.out_of_order);
   return { answered: questionId, next: stepView(page, nextStepOf(page, progress), progress) };
 }
 
@@ -140,7 +147,7 @@ export async function answerQuestion(
   const progress = await progressOf(store, page, sitting);
   const step = nextStepOf(page, progress);
   if (named && (step?.kind !== 'question' || step.question.questionId !== named)) return sentAgain(page, progress, named, value, refusals);
-  if (step?.kind !== 'question') throw new Error(refusals.not_answering);
+  if (step?.kind !== 'question') throw refused(refusals, 'not_answering');
   const checked = checkAnswer(step, value);
   if (!checked.ok) throw refusal(checked.reason, 400);
   const asked = askedStep(page, step, progress);
