@@ -4,6 +4,8 @@
 //   Reads one site's head rows (site_head: its declared purposes and consent; site_head_parts: each head and body-start part in
 //   place order) and answers the markup every page of the site carries: `head` (the consent default first, the bar's stylesheet,
 //   the declared parts, then the bar) and `body_start`. A site's server places them with withSiteHead (do-work/site-head.ts).
+//   It also answers `read_from`, the tables it read, so a server that keeps the markup reads it again only when a change names
+//   one of them (serve-a-sites-pages-from-its-rows keeps it until then).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A site with no site_head row, or whose rows break any rule of do-work/site-head.ts, is refused with every problem listed;
@@ -23,7 +25,7 @@ const SOURCE = {
   parts: { table: 'site_head_parts', columns: 'area, kind, purpose, text, src', order: 'area, place' },
 } as const;
 
-export type SiteHeadAnswer = { head: string; body_start: string };
+export type SiteHeadAnswer = { head: string; body_start: string; read_from: string[] };
 type Given = { database: string; site: string };
 
 export const readSiteHead: Reader<Given, SiteHeadAnswer> = async (input, rows) => {
@@ -35,7 +37,7 @@ export const readSiteHead: Reader<Given, SiteHeadAnswer> = async (input, rows) =
   const of = (area: string): HeadPart[] => parts.filter(row => row.area === area).map(part);
   const data = { purposes: heads[0].purposes, consent: heads[0].consent, head: of('head'), body_start: of('body_start') } as SiteHeadData;
   const markup = siteHeadMarkup(data);
-  return { head: markup.head, body_start: markup.bodyStart };
+  return { head: markup.head, body_start: markup.bodyStart, read_from: [SOURCE.head.table, SOURCE.parts.table] };
 };
 
 if (process.argv[1] && realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1])) await serveARead({ readSiteHead });

@@ -67,6 +67,7 @@ test('the read answers the markup from the rows, in place order, and refuses an 
   ]));
   assert.match(answer.head, /^<script>window\.dataLayer/);
   assert.match(answer.body_start, /tags\.example\/ns/);
+  assert.deepEqual(answer.read_from, ['site_head', 'site_head_parts'], 'it says the tables it read, so a server keeps it until one changes');
   await assert.rejects(readSiteHead({ database: 'd', site: 'x' }, rowsFor([], [])), /no site_head row for x/);
   await assert.rejects(readSiteHead({ database: 'd', site: 's' }, rowsFor([{ purposes: {}, consent: d.consent }], [])), /refused/);
   await assert.rejects(readSiteHead({ database: 'd', site: '' }, rowsFor([], [])), /Give site/);

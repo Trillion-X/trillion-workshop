@@ -62,7 +62,10 @@
 //                    ones alike, when the value is the whole of its pattern (address-cookies.ts)
 //     site_head      (optional) { tool, input }: the tool whose answer { head, body_start } every page carries at the top of its
 //                    <head> and the start of its <body> (the consent default and bar, then the site's declared tags; the
-//                    Workshop's tool:read-the-site-head), read with the rows and placed by that tool's own withSiteHead
+//                    Workshop's tool:read-the-site-head), read with the rows and placed by that tool's own withSiteHead. It is
+//                    kept like a kind of row when its tool answers read_from (the tables it read) and its input names the pages'
+//                    database: read again only when its call changed or a change names one of those tables (or one tells no
+//                    changes); a head with no read_from, or of another database, is read every refresh_seconds, as before
 //     files_store    (optional) { endpoint, region, bucket, style, credential }: the site's files store, and the name of its read
 //                    key in the unit's credentials (member-video.ts)
 //     member_files   (optional, needs files_store) { path, key_prefix, prefixes, link_seconds }: members' files
@@ -332,6 +335,8 @@ export class Site {
   // The site's own words for a form post that did not go through (its look row words.form-failed), or null for the tool's own.
   #formFailed: string | null = null;
   #head: SiteHeadMarkup | null = null;
+  // The site head as last read: the call it was read by, and the tables of the pages' database it read (null: read it every refresh).
+  #headKept: { call: string; tables: string[] | null } | null = null;
   #readAt = 0;
   #reading: Promise<void> | null = null;
   // The rows of each kind as last read, kept until a change names their table (read()); the row_changes place last asked from.
@@ -374,16 +379,19 @@ export class Site {
   async read(): Promise<void> {
     const { settings: site, use } = this.#parts.settings.pages;
     const collectionsKept = [...this.#kept.slugs.keys()];
-    const tables = [...new Set([...(site === undefined ? [] : [SITE_SETTINGS_TABLE]), PAGES_TABLE, LOOK_TABLE, ...(this.#own.actions ? [this.#own.actions] : []), ...collectionsKept])];
+    const tables = [...new Set([...(site === undefined ? [] : [SITE_SETTINGS_TABLE]), PAGES_TABLE, LOOK_TABLE, ...(this.#own.actions ? [this.#own.actions] : []), ...collectionsKept, ...(this.#headKept?.tables ?? [])])];
     const changes = await this.#changesSince(tables);
     const stale = (table: string) => changes === null || !changes.told.has(table) || changes.changed.has(table);
     const own = site === undefined ? this.#own : stale(SITE_SETTINGS_TABLE) || this.#readAt === 0 ? siteSettingsOf(await this.#sql(SITE_SETTINGS_SQL, [site]), site, use) : this.#own;
     const table = own.actions;
     const keptActions = this.#kept.actions;
-    const [pages, look, head, actionRows] = await Promise.all([
+    const headCall = JSON.stringify(own.site_head ?? null);
+    const headKept = this.#headKept;
+    const headStill = this.#readAt !== 0 && headKept !== null && headKept.call === headCall && headKept.tables !== null && !headKept.tables.some(stale);
+    const [pages, look, headRead, actionRows] = await Promise.all([
       this.#kept.pages && !stale(PAGES_TABLE) ? this.#kept.pages : this.#sql(PAGES_SQL),
       this.#kept.look && !stale(LOOK_TABLE) ? this.#kept.look : this.#sql(LOOK_SQL),
-      this.#siteHead(own.site_head),
+      headStill ? { markup: this.#head, tables: headKept!.tables } : this.#siteHead(own.site_head),
       !table ? [] : keptActions && keptActions.table === table && !stale(table) ? keptActions.rows : this.#sql(actionsSql(table)),
     ]);
     const { actions, refused: refusedActions } = actionsOf(actionRows);
@@ -406,7 +414,8 @@ export class Site {
     this.#refusedActions = refusedActions;
     this.#refused = refused;
     this.#kept = { pages, look, ...(table ? { actions: { table, rows: actionRows } } : {}), slugs };
-    this.#head = head;
+    this.#head = headRead.markup;
+    this.#headKept = { call: headCall, tables: headRead.tables };
     this.#own = own;
     if (changes) this.#since = { position: changes.newest, xmin: changes.xmin };
     this.#readAt = Date.now();
@@ -436,12 +445,16 @@ export class Site {
     return this.#own;
   }
 
-  // The site head's markup, read by its tool with the rows; a site with no site_head carries none.
-  async #siteHead(call: SiteSettings['site_head']): Promise<SiteHeadMarkup | null> {
-    if (!call) return null;
-    const answer = await this.#parts.run(this.#parts.sitePass, call) as { head?: unknown; body_start?: unknown } | null;
+  // The site head's markup, read by its tool with the rows; a site with no site_head carries none. Its tables are the ones its
+  // answer's read_from names when its input names the pages' database (their row_changes are the ones the front asks), else null.
+  async #siteHead(call: SiteSettings['site_head']): Promise<{ markup: SiteHeadMarkup | null; tables: string[] | null }> {
+    if (!call) return { markup: null, tables: [] };
+    const answer = await this.#parts.run(this.#parts.sitePass, call) as { head?: unknown; body_start?: unknown; read_from?: unknown } | null;
     if (typeof answer?.head !== 'string' || typeof answer.body_start !== 'string') throw new DoorError(`${call.tool} answered no { head, body_start }.`);
-    return { head: answer.head, bodyStart: answer.body_start };
+    const readFrom = answer.read_from;
+    const named = Array.isArray(readFrom) && readFrom.length > 0 && readFrom.every(table => typeof table === 'string' && table !== '');
+    const tables = named && call.input.database === this.#parts.settings.pages.database ? readFrom as string[] : null;
+    return { markup: { head: answer.head, bodyStart: answer.body_start }, tables };
   }
 
   // Rows older than refresh_seconds are read again behind the request; the last good set answers meanwhile.

@@ -105,6 +105,10 @@ const LOOK = [{ name: 'theme', value: 'paper' }, { name: 'font-face.body-400', v
 // The site_settings rows the door answers (a test sets them).
 let siteSettingsRows: Record<string, unknown>[] = [];
 
+// What tool:read-the-site-head answers (a test changes it: other markup, or no read_from).
+const HEAD_ANSWER = { head: '<script>window.consentFirst=1</script>', body_start: '<noscript>tags off</noscript>' };
+let headAnswer: Record<string, unknown> = HEAD_ANSWER;
+
 // The clips tool:read-the-listed-files lists (each as its .mp4 and .jpg); a test changes it to withdraw one.
 let listedClips: string[] = [];
 
@@ -156,7 +160,7 @@ async function door(look = LOOK, pages = PAGES, rowChanges: { now: RowChanges } 
       } else if (run.tool === 'tool:keep-a-lead') {
         result = { kept: 1 };
       } else if (run.tool === 'tool:read-the-site-head') {
-        result = { head: '<script>window.consentFirst=1</script>', body_start: '<noscript>tags off</noscript>' };
+        result = headAnswer;
       } else if (run.tool === 'tool:say-an-outcome') {
         result = { outcome: (run.input as { outcome?: string }).outcome ?? 'check_inbox' };
       } else if (run.tool === 'tool:read-the-listed-files') {
@@ -687,6 +691,56 @@ test('each kind of row is kept until a row change names its table: an unchanged 
     assert.equal(sqlOf().filter(sql => sql.includes('FROM pages')).length, 2, 'a row_changes the login cannot read: every kind every refresh, never kept stale');
     assert.equal(lines.filter(line => line.startsWith('The row changes could not be read')).length, 1, 'said once');
   } finally { d.server.close(); }
+});
+
+test('the site head is kept like a kind of row: read again only when its call changed or a change names a table it read', async () => {
+  const told = ['pages', 'site_look', 'site_head', 'site_head_parts'];
+  const changes: { now: RowChanges } = { now: { newest: '10', changed: [], told } };
+  const d = await door(LOOK, PAGES, changes);
+  const head = { tool: 'tool:read-the-site-head', input: { database: 'a_site_for_who_uses_it', site: 'a-site' } };
+  const heads = () => d.calls.filter(call => call.run.tool === head.tool).length;
+  const asked = () => d.calls.filter(call => String((call.run.input as { sql?: string }).sql ?? '').includes('FROM row_changes')).map(call => (call.run.input as { params: unknown[] }).params[1]);
+  try {
+    headAnswer = { ...HEAD_ANSWER, read_from: ['site_head', 'site_head_parts'] };
+    const site = await siteOn(d.address, { site_head: head });
+    assert.equal(heads(), 1, 'the first read reads the head');
+    d.calls.length = 0;
+    await site.read();
+    assert.equal(heads(), 0, 'an unchanged refresh runs no head');
+    assert.ok((asked()[0] as string[]).includes('site_head_parts'), 'the one ask names the head\'s tables too');
+    assert.match(String((await site.answer('GET', '/', undefined)).body), /window\.consentFirst=1/, 'the kept head still opens every page');
+    headAnswer = { head: '<script>window.consentSecond=1</script>', body_start: '', read_from: ['site_head', 'site_head_parts'] };
+    changes.now = { newest: '11', changed: ['site_head_parts'], told };
+    d.calls.length = 0;
+    await site.read();
+    assert.equal(heads(), 1, 'a change to a table the head read reads it again');
+    assert.match(String((await site.answer('GET', '/', undefined)).body), /window\.consentSecond=1/, 'and the change shows on the next view');
+    changes.now = { newest: '11', changed: [], told: told.filter(table => table !== 'site_head') };
+    d.calls.length = 0;
+    await site.read();
+    await site.read();
+    assert.equal(heads(), 2, 'a head table that tells no changes: the head is read every refresh, as before');
+    changes.now = null;
+    d.calls.length = 0;
+    await site.read();
+    assert.equal(heads(), 1, 'a row_changes the login cannot read: the head is read every refresh');
+    changes.now = { newest: '12', changed: ['site_head'], told };
+    headAnswer = HEAD_ANSWER;
+    d.calls.length = 0;
+    await site.read();
+    changes.now = { newest: '12', changed: [], told };
+    await site.read();
+    await site.read();
+    assert.equal(heads(), 3, 'a head that says no read_from is read every refresh');
+    headAnswer = { ...HEAD_ANSWER, read_from: ['site_head', 'site_head_parts'] };
+    const elsewhere = await siteOn(d.address, { site_head: { ...head, input: { ...head.input, database: 'another_database' } } });
+    d.calls.length = 0;
+    await elsewhere.read();
+    assert.equal(heads(), 1, 'a head of another database than the pages\' is read every refresh: their changes are not the ones asked');
+  } finally {
+    headAnswer = HEAD_ANSWER;
+    d.server.close();
+  }
 });
 
 test('the network source is the address the site\'s own front web server saw: the last X-Forwarded-For entry, else the connection', async () => {

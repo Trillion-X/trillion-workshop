@@ -66,6 +66,13 @@
       },
       "body_start": {
        "type": "string"
+      },
+      "read_from": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "The tables the head was read from, so a server that keeps the markup reads it again only when a change names one of them."
       }
      }
     },

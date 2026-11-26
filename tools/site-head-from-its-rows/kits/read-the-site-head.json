@@ -31,7 +31,7 @@
         }
       },
       "given": "The database holds the rows the read names (made-up values).",
-      "hands_back": "{\"head\":\"<script>window.dataLayer=window.dataLayer||[];...\",\"body_start\":\"\"}"
+      "hands_back": "{\"head\":\"<script>window.dataLayer=window.dataLayer||[];...\",\"body_start\":\"\",\"read_from\":[\"site_head\",\"site_head_parts\"]}"
     }
   ],
   "drafted_from": "tool row in tools/site-head-from-its-rows/tool-rows.json, do-work/site-head.ts and reads/read-the-site-head.ts"
