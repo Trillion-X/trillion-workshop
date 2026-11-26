@@ -64,6 +64,8 @@ test('the email opens the sitting and the first question follows; a bad email is
   const started = await startBooking(store, { slug: SLUG, email: EMAIL }, clock);
   assert.equal(started.next?.key, 'question:0');
   assert.deepEqual([(await sittingValue(db, started.attemptId)).respondentId, (await sittingValue(db, started.attemptId)).status], [EMAIL, 'started']);
+  // An answer the question's rules refuse is the booker's own mistake: it names 400, so the site answers 400, not 502.
+  await assert.rejects(answerBookingQuestion(store, { attemptId: started.attemptId, value: { not: 'text' } }, clock), (error: Error & { status?: number }) => error.status === 400);
   const second = await answerBookingQuestion(store, { attemptId: started.attemptId, value: 'Win my league.' }, clock);
   assert.equal(second.next?.key, 'question:1');
   assert.equal((await answerBookingQuestion(store, { attemptId: started.attemptId, value: '' }, clock)).next?.key, 'slot');

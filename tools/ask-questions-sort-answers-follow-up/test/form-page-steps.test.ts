@@ -67,7 +67,7 @@ test('a visitor answers first as the sitting itself; a question asked only when 
 test('the same question answered again replaces its answer; a refused answer keeps nothing and does not repeat the value', async () => {
   const { db, store, ids } = await freshDb();
   const { attemptId } = await startSitting(store, { slug: 'check' }, clock(ids));
-  await assert.rejects(answerFormQuestion(store, { attemptId, value: 'many' }), (error: Error) => !error.message.includes('many'));
+  await assert.rejects(answerFormQuestion(store, { attemptId, value: 'many' }), (error: Error & { status?: number }) => !error.message.includes('many') && error.status === 400);
   assert.equal((await rowsOf(db, 'answer-fact', `visitor:${attemptId}`)).length, 0);
   await answerFormQuestion(store, { attemptId, value: '12' });
   assert.equal((await rowsOf(db, 'answer-fact', `visitor:${attemptId}`)).length, 1);
@@ -77,7 +77,7 @@ test('the same question answered again replaces its answer; a refused answer kee
 test('the result is the form rules\' segment with its follow-up; it is not kept until an email is proven', async () => {
   const { db, store, ids } = await freshDb();
   const { attemptId } = await startSitting(store, { slug: 'check' }, clock(ids));
-  await assert.rejects(formResult(store, { attemptId }), /Answer every question/);
+  await assert.rejects(formResult(store, { attemptId }), (error: Error & { status?: number }) => /Answer every question/.test(error.message) && error.status === 409);
   await answerFormQuestion(store, { attemptId, value: '12' });
   await answerFormQuestion(store, { attemptId, value: { picked: ['yes'] } });
   const result = await formResult(store, { attemptId });

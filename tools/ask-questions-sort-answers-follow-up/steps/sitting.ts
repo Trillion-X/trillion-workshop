@@ -23,6 +23,10 @@ import type { Store } from './store.ts';
 export const SITTING_KIND = 'form-sitting';
 export const sittingId = (submissionId: string) => `${SITTING_KIND}:${submissionId}`;
 
+// A refusal that names its own HTTP status (serve-steps.ts passes it on, so the site answers that status, not 502): 400 when what the
+// person gave is not a valid answer, 409 when the sitting is not at the step asked for. The one helper every page's steps use.
+export const refusal = (message: string, status: number) => Object.assign(new Error(message), { status });
+
 // The refusals of a sitting. A page replaces any of them with its own words.
 export type Refusals = { unknown: string; finished: string; not_answering: string; [name: string]: string };
 export const SITTING_REFUSALS: Refusals = {
@@ -138,7 +142,7 @@ export async function answerQuestion(
   if (named && (step?.kind !== 'question' || step.question.questionId !== named)) return sentAgain(page, progress, named, value, refusals);
   if (step?.kind !== 'question') throw new Error(refusals.not_answering);
   const checked = checkAnswer(step, value);
-  if (!checked.ok) throw new Error(checked.reason);
+  if (!checked.ok) throw refusal(checked.reason, 400);
   const asked = askedStep(page, step, progress);
   const { questionId } = step.question;
   const fact = {
