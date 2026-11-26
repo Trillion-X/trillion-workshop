@@ -563,6 +563,11 @@ function baseInputArgs(durationArgs) {
   return { input: [...durationArgs, '-i', base.artifact], hasAudio: baseHasAudio };
 }
 
+/** One frame held for `seconds`: a clip's `still` and a split's `still` are this one fragment. */
+function holdFirstFrame(seconds) {
+  return `trim=end_frame=1,setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${seconds}`;
+}
+
 /** clip — normalize a whole (or trimmed) file to canonical params, applying the
  * generic per-clip property grammar (contract::edl per-clip fields, ported from
  * the Palmier reference AS DATA — never as named feature functions):
@@ -629,7 +634,7 @@ function buildClip(segment) {
   // ---- video chain ----
   const vParts = [];
   // A still is its one frame, held: everything after this sees a clip `stillLen` seconds long.
-  if (still) vParts.push(`trim=end_frame=1,setpts=PTS-STARTPTS,tpad=stop_mode=clone:stop_duration=${stillLen}`);
+  if (still) vParts.push(holdFirstFrame(stillLen));
   // #85 Stabilization / deshake (DaVinci warp-stabilizer class) as a DATA flag. vidstab is two passes;
   // STABILIZE_EFFECT.resolve (effect-registry) runs pass 1 (vidstabdetect on the seeked source) and returns
   // the pass-2 vidstabtransform fragment (or null, fail-soft). It goes FIRST on the raw forward frames
@@ -1844,29 +1849,30 @@ function buildSplit(segment) {
   if (still && !(Number.isFinite(still.duration) && still.duration > 0))
     throw new Error(`[video.compose] split ${segment.id} still needs duration, how long each source's frame at its in is held`);
   const timing = specs.map((s) => {
-    if (still) return { hold: true, seconds: still.duration, slowest: 0 };
+    if (still) return { hold: holdFirstFrame(still.duration), seconds: still.duration, slowest: 0 };
     const len = Number.isFinite(s.out) ? s.out - (s.in ?? 0) : segment.duration;
     const ramp = Array.isArray(s.speed_ramp) && s.speed_ramp.length ? speedRampSecondsExpr(s.speed_ramp, len) : null;
     const played = ramp ? speedRampOutSeconds(s.speed_ramp, len) : len;
     const slowest = Math.min(1, ...(ramp ? s.speed_ramp.map((p) => p.speed) : [1])) * uniform;
     return { ramp, seconds: played / uniform, slowest };
   });
-  // Only a split with timing of its own is checked and cut frame-exact; any other split renders as it always has.
+  // Only a split with timing of its own (smooth, ramped or held) is checked and cut frame-exact; any other split,
+  // sped or not, renders with exactly the arguments it always had (a plain slowed split already ends on its frame).
   const ownTiming = still !== null || segment.speed_smooth === true || timing.some((c) => c.ramp);
   if (ownTiming && timing.every((c) => Number.isFinite(c.seconds))) {
     const lengths = timing.map((c) => c.seconds);
     if (Math.max(...lengths) - Math.min(...lengths) > 1 / fpsNum + 1e-6)
       throw new Error(`[video.compose] split ${segment.id} cells would play ${lengths.map((n) => round3(n)).join(', ')} seconds; every cell must be the same length (within one frame)`);
   }
-  // Such a split is cut to an exact frame count (a slowed or held picture otherwise ends a frame or two early, at its
-  // last real frame), so the cut of every pass lands frame-exact.
+  // Such a split is cut to an exact frame count: a smooth or held picture otherwise ends a frame or two early (the last
+  // real frame ends minterpolate's stream and -shortest cuts at it): a smooth 0.25x pass of 12 frames came out 46, not 48.
   const exactFrames = ownTiming && Number.isFinite(timing[0].seconds)
     ? Math.max(1, Math.round(timing[0].seconds * fpsNum))
     : null;
   const transforms = specs.map((s, i) => {
     const t = { crop: s.crop };
     if (s.flip) t.flip = s.flip;
-    if (timing[i].hold) t.hold = true;
+    if (timing[i].hold) t.hold = timing[i].hold;
     if (exactFrames) t.frames = exactFrames;
     if (timing[i].ramp) t.ramp = timing[i].ramp;
     if (segment.speed_smooth === true && timing[i].slowest < 1) t.smooth = COMPUTE_EFFECTS.smooth_motion();
@@ -2607,7 +2613,7 @@ writeFileSync(args.get('result') ?? `${OUT}.result.json`, JSON.stringify(result)
 /**
  * Build the video filter graph for a split.
  * @param {{count:number, layout?:string, weights?:number[], width:number, height:number, fps:string|number, speed?:number, sources?:SourceTransform[]}} spec
- * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:boolean, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
+ * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:string, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
  * @typedef {{textfile:string, x?:number, y?:number, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
  * @returns {{ filter:string, videoLabel:string, cells:{w:number,h:number}[], cols?:number, rows?:number }}
  */
@@ -2636,10 +2642,10 @@ export function buildSplitLayout({ count, layout = 'h', weights, width, height, 
     }
     if (t.flip === 'h' || t.flip === 'hv') parts.push('hflip');
     if (t.flip === 'v' || t.flip === 'hv') parts.push('vflip');
-    // A cell's own time: a held frame (`hold`), or a speed envelope (`ramp`, a setpts expression of
+    // A cell's own time: a held frame (`hold`, the compositor's hold fragment, the same one a clip's still uses), or a speed envelope (`ramp`, a setpts expression of
     // input time made by the compositor), then the segment-wide speed on top. `smooth` (a filter fragment) makes the
     // in-between frames of a slowed cell. Every cell must come out the same length; the compositor checks that.
-    if (t.hold) parts.push('trim=end_frame=1,setpts=PTS-STARTPTS');
+    if (t.hold) parts.push(t.hold);
     if (t.ramp) parts.push(`setpts=(${t.ramp})/TB`);
     if (retime) parts.push(`setpts=PTS/${speed}`);
     if (t.smooth) parts.push(t.smooth);

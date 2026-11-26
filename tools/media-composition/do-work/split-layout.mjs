@@ -37,7 +37,7 @@
 /**
  * Build the video filter graph for a split.
  * @param {{count:number, layout?:string, weights?:number[], width:number, height:number, fps:string|number, speed?:number, sources?:SourceTransform[]}} spec
- * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:boolean, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
+ * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:string, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
  * @typedef {{textfile:string, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
  * @returns {{ filter:string, videoLabel:string, cells:{w:number,h:number}[], cols?:number, rows?:number }}
  */
@@ -66,10 +66,10 @@ export function buildSplitLayout({ count, layout = 'h', weights, width, height, 
     }
     if (t.flip === 'h' || t.flip === 'hv') parts.push('hflip');
     if (t.flip === 'v' || t.flip === 'hv') parts.push('vflip');
-    // A cell's own time: a held frame (`hold`), or a speed envelope (`ramp`, a setpts expression of
+    // A cell's own time: a held frame (`hold`, the compositor's hold fragment, the same one a clip's still uses), or a speed envelope (`ramp`, a setpts expression of
     // input time made by the compositor), then the segment-wide speed on top. `smooth` (a filter fragment) makes the
     // in-between frames of a slowed cell. Every cell must come out the same length; the compositor checks that.
-    if (t.hold) parts.push('trim=end_frame=1,setpts=PTS-STARTPTS');
+    if (t.hold) parts.push(t.hold);
     if (t.ramp) parts.push(`setpts=(${t.ramp})/TB`);
     if (retime) parts.push(`setpts=PTS/${speed}`);
     if (t.smooth) parts.push(t.smooth);

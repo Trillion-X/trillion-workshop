@@ -5,7 +5,7 @@
  * reference) and smooth slow motion (`speed_smooth`). Two layers:
  *   (1) PURE: buildSplitLayout puts hold -> ramp -> segment speed -> smooth before the scale, and the exact frame
  *       count last, in every cell that asks for it; a cell that asks for nothing is unchanged.
- *   (2) REAL: video-compose renders such splits to exactly the planned number of frames, and refuses a split whose
+ *   (2) REAL: video-compose renders such splits, and plain slowed ones, to exactly the planned number of frames, and refuses a split whose
  *       cells would come out different lengths (a stack of unequal cells desyncs).
  */
 import { tempFolder } from '../../../../test-helpers/temp-folder.mjs';
@@ -31,10 +31,10 @@ test('a cell plays hold, then its ramp, then the segment speed, then smooth, bef
   assert.match(filter, /\[1:v\]setpts=PTS\/0\.25,SMOOTH,scale=360:320,setsar=1,fps=30,format=yuv420p,tpad=stop_mode=clone:stop=48\[v1\]/);
 });
 
-test('a held cell keeps its first frame only', () => {
-  const { filter } = buildSplitLayout({ count: 2, layout: 'h', width: 640, height: 360, fps: '30', sources: [{ hold: true, frames: 15 }, { hold: true, frames: 15 }] });
-  assert.match(filter, /\[0:v\]trim=end_frame=1,setpts=PTS-STARTPTS,scale=320:360,/);
-  assert.match(filter, /\[1:v\]trim=end_frame=1,setpts=PTS-STARTPTS,scale=320:360,/);
+test('a held cell plays the hold fragment it is given (the compositor gives it the same one a clip still uses) before the scale', () => {
+  const { filter } = buildSplitLayout({ count: 2, layout: 'h', width: 640, height: 360, fps: '30', sources: [{ hold: 'HOLD', frames: 15 }, { hold: 'HOLD', frames: 15 }] });
+  assert.match(filter, /\[0:v\]HOLD,scale=320:360,/);
+  assert.match(filter, /\[1:v\]HOLD,scale=320:360,/);
 });
 
 test('a cell that asks for no timing of its own is unchanged', () => {
@@ -78,6 +78,18 @@ test('REAL a ramped cell beside a cell at 1x, smooth at 0.25x and a held frame e
     { source: clips.b, in: 1.5 }, { source: clips.a, in: 2.0 }] }, 'held');
   assert.equal(held.done.status, 0, held.done.stderr);
   assert.equal(frames(held.out), 15);
+});
+
+test('REAL a plain slowed split (no smooth) comes out exactly its frames: 0.4 s at 0.25x is 48, 1 s at 0.4x is 75', { skip: !ffmpegReady && 'ffmpeg is needed' }, () => {
+  // A plain slowed split renders with its old arguments and already ends on its frame; this keeps it so.
+  const quarter = compose({ id: 'quarter', kind: 'split', layout: 'v', speed: 0.25, sources: [
+    { source: clips.b, in: 1.0, out: 1.4 }, { source: clips.a, in: 2.0, out: 2.4 }] }, 'quarter');
+  assert.equal(quarter.done.status, 0, quarter.done.stderr);
+  assert.equal(frames(quarter.out), 48);
+  const slow = compose({ id: 'slow', kind: 'split', layout: 'h', speed: 0.4, sources: [
+    { source: clips.b, in: 0.5, out: 1.5 }, { source: clips.a, in: 1.0, out: 2.0 }] }, 'slow');
+  assert.equal(slow.done.status, 0, slow.done.stderr);
+  assert.equal(frames(slow.out), 75);
 });
 
 test('REAL a split whose cells would play different lengths is refused, saying each length', { skip: !ffmpegReady && 'ffmpeg is needed' }, () => {
