@@ -1,0 +1,45 @@
+{
+  "drafted_from": "tool:check-a-sites-act-against-its-rows's own row (tool-rows.json) and do-work/check-a-sites-act.ts",
+  "start_here": "Say to your AI: \"Does my site's key still have exactly the tools its pages ask for?\" It runs tool:check-a-sites-act-against-its-rows for the computer and the site's account, and says what the rows now ask for that the applied act does not give, and what it gives that they no longer ask for.",
+  "lists": [],
+  "no_lists_because": "It keeps nothing: it reads the computer's row and the site's own rows (its runs settings row, pages and action rows) and answers how the act they make differs from the one applied.",
+  "workflows": [],
+  "tools": [
+    "tool:check-a-sites-act-against-its-rows",
+    "tool:run-sql-in-my-database"
+  ],
+  "instructions": [
+    "1. Name the computer row, the uid of the site program's account (its vault reader) and the held connection of the database the computer rows are kept in.",
+    "2. Grant it your Workshop folder (read-a-folder): it unpacks the commit the act is pinned to from there, as an apply does.",
+    "3. Read the answer: same, or what widened (needs you, with the rows asking for each tool) and what narrowed (may be applied)."
+  ],
+  "worked_examples": [
+    {
+      "title": "Check a site's act after its rows changed",
+      "ask": "Does my site's key still have exactly the tools its pages ask for?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "address": "@tools",
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:check-a-sites-act-against-its-rows",
+            "input": {
+              "computer": "example-computer",
+              "uid": 1106,
+              "store": "example_for_who_runs_it-connection"
+            },
+            "computer": {
+              "read-a-folder": {
+                "folder": "/path/to/the/workshop"
+              }
+            }
+          }
+        }
+      },
+      "given": "The computer row gives the site's act as { derive_from } and records the grant it last applied; a new action row asks for one more tool (made-up values).",
+      "hands_back": "{\"same\":false,\"needs_a_person\":true,\"narrowed_only\":false,\"widened\":{\"tools\":[\"tool:start-a-booking\"],\"held\":[],\"other\":[]},\"narrowed\":{\"tools\":[],\"held\":[]},\"refused\":[],\"asked_by\":{\"tool:start-a-booking\":[\"action POST /book\"]},\"derived_tools\":3,\"applied_tools\":2,\"difference_id\":\"made-up\"}"
+    }
+  ]
+}

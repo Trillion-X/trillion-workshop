@@ -446,6 +446,200 @@
           "source": "Written in tools/serve-a-sites-pages-from-its-rows/do-work from the run-sql statements a site's action rows sent (Nov 25 2026), made named and fixed; run through run-sql-in-my-database/do-work/run-sql.mjs withSqlWrite"
         }
       }
+    },
+    {
+      "id": "package::serve-a-sites-pages-from-its-rows::tool::check-a-sites-act-against-its-rows",
+      "address": "package::serve-a-sites-pages-from-its-rows::tool::check-a-sites-act-against-its-rows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "tool:run-sql-in-my-database"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-sites-act-against-its-rows",
+        "label": "Check a site's act against its rows",
+        "job": "Say how the tools a site's own key may run differ from the ones its rows ask for now",
+        "description": "A site's act (the tools its own key may run, a computer row's vault reader whose act is given as { derive_from }) is made from the site's rows when the computer row is applied. This derives it again from the rows as they are now, the same way and at the same Workshop commit (the act's pin, unpacked from the granted Workshop folder), and compares it with the act the row last applied. It answers same; widened (tools, held names, identity or journal the rows now ask for that the applied act does not give, with the rows asking for each), which needs a person and is never applied on its own; narrowed (what the applied act gives that the rows no longer ask for), which may be applied; refused (calls no grant can let the site make as written); needs_a_person and narrowed_only; and difference_id, the BLAKE3 identity of what differs. It reads the computer's row and the site's rows through tool:run-sql-in-my-database by the held connections the row names, and writes nothing.",
+        "status": "active",
+        "read_only": true,
+        "result_selector": "$",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "computer",
+            "uid",
+            "store"
+          ],
+          "properties": {
+            "computer": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The computer row's name."
+            },
+            "uid": {
+              "type": "integer",
+              "description": "The uid of the vault reader whose act is checked (the site program's own account)."
+            },
+            "store": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+$",
+              "description": "The held connection of the database the computer rows are kept in."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "same",
+            "needs_a_person",
+            "narrowed_only",
+            "widened",
+            "narrowed",
+            "refused",
+            "difference_id"
+          ],
+          "properties": {
+            "computer": {
+              "type": "string"
+            },
+            "uid": {
+              "type": "integer"
+            },
+            "site": {
+              "type": "string"
+            },
+            "pin": {
+              "type": "string"
+            },
+            "same": {
+              "type": "boolean"
+            },
+            "needs_a_person": {
+              "type": "boolean"
+            },
+            "narrowed_only": {
+              "type": "boolean"
+            },
+            "widened": {
+              "type": "object"
+            },
+            "narrowed": {
+              "type": "object"
+            },
+            "refused": {
+              "type": "array"
+            },
+            "asked_by": {
+              "type": "object"
+            },
+            "derived_tools": {
+              "type": "integer"
+            },
+            "applied_tools": {
+              "type": "integer"
+            },
+            "difference_id": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/serve-a-sites-pages-from-its-rows",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/serve-a-sites-pages-from-its-rows/do-work/check-a-sites-act.ts",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            },
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "kept_folder": true,
+          "records": {
+            "fd": 3,
+            "runs": [
+              "tool:run-sql-in-my-database"
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "serve-a-sites-pages-from-its-rows",
+                "paths": [
+                  "do-work/check-a-sites-act.ts"
+                ],
+                "at": "/opt/serve-a-sites-pages-from-its-rows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/blake3.mjs",
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "memory_mb": 512
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:serve-a-sites-pages-from-its-rows",
+        "provenance": {
+          "source": "Written in tools/serve-a-sites-pages-from-its-rows/do-work (Nov 25 2026) so a site's act, made from its rows at each apply, is checked whenever its rows change: the same rights.ts at the act's own pin"
+        }
+      }
     }
   ]
 }

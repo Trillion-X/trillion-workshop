@@ -7998,6 +7998,46 @@
  ],
  "tool:check-a-rendered-video": [],
  "tool:check-a-sign-up": [],
+ "tool:check-a-sites-act-against-its-rows": [
+  {
+   "package": "serve-a-sites-pages-from-its-rows",
+   "paths": [
+    "do-work/check-a-sites-act.ts"
+   ],
+   "at": "/opt/serve-a-sites-pages-from-its-rows"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data/blake3.mjs",
+    "read-data/identity.mjs"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:check-a-sound-effect-palette": [],
  "tool:check-a-spoken-line-reads-back": [],
  "tool:check-a-stage-move": [

@@ -284,6 +284,15 @@ functions these writes need), and the write's one transaction claims the use fir
       "href_origin": { "$": "address", "of": { "$": "body", "key": "href" }, "part": "origin" }, "origin": { "$": "origin" } } } }
 ```
 
+`tool:check-a-sites-act-against-its-rows` checks the act a site's key is granted against the rows it was made from. A computer row
+gives a site's act as `{ "derive_from": { "connection", "database", "use", "site", "pin" } }` and its apply makes the grant from the
+site's rows (`rights.ts` `siteRowsOf`); this tool derives it again from the rows as they are now, at the same pin (unpacked once from
+the granted Workshop folder with git archive), and answers `same`, `widened` (what the rows now ask for that the applied act does
+not give, with `asked_by` naming the rows; `needs_a_person`, never applied on its own), `narrowed` (what the applied act gives that
+the rows no longer ask for; `narrowed_only` may be applied), `refused` and `difference_id` (the BLAKE3 identity of what differs).
+It reads the computer row and the site's rows through `tool:run-sql-in-my-database` on the run's door and writes nothing. Input:
+`{ "computer", "uid", "store" }` (the computer row, the site program's vault reader uid, the held connection of the computer rows).
+
 ## Files
 
 | File | What |
@@ -301,6 +310,8 @@ functions these writes need), and the write's one transaction claims the use fir
 | `do-work/member-pass.ts` | who a request is: the sign-in tool's pass, checked |
 | `do-work/member-video.ts` | a member's file: the right check and the presigned GET (signature version 4) |
 | `do-work/door.ts` | one request to a URL or unix socket; one tool run on the engine's door |
+| `do-work/check-a-sites-act.ts` | `tool:check-a-sites-act-against-its-rows`: the act derived again at its pin and compared with the applied one |
+| `do-work/site-settings.ts` | the site's `runs` settings row read and checked |
 | `do-work/keep-a-site-write.ts` | `tool:keep-a-site-write`: one named write, its values checked and sent as parameters, in one claimed transaction (run-sql's withSqlWrite) |
 | `read-data/site-writes.json` | the named writes: each one fixed statement and the values it takes, in parameter order |
 | `kits/keep-a-site-write.json` | start here and a worked example |
