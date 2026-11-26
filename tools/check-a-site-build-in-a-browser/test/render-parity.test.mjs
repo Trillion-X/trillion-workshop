@@ -46,3 +46,9 @@ test('the box under a text is compared once per box: its colour, corner, border,
   const kinds = differences(old, other, 1280).map(item => item.kind).sort();
   assert.deepEqual(kinds, ['border', 'box height', 'corner', 'shadow', 'surface colour', 'surface gradient']);
 });
+
+test('an arrow after a label is the same words whether a page draws it as a glyph or as a picture', () => {
+  const old = page([text('See pricing →')]);
+  const now = page([text('See pricing')]);
+  assert.deepEqual(differences(old, now, 1280), []);
+});

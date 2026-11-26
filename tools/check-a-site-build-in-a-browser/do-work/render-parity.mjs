@@ -140,7 +140,10 @@ export function alignBy(a, b, key = item => item.text) {
 const near = (x, y, by) => Math.abs(x - y) <= by;
 
 // The differences between two collected pages at one width.
-export function differences(old, now, width, tolerance = TOLERANCE) {
+export function differences(oldPage, nowPage, width, tolerance = TOLERANCE) {
+  // An arrow after a label is the same mark drawn as a glyph on one page and as a picture on the other: it is not part of the words.
+  const withoutArrow = page => ({ ...page, texts: page.texts.map(item => ({ ...item, text: item.text.replace(/\s*→\s*$/, '') })) });
+  const old = withoutArrow(oldPage), now = withoutArrow(nowPage);
   const found = [];
   const add = (kind, where, was, is) => found.push({ width, kind, where, was, is });
   const pairs = alignBy(old.texts, now.texts);
