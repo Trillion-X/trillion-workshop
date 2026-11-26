@@ -104,7 +104,11 @@ let listedClips: string[] = [];
 
 // An engine door on loopback: tools:run of run-sql answers the rows, read-a-greeting answers a Text screen's props, and every
 // call's pass and tool are written down.
-async function door(look = LOOK, pages = PAGES) {
+// What a database's row_changes answers the front's one ask (CHANGES_SQL): set by a test; null answers the ask with an error,
+// as a database whose row_changes the site's login cannot read.
+type RowChanges = { newest: string; changed: string[]; told: string[] } | null;
+
+async function door(look = LOOK, pages = PAGES, rowChanges: { now: RowChanges } = { now: null }) {
   const calls: { pass: string; run: ToolRun }[] = [];
   const server = http.createServer((request, response) => {
     let body = '';
@@ -117,6 +121,12 @@ async function door(look = LOOK, pages = PAGES) {
       if (run.tool === 'tool:run-sql-in-my-database') {
         assert.deepEqual(run.input.use, { purpose: 'serve the site', surface: 'site pages' }, 'every read runs under the declared use');
         const sql = run.input.sql!;
+        if (sql.includes('FROM row_changes')) {
+          if (!rowChanges.now) return response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 1, error: 'permission denied for table row_changes', result: null } } }));
+          result = { rows: [{ newest: rowChanges.now.newest, changed: rowChanges.now.changed, told: rowChanges.now.told, xmin: '700' }] };
+          response.setHeader('content-type', 'text/event-stream');
+          return response.end(`data: ${JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { tool: run.tool, exit_code: 0, result } } })}\n\n`);
+        }
         result = { rows: sql.includes('FROM site_settings') ? siteSettingsRows.filter(row => row.site === (run.input as { params?: unknown[] }).params?.[0]) : sql.includes('FROM "site_actions"') ? ACTIONS : sql.includes('FROM offers') ? [{ id: 'offer:one', params: run.input.params }] : sql.includes('FROM pages') ? pages : sql.includes('FROM site_look') ? look : [{ slug: 'first' }, { slug: 'second one' }] };
       } else if (run.tool === 'tool:start-a-checkout') {
         result = { redirectUrl: 'https://pay.example.test/session/1', sessionId: 's1' };
@@ -627,6 +637,43 @@ test('a form that cannot be JSON (a file, clashing names) is passed as it came',
   withFile.append('picture', new Blob(['bytes']), 'a.jpg');
   const encoded = new Response(withFile);
   assert.equal(await formJsonOf(encoded.headers.get('content-type') ?? '', Buffer.from(await encoded.arrayBuffer())), null);
+});
+
+test('each kind of row is kept until a row change names its table: an unchanged refresh asks once, a view reads no row, a change shows on the next view', async () => {
+  const told = ['site_settings', 'pages', 'site_look', 'site_actions', 'notes'];
+  const changes: { now: RowChanges } = { now: { newest: '10', changed: [], told } };
+  const pages = PAGES.map(page => ({ ...page }));
+  const d = await door(LOOK, pages, changes);
+  const lines: string[] = [];
+  try {
+    const sqlOf = () => d.calls.filter(call => call.run.tool === 'tool:run-sql-in-my-database').map(call => String((call.run.input as { sql: string }).sql));
+    const site = await siteOn(d.address, { actions: 'site_actions' }, { log: line => lines.push(line) });
+    const first = sqlOf();
+    assert.ok(first.some(sql => sql.includes('FROM pages')) && first.some(sql => sql.includes('FROM site_look')) && first.some(sql => sql.includes('FROM "site_actions"')) && first.some(sql => sql.includes('FROM "notes"')), 'the first read reads every kind');
+    d.calls.length = 0;
+    await site.read();
+    assert.deepEqual(sqlOf().map(sql => sql.includes('FROM row_changes')), [true], 'an unchanged refresh is one ask and nothing else');
+    d.calls.length = 0;
+    for (const path of ['/', '/notes/first', '/notes/first']) assert.equal((await site.answer('GET', path, undefined, 'site.example.test')).status, 200, path);
+    assert.deepEqual(sqlOf(), [], 'a view reads no row');
+    const home = pages.find(page => page.path === '/')!;
+    home.title = 'Home, changed';
+    changes.now = { newest: '11', changed: ['pages'], told };
+    d.calls.length = 0;
+    await site.read();
+    assert.deepEqual(sqlOf().map(sql => (sql.includes('FROM row_changes') ? 'ask' : sql.includes('FROM pages') ? 'pages' : sql)), ['ask', 'pages'], 'a change to pages reads pages again, and only pages');
+    assert.match(String((await site.answer('GET', '/', undefined, 'site.example.test')).body), /<title>Home, changed<\/title>/, 'the change shows on the next view');
+    changes.now = { newest: '11', changed: [], told: told.filter(table => table !== 'site_look') };
+    d.calls.length = 0;
+    await site.read();
+    assert.deepEqual(sqlOf().map(sql => (sql.includes('FROM row_changes') ? 'ask' : sql.includes('FROM site_look') ? 'look' : sql)), ['ask', 'look'], 'a table that tells no changes is read every refresh, as before');
+    changes.now = null;
+    d.calls.length = 0;
+    await site.read();
+    await site.read();
+    assert.equal(sqlOf().filter(sql => sql.includes('FROM pages')).length, 2, 'a row_changes the login cannot read: every kind every refresh, never kept stale');
+    assert.equal(lines.filter(line => line.startsWith('The row changes could not be read')).length, 1, 'said once');
+  } finally { d.server.close(); }
 });
 
 test('the network source is the address the site\'s own front web server saw: the last X-Forwarded-For entry, else the connection', async () => {

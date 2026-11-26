@@ -32,8 +32,13 @@
 //                    is never drawn through it either.
 //     pages          { database, use: { purpose, surface }, refresh_seconds, answer_seconds }: the database holding the
 //                    `pages` and `site_look` tables, the declared use its reads run under (the reader login; left out, the
-//                    caller's own login, which only a local run through a command should do), how often the rows
-//                    are read again, and how long a public page's tool answer is kept. The use is also given to every tool
+//                    caller's own login, which only a local run through a command should do), how often the front asks
+//                    whether its rows changed, and how long a public page's tool answer is kept. Each kind of row (the
+//                    settings row, pages, look, actions, each collection's slugs) is kept until a change names its table:
+//                    every refresh_seconds one statement (CHANGES_SQL) reads the database's row_changes for the tables
+//                    changed since the last ask, and only those kinds are read again. A table whose changes row_changes
+//                    does not tell (no tell_row_change trigger on it), or a database whose row_changes this login cannot
+//                    read, is read again every refresh_seconds, as before; a view itself reads no row. The use is also given to every tool
 //                    run whose input names a database and no use (withPagesUse), so a row's tool opens its database under it.
 //                    With `settings` (the site's name), the site's runs row of site_settings (site-settings.ts) says site_head,
 //                    served_files and actions instead of this file, read again with the rows; its use must be this use
@@ -94,7 +99,7 @@ import { filesStoreOf, isPublicPath, memberFileAnswer, memberFilesOf, objectKeyO
 import type { FilesStore, MemberFiles, PublicFiles, StoreKey } from './member-video.ts';
 import { closedOnHost, ListedPaths, LISTING_UNREAD, NOT_LISTED, servedFilesOf, servedKeyOf, StoreFiles } from './served-files.ts';
 import type { ServedFiles } from './served-files.ts';
-import { actionsTableOf, SITE_NAME, SITE_SETTINGS_SQL, siteHeadOf, siteSettingsOf } from './site-settings.ts';
+import { actionsTableOf, SITE_NAME, SITE_SETTINGS_SQL, SITE_SETTINGS_TABLE, siteHeadOf, siteSettingsOf } from './site-settings.ts';
 import type { SiteSettings } from './site-settings.ts';
 import { filledInput, hasWordsPlace, matchPage, NOT_FOUND, pagesOf, pagesOn, pathWith, PAGES_SQL, paramsOf, slugsSql } from './pages.ts';
 import type { PageRow, Refused } from './pages.ts';
@@ -133,7 +138,20 @@ export interface Settings {
 }
 
 const RUN_SQL = 'tool:run-sql-in-my-database';
-const LOOK_SQL = 'SELECT name, value FROM site_look ORDER BY name';
+const LOOK_TABLE = 'site_look';
+const PAGES_TABLE = 'pages';
+const LOOK_SQL = `SELECT name, value FROM ${LOOK_TABLE} ORDER BY name`;
+/**
+ * Which of `tables` ($2) changed since the last ask, in one statement: row_changes' newest position, the tables of its rows
+ * after the last position seen ($1) or written by a transaction that was still open then (txid at or after that ask's snapshot
+ * xmin, $3, so a change that took its position before the ask and committed after it is not missed), the tables of $2 that
+ * tell their changes (a tell_row_change trigger), and this snapshot's xmin for the next ask.
+ */
+export const CHANGES_SQL = `SELECT (SELECT max(position) FROM row_changes)::text AS newest,
+  (SELECT coalesce(array_agg(DISTINCT table_name), '{}') FROM row_changes WHERE position > $1::bigint OR txid >= $3::xid8) AS changed,
+  (SELECT coalesce(array_agg(DISTINCT c.relname::text), '{}') FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid
+    WHERE NOT t.tgisinternal AND t.tgname LIKE 'tell_row_change%' AND c.relname = ANY ($2::text[])) AS told,
+  pg_snapshot_xmin(pg_current_snapshot())::text AS xmin`;
 /** The site's look row with its own words for a form post that did not go through, when no action row's `failed` says them. */
 export const FORM_FAILED_ROW = `${WORDS}form-failed`;
 export const FORM_FAILED_TITLE = 'That did not go through';
@@ -316,6 +334,10 @@ export class Site {
   #head: SiteHeadMarkup | null = null;
   #readAt = 0;
   #reading: Promise<void> | null = null;
+  // The rows of each kind as last read, kept until a change names their table (read()); the row_changes place last asked from.
+  #kept: { pages?: Record<string, unknown>[]; look?: Record<string, unknown>[]; actions?: { table: string; rows: Record<string, unknown>[] }; slugs: Map<string, Set<string>> } = { slugs: new Map() };
+  #since: { position: string; xmin: string } | null = null;
+  #changesUnread = false;
   #answers = new Map<string, Kept>();
   #log: (line: string) => void;
   // The paths each served_files rule's only_listed_by tool names, run with the site's own key.
@@ -344,32 +366,69 @@ export class Site {
       });
   }
 
-  /** Reads the page and look rows; throws when they cannot be read or a row is broken. */
+  /**
+   * Reads again each kind of row a change named since the last read (all of them the first time), and every kind whose table
+   * does not tell its changes; throws when a kind cannot be read or a row is broken, and then keeps the last good set and asks
+   * again from the same place next time.
+   */
   async read(): Promise<void> {
     const { settings: site, use } = this.#parts.settings.pages;
-    const own = site === undefined ? this.#own : siteSettingsOf(await this.#sql(SITE_SETTINGS_SQL, [site]), site, use);
+    const collectionsKept = [...this.#kept.slugs.keys()];
+    const tables = [...new Set([...(site === undefined ? [] : [SITE_SETTINGS_TABLE]), PAGES_TABLE, LOOK_TABLE, ...(this.#own.actions ? [this.#own.actions] : []), ...collectionsKept])];
+    const changes = await this.#changesSince(tables);
+    const stale = (table: string) => changes === null || !changes.told.has(table) || changes.changed.has(table);
+    const own = site === undefined ? this.#own : stale(SITE_SETTINGS_TABLE) || this.#readAt === 0 ? siteSettingsOf(await this.#sql(SITE_SETTINGS_SQL, [site]), site, use) : this.#own;
     const table = own.actions;
-    const [pages, look, head, actionRows] = await Promise.all([this.#sql(PAGES_SQL), this.#sql(LOOK_SQL), this.#siteHead(own.site_head), table ? this.#sql(actionsSql(table)) : []]);
+    const keptActions = this.#kept.actions;
+    const [pages, look, head, actionRows] = await Promise.all([
+      this.#kept.pages && !stale(PAGES_TABLE) ? this.#kept.pages : this.#sql(PAGES_SQL),
+      this.#kept.look && !stale(LOOK_TABLE) ? this.#kept.look : this.#sql(LOOK_SQL),
+      this.#siteHead(own.site_head),
+      !table ? [] : keptActions && keptActions.table === table && !stale(table) ? keptActions.rows : this.#sql(actionsSql(table)),
+    ]);
     const { actions, refused: refusedActions } = actionsOf(actionRows);
     for (const { path, why } of refusedActions) if (!this.#refusedActions.some(r => r.path === path && r.why === why)) this.#log(`action row set aside: ${why}`);
     const { pages: good, refused } = pagesOf(pages);
     for (const { path, why } of refused) if (!this.#refused.some(r => r.path === path && r.why === why)) this.#log(`page row set aside: ${why}`);
     const collections = [...new Set(good.filter(page => page.collection && paramsOf(page.path).length === 1).map(page => page.collection!))];
-    const slugs = new Map(await Promise.all(collections.map(async collection => [collection,
-      new Set((await this.#sql(slugsSql(collection))).map(row => row.slug).filter((slug): slug is string => typeof slug === 'string' && slug !== ''))] as const)));
+    const slugs = new Map(await Promise.all(collections.map(async collection => [collection, this.#kept.slugs.has(collection) && !stale(collection) ? this.#kept.slugs.get(collection)!
+      : new Set((await this.#sql(slugsSql(collection))).map(row => row.slug).filter((slug): slug is string => typeof slug === 'string' && slug !== ''))] as const)));
+    if (pages !== this.#kept.pages || look !== this.#kept.look || this.#readAt === 0) {
+      const theme = look.find(row => row.name === THEME_ROW)?.value;
+      const faces = await Promise.all(fontFacesOf(look).map(async face => ({ ...face, address: await this.#parts.keepFont(face.src) })));
+      this.#look = `${fontFaceCss(faces)}${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
+      const formFailed = look.find(row => row.name === FORM_FAILED_ROW)?.value;
+      this.#formFailed = typeof formFailed === 'string' && formFailed.trim() ? formFailed.trim() : null;
+    }
     this.#pages = good;
     this.#slugs = slugs;
     this.#actions = actions;
     this.#refusedActions = refusedActions;
     this.#refused = refused;
-    const theme = look.find(row => row.name === THEME_ROW)?.value;
-    const faces = await Promise.all(fontFacesOf(look).map(async face => ({ ...face, address: await this.#parts.keepFont(face.src) })));
-    this.#look = `${fontFaceCss(faces)}${this.#parts.palette(typeof theme === 'string' ? theme : null)}${lookCss(look)}`;
-    const formFailed = look.find(row => row.name === FORM_FAILED_ROW)?.value;
-    this.#formFailed = typeof formFailed === 'string' && formFailed.trim() ? formFailed.trim() : null;
+    this.#kept = { pages, look, ...(table ? { actions: { table, rows: actionRows } } : {}), slugs };
     this.#head = head;
     this.#own = own;
+    if (changes) this.#since = { position: changes.newest, xmin: changes.xmin };
     this.#readAt = Date.now();
+  }
+
+  // Which of `tables` changed since the last read, and which tell their changes; null when everything is to be read (the first
+  // read, or a row_changes this login cannot read: then every kind is read each time, as before, and that is said once).
+  async #changesSince(tables: string[]): Promise<{ newest: string; xmin: string; changed: Set<string>; told: Set<string> } | null> {
+    let rows: Record<string, unknown>[];
+    try {
+      rows = await this.#sql(CHANGES_SQL, [this.#since?.position ?? '-1', tables, this.#since?.xmin ?? '0']);
+    } catch (error) {
+      if (!this.#changesUnread) this.#log(`The row changes could not be read, so every kind of row is read again each time: ${(error as Error).message}`);
+      this.#changesUnread = true;
+      return null;
+    }
+    this.#changesUnread = false;
+    const [row] = rows;
+    const list = (value: unknown): string[] => (Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : typeof value === 'string' ? value.replace(/^\{|\}$/g, '').split(',').filter(Boolean) : []);
+    const changes = { newest: typeof row?.newest === 'string' ? row.newest : String(row?.newest ?? '0'), xmin: String(row?.xmin ?? '0'), changed: new Set(list(row?.changed)), told: new Set(list(row?.told)) };
+    // The first ask only sets the place: every kind is read.
+    return this.#since === null ? { ...changes, told: new Set() } : changes;
   }
 
   /** What the site runs as itself, as last read: its site head, served files and action table. */

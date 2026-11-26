@@ -74,8 +74,15 @@ page's tool runs are timed in its `Server-Timing` header.
 ## The rows
 
 All in the database `settings.pages.database`, read with `tool:run-sql-in-my-database` under the declared use `settings.pages.use`
-(the computer opens the database with its reader login). The rows are read again every `pages.refresh_seconds`; if a read fails
-the last good set stays served.
+(the computer opens the database with its reader login). Each kind of row (the settings row, `pages`, `site_look`, the action
+table, each collection's slugs) is kept in memory until a change names its table: every `pages.refresh_seconds` the front asks
+the database once (serve.ts `CHANGES_SQL`) which of its tables `row_changes` holds a change for since the last ask (by position,
+and by the transactions still open at that ask, so a change committed late is not missed), and which of them tell their
+changes at all (a `tell_row_change` trigger), and it reads again only the kinds a change named. An unchanged refresh is that one
+statement; a page view reads no row. A table that tells no changes is read every refresh, and a database whose `row_changes`
+the reader login cannot read (it needs `position`, `table_name` and `txid` of `row_changes`) has every kind read every refresh,
+as before, said once in the log, so a missed notice never keeps a stale row. If a read fails the last good set stays served and
+the next refresh asks again from the same place.
 
 `pages`: one row per page.
 
