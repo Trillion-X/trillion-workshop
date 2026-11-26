@@ -94,7 +94,8 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '');
 /** A payment event as a path answers it: { id, event_id, occurred_at, event_kind, attributes, pursuit_ids? }. */
 export type PaymentEvent = { id: string; event_id: string; occurred_at: string; event_kind: string; attributes?: Record<string, unknown>; pursuit_ids?: unknown };
 
-const KEPT_COLUMNS = ['id', 'event_id', 'occurred_at', 'event_kind', 'offer_id', 'price_option_id', 'customer_email', 'amount_due_today_cents', 'currency',
+/** The columns a keep writes, in order: payment-catch-up.ts keeps a whole list by the same columns. */
+export const KEPT_COLUMNS = ['id', 'event_id', 'occurred_at', 'event_kind', 'offer_id', 'price_option_id', 'customer_email', 'amount_due_today_cents', 'currency',
   'payment_status', 'subscription_id', 'provider_object_ref', 'completion_ref', 'provider_event_id', 'pursuit_ids', 'attributes'] as const;
 
 /**
