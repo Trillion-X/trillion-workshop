@@ -1,0 +1,40 @@
+{
+  "drafted_from": "tool:remove-objects-from-an-s3-store row in tool-rows.json, do-work/remove-objects.ts and test/remove-objects.test.ts",
+  "start_here": "Say to your AI: \"Remove these three files from my files store: site/old/a.html, site/old/b.png, site/old/c.css.\" It runs tool:remove-objects-from-an-s3-store with that exact list and answers, for each key, removed with its size, absent, or failed with why.",
+  "lists": [],
+  "no_lists_because": "It names no list: it removes objects by their exact keys from a bucket whose key the person keeps in their vault.",
+  "workflows": [],
+  "tools": [
+    "tool:remove-objects-from-an-s3-store"
+  ],
+  "instructions": [
+    "1. Keep the store's five values in your vault under one name: <store>-key-id, <store>-secret, <store>-endpoint (an https root), <store>-bucket and <store>-region, each reaching only the store's host. The key never appears in a request.",
+    "2. Read first: your AI calls do_one_thing_in_my_account with method tools:run, tool tool:remove-objects-from-an-s3-store and input {store, action: list, prefix}, and shows you the keys and sizes under that prefix.",
+    "3. Name the exact keys to remove; your AI runs the tool with {store, keys}. A prefix, a wildcard or a key named twice removes nothing.",
+    "4. Read the answer: each key removed (with its size), absent, or failed (with why). List the prefix again to see it empty. A refused key (401 or 403) means a current key for that store belongs in the vault."
+  ],
+  "worked_examples": [
+    {
+      "title": "Remove two copies made under the wrong folder",
+      "ask": "Remove site/old/a.html and site/old/b.png from my files store.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:remove-objects-from-an-s3-store",
+            "input": {
+              "store": "files-store",
+              "keys": [
+                "site/old/a.html",
+                "site/old/b.png"
+              ]
+            }
+          }
+        }
+      },
+      "hands_back": "{\"store\":\"files-store\",\"results\":[{\"key\":\"site/old/a.html\",\"result\":\"removed\",\"bytes\":463},{\"key\":\"site/old/b.png\",\"result\":\"absent\"}],\"removed\":1,\"absent\":1,\"failed\":0}"
+    }
+  ]
+}

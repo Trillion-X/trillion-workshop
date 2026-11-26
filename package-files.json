@@ -54050,6 +54050,45 @@
    "at": "/opt/workflows"
   }
  ],
+ "tool:remove-objects-from-an-s3-store": [
+  {
+   "package": "remove-objects-from-an-s3-store",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/remove-objects-from-an-s3-store"
+  },
+  {
+   "package": "read-objects-in-an-s3-store",
+   "paths": [
+    "do-work/read-objects.mjs"
+   ],
+   "at": "/opt/read-objects-in-an-s3-store"
+  },
+  {
+   "package": "put-an-object-in-an-s3-store",
+   "paths": [
+    "do-work/put-object.mjs"
+   ],
+   "at": "/opt/put-an-object-in-an-s3-store"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  }
+ ],
  "tool:render-a-motion-graphics-overlay": [
   {
    "package": "render-a-motion-graphics-overlay",

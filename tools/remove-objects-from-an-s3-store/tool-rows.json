@@ -1,0 +1,239 @@
+{
+ "kind": "tool-rows",
+ "record_set": "remove-objects-from-an-s3-store-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/remove-objects-from-an-s3-store.",
+ "records": [
+  {
+   "id": "package::remove-objects-from-an-s3-store::tool::remove-objects-from-an-s3-store",
+   "address": "package::remove-objects-from-an-s3-store::tool::remove-objects-from-an-s3-store",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:remove-objects-from-an-s3-store",
+    "needs": {
+     "expected_seconds": 300,
+     "network_egress": true
+    },
+    "read_only": false,
+    "id": "tool:remove-objects-from-an-s3-store",
+    "label": "Remove named objects from an S3-compatible store",
+    "job": "Remove the exact files I name from a storage bucket I keep the key of, after reading what each one is, or list one folder of it",
+    "description": "Removes named objects from an S3-compatible store the person keeps in their vault (Backblaze B2, Cloudflare R2, any store that speaks S3), or lists one page of a prefix so a removal is read before and after. `store` names the store's values in the person's vault: <store>-key-id, <store>-secret, <store>-endpoint (an https root), <store>-bucket and <store>-region, such as files-store; they reach this run on private pipes, only for the account's owner, and each goes only to the hosts the vault keeps for it. action remove (the default) takes `keys`, an exact list of 1 to 1000 keys: a key that ends in \"/\" (a prefix), holds \"*\" or \"?\", is named twice or is not a plain key refuses the whole list, so nothing is removed. Each key is read before it is removed and answers { key, result: removed, bytes }, { key, result: absent } or { key, result: failed, why }; one failed key does not stop the others. action list takes `prefix` and answers one page of { key, size, last_modified }, with next_token for the next. Never answers a key value, a signature, the endpoint or the bucket. A refused key means the store's key in the vault is not current.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "store"
+     ],
+     "properties": {
+      "store": {
+       "type": "string",
+       "description": "The vault name the store's values begin with, such as files-store"
+      },
+      "action": {
+       "type": "string",
+       "enum": [
+        "remove",
+        "list"
+       ],
+       "description": "remove the named keys (the default), or list one page of a prefix"
+      },
+      "keys": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 1000,
+       "items": {
+        "type": "string"
+       },
+       "description": "For remove: the exact object keys, such as [\"site/old/index.html\"]; no prefix, no wildcard"
+      },
+      "prefix": {
+       "type": "string",
+       "description": "For list: only keys that start with this text, such as site/old/"
+      },
+      "max_keys": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 1000,
+       "description": "For list: how many objects one page holds"
+      },
+      "continuation_token": {
+       "type": "string",
+       "description": "For list: next_token from the page before"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "properties": {
+      "store": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "results": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "result"
+        ],
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "result": {
+          "type": "string",
+          "enum": [
+           "removed",
+           "absent",
+           "failed"
+          ]
+         },
+         "bytes": {
+          "type": "integer"
+         },
+         "why": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "removed": {
+       "type": "integer"
+      },
+      "absent": {
+       "type": "integer"
+      },
+      "failed": {
+       "type": "integer"
+      },
+      "prefix": {
+       "type": "string"
+      },
+      "objects": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "size": {
+          "type": "integer"
+         },
+         "last_modified": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "truncated": {
+       "type": "boolean"
+      },
+      "next_token": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/remove-objects-from-an-s3-store",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/remove-objects-from-an-s3-store/do-work/remove-objects.ts"
+     ],
+     "files": {
+      "package_files": [
+       {
+        "package": "remove-objects-from-an-s3-store",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/remove-objects-from-an-s3-store"
+       },
+       {
+        "package": "read-objects-in-an-s3-store",
+        "paths": [
+         "do-work/read-objects.mjs"
+        ],
+        "at": "/opt/read-objects-in-an-s3-store"
+       },
+       {
+        "package": "put-an-object-in-an-s3-store",
+        "paths": [
+         "do-work/put-object.mjs"
+        ],
+        "at": "/opt/put-an-object-in-an-s3-store"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "credential_mounts": [
+      {
+       "secret_name_from_input": "store",
+       "held_suffix": "-key-id",
+       "fd": 3
+      },
+      {
+       "secret_name_from_input": "store",
+       "held_suffix": "-secret",
+       "fd": 4
+      },
+      {
+       "secret_name_from_input": "store",
+       "held_suffix": "-endpoint",
+       "fd": 5
+      },
+      {
+       "secret_name_from_input": "store",
+       "held_suffix": "-bucket",
+       "fd": 6
+      },
+      {
+       "secret_name_from_input": "store",
+       "held_suffix": "-region",
+       "fd": 7
+      }
+     ]
+    },
+    "result_selector": "$"
+   }
+  }
+ ]
+}

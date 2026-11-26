@@ -256,6 +256,7 @@ Generated from each folder's `tool-rows.json` by `node test-helpers/write-tool-c
 | `record-video-with-teleprompter` | `tool:turn-a-presentation-plan-into-a-teleprompter-session` |
 | `referral-codes-and-rewards` | `tool:give-referral-rewards`, `tool:make-a-referral-code`, `tool:withdraw-a-referral-code`, `tool:work-out-referral-codes` |
 | `register-my-account-in-my-ai-apps` | `tool:register-my-account-in-my-ai-apps` |
+| `remove-objects-from-an-s3-store` | `tool:remove-objects-from-an-s3-store` |
 | `render-a-motion-graphics-overlay` | `tool:render-a-motion-graphics-overlay`, `tool:render-an-overlay-insert-for-a-cut` |
 | `reply-by-keyword-rule` | `tool:decide-the-replies`, `tool:send-a-reply-on-instagram`, `tool:send-a-reply-on-youtube` |
 | `reply-templates` | `tool:expand-a-reply-template` |
