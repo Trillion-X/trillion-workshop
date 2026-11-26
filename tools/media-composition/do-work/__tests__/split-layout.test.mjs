@@ -133,8 +133,8 @@ test('label transform: drawtext via textfile (escaping-free) after scale, positi
   });
   // drawtext comes AFTER the format=yuv420p (scale+norm) in the chain, reads from textfile
   assert.match(filter, /format=yuv420p,drawtext=textfile='\/tmp\/l0\.txt':expansion=none:x=.*:y=.*fontsize=54/);
-  // bottom-right corner uses w-text_w / h-text_h anchors
-  assert.match(filter, /drawtext=textfile='\/tmp\/l1\.txt':expansion=none:x=w-text_w-\d+:y=h-text_h-\d+/);
+  // the bottom-right corner is the normalized position (1, 1): pad + the whole travel left after the text and both pads
+  assert.match(filter, /drawtext=textfile='\/tmp\/l1\.txt':expansion=none:x=(\d+)\+\(w-text_w-\d+\)\*\(1\):y=\1\+\(h-text_h-\d+\)\*\(1\)/);
 });
 
 test('crop + label compose per-source with segment speed in chain order: crop -> setpts -> scale -> drawtext', () => {

@@ -16,12 +16,16 @@
 //                          subject. The DATA producer MUST clamp the rect to the real
 //                          source frame — an over-large w/h ERRORS in ffmpeg (verified);
 //                          the pure builder has no source dims so it cannot clamp.
-//       - label {textfile,corner?,size?,color?,box?,box_color?,pad?}  drawtext burned
+//       - label {textfile,x?,y?,size?,color?,box?,box_color?,pad?}  drawtext burned
 //                          into the cell AFTER scale (size/position in OUTPUT px).
 //                          `textfile` is a path the I/O layer (video-compose) wrote —
 //                          using textfile, NOT text=, sidesteps ffmpeg's multi-level
 //                          escaping entirely (text with `:` `%` `'` etc. breaks text=;
-//                          textfile is bulletproof — verified). corner ∈ tl|tr|bl|br.
+//                          textfile is bulletproof — verified). Position is the
+//                          NORMALIZED {x,y} primitive (0..1): x=0 left/0.5 center/1
+//                          right, y=0 top/0.5 middle/1 bottom — the 9 alignment
+//                          anchors and any freeform drop are all (x,y). Legacy
+//                          `corner ∈ tl|tr|bl|br` maps to an (x,y) preset.
 //   • TEMPORAL, SEGMENT-UNIFORM (`speed`, default 1): setpts=PTS/speed applied to
 //       EVERY cell so all branches retime identically. Speed is NOT per-source: a
 //       per-cell speed would desync an hstack (branches of unequal length; hstack's
@@ -38,7 +42,7 @@
  * Build the video filter graph for a split.
  * @param {{count:number, layout?:string, weights?:number[], width:number, height:number, fps:string|number, speed?:number, sources?:SourceTransform[]}} spec
  * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:string, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
- * @typedef {{textfile:string, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
+ * @typedef {{textfile:string, x?:number, y?:number, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
  * @returns {{ filter:string, videoLabel:string, cells:{w:number,h:number}[], cols?:number, rows?:number }}
  */
 export function buildSplitLayout({ count, layout = 'h', weights, width, height, fps, speed, sources }) {
@@ -147,13 +151,47 @@ function normalizedWeights(weights, count) {
  * Reads the text from `label.textfile` (escaping-free — text= breaks on `:`/`%`/`'`),
  * and disables `%{...}` expansion so the literal text is never reinterpreted.
  */
+// A color is safe to interpolate into an ffmpeg filter iff it is a plain color token:
+// a name (`white`), a hex (`#RRGGBB[AA]` / `0xRRGGBB`), optionally with an `@alpha`
+// suffix (`black@0.5`). Anything with a `:`, `'`, `\`, `%`, `,`, `[`, `]` is a filter-
+// graph metacharacter that would break or INJECT into the graph — reject to the
+// default. This is the Physics boundary: caption STYLE is Society DATA, but it may
+// never carry executable filter syntax into the render (no Society leak into Physics).
+function safeColor(value, fallback) {
+  return typeof value === 'string' && /^#?[0-9a-zA-Z]+(@[0-9.]+)?$/.test(value) ? value : fallback;
+}
+
 function drawtextFilter(label, ch) {
-  const pad = Number.isFinite(label.pad) ? label.pad : Math.round(ch * 0.03);
-  const size = Number.isFinite(label.size) ? label.size : Math.round(ch * 0.05);
-  const color = label.color || 'white';
-  const corner = label.corner || 'tl';
-  const x = corner === 'tr' || corner === 'br' ? `w-text_w-${pad}` : `${pad}`;
-  const y = corner === 'bl' || corner === 'br' ? `h-text_h-${pad}` : `${pad}`;
+  const pad = Number.isFinite(label.pad) ? Math.max(0, Math.round(label.pad)) : Math.round(ch * 0.03);
+  // Size is bounded to [8, ch]: a caption can never be smaller than legible nor taller
+  // than the frame (a NaN/negative/absurd DATA value can't corrupt the graph or explode).
+  const rawSize = Number.isFinite(label.size) ? label.size : Math.round(ch * 0.05);
+  const size = Math.max(8, Math.min(ch, Math.round(rawSize)));
+  const color = safeColor(label.color, 'white');
+  // NORMALIZED POSITION PRIMITIVE: label.x / label.y ∈ [0,1] place the text box
+  // anywhere in the padded frame with ONE formula (no corner enum). x=0 left /
+  // 0.5 center / 1 right; y=0 top / 0.5 middle / 1 bottom. The 9 alignment
+  // anchors and any freeform drop are all just (x,y). A legacy `corner` maps to
+  // an (x,y) preset for back-compat only.
+  const LEGACY = { tl: [0, 0], tr: [1, 0], bl: [0, 1], br: [1, 1] };
+  const legacy = LEGACY[label.corner] || [0, 0];
+  const clamp01 = (n) => Math.max(0, Math.min(1, n));
+  const fx = clamp01(Number.isFinite(label.x) ? label.x : legacy[0]);
+  const fy = clamp01(Number.isFinite(label.y) ? label.y : legacy[1]);
+  // Available travel = frame minus text size minus both pads; anchor is the box's
+  // top-left, so fx=1 pins the right edge and fy=1 pins the bottom edge.
+  // #101 An x_expr/y_expr (a full ffmpeg position expression, e.g. a motion-track binding) overrides
+  // the static normalized placement, letting a caption FOLLOW a moving subject.
+  // #115 An x_norm_expr/y_norm_expr is a NORMALIZED 0..1 expression (e.g. a piecewiseExpr entrance/exit
+  // envelope) that rides the SAME pad->pixel mapping as a static x/y, so the pad math stays in one place.
+  const mapX = (e) => `${pad}+(w-text_w-${2 * pad})*(${e})`;
+  const mapY = (e) => `${pad}+(h-text_h-${2 * pad})*(${e})`;
+  const x = typeof label.x_expr === 'string' && label.x_expr ? label.x_expr
+    : typeof label.x_norm_expr === 'string' && label.x_norm_expr ? mapX(label.x_norm_expr)
+    : mapX(String(fx));
+  const y = typeof label.y_expr === 'string' && label.y_expr ? label.y_expr
+    : typeof label.y_norm_expr === 'string' && label.y_norm_expr ? mapY(label.y_norm_expr)
+    : mapY(String(fy));
   const parts = [
     `textfile='${label.textfile}'`,
     'expansion=none',
@@ -163,7 +201,7 @@ function drawtextFilter(label, ch) {
     `fontcolor=${color}`,
   ];
   if (label.box !== false) {
-    parts.push('box=1', `boxcolor=${label.box_color || 'black@0.5'}`, `boxborderw=${Math.round(size * 0.3)}`);
+    parts.push('box=1', `boxcolor=${safeColor(label.box_color, 'black@0.5')}`, `boxborderw=${Math.round(size * 0.3)}`);
   }
   return `drawtext=${parts.join(':')}`;
 }
