@@ -31,8 +31,11 @@ async function sendViaResend(input, env = process.env) {
         from: fromAddress,
         to: [recipient],
         subject: input.subject,
-        html: input.html,
       };
+      // A text-only message has no html part: an empty html is left out, never sent as an empty part.
+      if (input.html) {
+        body.html = input.html;
+      }
       if (input.text) {
         body.text = input.text;
       }

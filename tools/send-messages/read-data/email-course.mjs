@@ -12,6 +12,8 @@
 //   late_after_hours  a lesson more than this many hours past its time is not sent; it is held as an email-course-held row
 //   retry_failed      false: a failed send is not queued again
 //   stop_scope        the stop a person's link makes covers every course of this scope (default: the course itself)
+//   reply_to          the plain address a reply goes to
+// A lesson with no html_lines is sent as text only.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import defaults from './email-course.json' with { type: 'json' };
 
@@ -113,10 +115,12 @@ function assertCourse(course) {
     if (!Number.isInteger(lesson.delay_hours) || lesson.delay_hours <= previous || lesson.delay_hours > 24 * 29) throw new Error('Email course lesson timing is invalid.');
     previous = lesson.delay_hours;
     if (lesson.receipt !== undefined && typeof lesson.receipt !== 'boolean') throw new Error('Email course lesson receipt flag is invalid.');
-    if (typeof lesson.subject !== 'string' || !lesson.subject.trim() || !Array.isArray(lesson.text_lines) || !Array.isArray(lesson.html_lines)
-      || !lesson.text_lines.every((line) => typeof line === 'string') || !lesson.html_lines.every((line) => typeof line === 'string')
-      || (lesson.receipt !== true && (!lesson.text_lines.join('\n').includes('{unsubscribeUrl}') || !lesson.html_lines.join('\n').includes('{unsubscribeUrl}')
-      || !lesson.text_lines.join('\n').includes('{mailingAddress}') || !lesson.html_lines.join('\n').includes('{mailingAddress}')))) throw new Error('Email course lesson copy is incomplete.');
+    const copies = lesson.html_lines === undefined ? [lesson.text_lines] : [lesson.text_lines, lesson.html_lines];
+    if (typeof lesson.subject !== 'string' || !lesson.subject.trim()
+      || !copies.every(lines => Array.isArray(lines) && lines.every((line) => typeof line === 'string'))
+      || (lesson.receipt !== true && !copies.every(lines => lines.join('\n').includes('{unsubscribeUrl}') && lines.join('\n').includes('{mailingAddress}')))) {
+      throw new Error('Email course lesson copy is incomplete.');
+    }
     const article = new URL(lesson.article_url, origin);
     if (article.origin !== origin.origin) throw new Error('Email course lesson link is outside this site.');
   }
@@ -134,11 +138,15 @@ function assertCourse(course) {
     throw new Error('Email course late_after_hours is a whole number of hours, 1 or more.');
   }
   if (course.stop_scope !== undefined && !COURSE_ID.test(course.stop_scope)) throw new Error('Email course stop_scope is invalid.');
+  if (course.reply_to !== undefined && (typeof course.reply_to !== 'string' || !EMAIL.test(course.reply_to) || /[\s<>,;]/.test(course.reply_to))) {
+    throw new Error('Email course reply_to is one plain email address.');
+  }
   return origin;
 }
 
-// The enrollment's basis as it is kept: the person's consent in the course's own words, or the transaction's row.
-function basisOf(basis, course) {
+// The enrollment's basis as it is kept: the person's consent in the course's own words, or the transaction's row (and, when
+// given, the time of the transaction, from which the lessons are timed; never later than now).
+function basisOf(basis, course, now) {
   if (basis?.kind === 'consent') {
     if (typeof course.consent_text !== 'string' || !course.consent_text.trim()) throw new Error('Email course consent or sender is incomplete.');
     if (basis.text !== course.consent_text) throw new Error('Please agree to receive the email lessons.');
@@ -146,7 +154,10 @@ function basisOf(basis, course) {
   }
   if (basis?.kind === 'transaction') {
     if (!keyText(basis.source_row)) throw new Error('A transaction basis names the transaction\'s row (source_row).');
-    return { kind: 'transaction', source_row: basis.source_row };
+    if (basis.at !== undefined && (typeof basis.at !== 'string' || !Number.isFinite(Date.parse(basis.at)) || Date.parse(basis.at) > now.getTime())) {
+      throw new Error('A transaction basis\'s at is the time of the transaction, not later than now.');
+    }
+    return { kind: 'transaction', source_row: basis.source_row, ...(basis.at === undefined ? {} : { at: new Date(Date.parse(basis.at)).toISOString() }) };
   }
   throw new Error('Please agree to receive the email lessons, or name the transaction they come with.');
 }
@@ -161,7 +172,8 @@ function messageFor(course, lesson) {
     from: course.from,
     subject: lesson.subject,
     text_template: lesson.text_lines,
-    html_template: lesson.html_lines,
+    // An empty html_template overrides the sending template's own: a text-only lesson is sent with no html part.
+    html_template: lesson.html_lines ?? [],
   };
 }
 
@@ -238,7 +250,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     let sent;
     try {
       sent = await invokeTarget('send-email', {
-        template: 'account-onboarding', to: email,
+        template: 'account-onboarding', to: email, ...(state.course.reply_to === undefined ? {} : { reply_to: state.course.reply_to }),
         idempotencyKey: `email-course:${digest(JSON.stringify([address, index]))}`,
         message: messageFor(state.course, lesson),
         // A receipt carries neither the unsubscribe copy nor the mailing address, and no unsubscribe headers.
@@ -263,7 +275,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     const normalized = typeof email === 'string' ? email.trim().toLowerCase() : '';
     if (normalized.length > 254 || !EMAIL.test(normalized)) throw new Error('Enter a valid email address.');
     assertCourse(course);
-    const kept = basisOf(basis, course);
+    const kept = basisOf(basis, course, now());
     if (enrollmentKey !== undefined && !keyText(enrollmentKey)) throw new Error('An enrollment key is a non-empty name of at most 300 characters.');
     if (course.waits === true) {
       if (enrollmentKey === undefined) throw new Error('A course that waits on its caller needs an enrollment_key, so each yes names its enrollment.');
@@ -289,12 +301,14 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     if (isActive(existing)) return resumeActive(existing);
     const token = mintToken();
     if (typeof token !== 'string' || !TOKEN.test(token)) throw new Error('Unsubscribe token could not be minted.');
-    const startedAt = now().toISOString();
+    const enrolledAt = now().toISOString();
+    const startedAt = kept.kind === 'transaction' && kept.at !== undefined ? kept.at : enrolledAt;
     const state = {
       kind: 'email-course-subscription', status: 'active', account_id: accountId,
       subscription_address: address, unsubscribe_token: token, course, basis: kept,
       ...(enrollmentKey === undefined ? {} : { enrollment_key: enrollmentKey }), waits: course.waits === true, started_at: startedAt,
-      ...(kept.kind === 'consent' ? { consented_at: startedAt, consent_text: kept.text, consent_version: course.consent_version ?? '1' } : {}),
+      enrolled_at: enrolledAt,
+      ...(kept.kind === 'consent' ? { consented_at: enrolledAt, consent_text: kept.text, consent_version: course.consent_version ?? '1' } : {}),
       source: typeof source === 'string' ? source.slice(0, 300) : '', sent: {},
     };
     const current = await readCurrent(address);

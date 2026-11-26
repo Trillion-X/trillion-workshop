@@ -4,7 +4,11 @@
 // stop scope a link covers, 1 to 12 lessons and tokens of 32 to 100 characters.
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { createRequire } from 'node:module';
 import { enrollInEmailCourse, sendDueEmailLessons, unsubscribeFromEmailCourse } from '../do-work/keep-who-agreed.mjs';
+import { inProcess } from '../do-work/send-a-message.mjs';
+
+const resendAdapter = createRequire(import.meta.url)('../do-work/send-via-resend.cjs');
 
 type Row = { id: string; type: string; value: Record<string, unknown> | null };
 type Course = Record<string, unknown> & { id: string; lessons: unknown[] };
@@ -247,6 +251,50 @@ describe('lesson counts and token lengths', () => {
       assert.ok(stopped.keep.some((row: Row) => row.type === 'email-course-stop'), `a ${length}-character link stops`);
     }
     await assert.rejects(unsubscribeFromEmailCourse({ token: 'a'.repeat(31), records: [] }, hours(1)), /Invalid unsubscribe link/);
+  });
+});
+
+describe('the transaction\'s own time, a reply-to and text-only lessons', () => {
+  it('a transaction basis at times the lessons from the payment, not from the sign-up; a time later than now is refused', async () => {
+    const s = store();
+    const course = { ...buyers, waits: false, late_after_hours: undefined };
+    const paidAt = new Date(START - 30 * 3_600_000).toISOString();
+    await s.enroll({ email: 'buyer@example.com', basis: { ...transaction('p/1'), at: paidAt }, course, enrollment_key: 'pay-1' }, 0);
+    const [subscription] = s.ofType('email-course-subscription');
+    assert.equal(subscription.value?.started_at, paidAt);
+    assert.equal(subscription.value?.enrolled_at, new Date(START).toISOString());
+    assert.deepEqual((subscription.value?.basis as Record<string, unknown>).at, paidAt);
+    const run = await s.due({}, 0);
+    assert.deepEqual(run.results.map((item: { status: string }) => item.status), ['sent'], 'day one, due 6 hours ago by the payment\'s time');
+    assert.deepEqual(s.sent.map(item => item.subject), ['Welcome', 'Day one']);
+    await assert.rejects(s.enroll({ email: 'later@example.com', basis: { ...transaction('p/2'), at: new Date(START + 60_000).toISOString() }, course, enrollment_key: 'pay-2' }, 0), /not later than now/);
+    await assert.rejects(s.enroll({ email: 'later@example.com', basis: { ...transaction('p/2'), at: 'yesterday' }, course, enrollment_key: 'pay-2' }, 0), /not later than now/);
+  });
+
+  it('a lesson with no html lines goes out as text only, with the course\'s reply-to, its stop link and mailing address filled in', async () => {
+    const calls: { body: Record<string, unknown> }[] = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async (_url: string, init: { body?: string } = {}) => {
+      calls.push({ body: JSON.parse(String(init.body ?? '{}')) });
+      return new Response('{"id":"msg-1"}', { status: 200 });
+    }) as typeof fetch;
+    try {
+      const textOnly = { ...wordsAsk, reply_to: 'teacher@example.com', lessons: [{ delay_hours: 0, subject: 'Your words', article_url: 'https://example.com/words', text_lines: ['Hello.', 'Stop: {{unsubscribeUrl}}', '{{mailingAddress}}'] }] };
+      const answer = await enrollInEmailCourse({ provider: 'resend', records: [], email: 'asker@example.com', basis: transaction('words/1'), course: textOnly, enrollment_key: 'w-1' },
+        { ...keys, send: { run: inProcess({ 'send-via-resend.cjs': resendAdapter }) }, ...hours(0) });
+      assert.equal(answer.status, 'enrolled');
+      assert.equal(calls.length, 1);
+      const [{ body }] = calls;
+      assert.equal(body.html, undefined, 'no html part');
+      assert.equal(body.reply_to, 'teacher@example.com');
+      assert.match(String(body.text), /^Hello\.\nStop: https:\/\/example\.com\/stop\?token=[A-Za-z0-9_-]{43}\n1 Example Street, Example City$/);
+      await assert.rejects(enrollInEmailCourse({ provider: 'resend', records: [], email: 'asker@example.com', basis: transaction('words/2'), course: { ...textOnly, reply_to: 'Teacher <teacher@example.com>' }, enrollment_key: 'w-2' },
+        { ...keys, send: { run: inProcess({ 'send-via-resend.cjs': resendAdapter }) }, ...hours(0) }), /reply_to is one plain email address/);
+      await assert.rejects(enrollInEmailCourse({ provider: 'resend', records: [], email: 'asker@example.com', basis: transaction('words/3'), course: { ...textOnly, lessons: [{ ...textOnly.lessons[0], text_lines: ['Hello, no stop link.'] }] }, enrollment_key: 'w-3' },
+        { ...keys, send: { run: inProcess({ 'send-via-resend.cjs': resendAdapter }) }, ...hours(0) }), /copy is incomplete/);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
   });
 });
 

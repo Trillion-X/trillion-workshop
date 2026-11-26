@@ -47,8 +47,11 @@ function sendEmailForm({ fromAddress, recipient, subject, html, text, bcc = [], 
   if (replyTo) form.set("ReplyToAddresses.member.1", replyTo);
   form.set("Message.Subject.Data", subject);
   form.set("Message.Subject.Charset", "UTF-8");
-  form.set("Message.Body.Html.Data", html);
-  form.set("Message.Body.Html.Charset", "UTF-8");
+  // A text-only message has no html part: an empty html is left out, never sent as an empty part.
+  if (html) {
+    form.set("Message.Body.Html.Data", html);
+    form.set("Message.Body.Html.Charset", "UTF-8");
+  }
   if (text) {
     form.set("Message.Body.Text.Data", text);
     form.set("Message.Body.Text.Charset", "UTF-8");
