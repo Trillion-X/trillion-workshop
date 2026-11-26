@@ -48,7 +48,6 @@ import { realpathSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import pg from 'pg';
 import { throughProxy } from './through-the-run-proxy.mjs';
 
 const CONNECTION_DESCRIPTOR = 3;
@@ -69,7 +68,6 @@ const rowAddingRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].adds_
 const perTableRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].per_table !== undefined);
 const perWriteRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].per_write !== undefined);
 // The column rights a writes entry may name, and a function as schema.name(argument types).
-const COLUMN_RIGHTS = ['select', 'insert', 'update'];
 const FUNCTION_NAME = /^[^.\s]+\.[^.\s(]+\([^()]*\)$/;
 // A named table is schema.table: two identifiers, each without a dot or a space.
 const TABLE_NAME = /^[^.\s]+\.[^.\s]+$/;
@@ -305,61 +303,80 @@ const recipeLogin = (shape, roleConnection) => {
   return { role: shape.role ?? `${shape.name.replace(/[^a-z0-9]/g, '_')}_${randomBytes(6).toString('hex')}`, password: randomBytes(32).toString('base64url'), validUntil: shape.validUntil, minted: true };
 };
 
-// A per-table recipe's statements, [template, schema, table, %13$s] each: %13$s is the entry's columns, server-quoted in brackets,
-// or nothing when the entry is the whole table.
-const perTableSteps = async (client, recipe, shape) => {
+// The statements a per-table or per-write role recipe runs, as one plan both roads fill the same way: runRecipe asks the server
+// for each step's %13$s and then formats it, and keep-a-postgres-database-on-a-computer's prepare writes the same plan into a
+// file psql runs (each step a `SELECT format(...) \gexec`). A step is [template, schema, table, named]: `named` is null (%13$s
+// is empty) or { sql, params, refuse? }, one value the server works out from the entry's own words (the quoted column list, a
+// resolved function, a row rule), and `refuse` is the refusal when the server answers null.
+export const COLUMN_RIGHTS = ['select', 'insert', 'update'];
+
+/** A per-table recipe's steps: per named table each per_table template, %13$s its columns, server-quoted in brackets, or
+ * nothing when the entry is the whole table. */
+export function perTablePlan(recipe, shape) {
   const templates = recipe.per_table?.[shape.action] ?? [];
   const steps = [];
   for (const { table, columns } of shape.tableColumns ?? []) {
     const [schema, name] = table.split('.');
-    let listed = '';
-    if (columns !== null) ({ rows: [{ listed }] } = await runOne(client, "SELECT '(' || string_agg(format('%I', each), ', ') || ')' AS listed FROM unnest($1::text[]) AS columns(each)", [columns]));
-    for (const template of templates) steps.push([template, schema, name, listed]);
+    const named = columns === null ? null : { sql: "SELECT '(' || string_agg(format('%I', each), ', ') || ')' FROM unnest($1::text[]) AS columns(each)", params: [columns] };
+    for (const template of templates) steps.push([template, schema, name, named]);
   }
   return steps;
-};
+}
 
-// A per-write recipe's statements, [template, schema, table, %13$s] each: per table entry its schema's USAGE and one statement for each
-// right it names, the columns quoted by the server; per function entry the function the server resolves (one it cannot find is
-// refused, never granted by a guessed name). A drop takes each table's and function's rights back whatever the entry named.
-const perWriteSteps = async (client, recipe, shape) => {
+/** A per-write recipe's steps: per table entry its schema's USAGE and one statement for each right it names, the columns quoted
+ * by the server; per function entry the function the server resolves (one it cannot find is refused, never granted by a guessed
+ * name). An entry's `rows` and `keeps_out` add the key binding (once), the key column (before any column right names it), the
+ * table's row rules and the login's own rule, written by the server. A drop takes each table's and function's rights and the
+ * login's rule back whatever the entry named. */
+export function perWritePlan(recipe, shape) {
   const rights = recipe.per_write?.[shape.action];
   if (!rights) return [];
   const steps = [];
   for (const entry of shape.writes) {
     if (entry.function !== undefined) {
-      const { rows: [{ resolved }] } = await runOne(client, 'SELECT pg_catalog.to_regprocedure($1)::text AS resolved', [entry.function]);
-      if (resolved === null) throw new Error(`There is no function ${entry.function} in this database: the owner makes it first.`);
-      steps.push([rights.function, null, null, resolved]);
+      steps.push([rights.function, null, null, { sql: 'SELECT pg_catalog.to_regprocedure($1)::text', params: [entry.function], refuse: `There is no function ${entry.function} in this database: the owner makes it first.` }]);
       continue;
     }
     const [schema, table] = entry.table.split('.');
     const ruled = entry.rows !== undefined || entry.keeps_out !== undefined;
-    // The key binding is made (or taken from the login) once, before the first entry whose rows it opens.
     if (entry.rows !== undefined && !steps.some(([template]) => rights.row_binding.includes(template))) steps.push(...rights.row_binding.map(template => [template, null, null, null]));
     if (shape.action === 'drop') {
       if (ruled) steps.push(...rights.row_rules.map(template => [template, schema, table, null]));
       steps.push([rights.table, schema, table, null], [rights.usage, schema, table, null]);
       continue;
     }
-    // The key column is made before any column right names it.
-    if (entry.rows !== undefined) {
-      const { rows: [{ key }] } = await runOne(client, "SELECT format('%I', $1::text) AS key", [entry.rows.key]);
-      steps.push([rights.row_key, schema, table, key]);
-    }
+    if (entry.rows !== undefined) steps.push([rights.row_key, schema, table, { sql: "SELECT format('%I', $1::text)", params: [entry.rows.key] }]);
     steps.push([rights.usage, schema, table, null]);
     for (const right of COLUMN_RIGHTS) {
-      if (entry[right] === undefined) continue;
-      const { rows: [{ listed }] } = await runOne(client, "SELECT string_agg(format('%I', each), ', ') AS listed FROM unnest($1::text[]) AS columns(each)", [entry[right]]);
-      steps.push([rights[right], schema, table, listed]);
+      if (entry[right] !== undefined) steps.push([rights[right], schema, table, { sql: "SELECT string_agg(format('%I', each), ', ') FROM unnest($1::text[]) AS columns(each)", params: [entry[right]] }]);
     }
     if (entry.delete === true) steps.push([rights.delete, schema, table, null]);
-    // The login's own rule, written by the server from the entry: only rows its key opens, and no value under a kept-out key.
     if (ruled) {
-      const { rows: [{ rule }] } = await runOne(client, `SELECT format('USING (%s) WITH CHECK (%s%s)', opened, opened, coalesce(kept, '')) AS rule FROM (SELECT CASE WHEN $1::text IS NULL THEN 'true' ELSE format('%I = ANY (use_binding.presented_keys())', $1::text) END AS opened,
-        (SELECT string_agg(format(' AND coalesce(%I -> %L, ''null''::jsonb) = ''null''::jsonb', c.key, k), '') FROM jsonb_each($2::jsonb) c CROSS JOIN LATERAL jsonb_array_elements_text(c.value) k) AS kept) given`, [entry.rows?.key ?? null, JSON.stringify(entry.keeps_out ?? {})]);
+      const rule = { sql: `SELECT format('USING (%s) WITH CHECK (%s%s)', opened, opened, coalesce(kept, '')) FROM (SELECT CASE WHEN $1::text IS NULL THEN 'true' ELSE format('%I = ANY (use_binding.presented_keys())', $1::text) END AS opened,
+        (SELECT string_agg(format(' AND coalesce(%I -> %L, ''null''::jsonb) = ''null''::jsonb', c.key, k), '') FROM jsonb_each($2::jsonb) c CROSS JOIN LATERAL jsonb_array_elements_text(c.value) k) AS kept) given`,
+        params: [entry.rows?.key ?? null, JSON.stringify(entry.keeps_out ?? {})] };
       for (const template of rights.row_rules) steps.push([template, schema, table, template.includes('%13$s') ? rule : null]);
     }
+  }
+  return steps;
+}
+
+/** A SQL literal of one parameter, for a plan written into a file rather than sent with its parameters: text, a list of text, or
+ * null (standard_conforming_strings, the server's default). */
+const literal = value => (value === null || value === undefined ? 'NULL'
+  : Array.isArray(value) ? `ARRAY[${value.map(literal).join(', ')}]::text[]` : `'${String(value).replace(/'/g, "''")}'`);
+/** A step's `named` as one SQL expression with its parameters written in: the same query the server answers on run-sql's road. */
+export const namedExpression = named => (named === null ? 'NULL' : `(${named.sql.replace(/\$(\d+)/g, (_, at) => literal(named.params[Number(at) - 1]))})`);
+
+// A per-table or per-write recipe's steps (the plan above), each step's
+// %13$s answered by the server: [template, schema, table, %13$s] each.
+const filledSteps = async (client, plan) => {
+  const steps = [];
+  for (const [template, schema, table, named] of plan) {
+    if (named === null) { steps.push([template, schema, table, null]); continue; }
+    const { rows: [answer] } = await runOne(client, `SELECT (${named.sql}) AS named`, named.params);
+    if (answer.named === null && named.refuse) throw new Error(named.refuse);
+    steps.push([template, schema, table, answer.named]);
   }
   return steps;
 };
@@ -382,8 +399,7 @@ const runRecipe = async (client, shape, connection, roleConnection, heldValue) =
     // The whole public schema is read only when no tables are named: with recipe.tables the login reads exactly those tables.
     const publicGrants = shape.action === 'create' && shape.tables.length === 0 ? recipe.public_grants?.create ?? [] : [];
     const steps = [...[...recipe[shape.action], ...publicGrants].map(template => [template, null, null, null]),
-      ...await perTableSteps(client, recipe, shape),
-      ...await perWriteSteps(client, recipe, shape)];
+      ...await filledSteps(client, [...perTablePlan(recipe, shape), ...perWritePlan(recipe, shape)])];
     // The functions the named tables' row policies call get EXECUTE for the login, and no other: read from pg_depend, so a
     // helper a policy names is granted and nothing a policy does not name. A policy function that is SECURITY INVOKER would run
     // as the login and read what the login may not, so its grant is refused; the owner makes it SECURITY DEFINER first.
@@ -509,6 +525,9 @@ export async function connectTo(connection, timeLimit) {
   // A run the engine sandboxes reaches its database by address through the run's own proxy (through-the-run-proxy.mjs).
   // The server ends a statement or an open transaction past the run's time itself (timeLimitOf), so nothing outlives the run.
   const proxy = process.env.HTTPS_PROXY;
+  // The driver is loaded only to connect, so a computer's render (prepare-a-database-unit.mjs) reads this file's recipe plan
+  // where no driver is installed.
+  const { default: pg } = await import('pg');
   const client = new pg.Client({ connectionString: connection, ...(proxy ? { stream: throughProxy(proxy) } : {}) });
   await client.connect();
   try {

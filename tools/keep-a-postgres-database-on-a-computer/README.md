@@ -5,7 +5,7 @@ PostgreSQL's own files for a computer row: the server unit, its access file, and
 ## What is here
 
 - `serve-postgres.service`: the server unit (a row's unit `template`).
-- `prepare-a-database-unit.mjs`: the unit's `prepare`. It turns the unit's `reach` into the listen line, the access file, and the ports they open.
+- `prepare-a-database-unit.mjs`: the unit's `prepare`. It turns the unit's `reach` into the listen line, the access file, and the ports they open, and a unit's `grants` into the SQL file that gives a login its rights.
 - `scripts/set-up-postgres-role.sh`, `scripts/back-up-postgres.sh`, `scripts/restore-a-postgres-backup.sh`, `scripts/copy-backups-to-a-second-place.sh`, `scripts/restore-a-backup-on-a-spare-computer.sh`, `scripts/copy-a-database.sh`, `scripts/remove-from-the-store.sh`: a `run-a-script` unit's `script`.
 - `do-work/pause-a-databases-writers.mjs`: the apply request that pauses, or resumes, a moving database's writers on its old server, from the move's pointers row.
 - `test/a-database-unit.test.mjs`: these files rendered by start-a-computer from a made-up row.
@@ -17,6 +17,10 @@ The server unit (`tools/keep-a-postgres-database-on-a-computer/serve-postgres.se
 ## Who reaches it: `reach`
 
 The unit names `prepare: tools/keep-a-postgres-database-on-a-computer/prepare-a-database-unit.mjs` and `hba_file`. `reach` is a list of entries, each one way in: `for` (the tool or unit it lets in, for example `tool:run-sql-in-my-database`), `listen` (an address the server listens on), `hba` (rows in the server's own words: `type`, `database`, `user`, `address`, `method`), `credential` (the held name of the connection the caller uses), and `firewall_allow` when it opens a port. The server's `listen_addresses` is every entry's `listen` (none means no network listener), and its access file, at the unit's `hba_file`, holds every entry's `hba` rows and nothing else; a row's `settings_lines` may not set either. A database unit without `reach` keeps PostgreSQL's own defaults.
+
+## What a login may do: `grants`
+
+A unit that names the same `prepare` may list `grants`, each one login's rights in one database: `login`, `database`, `owner` (the role that owns the tables and gives the rights), `recipe` (a grants-only per-write recipe of `tools/run-sql-in-my-database/read-data/role-recipes.json`, such as `may-write-named-columns-under-a-use`), `writes_from` (the rights file of the tool that writes with the login, such as `tools/gather-words-from-people/read-data/writer-rights.json`), `table_names` (the name for each `<placeholder>` table in that file), `file` (where the SQL is written) and `action` (`create`, or `drop` to take the rights back). The row holds no statement, column or row rule. The file is run-sql's own plan (`perWritePlan`, checked by run-sql's `shapeOf`), each step a `SELECT format(...) \gexec` the server fills in the order run-sql fills it, so this road and run-sql's run the same statements. It runs as `psql -f` over the socket in the unit's `PGHOST` each time its text changes, after the units have started (the login unit makes the login first). A rights file whose entry names `rows` and `keeps_out` gives the login a row rule too; `test/a-login-grants.test.mjs` runs the file on PGlite.
 
 ## The scripts
 
