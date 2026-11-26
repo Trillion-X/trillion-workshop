@@ -298,6 +298,34 @@ describe('the transaction\'s own time, a reply-to and text-only lessons', () => 
   });
 });
 
+describe('an enrollment\'s own variables', () => {
+  it('fill its lessons\' subject and words; the engine\'s own names, too many, or a non-text value are refused before anything is kept', async () => {
+    const calls: { body: Record<string, unknown> }[] = [];
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async (_url: string, init: { body?: string } = {}) => {
+      calls.push({ body: JSON.parse(String(init.body ?? '{}')) });
+      return new Response('{"id":"msg-1"}', { status: 200 });
+    }) as typeof fetch;
+    try {
+      const ask = { ...wordsAsk, lessons: [{ delay_hours: 0, subject: 'A word from you, {{name}}?', article_url: 'https://example.com/words', text_lines: ['Hi {{name}},', 'Your page: {{wordsUrl}}', 'Stop: {{unsubscribeUrl}}', '{{mailingAddress}}'] }] };
+      const run = (input: Record<string, unknown>) => enrollInEmailCourse({ provider: 'resend', records: [], email: 'asker@example.com', basis: transaction('words/1'), course: ask, enrollment_key: 'w-1', ...input },
+        { ...keys, send: { run: inProcess({ 'send-via-resend.cjs': resendAdapter }) }, ...hours(0) });
+      const answer = await run({ variables: { name: 'Sam', wordsUrl: 'https://example.com/words?token=abc' } });
+      assert.equal(answer.status, 'enrolled');
+      assert.equal(calls[0].body.subject, 'A word from you, Sam?');
+      assert.match(String(calls[0].body.text), /^Hi Sam,\nYour page: https:\/\/example\.com\/words\?token=abc\nStop: https:\/\/example\.com\/stop\?token=/);
+      const kept = answer.keep.find((row: { type: string }) => row.type === 'email-course-subscription');
+      assert.deepEqual(kept.value.variables, { name: 'Sam', wordsUrl: 'https://example.com/words?token=abc' });
+      for (const variables of [{ unsubscribeUrl: 'https://evil.example/' }, { mailingAddress: 'x' }, { name: 3 }, Object.fromEntries(Array.from({ length: 21 }, (_, i) => [`v${i}`, 'x'])), { 'bad name': 'x' }, ['x'], { long: 'x'.repeat(2001) }]) {
+        await assert.rejects(run({ variables }), /variables are/);
+      }
+      assert.equal(calls.length, 1);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+});
+
 // The id a token's row has in the store: the engine's own address for it.
 async function tokenRowId(token: string): Promise<string> {
   const { makeHashCodeHexFromBytes } = await import('../../content-identity/read-data/identity.mjs');

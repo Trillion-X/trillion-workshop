@@ -13,7 +13,9 @@
 //   retry_failed      false: a failed send is not queued again
 //   stop_scope        the stop a person's link makes covers every course of this scope (default: the course itself)
 //   reply_to          the plain address a reply goes to
-// A lesson with no html_lines is sent as text only.
+// A lesson with no html_lines is sent as text only. An enrollment may carry its own variables ({ name: text }), filled into
+// its lessons' subject and words beside the engine's own (articleUrl, checkoutUrl, unsubscribeUrl, mailingAddress), which
+// they never replace.
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import defaults from './email-course.json' with { type: 'json' };
 
@@ -67,6 +69,19 @@ export function stopScopeOf(course) {
 }
 
 const keyText = value => typeof value === 'string' && value.trim() !== '' && value.length <= MOST_KEY_LENGTH;
+const ENGINE_VARIABLES = new Set(['articleUrl', 'checkoutUrl', 'unsubscribeUrl', 'mailingAddress']);
+const VARIABLE_NAME = /^[A-Za-z][A-Za-z0-9_]{0,40}$/;
+
+// An enrollment's own variables, as they are kept: at most 20, each a name and a text of at most 2000 characters.
+function variablesOf(variables) {
+  if (variables === undefined) return {};
+  if (!variables || typeof variables !== 'object' || Array.isArray(variables)) throw new Error('An enrollment\'s variables are { name: text }.');
+  const entries = Object.entries(variables);
+  if (entries.length > 20 || entries.some(([name, value]) => !VARIABLE_NAME.test(name) || ENGINE_VARIABLES.has(name) || typeof value !== 'string' || value.length > 2000)) {
+    throw new Error(`An enrollment's variables are at most 20 names (letters, digits, _; not ${[...ENGINE_VARIABLES].join(', ')}), each a text of at most 2000 characters.`);
+  }
+  return Object.fromEntries(entries);
+}
 
 // The pure rules of a course. No I/O: createPublicEmailCourse calls them, and so can any program that keeps its own sent log
 // (workshop/tools/send-messages/read-data/email-course.mjs), so each rule has one owner. A step's key names it in the sent log.
@@ -254,7 +269,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
         idempotencyKey: `email-course:${digest(JSON.stringify([address, index]))}`,
         message: messageFor(state.course, lesson),
         // A receipt carries neither the unsubscribe copy nor the mailing address, and no unsubscribe headers.
-        variables: { articleUrl: lesson.article_url, ...(state.course.checkout_url === undefined ? {} : { checkoutUrl: state.course.checkout_url }),
+        variables: { ...(state.variables ?? {}), articleUrl: lesson.article_url, ...(state.course.checkout_url === undefined ? {} : { checkoutUrl: state.course.checkout_url }),
           ...(lesson.receipt ? {} : { unsubscribeUrl, mailingAddress: state.course.mailing_address }) },
         headers: lesson.receipt ? {} : { 'List-Unsubscribe': `<${unsubscribeUrl}>`, 'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' },
       });
@@ -271,11 +286,12 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
     return { status: 'sent', lesson_index: index, provider_message_id: sent.provider_message_id };
   }
 
-  async function enroll({ email, basis, course, source, enrollment_key: enrollmentKey, waits_until: waitsUntil }) {
+  async function enroll({ email, basis, course, source, enrollment_key: enrollmentKey, waits_until: waitsUntil, variables }) {
     const normalized = typeof email === 'string' ? email.trim().toLowerCase() : '';
     if (normalized.length > 254 || !EMAIL.test(normalized)) throw new Error('Enter a valid email address.');
     assertCourse(course);
     const kept = basisOf(basis, course, now());
+    const own = variablesOf(variables);
     if (enrollmentKey !== undefined && !keyText(enrollmentKey)) throw new Error('An enrollment key is a non-empty name of at most 300 characters.');
     if (course.waits === true) {
       if (enrollmentKey === undefined) throw new Error('A course that waits on its caller needs an enrollment_key, so each yes names its enrollment.');
@@ -309,6 +325,7 @@ export function createPublicEmailCourse({ readCurrent, writeBatch, invokeTarget,
       ...(enrollmentKey === undefined ? {} : { enrollment_key: enrollmentKey }), waits: course.waits === true, started_at: startedAt,
       enrolled_at: enrolledAt,
       ...(kept.kind === 'consent' ? { consented_at: enrolledAt, consent_text: kept.text, consent_version: course.consent_version ?? '1' } : {}),
+      ...(Object.keys(own).length ? { variables: own } : {}),
       source: typeof source === 'string' ? source.slice(0, 300) : '', sent: {},
     };
     const current = await readCurrent(address);

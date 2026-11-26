@@ -124,7 +124,7 @@ async function over(input, options, work) {
 
 /** tool:sign-someone-up-for-an-email-course: works out the consent, the later lessons to queue and sends the first. */
 export const enrollInEmailCourse = (input, options) => over(input, options, course => course.enroll({
-  email: input.email, basis: input.basis, course: input.course, source: input.source, enrollment_key: input.enrollment_key, waits_until: input.waits_until,
+  email: input.email, basis: input.basis, course: input.course, source: input.source, enrollment_key: input.enrollment_key, waits_until: input.waits_until, variables: input.variables,
 }));
 
 /** tool:save-interest-in-an-email-update: works out consent to one update. Sends nothing. */
