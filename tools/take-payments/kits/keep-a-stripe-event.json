@@ -1,0 +1,45 @@
+{
+  "drafted_from": "tool:keep-a-stripe-event's own row (its words and input schema) and test/keep-a-stripe-event.test.ts, which runs it on a real Postgres as a login holding exactly read-data/writer-rights.json; read it before relying on it",
+  "start_here": "Say to your AI: \"Keep this Stripe webhook call in bakery_for_who_runs_it, once\", with {\"payload\": \"{\\\"id\\\":\\\"evt_sample0101\\\",\\\"object\\\":\\\"event\\\",\\\"type\\\":\\\"checkout.session.completed\\\",\\\"created\\\":1793750400,\\\"data\\\":{\\\"object\\\":{\\\"id\\\":\\\"cs_test_sample0102\\\",\\\"object\\\":\\\"checkout.session\\\",\\\"amount_total\\\":2500,\\\"currency\\\":\\\"usd\\\",\\\"payment_intent\\\":\\\"pi_test_sample0103\\\",\\\"payment_status\\\":\\\"paid\\\",\\\"metadata\\\":{\\\"offer_id\\\":\\\"offer:sample-cake\\\"}}}}\", \"signature_header\": \"t=1793750400,v1=<the signature Stripe sent>\", \"database\": \"bakery_for_who_runs_it\", \"use\": {\"purpose\": \"keep-payments\", \"surface\": \"site/bakery.example\"}, \"webhook_secret_name\": \"bakery-stripe-webhook-signing-secret\"}. It runs tool:keep-a-stripe-event and answers {\"admitted\": true, \"event_kind\": \"payment.confirmed\", \"id\": \"payment-event:payment:pi_test_sample0103\", \"kept\": 1}; the same call sent again answers kept 0 with the same id.",
+  "lists": [],
+  "no_lists_because": "It names no list of yours: it keeps the payment as one row of the payment_events table in the database you name, the table take-payments payment-keys.ts paymentEventsShape makes, and keeps nothing else.",
+  "workflows": [],
+  "tools": [
+    "tool:keep-a-stripe-event",
+    "tool:check-a-stripe-event"
+  ],
+  "instructions": [
+    "1. Make the payment_events table in your database once (take-payments payment-keys.ts paymentEventsShape: the table and its one-row-per-payment keys), and give your writer login the columns read-data/writer-rights.json names.",
+    "2. Point your site's Stripe webhook at an action row that runs tool:keep-a-stripe-event with the raw body ({ \"$\": \"raw_body\" }), the stripe-signature header ({ \"$\": \"header\", \"name\": \"stripe-signature\" }), your database, your site's use and webhook_secret_name, the vault name of the endpoint's signing secret.",
+    "3. Read what comes back (the check is tool:check-a-stripe-event's own): admitted false with a reason for a call it did not believe (nothing is kept), or admitted true with the id your store holds for the payment and kept 1 the first time, 0 every time after.",
+    "4. Let what follows a payment fire on the new payment_events row (a welcome email, a reward): it is added once, so each follows once."
+  ],
+  "worked_examples": [
+    {
+      "title": "A bakery's paid checkout is kept once",
+      "ask": "Keep this Stripe webhook call in bakery_for_who_runs_it, once",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-a-stripe-event",
+            "input": {
+              "payload": "{\"id\":\"evt_sample0101\",\"object\":\"event\",\"type\":\"checkout.session.completed\",\"created\":1793750400,\"data\":{\"object\":{\"id\":\"cs_test_sample0102\",\"object\":\"checkout.session\",\"amount_total\":2500,\"currency\":\"usd\",\"payment_intent\":\"pi_test_sample0103\",\"payment_status\":\"paid\",\"metadata\":{\"offer_id\":\"offer:sample-cake\"}}}}",
+              "signature_header": "t=1793750400,v1=<the signature Stripe sent>",
+              "database": "bakery_for_who_runs_it",
+              "use": {
+                "purpose": "keep-payments",
+                "surface": "site/bakery.example"
+              },
+              "webhook_secret_name": "bakery-stripe-webhook-signing-secret"
+            }
+          }
+        }
+      },
+      "given": "The input {\"payload\": \"{\\\"id\\\":\\\"evt_sample0101\\\",\\\"object\\\":\\\"event\\\",\\\"type\\\":\\\"checkout.session.completed\\\",\\\"created\\\":1793750400,\\\"data\\\":{\\\"object\\\":{\\\"id\\\":\\\"cs_test_sample0102\\\",\\\"object\\\":\\\"checkout.session\\\",\\\"amount_total\\\":2500,\\\"currency\\\":\\\"usd\\\",\\\"payment_intent\\\":\\\"pi_test_sample0103\\\",\\\"payment_status\\\":\\\"paid\\\",\\\"metadata\\\":{\\\"offer_id\\\":\\\"offer:sample-cake\\\"}}}}\", \"signature_header\": \"t=1793750400,v1=<the signature Stripe sent>\", \"database\": \"bakery_for_who_runs_it\", \"use\": {\"purpose\": \"keep-payments\", \"surface\": \"site/bakery.example\"}, \"webhook_secret_name\": \"bakery-stripe-webhook-signing-secret\"}, with the signature Stripe sent under the bakery's signing secret.",
+      "hands_back": "It answered {\"admitted\": true, \"event_kind\": \"payment.confirmed\", \"id\": \"payment-event:payment:pi_test_sample0103\", \"kept\": 1}. The same call again answered {\"admitted\":true,\"event_kind\":\"payment.confirmed\",\"id\":\"payment-event:payment:pi_test_sample0103\",\"kept\":0}, and a call signed with another secret answered {\"admitted\":false,\"reason\":\"signature-mismatch\",\"kept\":0} with the database never opened."
+    }
+  ]
+}

@@ -46,13 +46,20 @@ test('every row runs the one function runner on a function this folder exports, 
 test('a row can reach the internet only to talk to Stripe with the person\'s own key, and no row holds a key', () => {
   for (const row of rows) {
     // A row that reads its own offers (start-a-stripe-checkout given a database) also mounts that database's connection, read
-    // only under a declared use with the reader login; it is not a key and never reaches Stripe.
+    // only under a declared use with the reader login; the row that keeps a Stripe event mounts it with the writer login under a
+    // use. Neither is a key, and neither reaches Stripe.
     const reads = (row.invoke.credential_mounts ?? []).filter(mount => mount.secret_name_from_input === 'database');
+    const login = row.id === 'tool:keep-a-stripe-event' ? '-writer-connection' : '-reader-connection';
     for (const mount of reads) {
-      assert.deepEqual(mount, { secret_name_from_input: 'database', held_suffix: '-reader-connection', fd: 6, only_when: { input: 'database', present: true },
-        under_use: { use_from_input: 'use', ticket_fd: 7, held_suffix: '-reader-connection', key_suffix: '-use-key' } }, `${row.id} reads its database on 6 only with the reader login`);
+      assert.deepEqual(mount, { secret_name_from_input: 'database', held_suffix: login, fd: 6, only_when: { input: 'database', present: true },
+        under_use: { use_from_input: 'use', ticket_fd: 7, held_suffix: login, key_suffix: '-use-key' } }, `${row.id} opens its database on 6 only with its ${login} login under a use`);
     }
-    const mounts = (row.invoke.credential_mounts ?? []).filter(mount => !reads.includes(mount));
+    // The webhook signing secret (descriptor 5) checks a call's signature; it never reaches Stripe. Only the rows that check a
+    // Stripe call mount it.
+    const signing = (row.invoke.credential_mounts ?? []).filter(mount => mount.fd === 5);
+    if (signing.length) assert.ok(['tool:check-a-stripe-event', 'tool:keep-a-stripe-event'].includes(row.id), `${row.id} mounts a webhook secret only to check a call`);
+    for (const mount of signing) assert.ok(mount.field_id === 'webhook_secret' || (mount.secret_name_from_input === 'webhook_secret_name' && mount.share_by_listing === true && mount.held_suffix === undefined), `${row.id} mounts the webhook secret by its name or the connection's field`);
+    const mounts = (row.invoke.credential_mounts ?? []).filter(mount => !reads.includes(mount) && !(row.invoke.internet && signing.includes(mount)));
     if (row.invoke.internet) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);
     if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
     // The key is the seller's own: the run's input names it, by its vault name, by the account it is held for, or as a field
@@ -132,10 +139,10 @@ const mountsFor = (row, input) => {
 
 test('a seller key is named by exactly one of secret_name, account and seller_connection; two together are refused', () => {
   const seller = rows.filter(row => row.invoke.connection?.from_input === 'seller_connection' && row.invoke.credential_mounts?.some(mount => mount.field_id === 'secret_key'));
-  assert.equal(seller.length, 19);
+  assert.equal(seller.length, 20);
   const named = 'a-sellers-stripe-key';
   for (const row of seller) {
-    assert.deepEqual(row.invoke.credential_mounts.filter(mount => mount.secret_name_from_input !== 'database'), [
+    assert.deepEqual(row.invoke.credential_mounts.filter(mount => mount.secret_name_from_input !== 'database' && mount.fd !== 5), [
       { secret_name_from_input: 'secret_name', share_by_listing: true, fd: 4, only_when: { input: 'secret_name', present: true } },
       { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },
       { fd: 4, field_id: 'secret_key', only_when: { input: 'seller_connection', present: true } },
@@ -143,7 +150,8 @@ test('a seller key is named by exactly one of secret_name, account and seller_co
     // Each road alone mounts its one key on descriptor 4.
     assert.deepEqual(mountsFor(row, { secret_name: named }).map(mount => mount.secret_name_from_input), ['secret_name'], `${row.id}: secret_name alone`);
     assert.deepEqual(mountsFor(row, { account: 'shop' }).map(mount => [mount.secret_name_from_input, mount.held_suffix]), [['account', '-stripe-secret-key']], `${row.id}: account alone, as before`);
-    assert.deepEqual(mountsFor(row, { seller_connection: 'service_connection:stripe:shop' }).map(mount => mount.field_id), ['secret_key'], `${row.id}: seller_connection alone`);
+    // A row that checks a call also mounts the connection's webhook secret on 5 from the same connection: one key still reaches Stripe.
+    assert.deepEqual(mountsFor(row, { seller_connection: 'service_connection:stripe:shop' }).filter(mount => mount.fd === 4).map(mount => mount.field_id), ['secret_key'], `${row.id}: seller_connection alone`);
     // Two roads given together are refused before the run starts; none mounts no key.
     for (const both of [{ secret_name: named, account: 'shop' }, { secret_name: named, seller_connection: 'service_connection:stripe' }, { account: 'shop', seller_connection: 'service_connection:stripe' }]) {
       assert.equal(mountsFor(row, both), 'refused: two keys on one descriptor', `${row.id}: ${Object.keys(both).join(' and ')}`);

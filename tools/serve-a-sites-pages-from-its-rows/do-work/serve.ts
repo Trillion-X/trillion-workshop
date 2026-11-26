@@ -151,6 +151,13 @@ export interface FailedPost {
   values: Record<string, string>;
 }
 
+/** A request's headers by lower-case name, each one value (a repeated header joined by ", "), for a row's header source. */
+export function headersOf(headers: http.IncomingHttpHeaders | undefined): Record<string, string> {
+  const one: Record<string, string> = {};
+  for (const [name, value] of Object.entries(headers ?? {})) if (value !== undefined) one[name.toLowerCase()] = Array.isArray(value) ? value.join(', ') : value;
+  return one;
+}
+
 /** What a visitor typed in a form, by field name, that the page may put back: text values only, never a secret's. */
 export function typedValuesOf(body: Record<string, unknown>): Record<string, string> {
   return Object.fromEntries(Object.entries(body).filter((pair): pair is [string, string] => typeof pair[1] === 'string' && pair[1].length <= MOST_PUT_BACK_LENGTH && !NOT_PUT_BACK.test(pair[0])));
@@ -530,7 +537,7 @@ export class Site {
    * request (as the member when one is signed in, else as the site), and the row's answer. A form post is sent on with 303;
    * a JSON post gets JSON ({ "redirect": address } for a redirect). A GET (no body) gets the JSON keys, or is sent on with 303.
    */
-  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; referer?: string; network?: string | null; bytes: Buffer }): Promise<Answer> {
+  async act(address: string, cookie: string | undefined, host: string, request: { method?: string; contentType?: string; origin?: string; hostHeader?: string; referer?: string; network?: string | null; headers?: http.IncomingHttpHeaders; bytes: Buffer }): Promise<Answer> {
     const url = new URL(address, 'http://site.invalid');
     const pathname = url.pathname;
     const method = request.method ?? 'POST';
@@ -567,6 +574,7 @@ export class Site {
       const asked: Asked = {
         body: posted.body, params, query: url.searchParams, cookies: cookiesOf(cookie), claims: member?.claims ?? null, origin: this.#originOf(host),
         referer: request.referer ?? null, network: request.network ?? null,
+        raw: request.bytes.length ? request.bytes.toString('utf8') : undefined, headers: headersOf(request.headers),
         rows: (sql, values, database) => this.#sql(sql, values, database), answer: null, input: null,
         tool: (tool, input) => {
           const key = JSON.stringify([tool, input]);
@@ -988,7 +996,7 @@ export function handlerOf(site: Site, passOn: PassOn[] = [], addressCookies: Add
     const answering = acting || method === 'POST'
       ? bytesOf(request).then(bytes => bytes === null
         ? { status: 413, headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' }, body: JSON.stringify({ error: 'Too large.' }) }
-        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, referer: request.headers.referer, network: networkOf(request), bytes }))
+        : site.act(request.url ?? '/', request.headers.cookie, host, { method, contentType: request.headers['content-type'], origin: request.headers.origin, hostHeader: request.headers.host, referer: request.headers.referer, network: networkOf(request), headers: request.headers, bytes }))
       : site.answer(method, request.url ?? '/', request.headers.cookie, host, request.headers.range);
     answering
       .then(answer => {

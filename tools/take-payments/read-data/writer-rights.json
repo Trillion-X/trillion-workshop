@@ -1,0 +1,33 @@
+{
+  "_what": "The column rights tool:keep-a-stripe-event needs from a pursuit's writer login (run-sql-in-my-database role recipe may-write-named-columns-under-a-use, recipe.writes): the payment rows it reads to find a payment already kept (its id, kind, PaymentIntent, checkout and when it was kept) and the columns a keep writes (payment-keys.ts KEPT_COLUMNS). test/keep-a-stripe-event.test.ts keeps a payment as a login holding exactly these.",
+  "writes": [
+    {
+      "table": "public.payment_events",
+      "select": [
+        "id",
+        "event_kind",
+        "provider_object_ref",
+        "completion_ref",
+        "made_at"
+      ],
+      "insert": [
+        "id",
+        "event_id",
+        "occurred_at",
+        "event_kind",
+        "offer_id",
+        "price_option_id",
+        "customer_email",
+        "amount_due_today_cents",
+        "currency",
+        "payment_status",
+        "subscription_id",
+        "provider_object_ref",
+        "completion_ref",
+        "provider_event_id",
+        "pursuit_ids",
+        "attributes"
+      ]
+    }
+  ]
+}

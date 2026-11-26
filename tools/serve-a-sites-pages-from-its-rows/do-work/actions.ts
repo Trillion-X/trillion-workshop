@@ -76,6 +76,10 @@
 //     { "$": "network" }                            the network address the visitor's request came from: the last X-Forwarded-For
 //                                                   entry (the one the site's own front web server added), else the connection's
 //                                                   own address; for a limit per network (signups an hour), never shown or kept as is
+//     { "$": "raw_body" }                           the posted body exactly as it came, as text: what a signed call's signature
+//                                                   covers (a payment service's webhook), read before any parse
+//     { "$": "header", "name": "stripe-signature" } one request header by its lower-case name (a signed call's signature); never
+//                                                   cookie, authorization or proxy-authorization, whose values are a visitor's own
 //     { "$": "address", "of": <value>, "part": "origin" | "host" | "path" | "query", "key": "t" }
 //                                                   a part of an absolute address (query: its values as an object; with key,
 //                                                   that query value)
@@ -183,6 +187,10 @@ export interface Asked {
   referer: string | null;
   /** The network address the request came from (serve.ts networkOf), or null. */
   network: string | null;
+  /** The posted body exactly as it came, as text; absent for a request that carried none. */
+  raw?: string;
+  /** The request's headers by lower-case name, each one value (a repeated header joined by ", "). */
+  headers?: Record<string, string>;
   rows: (sql: string, params: unknown[], database?: string) => Promise<Record<string, unknown>[]>;
   /** Runs a tool as the action runs, for a tool source. */
   tool: (tool: string, input: unknown) => Promise<unknown>;
@@ -242,6 +250,11 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
   },
   referer: () => {},
   network: () => {},
+  raw_body: () => {},
+  header: (v, where) => {
+    if (typeof v.name !== 'string' || !HEADER_NAME.test(v.name)) throw new PageRowError(`${where}.name is one request header's name, in lower case.`);
+    if (UNREAD_HEADERS.includes(v.name)) throw new PageRowError(`${where}.name ${v.name} is a visitor's own credential: a row never reads it.`);
+  },
   pick: (v, where) => {
     checkValue(v.of, `${where}.of`);
     if (!v.from || typeof v.from !== 'object' || Array.isArray(v.from) || Object.keys(v.from).length === 0) throw new PageRowError(`${where}.from is { "<word>": <value> }.`);
@@ -255,6 +268,9 @@ const SOURCES: Record<string, (value: Record<string, unknown>, where: string) =>
 };
 
 const ADDRESS_PARTS = ['origin', 'host', 'path', 'query'];
+const HEADER_NAME = /^[a-z0-9][a-z0-9-]{0,63}$/;
+// The headers that carry a visitor's own sign-in: a row reads a signed-in member through { "$": "member" }, never these.
+const UNREAD_HEADERS = ['cookie', 'authorization', 'proxy-authorization'];
 const COOKIE_NAME = /^[A-Za-z0-9_-]{1,64}$/;
 const COOKIE_VALUE = /^[A-Za-z0-9._-]{1,256}$/;
 
@@ -456,6 +472,8 @@ export async function filled(value: unknown, asked: Asked): Promise<unknown> {
       case 'member': return asked.claims ? asked.claims[value.claim as string] : undefined;
       case 'referer': return asked.referer ?? undefined;
       case 'network': return asked.network ?? undefined;
+      case 'raw_body': return asked.raw ?? undefined;
+      case 'header': return asked.headers?.[value.name as string] ?? undefined;
       case 'origin': return `${asked.origin}${(value.then as string | undefined) ?? ''}`;
       case 'rows': {
         const params = await Promise.all(((value.params ?? []) as unknown[]).map(async param => (await filled(param, asked)) ?? null));

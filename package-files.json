@@ -24462,6 +24462,200 @@
    "at": "/opt/node_modules/@noble/hashes"
   }
  ],
+ "tool:keep-a-stripe-event": [
+  {
+   "package": "take-payments",
+   "paths": [
+    "do-work",
+    "read-data",
+    "keeps/keep-a-stripe-event.ts"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "funnels-and-offers",
+   "paths": [
+    "read-data/read-offers.ts",
+    "read-data/offer-variants.mjs"
+   ],
+   "at": "/opt/funnels-and-offers"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "do-work/run-a-function.mjs"
+   ],
+   "at": "/opt/workflows"
+  },
+  {
+   "package": "content-identity",
+   "paths": [
+    "read-data"
+   ],
+   "at": "/opt/content-identity"
+  },
+  {
+   "package": "shared-code",
+   "paths": [
+    "src/build-provider-request.mjs",
+    "src/encode-provider-form.mjs",
+    "src/provider-operation-map.json",
+    "src/provider-request-mapper.mjs"
+   ],
+   "at": "/opt/shared-code"
+  },
+  {
+   "packages": [
+    "node_modules/@noble/hashes"
+   ],
+   "paths": [
+    "LICENSE",
+    "package.json",
+    "blake3.js",
+    "blake2.js",
+    "_blake.js",
+    "_md.js",
+    "_u64.js",
+    "utils.js"
+   ],
+   "at": "/opt/node_modules/@noble/hashes"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks.js",
+    "do-work/content-chunks.mjs",
+    "do-work/namespace-client.mjs",
+    "do-work/send-a-file-to-a-namespace.mjs",
+    "do-work/send-retry.mjs",
+    "do-work/send-window.mjs",
+    "do-work/shared-file-reference.mjs",
+    "send-settings.json"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "run-sql-in-my-database",
+   "paths": [
+    "do-work/run-sql.mjs",
+    "do-work/serve-a-read.ts",
+    "do-work/through-the-run-proxy.mjs",
+    "read-data/role-recipes.json",
+    "read-data/time-limits.json",
+    "tool-rows.json"
+   ],
+   "at": "/opt/run-sql-in-my-database"
+  },
+  {
+   "packages": [
+    "pg"
+   ],
+   "at": "/opt/node_modules/pg"
+  },
+  {
+   "packages": [
+    "pg-connection-string"
+   ],
+   "at": "/opt/node_modules/pg-connection-string"
+  },
+  {
+   "packages": [
+    "pg-pool"
+   ],
+   "at": "/opt/node_modules/pg-pool"
+  },
+  {
+   "packages": [
+    "pg-protocol"
+   ],
+   "at": "/opt/node_modules/pg-protocol"
+  },
+  {
+   "packages": [
+    "pg-types"
+   ],
+   "at": "/opt/node_modules/pg-types"
+  },
+  {
+   "packages": [
+    "pg-int8"
+   ],
+   "at": "/opt/node_modules/pg-int8"
+  },
+  {
+   "packages": [
+    "postgres-array"
+   ],
+   "at": "/opt/node_modules/postgres-array"
+  },
+  {
+   "packages": [
+    "postgres-bytea"
+   ],
+   "at": "/opt/node_modules/postgres-bytea"
+  },
+  {
+   "packages": [
+    "postgres-date"
+   ],
+   "at": "/opt/node_modules/postgres-date"
+  },
+  {
+   "packages": [
+    "postgres-interval"
+   ],
+   "at": "/opt/node_modules/postgres-interval"
+  },
+  {
+   "packages": [
+    "xtend"
+   ],
+   "at": "/opt/node_modules/xtend"
+  },
+  {
+   "packages": [
+    "pgpass"
+   ],
+   "at": "/opt/node_modules/pgpass"
+  },
+  {
+   "packages": [
+    "split2"
+   ],
+   "at": "/opt/node_modules/split2"
+  },
+  {
+   "package": "browse-and-upload-my-files",
+   "paths": [
+    "built-stored-bytes/content-chunks/content_chunks_bg.wasm"
+   ],
+   "at": "/opt/browse-and-upload-my-files"
+  },
+  {
+   "package": "records-door",
+   "paths": [
+    "read-data/large-file.json",
+    "read-data/raw-pieces.mjs"
+   ],
+   "at": "/opt/records-door"
+  },
+  {
+   "package": "take-payments",
+   "paths": [
+    "things-to-store-and-run.json"
+   ],
+   "at": "/opt/take-payments"
+  },
+  {
+   "package": "workflows",
+   "paths": [
+    "read-data/host-actions.mjs",
+    "read-data/large-file.json",
+    "read-data/whole-file.mjs"
+   ],
+   "at": "/opt/workflows"
+  }
+ ],
  "tool:keep-a-voice-edit": [
   {
    "package": "how-someone-does-their-thing",
@@ -44563,6 +44757,15 @@
  "tool:read-a-treg-endpoint-and-its-price": [],
  "tool:read-a-videos-captions": [],
  "tool:read-a-videos-shape": [],
+ "tool:read-a-webhook-event": [
+  {
+   "package": "email-sending-domains",
+   "paths": [
+    "do-work"
+   ],
+   "at": "/opt/email-sending-domains"
+  }
+ ],
  "tool:read-ai-activity": [
   {
    "package": "see-what-my-ais-did",
@@ -70618,14 +70821,5 @@
  "tool:write-the-icon-shapes-a-motion-film-uses": [],
  "tool:write-with-a-persons-writing-adapter": [],
  "tool:your-files": [],
- "tool:your-files-names": [],
- "tool:read-a-webhook-event": [
-  {
-   "package": "email-sending-domains",
-   "paths": [
-    "do-work"
-   ],
-   "at": "/opt/email-sending-domains"
-  }
- ]
+ "tool:your-files-names": []
 }
