@@ -31,6 +31,8 @@ for (const [file, what] of [
   ['test_render_stage.py', 'render runs contact, phase sync, the edit per format, the framing check and the renderer in order; a refused sync or framing makes no clip'],
   ['test_whole_movement_still.py', 'a held-frame cell is measured at its frame, never raising'],
   ['test_side_by_side_layout.py', 'the check reads a side-by-side clip left and right, and a stacked reading of it does not match'],
+  ['test_stroke_side.py', 'the takeback side is read in image space from the fastest wrist, and the recording\'s forehand side decides the stroke with a margin'],
+  ['test_match_side.py', 'a target swing whose takeback is not the movement is refused, its partner must be the movement too, and opposite forehand sides mirror'],
   ['test_labelled_match.py', 'with labelled references a partner must be its class by a margin over every other class, and no contrast class fails closed'],
   ['../do-work/process-scripts/perception/test_window_frames.py', 'describing a long clip reads each window\'s frames in bounded memory and fingerprints the recording in chunks, with the same pictures as a seek-and-read'],
   ['../do-work/process-scripts/match/test_window_frames_use.py', 'the match copy hands the model the same frames in order through the one frame reader'],
