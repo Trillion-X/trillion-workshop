@@ -4,13 +4,15 @@
 -- refuse a buyer's own code; the reader is granted EXECUTE on it and SELECT on only the columns read-data/reader-rights.json
 -- names, so no email reaches it. The comparison is the tool's own rule: the code as the referral rules normalise it (the tool
 -- hands it over already trimmed and upper case), the email trimmed and compared without case. A null, empty or unknown code or
--- email answers false, never an error.
+-- email answers false, never an error. The search path is fixed to pg_catalog, public and the table is named public.referral_codes, so a caller's own
+-- search_path or a look-alike table in another schema changes nothing. It returns a boolean only and raises nothing, so no error or
+-- notice text can hold a stored email.
 CREATE OR REPLACE FUNCTION public.own_code(code text, email text)
  RETURNS boolean
  LANGUAGE sql
  STABLE
  SECURITY DEFINER
- SET search_path TO 'public', 'pg_temp'
+ SET search_path = pg_catalog, public
 AS $function$
 SELECT coalesce(btrim($2) <> '' AND EXISTS (
   SELECT 1 FROM public.referral_codes r WHERE r.code = $1 AND lower(r.email) = lower(btrim($2))), false)

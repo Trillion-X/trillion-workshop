@@ -89,3 +89,22 @@ test('run as the reader, the checkout read refuses the buyer\'s own code and sti
   assert.equal(friend.adjustments?.length, 1);
   assert.equal(JSON.stringify(friend).includes('referrer-not-read'), false, 'the stand-in referrer never reaches the answer');
 });
+
+test('own_code answers from the real table whatever search_path the caller sets, and no error or notice text holds a stored email', async () => {
+  const rows = await database();
+  const { db } = rows;
+  await db.exec(`RESET ROLE; CREATE SCHEMA evil; CREATE TABLE evil.referral_codes (email text, code text, made_at timestamptz);
+    INSERT INTO evil.referral_codes VALUES ('attacker@example.com', 'SITE-AB12CD', now()); RESET ROLE; GRANT USAGE ON SCHEMA evil TO site_reader; SET ROLE site_reader;`);
+  await db.exec('SET search_path = evil, public');
+  const own = async (email: string) => (await rows('select own_code($1, $2) as own', ['SITE-AB12CD', email]))[0].own;
+  assert.equal(await own('attacker@example.com'), false, 'the look-alike table is not read');
+  assert.equal(await own('member@example.com'), true, 'the real table is');
+  const notices: string[] = [];
+  const messages: string[] = [];
+  for (const sql of ['select email from referral_codes', 'select own_code($1)', 'select own_code($1, $1, $1)', "select own_code(1, 'member@example.com')"]) {
+    try { await db.query(sql, ['member@example.com']); } catch (error) { messages.push(String((error as Error).message)); }
+  }
+  assert.ok(messages.length >= 3, 'the odd calls were refused');
+  for (const text of [...messages, ...notices, ownCode.replace(/--.*$/gm, '')]) assert.equal(/member@example\.com|attacker@example\.com/.test(text), false, 'no stored email in any error or in the function');
+  assert.equal(/\bRAISE\b/i.test(ownCode.replace(/--.*$/gm, '')), false, 'the function raises nothing');
+});
