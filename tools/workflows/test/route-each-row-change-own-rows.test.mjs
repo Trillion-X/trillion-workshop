@@ -34,12 +34,12 @@ async function store(rows) {
 // A door that answers tool:run-sql-in-my-database from the store named by credential_name (a store not in `stores`
 // fails as a call that ran), the chooser itself, and wake:arrive by keeping what was told.
 function door(stores) {
-  const calls = [], told = [];
+  const calls = [], told = [], chose = [];
   return {
-    calls, told,
+    calls, told, chose,
     async run(name, input) {
       calls.push({ name, input });
-      if (name === 'tool:choose-the-workflows-that-fire') return chooseTheWorkflowsThatFire(input);
+      if (name === 'tool:choose-the-workflows-that-fire') { const answer = await chooseTheWorkflowsThatFire(input); chose.push(answer); return answer; }
       if (name !== 'tool:run-sql-in-my-database') throw new Error(`no stand-in for ${name}`);
       const db = stores[input.credential_name];
       if (!db) throw Object.assign(new Error(`tool:run-sql-in-my-database did not finish: connect ECONNREFUSED (${input.credential_name})`), { outcome: 'committed' });
@@ -177,6 +177,53 @@ test('the read leaves out only what the formula engine would not keep: after fie
     const engine = await chooseTheWorkflowsThatFire({ parts: [{ place: 'product_stage', change: 'changed', where: SHOP, after: { piece: 'price' } }], own: [{ id: recipe, value: { recipe, fires_when: [group('and', rules, fieldsList)] } }], installed: false });
     assert.equal(engine.chosen.length + engine.named.unfinished > 0, (await kept({ piece: 'price', n: 2 })).includes(recipe), `${recipe}: the read keeps what the chooser would choose or name`);
   }
+});
+
+// Another pursuit on the same computer keeps its workflow rows in its own database. A sign-in fact's own store keeps none, and
+// a row change names its bare database, so the switch names the stores in own.also_read, read after own.credential_name.
+const PURSUIT = 'pursuit-connection';
+const removed = when('a person is removed from the sign-ins', [rule('place', 'is_any_of', ['person']), rule('change', 'is_any_of', ['removed']), rule('where', 'is_any_of', ['pursuit-sign-ins'])]);
+const reads = d => d.calls.filter(call => call.name === 'tool:run-sql-in-my-database' && call.input.sql.includes('FROM workflow_recipes r')).map(call => call.input.credential_name);
+
+test('own.also_read names more stores: a row kept only there is chosen and started from where it is kept', async () => {
+  const d = door({ [HOME]: await store([['workflow:greet-a-paid-buyer', [paid], steps('select 1')]]), [PURSUIT]: await store([['workflow:clean-up-after-a-person', [removed], steps('select 4')]]) });
+  const run = await route(d, change('pursuit-sign-ins', 'person', 'removed'), { credential_name: HOME, also_read: [PURSUIT] });
+  assert.equal(run.status, 'completed', run.error_message);
+  assert.deepEqual(reads(d), [HOME, PURSUIT], 'the switch\'s store, then each also_read store, in order; a sign-in store is never read for rows');
+  assert.deepEqual(byKind(d, 'workflow-chosen-from-rows'), ['workflow:clean-up-after-a-person']);
+  const definitionRead = d.calls.find(call => call.name === 'tool:run-sql-in-my-database' && call.input.sql.includes('jsonb_build_object(\'id\', recipe'));
+  assert.deepEqual([definitionRead.input.params[0], definitionRead.input.credential_name], ['workflow:clean-up-after-a-person', PURSUIT]);
+  const without = door({ [HOME]: await store([['workflow:greet-a-paid-buyer', [paid], steps('select 1')]]), [PURSUIT]: await store([['workflow:clean-up-after-a-person', [removed], steps('select 4')]]) });
+  assert.equal((await route(without, change('pursuit-sign-ins', 'person', 'removed'))).status, 'completed');
+  assert.deepEqual(byKind(without, 'workflow-chosen-from-rows'), [], 'with no also_read, the pursuit\'s rows are never read');
+  const twice = door({ [HOME]: await store([]), [PURSUIT]: await store([['workflow:clean-up-after-a-person', [removed], steps('select 4')]]) });
+  assert.equal((await route(twice, change('pursuit-sign-ins', 'person', 'removed'), { credential_name: HOME, also_read: [PURSUIT, HOME, PURSUIT] })).status, 'completed');
+  assert.deepEqual(reads(twice), [HOME, PURSUIT], 'a store named twice is read once');
+});
+
+test('a row id two stores hold is kept from the first store named, and the other is named in the choice\'s shadowed list', async () => {
+  const id = 'workflow:clean-up-after-a-person';
+  const d = door({ [HOME]: await store([[id, [removed], steps('select 1')]]), [PURSUIT]: await store([[id, [removed], steps('select 4')]]) });
+  const run = await route(d, change('pursuit-sign-ins', 'person', 'removed'), { credential_name: HOME, also_read: [PURSUIT] });
+  assert.equal(run.status, 'completed', run.error_message);
+  assert.deepEqual(byKind(d, 'workflow-chosen-from-rows'), [id], 'chosen once');
+  const definitionReads = d.calls.filter(call => call.name === 'tool:run-sql-in-my-database' && call.input.sql.includes('jsonb_build_object(\'id\', recipe'));
+  assert.deepEqual(definitionReads.map(call => call.input.credential_name), [HOME], 'started from the first store named');
+  assert.deepEqual(d.chose[0].shadowed, [{ workflow: id, kept_in: PURSUIT, kept_by: HOME }]);
+  const flipped = door({ [HOME]: await store([[id, [removed], steps('select 1')]]), [PURSUIT]: await store([[id, [removed], steps('select 4')]]) });
+  assert.equal((await route(flipped, change('pursuit-sign-ins', 'person', 'removed'), { credential_name: PURSUIT, also_read: [HOME] })).status, 'completed');
+  assert.deepEqual(flipped.chose[0].shadowed, [{ workflow: id, kept_in: HOME, kept_by: PURSUIT }], 'the order the switch names decides, not the stores\' names');
+  const one = await chooseTheWorkflowsThatFire({ parts: [{ place: 'person' }], own: [{ id, value: { recipe: id, fires_when: [removed], kept_in: HOME } }] });
+  assert.equal('shadowed' in one, false, 'an answer with no shadowed row carries no shadowed list');
+});
+
+test('an also_read store that cannot be read reads as no rows: the first store\'s rows and the installed workflows are still chosen', async () => {
+  const d = door({ [HOME]: await store([['workflow:greet-a-paid-buyer', [paid], steps('select 1')]]) });
+  const run = await route(d, change(SHOP, 'payment_events'), { credential_name: HOME, also_read: ['gone-connection'] });
+  assert.equal(run.status, 'completed', run.error_message);
+  assert.deepEqual(reads(d), [HOME, 'gone-connection', SHOP]);
+  assert.deepEqual(byKind(d, 'workflow-chosen-from-rows'), ['workflow:greet-a-paid-buyer']);
+  assert.deepEqual(byKind(d, 'workflow-chosen'), [KEEP]);
 });
 
 test('the router keeps no facts while it is switched off, so a computer whose router is off never fills its owed facts', () => {

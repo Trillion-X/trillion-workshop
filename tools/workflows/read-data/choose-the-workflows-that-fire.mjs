@@ -9,7 +9,8 @@
 //
 //   chooseTheWorkflowsThatFire({ parts, own?: [{ id, value: { recipe?, title, fires_when, definition?, kept_in? } }], shadow_ids?: [id], operators?, within?, installed?, over_installed?, explain? })
 //     -> { workflows, own, catalog_only, chosen: [{ workflow, part, condition, input, installed, score, rank, kept_in?, definition? }],
-//          named: { unfinished, unconditioned, broad, unmatched_parts }, within: [{ workflow, part, condition }] }
+//          named: { unfinished, unconditioned, broad, unmatched_parts }, within: [{ workflow, part, condition }],
+//          shadowed?: [{ workflow, kept_in, kept_by }] }
 //   explain: true adds why: each choice's label, made_by, from, matched and weight, and the lists named counts:
 //     unfinished: [{ workflow, condition, part?, incomplete }], unconditioned: [{ workflow, label }], broad: [{ workflow, condition, kept_parts, of }], unmatched_parts: [part]
 //
@@ -62,17 +63,21 @@ function catalogRecipes() {
   return byId;
 }
 
-// The person's own workflow rows, as given, by recipe id.
+// The person's own workflow rows, as given, by recipe id. When rows of one id come from more than one store (a caller that
+// reads several stores, as route-each-row-change does with own.credential_name then own.also_read), the first row given keeps
+// the id and each later one is named in shadowed ({ workflow, kept_in: where the left-out row is kept, kept_by: where the
+// kept one is }), so a pursuit's row never silently replaces another's.
 function ownWorkflows(rows = []) {
   if (!Array.isArray(rows) || !rows.every(row => object(row) && typeof row.id === 'string')) throw new Error('own must be a list of the person\'s workflow rows, each { id, value }.');
-  const byId = new Map();
+  const byId = new Map(), shadowed = [];
   for (const row of [...rows].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
     const value = row.value ?? {};
     const id = typeof value.recipe === 'string' && value.recipe ? value.recipe : `workflow:${row.id}`;
     if (value.kept_in !== undefined && (typeof value.kept_in !== 'string' || !value.kept_in)) throw new Error(`${row.id} kept_in must name where the row is kept.`);
+    if (byId.has(id)) { shadowed.push({ workflow: id, kept_in: value.kept_in ?? null, kept_by: byId.get(id).keptIn ?? null }); continue; }
     byId.set(id, { label: value.title, conditions: parsed(value[FIRES_WHEN.field], `${row.id} ${FIRES_WHEN.field}`), definition: parsed(value.definition, `${row.id} definition`), keptIn: value.kept_in });
   }
-  return byId;
+  return { byId, shadowed };
 }
 
 // The rules a condition holds, each as the key its rarity is counted under: a rule with a list of values gives one key
@@ -133,7 +138,7 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
   // Every id the person holds a row for shadows its installed copy, whether or not that row is among the rows handed in.
   const catalog = new Map(installed ? shipped : []);
   for (const id of shadowIds) catalog.delete(id);
-  const own = ownWorkflows(ownRows);
+  const { byId: own, shadowed } = ownWorkflows(ownRows);
   if (!installed) for (const id of [...own.keys()]) if (shipped.has(id) && !overInstalled.includes(id)) own.delete(id);
   const ids = [...new Set([...own.keys(), ...catalog.keys()])].sort();
   const matches = [], unfinished = [], unconditioned = [];
@@ -201,6 +206,7 @@ export async function chooseTheWorkflowsThatFire(input = {}) {
     chosen,
     named: Object.fromEntries(Object.entries(lists).map(([name, list]) => [name, list.length])),
     within: inside,
+    ...(shadowed.length ? { shadowed } : {}),
     ...(explain ? lists : {}),
   };
 }
