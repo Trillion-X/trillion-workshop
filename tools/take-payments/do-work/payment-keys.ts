@@ -94,6 +94,17 @@ const text = (value: unknown) => (typeof value === 'string' ? value : '');
 /** A payment event as a path answers it: { id, event_id, occurred_at, event_kind, attributes, pursuit_ids? }. */
 export type PaymentEvent = { id: string; event_id: string; occurred_at: string; event_kind: string; attributes?: Record<string, unknown>; pursuit_ids?: unknown };
 
+/**
+ * The kinds a kept payment moves up to, never down: Stripe tells one payment by its PaymentIntent (payment_intent.succeeded),
+ * its checkout and its invoice (invoice.paid), and the event map reads the invoice as subscription.renewed. Whichever arrives
+ * first, a payment an invoice names ends as subscription.renewed, so a reader of payment.confirmed (a welcome for a new buyer)
+ * never takes a renewal for a new purchase. Read by keepPaymentEventSql and payment-catch-up.ts KEEP_PAYMENT_EVENTS_SQL.
+ */
+export const KIND_MOVES_UP: Readonly<Record<string, string>> = { 'payment.confirmed': 'subscription.renewed' };
+/** The SQL condition that a stored kind (`stored`) moves up to an incoming kind (`incoming`), from KIND_MOVES_UP. */
+export const movesUpSql = (stored: string, incoming: string) =>
+  `(${Object.entries(KIND_MOVES_UP).map(([from, to]) => `(${stored} = ${literal(from)} AND ${incoming} = ${literal(to)})`).join(' OR ') || 'false'})`;
+
 /** The columns a keep writes, in order: payment-catch-up.ts keeps a whole list by the same columns. */
 export const KEPT_COLUMNS = ['id', 'event_id', 'occurred_at', 'event_kind', 'offer_id', 'price_option_id', 'customer_email', 'amount_due_today_cents', 'currency',
   'payment_status', 'subscription_id', 'provider_object_ref', 'completion_ref', 'provider_event_id', 'pursuit_ids', 'attributes'] as const;
@@ -106,7 +117,8 @@ export const KEPT_COLUMNS = ['id', 'event_id', 'occurred_at', 'event_kind', 'off
  * reads the store again and finds the row; a clash on a key that is not the payment's is an error to see, not a payment kept.
  * `id` is the id the store holds for the payment (the event's own when it was added), `kept` is 1 when this statement added it.
  * `id` null with `kept` 0 is a keep of the same id at the same moment that this statement waited for and could not yet see:
- * keepPaymentEvent reads the stored row again then (storedPaymentIdSql), and fails if there is none.
+ * keepPaymentEvent reads the stored row again then (storedPaymentIdSql), and fails if there is none. A stored row of the same
+ * payment (its id, PaymentIntent or checkout) whose kind moves up to the event's (KIND_MOVES_UP) takes the event's kind.
  */
 export function keepPaymentEventSql(event: PaymentEvent, kinds: string[] = paymentKindsOf()): { sql: string; params: unknown[] } {
   const a = event.attributes ?? {};
@@ -120,7 +132,12 @@ export function keepPaymentEventSql(event: PaymentEvent, kinds: string[] = payme
   const kindsAt = `$${KEPT_COLUMNS.length + 1}::text[]`;
   const table = PAYMENT_EVENTS_TABLE;
   const samePayment = `p.event_kind = ANY (${kindsAt}) AND ${at('event_kind')}::text = ANY (${kindsAt}) AND (p.provider_object_ref = ${at('provider_object_ref')}::text OR p.completion_ref = ${at('completion_ref')}::text)`;
-  const sql = `WITH kept AS (
+  const sql = `WITH moved AS (
+  UPDATE ${table} p SET event_kind = ${at('event_kind')}::text
+  WHERE ${movesUpSql('p.event_kind', `${at('event_kind')}::text`)} AND (p.id = ${at('id')}::text OR p.provider_object_ref = ${at('provider_object_ref')}::text OR p.completion_ref = ${at('completion_ref')}::text)
+  RETURNING p.id
+),
+kept AS (
   INSERT INTO ${table} (${KEPT_COLUMNS.join(', ')})
   SELECT ${KEPT_COLUMNS.map(column => `${at(column)}${column === 'occurred_at' ? '::timestamptz' : column === 'amount_due_today_cents' ? '::numeric' : column === 'pursuit_ids' || column === 'attributes' ? '::jsonb' : '::text'}`).join(', ')}
   WHERE NOT EXISTS (SELECT 1 FROM ${table} p WHERE ${samePayment})

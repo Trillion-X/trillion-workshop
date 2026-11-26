@@ -138,6 +138,25 @@ describe('the payment catch-up', () => {
     assert.equal(await point(db), NOW);
   });
 
+  it('a payment\'s kind moves up to subscription.renewed whichever of its PaymentIntent and invoice arrives first, one at a time or in a page, and never down', async () => {
+    const intent = (id: string): Event => ({ id: `payment-event:payment:${id}`, event_id: `payment:${id}`, occurred_at: '2026-11-25T20:00:00Z', event_kind: 'payment.confirmed',
+      attributes: { customer_email: 'member@example.test', provider_object_ref: id } });
+    const invoice = (id: string): Event => ({ ...intent(id), event_kind: 'subscription.renewed', attributes: { ...intent(id).attributes, subscription_id: 'sub_1' } });
+    const kindOf = async (db: PGlite, id: string) => (await db.query<{ event_kind: string }>('SELECT event_kind FROM payment_events WHERE id = $1', [`payment-event:payment:${id}`])).rows.map(row => row.event_kind);
+    const one = await store();
+    assert.equal(await keepOne(one, intent('pi_up')), 1);
+    assert.equal(await keepOne(one, invoice('pi_up')), 0);
+    assert.deepEqual(await kindOf(one, 'pi_up'), ['subscription.renewed'], 'the intent first, then its invoice: moved up');
+    assert.equal(await keepOne(one, intent('pi_up')), 0);
+    assert.deepEqual(await kindOf(one, 'pi_up'), ['subscription.renewed'], 'never down');
+    const page = await store();
+    assert.deepEqual(await keepList(page, [intent('pi_a'), invoice('pi_a'), invoice('pi_b'), intent('pi_b')]), { listed: 4, kept: 2 });
+    assert.deepEqual([await kindOf(page, 'pi_a'), await kindOf(page, 'pi_b')], [['subscription.renewed'], ['subscription.renewed']], 'in one page, either order');
+    await keepOne(page, intent('pi_c'));
+    assert.deepEqual(await keepList(page, [invoice('pi_c')]), { listed: 1, kept: 0 });
+    assert.deepEqual(await kindOf(page, 'pi_c'), ['subscription.renewed'], 'a page moves a stored row up');
+  });
+
   it('a page kept under the older checkout id settles: the stored row is the same payment', async () => {
     const db = await store();
     await keepOldShaped(db, 'cs_old2');

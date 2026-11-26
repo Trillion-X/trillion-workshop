@@ -18,7 +18,7 @@
 //
 // Each statement takes one jsonb parameter, { events?, kinds?, complete?, next_read_from_unix? }, so a workflow step binds the
 // read's answer into it whatever the store's driver does with lists.
-import { KEPT_COLUMNS, PAYMENT_EVENTS_TABLE } from './payment-keys.ts';
+import { KEPT_COLUMNS, movesUpSql, PAYMENT_EVENTS_TABLE } from './payment-keys.ts';
 
 export const CHECKOUT_WINDOW_SECONDS = 48 * 60 * 60;
 export const CATCH_UP_TABLE = 'payment_catch_up';
@@ -56,14 +56,27 @@ kinds AS (SELECT jsonb_array_elements_text(coalesce($1::jsonb->'kinds', '[]'::js
 const samePayment = (a: string, b: string) => `(${a}.event_kind IN (SELECT kind FROM kinds) AND ${b}.event_kind IN (SELECT kind FROM kinds)
     AND (${a}.provider_object_ref = ${b}.provider_object_ref OR ${a}.completion_ref = ${b}.completion_ref))`;
 
+// Two rows of one payment by any of its names: its id, its PaymentIntent or its checkout.
+const oneOf = (a: string, b: string) => `(${a}.id = ${b}.id OR ${a}.provider_object_ref = ${b}.provider_object_ref OR ${a}.completion_ref = ${b}.completion_ref)`;
+
 /**
  * Every event of $1.events kept once, as keepPaymentEventSql keeps one: added only when the store holds no row of a payment kind
  * with the same PaymentIntent or checkout, nothing kept on a clash with its own id alone, and any other clash raised. Two events
- * of one list that are the same payment (or share an id) keep the first in list order. Answers { listed, kept }.
+ * of one list that are the same payment (or share an id) keep the first in list order, with the highest kind any of them names
+ * (payment-keys.ts KIND_MOVES_UP); a stored row of a listed payment whose kind moves up to a listed event's takes it.
+ * Answers { listed, kept }.
  */
 export const KEEP_PAYMENT_EVENTS_SQL = `WITH ${GIVEN},
+moved AS (
+  UPDATE ${PAYMENT_EVENTS_TABLE} p SET event_kind = g.event_kind FROM given g
+  WHERE ${movesUpSql('p.event_kind', 'g.event_kind')} AND ${oneOf('p', 'g')}
+  RETURNING p.id
+),
 first_of_each AS (
-  SELECT g.* FROM given g
+  SELECT ${KEPT_COLUMNS.map(column => (column === 'event_kind'
+    ? `coalesce((SELECT h.event_kind FROM given h WHERE ${oneOf('h', 'g')} AND ${movesUpSql('g.event_kind', 'h.event_kind')} LIMIT 1), g.event_kind) AS event_kind`
+    : `g.${column}`)).join(', ')}, g.at
+  FROM given g
   WHERE NOT EXISTS (SELECT 1 FROM given h WHERE h.at < g.at AND (h.id = g.id OR ${samePayment('h', 'g')}))
 ),
 kept AS (

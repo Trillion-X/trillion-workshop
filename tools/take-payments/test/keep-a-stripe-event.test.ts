@@ -20,7 +20,7 @@ const NOW = 1_790_000_000;
 const SECRET = 'whsec_keep_a_stripe_event_fixture';
 const USE = { purpose: 'keep-payments', surface: 'site/example.test' };
 const offers = [{ kind: 'commercial-offer', id: 'offer:seat', label: 'Seat', access_refs: ['access:seat'], price_options: [{ id: 'price:seat', label: 'Seat', amount_cents: 29900, currency: 'usd', payment_timing: 'one_time' }] }];
-const rights = JSON.parse(readFileSync(new URL('../read-data/writer-rights.json', import.meta.url), 'utf8')).writes as Array<{ table: string; select: string[]; insert: string[] }>;
+const rights = JSON.parse(readFileSync(new URL('../read-data/writer-rights.json', import.meta.url), 'utf8')).writes as Array<{ table: string; select: string[]; insert: string[]; update?: string[] }>;
 const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map((record: { payload: unknown }) => record.payload)
   .find((payload: { id: string }) => payload.id === 'tool:keep-a-stripe-event');
 
@@ -40,9 +40,10 @@ async function store() {
   const db = new PGlite();
   for (const statement of paymentEventsShape()) await db.exec(statement);
   await db.exec('CREATE ROLE keeper NOLOGIN');
-  for (const { table, select, insert } of rights) {
+  for (const { table, select, insert, update } of rights) {
     await db.exec(`GRANT SELECT (${select.join(', ')}) ON ${table} TO keeper`);
     await db.exec(`GRANT INSERT (${insert.join(', ')}) ON ${table} TO keeper`);
+    if (update?.length) await db.exec(`GRANT UPDATE (${update.join(', ')}) ON ${table} TO keeper`);
   }
   return db;
 }

@@ -130,10 +130,10 @@ describe('the payment_events keys', () => {
     const raced = { ...event };
     await keep(db, raced);
     // The answer a keep gives when it waited on the same id kept at that moment and could not see it yet.
-    const unseen = (sql: string, params: unknown[]) => (sql.startsWith('WITH kept AS') ? Promise.resolve([{ id: null, kept: 0 }]) : db.query(sql, params).then(r => r.rows as Record<string, unknown>[]));
+    const unseen = (sql: string, params: unknown[]) => (sql.startsWith('WITH moved AS') ? Promise.resolve([{ id: null, kept: 0 }]) : db.query(sql, params).then(r => r.rows as Record<string, unknown>[]));
     assert.deepEqual(await keepPaymentEvent(unseen, event), { id: 'payment-event:payment:pi_race', kept: 0 });
     const empty = await store();
-    const nothing = (sql: string, params: unknown[]) => (sql.startsWith('WITH kept AS') ? Promise.resolve([{ id: null, kept: 0 }]) : empty.query(sql, params).then(r => r.rows as Record<string, unknown>[]));
+    const nothing = (sql: string, params: unknown[]) => (sql.startsWith('WITH moved AS') ? Promise.resolve([{ id: null, kept: 0 }]) : empty.query(sql, params).then(r => r.rows as Record<string, unknown>[]));
     await assert.rejects(keepPaymentEvent(nothing, event), /was neither kept nor found kept/);
     const real = (sql: string, params: unknown[]) => db.query(sql, params).then(r => r.rows as Record<string, unknown>[]);
     assert.deepEqual(await keepPaymentEvent(real, await webhook(oneTime('cs_next', 'pi_next'))), { id: 'payment-event:payment:pi_next', kept: 1 });
