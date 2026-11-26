@@ -887,13 +887,14 @@
           "type": "object",
           "required": ["spec", "out"],
           "properties": {
-            "spec": { "type": "string", "description": "A JSON file, put where {spec} is in the command: {encode?: {width, height, fps, crf, preset}, layout: h or v, bg?, left: {clip, kp, peak, label?, corner?, flip?, track_id?, label_size?}, right: {same}, passes: [{id, half, speed?, label_suffix?}], crop?: {min_confidence, pad_height, pad_width}, voice_audio?}. clip is a video file, kp its pose track file, peak the second to centre on, half the seconds each way." },
-            "out": { "type": "string", "description": "The edit file to write, put where {out} is." }
+            "spec": { "type": "string", "description": "A JSON file, put where {spec} is in the command: {encode?: {width, height, fps, crf, preset}, layout: h or v, bg?, left: {clip, kp, peak, label?, corner?, flip?, track_id?, label_size?, sync?}, right: {same}, passes: [{id, half, speed?, smooth?, still?, label_suffix?}], crop?: {min_confidence, pad_height, pad_width}, voice_audio?}. clip is a video file, kp its pose track file, peak the second to centre on, half the seconds each way. sync (on one side only) is a phase_sync.v1 file or object from phase_sync.py: that side plays its speed pieces so its swing reaches each phase with the other side's, and the two peaks must be the sync's contacts. smooth: true (only with speed below 1) makes in-between frames for slow motion; still: SECONDS holds both sides at their peaks. With variants, passes may be empty: the variants' passes are used." },
+            "out": { "type": "string", "description": "The edit file to write, put where {out} is. With variants, one edit per shape at this name with .9x16 or .16x9 before .json." },
+            "variants": { "type": "string", "description": "Optional. A variants file, put where {variants} is: tools/track-and-compare-movement/do-work/comparison-variants.json makes a 9:16 stacked (1080x1920) and a 16:9 side by side (1920x1080) edit, each with a 1x pass, 0.5x, 0.25x and 0.1x smooth slow motion and a contact still." }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "The last line the script prints: {\"result\": {out, segments}} or {\"error\": \"what to change\"}. The file is a media-composition edit: {encode, base, spine: {segments: [{id, kind: split, layout, speed?, sources: [{source, in, out, crop: {w, h, x, y}, label, flip?}]}]}, audio_graph?}."
+          "description": "The last line the script prints: {\"result\": {out, segments}} or {\"error\": \"what to change\"}. With variants: {\"result\": {outs: [the 9x16 edit, the 16x9 edit], segments: [n, n]}}. The file is a media-composition edit: {encode, base, spine: {segments: [{id, kind: split, layout, speed?, speed_smooth?, still?: {duration}, sources: [{source, in, out?, crop: {w, h, x, y}, label, flip?, speed_ramp?: [{t, speed}]}]}]}, audio_graph?}."
         },
         "invoke": {
           "kind": "on-your-computer",
@@ -902,7 +903,7 @@
             "git clone https://github.com/Trillion-X/trillion-workshop.git",
             "install ffmpeg (brew install ffmpeg), which brings ffprobe"
           ],
-          "run": "python3 trillion-workshop/tools/track-and-compare-movement/do-work/author_comparison_edl.py --spec {spec} --out {out}",
+          "run": "python3 trillion-workshop/tools/track-and-compare-movement/do-work/author_comparison_edl.py --spec {spec} --out {out} [--variants {variants}]",
           "needs": [
             "python 3.9 or later",
             "ffprobe, to keep the window inside each clip (without it the window is used as given)",
