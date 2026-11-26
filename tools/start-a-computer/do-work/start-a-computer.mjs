@@ -14,7 +14,7 @@
 // row's units name by vault name (`secret_vault_key`), as one JSON object of vault name to value. They never reach argv, a file, the
 // environment or the answer.
 //
-// usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
+// usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | apply REQUEST_FILE | differences REQUEST_FILE | plan REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | remove LEASE_FILE
 import { differences, isAsRendered, renderWhatItRuns, dropInName, withPrepared, withSlots, publishedFile } from './render-what-a-computer-runs.mjs';
 import { addressesOfName, declaredSetsOf, dnsClient, keepHealthyRecords, keepRecordSets, recordSetsOf } from '../../move-the-public-door/do-work/portable-dns-cutover.mjs';
 import { fill } from './fill-fields.mjs';
@@ -1214,6 +1214,51 @@ export function computerRowApplyFailure(error, { ordinary = false } = {}) {
 
 /** What the computer the request names runs that its row does not render: [] when it matches. A name of the row that does not
  * answer with the row's address alone is one difference (its provider's key on descriptor 5, as for apply). */
+/** A runner that sends the computer only what reads it, and records every other command unsent, answered as if it passed: the
+ * apply's own steps run through it make its plan without changing anything. A command is sent only when it begins as one of the
+ * apply's reads and names no writing verb, no redirect into a file and no download; a read it cannot tell from a write is held
+ * back too, so the plan may show more than the apply would do, never less. The computer-vault read (onComputerState: the value
+ * kept in a shell variable there, only an exit code answered) is sent, so a credential is sealed in the plan as it would be. */
+const PLAN_READS = /^(test |cat |ls |ufw status |if \[ -[df] |\[ "\$\(id -u |getent passwd |dpkg -s |systemctl (is-active|is-enabled|show) |readlink |stat |sha256sum |while IFS= read -r p; do if \[ -f "\$p" \]; then sha256sum |v=\$\()/;
+const PLAN_WRITES = /\brm\b|\bmv\b|\binstall\b|\btee\b|\bchmod\b|\bchown\b|\bln\b|\bcp\b|\bdd\b|\btouch\b|\bmkdir\b|\bsed -i|\buser(add|del|mod)\b|\bencrypt\b|\bpsql\b|\bkill|\bdocker\b|\bapt(-get)? +(install|remove|purge|upgrade|update)|\bwget\b|\bsh -s\b|\bsystemctl +(start|stop|restart|reload|enable|disable|daemon-reload|try-|mask|unmask|reset-failed)|\bjournalctl +--(vacuum|rotate)|>(?!\s*\/dev\/null|&[12])/;
+export function readsOnly(run = onMachine) {
+  const notRun = [];
+  const guarded = async (machine, command, input) => {
+    if (PLAN_READS.test(command) && !PLAN_WRITES.test(command) && !/\b(curl|wget)\s+(-|https?:)/.test(command.replace(/^v=\$\([^)]*agent\.sock[^)]*\)/, ''))) return run(machine, command, input);
+    notRun.push(command);
+    return '';
+  };
+  return { run: guarded, notRun };
+}
+
+/** What an apply of the request would do, made by the apply's own steps (applyWhatItRuns) through readsOnly: the files it would
+ * write, the units it would restart, what it would remove, and every command it would send that changes the computer, in order,
+ * none of them sent. A refusal the apply would meet (a credential the vault does not hold yet) is the plan's answer. */
+export async function computerRowPlan(request, { run = onMachine, held = {} } = {}) {
+  const reads = readsOnly(run);
+  try {
+    const applied = await applyWhatItRuns({ ssh: request.ssh, address: request.machine.address }, runsOf(request), reads.run, held, { pages: readPages(request), computer: request.machine.name, wait: async () => {} });
+    return { written: applied.written ?? [], restarted: applied.restarted ?? [], removed: applied.removed ?? [], not_run: reads.notRun };
+  } catch (error) {
+    // Refused before any change: that refusal is the plan. Refused after one: a check that reads what the unsent changes would have
+    // made (a restarted unit's health) cannot pass, so the plan is the changes it held back, read from their own commands.
+    if (!reads.notRun.length) return { refused: error.message, not_run: [] };
+    return { ...plannedFrom(reads.notRun), checks_after_the_changes: error.message, not_run: reads.notRun };
+  }
+}
+
+/** The files, units and removals a list of held-back apply commands names, in the apply's own command shapes (writeOne, the
+ * restart and enable lines, the removals). */
+export function plannedFrom(commands) {
+  const unique = list => [...new Set(list)];
+  const quoted = /'([^']+)'/;
+  return {
+    written: unique(commands.flatMap(command => [...command.matchAll(/mv -f "\$t" '([^']+)'/g)].map(found => found[1]))),
+    restarted: unique(commands.filter(command => /^systemctl (restart|enable --now) /.test(command)).map(command => command.match(quoted)?.[1]).filter(Boolean)),
+    removed: unique(commands.filter(command => /^rm -rf -- /.test(command)).map(command => command.match(quoted)?.[1]).filter(Boolean)),
+  };
+}
+
 export async function computerRowDifferences(request, { run = onMachine, held = {}, fetchImpl = fetch } = {}) {
   const units = await runsDifferences({ ssh: request.ssh, address: request.machine.address }, runsOf(request), run, { pages: readPages(request) });
   const names = (await keepTheNames(request, { held, fetchImpl, apply: false })).filter(name => !name.matches || name.records_match === false)
@@ -1413,7 +1458,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.stdout.write(`${JSON.stringify({ name: lease.name, provider: lease.provider, state: lease.state, address: lease.address })}\n`);
       process.exit(0);
     }
-    if (operation === 'apply' || operation === 'differences') {
+    if (operation === 'apply' || operation === 'differences' || operation === 'plan') {
       if (!first || second) throw Object.assign(new Error(usage), { exit: 2 });
       ordinary = operation === 'apply';
       const request = json(first), scoped = Object.hasOwn(request, 'scope');
@@ -1421,8 +1466,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       if (!scoped && operation === 'apply') checkOrdinaryApplyFields(request);
       const runs = scoped ? null : await withPrepared(runsOf(request), { pages: readPages(request) });
       const named = !scoped && (request.computer_row?.runs?.names ?? []).length > 0;
-      const held = !scoped && ((operation === 'apply' && runs.units.some(needsHeld)) || named) ? heldValues(await pipe(5)) : {};
-      const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : await computerRowDifferences(request, { held });
+      if (scoped && operation === 'plan') throw refused('a plan is made for an ordinary apply: an engine scope has its own preflight.');
+      const held = !scoped && ((operation !== 'differences' && runs.units.some(needsHeld)) || named) ? heldValues(await pipe(5)) : {};
+      const answer = operation === 'apply' ? await applyAComputerRow(request, { held }) : operation === 'plan' ? await computerRowPlan(request, { held }) : await computerRowDifferences(request, { held });
       process.stdout.write(`${JSON.stringify(operation === 'apply' ? computerRowApplyReceipt(answer) : answer)}\n`);
       process.exit(operation === 'apply' ? computerRowApplyExit(answer) : 0);
     }

@@ -1,4 +1,4 @@
-// apply-a-computer-row.mjs [--dry-run] --targets FILE REQUEST_FILE   (the database connection string on descriptor 3)
+// apply-a-computer-row.mjs [--dry-run | --plan] --targets FILE REQUEST_FILE   (the database connection string on descriptor 3)
 //
 // Verify the selected child's result contract and a completed response from every probe URL before a row or link write.
 // Missing machine results need readback; missing final probe evidence is separate and never rolls back a verified switch.
@@ -35,7 +35,9 @@
 // defaults of read-data/apply-a-computer-row.json (the SQL process, the probe's timings). A shared tool names no one's machine. The row is read and written by the SQL
 // tool's own process (the connection string on its descriptor 3). Values the row's units name by vault name are handed to the apply on
 // descriptor 5, as start-a-computer takes them; none is in argv, a file or the summary. `--dry-run` stops after the edits and the commit
-// check, says what the check found, and writes nothing.
+// check, says what the check found, and writes nothing. `--plan` goes further and still writes nothing: it renders the edited row
+// at the request's commit and runs the computer's own apply steps through start-a-computer's readsOnly runner, so the summary says
+// which files the apply would write, which units it would restart, what it would remove and every changing command, none sent.
 // One apply of a row at a time: a run holds the row (an advisory lock on a database session of its own, do-work/hold-a-computer-row.mjs)
 // from before it reads it until after its last write-back, and a second run of the same row is refused at once with who holds it and
 // since when (exit 3). A dry run takes no hold.
@@ -375,15 +377,18 @@ export function checkRequest(request) {
  * null when either commit is not known even after one fetch), `sleep(ms)`, `now()`, and `holdRow(name)` (do-work/hold-a-computer-row.mjs:
  * the row held from before it is read until after its last write-back, or a refusal naming who holds it; a dry run takes none).
  */
-export async function applyARow(rawRequest, { dryRun = false }, deps) {
+export async function applyARow(rawRequest, { dryRun = false, plan = false }, deps) {
   const request = checkRequest(rawRequest);
+  if (plan && request.scope) throw refused('--plan is for an ordinary apply: an engine scope has its own preflight.');
+  // A plan holds no row and writes none: the edited row is rendered and the computer's apply steps run reading only.
+  if (plan) return applyHeld(request, { plan }, deps, null);
   if (dryRun || !deps.holdRow) return applyHeld(request, { dryRun }, deps, null);
   const hold = await deps.holdRow(request.computer);
   try { return await applyHeld(request, { dryRun }, deps, hold); } finally { await hold.release(); }
 }
 
 /** The run of one request, with the row held (`hold`, null for a dry run, which writes nothing). */
-async function applyHeld(request, { dryRun }, deps, hold) {
+async function applyHeld(request, { dryRun, plan }, deps, hold) {
   const { computer, siteSetting } = await deps.store.read(request.computer);
   const { row, changes } = applyEdits(computer, request.edits);
   // A site's act given as { derive_from } is made here from its rows; the row keeps what was derived, the computer gets the grant.
@@ -424,6 +429,12 @@ async function applyHeld(request, { dryRun }, deps, hold) {
     ...(scope ? { scope } : machine.pages_folder && { pages_folder: placed(machine.pages_folder) }),
   }, null, 1)}\n`);
 
+  if (plan) {
+    if (typeof renderer.computerRowPlan !== 'function') throw refused('the selected Workshop commit cannot plan an apply.');
+    const report = await deps.runApply({ tree, requestFile: applyRequest, held, out: join(log, 'plan.out'), err: join(log, 'plan.err'), operation: 'plan' });
+    if (report.exit !== 0 || !isObject(report.receipt)) throw new Error(`the plan did not finish (exit ${report.exit}); logs are in ${log}.`);
+    return { code: report.receipt.refused ? 1 : 0, summary: { plan: true, computer: row.name, workshop_check: workshopCheck, changes, ...(derived.length && { derived_acts: derived }), ...report.receipt, log_folder: log } };
+  }
   const preflight = scope ? await renderer.checkScopedEngine(renderer.readRequest(applyRequest)) : undefined;
   const hosts = hostsOf(row).slice(0, deps.targets.probe?.max_urls ?? 6);
   const urls = engineProbe ? [engineProbe.url] : hosts.length ? hosts.map(host => `https://${host}/`) : [`https://${row.address}/`];
@@ -757,13 +768,13 @@ const realDeps = ({ store, targets, workshop, connection }) => ({
     return { rights, tools: join(folder, 'tools') };
   },
   startProbe: startApplyProbe,
-  async runApply({ tree, requestFile, held, out, err }) {
+  async runApply({ tree, requestFile, held, out, err, operation = 'apply' }) {
     let outFd, errFd, child;
     try {
       try {
         outFd = openSync(out, 'w');
         errFd = openSync(err, 'w');
-        child = spawn(process.execPath, [computerEntry(tree), 'apply', requestFile], { cwd: tree, stdio: ['ignore', outFd, errFd, 'ignore', 'ignore', 'pipe'] });
+        child = spawn(process.execPath, [computerEntry(tree), operation, requestFile], { cwd: tree, stdio: ['ignore', outFd, errFd, 'ignore', 'ignore', 'pipe'] });
       } catch (error) { throw Object.assign(error, { apply_not_started: true }); }
       return await new Promise((done, fail) => {
         let spawned = false;
@@ -792,11 +803,11 @@ const realDeps = ({ store, targets, workshop, connection }) => ({
 });
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2), dryRun = args.includes('--dry-run');
+  const args = process.argv.slice(2), dryRun = args.includes('--dry-run'), plan = args.includes('--plan');
   const flagAt = args.indexOf('--targets'), targetsFile = flagAt < 0 ? undefined : args[flagAt + 1];
-  const [file, extra] = args.filter((arg, index) => arg !== '--dry-run' && arg !== '--targets' && index !== flagAt + 1);
+  const [file, extra] = args.filter((arg, index) => arg !== '--dry-run' && arg !== '--plan' && arg !== '--targets' && index !== flagAt + 1);
   try {
-    if (!file || extra || !targetsFile) throw refused('usage: apply-a-computer-row.mjs [--dry-run] --targets FILE REQUEST_FILE (the database connection string on descriptor 3)');
+    if (!file || extra || !targetsFile || (dryRun && plan)) throw refused('usage: apply-a-computer-row.mjs [--dry-run | --plan] --targets FILE REQUEST_FILE (the database connection string on descriptor 3)');
     const connection = await pipe(3);
     if (!connection) throw refused('the database connection string arrives on descriptor 3; none did.');
     const defaults = JSON.parse(readFileSync(join(here, '../read-data/apply-a-computer-row.json'), 'utf8'));
@@ -805,7 +816,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (typeof targets.row_connection_name !== 'string' || !targets.row_connection_name) throw refused(`${targetsFile} names no row_connection_name (the vault name of the connection on descriptor 3).`);
     const workshop = (await run('git', ['-C', here, 'rev-parse', '--show-toplevel'])).stdout.trim();
     const sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), connection, targets.row_connection_name);
-    const { code, summary } = await applyARow(JSON.parse(readFileSync(file, 'utf8')), { dryRun }, realDeps({ store: sqlRowStore(sql), targets, workshop, connection }));
+    const { code, summary } = await applyARow(JSON.parse(readFileSync(file, 'utf8')), { dryRun, plan }, realDeps({ store: sqlRowStore(sql), targets, workshop, connection }));
     process.stdout.write(`${JSON.stringify(summary, null, 1)}\n`);
     process.exitCode = code;
   } catch (error) {

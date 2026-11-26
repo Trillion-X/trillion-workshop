@@ -229,6 +229,24 @@ test('a dry run prints the changes and writes, unpacks and applies nothing', asy
   assert.deepEqual([seen.writes.length, seen.applied.length, seen.archived.length], [0, 0, 0]);
 });
 
+test('a plan unpacks the edited row and runs the computer\'s own plan with the held values, and holds, writes and probes nothing', async () => {
+  const { deps, seen } = world();
+  const plan = { written: ['/etc/example.conf'], restarted: ['example.service'], removed: [], not_run: ["systemctl restart 'example.service'"] };
+  const operations = [];
+  deps.holdRow = async () => { throw new Error('a plan holds no row'); };
+  deps.checkApplyProtocol = async () => ({ computerRowPlan: () => {} });
+  deps.runApply = async ({ requestFile, held, operation }) => { operations.push(operation); seen.applied.push({ request: JSON.parse(readFileSync(requestFile, 'utf8')), held }); return { exit: 0, receipt: plan }; };
+  const { code, summary } = await applyARow(request(), { plan: true }, deps);
+  assert.equal(code, 0);
+  assert.deepEqual(operations, ['plan']);
+  assert.deepEqual([summary.plan, summary.written, summary.restarted, summary.not_run], [true, plan.written, plan.restarted, plan.not_run]);
+  assert.deepEqual([seen.writes.length, seen.probes.length, seen.archived.length], [0, 0, 1]);
+  assert.equal(seen.applied[0].request.computer_row_file.endsWith('computer.json'), true, 'the edited row is rendered for the plan as for an apply');
+  const refused = await applyARow(request(), { plan: true }, { ...deps, runApply: async () => ({ exit: 0, receipt: { refused: 'a credential the vault does not hold yet', not_run: [] } }) });
+  assert.equal(refused.code, 1);
+  await assert.rejects(applyARow(request(), { plan: true }, { ...deps, checkApplyProtocol: async () => ({}) }), /cannot plan an apply/);
+});
+
 test('a row that records no commit is applied and then records the commit it was rendered from, in the same write', async () => {
   const { deps, seen, log } = world({ exit: 0 });
   const { summary } = await applyARow(request(), {}, deps);
