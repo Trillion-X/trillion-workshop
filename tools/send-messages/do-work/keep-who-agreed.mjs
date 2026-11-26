@@ -9,15 +9,19 @@ import { realpathSync } from 'node:fs';
 //   lesson goes through the sending seam (send-a-message.mjs). Each tool row runs one export by name, from the bottom of this file.
 //
 // ROW KINDS (the caller reads them from the person's own records and hands them in)
-//   email-course-subscription  one per subscriber and course: consent text and version, when and from where, the
+//   email-course-subscription  one per enrollment (course and enrollment key, else course and contact): its basis
+//                              (consent in the course's words, or a transaction's row), when and from where, the
 //                              unsubscribe token, which lessons were sent
 //   email-course-token         unsubscribe token -> subscription
 //   email-course-interest      one per address and list: consent to one update if a course becomes available
 //   contact-point              the address behind a subscriber; the subscription holds only the contact's id
 //   email-lesson-due           a lesson that falls due at a time; sendDueEmailLessons delivers it and answers it removed
+//   email-course-stop          one per contact and stop scope: a stop link was used, so nothing more goes to them there
+//   email-course-held          a lesson not sent because it was past the course's late_after_hours; kept for the person to read
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. Nothing is sent without a recorded consent; a lesson is sent only while the subscription is active, and once.
+//   1. Nothing is sent without a recorded basis (consent or a transaction); a lesson is sent only while the subscription is
+//      active and its contact has not stopped, and once; at most one lesson per enrollment in one run.
 //   2. The provider's key is on a private descriptor (4 and up) and goes only to the sending seam's adapter. It is never
 //      in a record, the request or the answer.
 //   3. A change whose expected current row differs from the row handed in is refused (`ExpectedCurrentMismatch`) and
@@ -119,7 +123,9 @@ async function over(input, options, work) {
 }
 
 /** tool:sign-someone-up-for-an-email-course: works out the consent, the later lessons to queue and sends the first. */
-export const enrollInEmailCourse = (input, options) => over(input, options, course => course.enroll({ email: input.email, consent: input.consent, course: input.course, source: input.source }));
+export const enrollInEmailCourse = (input, options) => over(input, options, course => course.enroll({
+  email: input.email, basis: input.basis, course: input.course, source: input.source, enrollment_key: input.enrollment_key, waits_until: input.waits_until,
+}));
 
 /** tool:save-interest-in-an-email-update: works out consent to one update. Sends nothing. */
 export const saveEmailInterest = (input, options) => over({ ...input, provider: undefined }, options, course => course.captureInterest({ email: input.email, consent: input.consent, course: input.course, source: input.source }));
@@ -129,7 +135,10 @@ export const unsubscribeFromEmailCourse = (input, options) => over({ ...input, p
 
 /**
  * tool:send-due-email-lessons: delivers each lesson that has fallen due, once, and answers its due row removed. A
- * failed send has already scheduled its own later retry (up to three), so its row is removed too.
+ * failed send has already scheduled its own later retry (up to three, unless the course says retry_failed false), so its
+ * row is removed too, and so is a late lesson's, which is kept as a held row instead. One run sends at most one lesson
+ * per enrollment: another due lesson of the same enrollment stays queued for the next run. A lesson whose enrollment waits
+ * on the caller is sent only when waits_until[its enrollment_key] is true; false, or no answer, keeps its row queued.
  */
 export function sendDueEmailLessons(input, options = {}) {
   const now = options.now ?? (() => new Date());
@@ -139,19 +148,29 @@ export function sendDueEmailLessons(input, options = {}) {
     for await (const record of rows.list({ type: DUE })) if (Date.parse(record.value.due_at) <= now().getTime()) due.push(record);
     due.sort((a, b) => Date.parse(a.value.due_at) - Date.parse(b.value.due_at));
     const results = [];
+    const waitsUntil = input.waits_until ?? {};
+    const tried = new Set();
     for (const record of due.slice(0, most)) {
-      const { token, lesson_index: lessonIndex, retry } = record.value;
-      try {
-        const outcome = await course.deliver({ token, lesson_index: lessonIndex, retry });
-        results.push({ lesson_index: lessonIndex, owner_ref: record.value.owner_ref, status: outcome.status });
-      } catch (error) {
-        results.push({ lesson_index: lessonIndex, owner_ref: record.value.owner_ref, status: 'failed', why: error.message });
+      const { token, lesson_index: lessonIndex, retry, owner_ref: ownerRef, enrollment_key: enrollmentKey } = record.value;
+      if (tried.has(ownerRef)) {
+        results.push({ lesson_index: lessonIndex, owner_ref: ownerRef, status: 'next-run' });
+        continue;
       }
-      await rows.write([{ id: record.id, type: DUE, value: null }]);
+      tried.add(ownerRef);
+      const yes = enrollmentKey === undefined ? undefined : waitsUntil[enrollmentKey];
+      let status;
+      try {
+        ({ status } = await course.deliver({ token, lesson_index: lessonIndex, retry, waits_until: yes }));
+        results.push({ lesson_index: lessonIndex, owner_ref: ownerRef, status });
+      } catch (error) {
+        status = 'failed';
+        results.push({ lesson_index: lessonIndex, owner_ref: ownerRef, status, why: error.message });
+      }
+      if (status !== 'waiting' && status !== 'no-waits-answer') await rows.write([{ id: record.id, type: DUE, value: null }]);
     }
-    const sent = results.filter(item => item.status === 'sent').length;
-    const failed = results.filter(item => item.status === 'failed').length;
-    return { results, said: `${due.length} ${due.length === 1 ? 'lesson' : 'lessons'} due; ${sent} sent, ${failed} failed${due.length > most ? `, ${due.length - most} left for the next run` : ''}.` };
+    const count = status => results.filter(item => item.status === status).length;
+    const later = count('next-run') + Math.max(0, due.length - most);
+    return { results, said: `${due.length} ${due.length === 1 ? 'lesson' : 'lessons'} due; ${count('sent')} sent, ${count('failed')} failed, ${count('waiting') + count('no-waits-answer')} waiting, ${count('held-late')} held as late${later ? `, ${later} left for the next run` : ''}.` };
   });
 }
 
@@ -166,7 +185,7 @@ export async function whoAgreedToGetEmails(input) {
     const state = record.value;
     if (input.list && state.course?.id !== input.list) continue;
     const email = (await rows.read(CONTACT, state.account_id))?.email ?? null;
-    people.push({ email, list: state.course?.id, kind: 'course', status: state.status, consented_at: state.consented_at, consent_text: state.consent_text, consent_version: state.consent_version, source: state.source, lessons_sent: Object.keys(state.sent ?? {}).length });
+    people.push({ email, list: state.course?.id, kind: 'course', status: state.status, basis: state.basis?.kind ?? null, started_at: state.started_at, consented_at: state.consented_at ?? null, consent_text: state.consent_text ?? null, consent_version: state.consent_version ?? null, source: state.source, lessons_sent: Object.keys(state.sent ?? {}).length });
   }
   for await (const record of rows.list({ type: INTEREST })) {
     const state = record.value;

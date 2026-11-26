@@ -21,6 +21,7 @@ const course = {
     { delay_hours: 48, subject: 'Third lesson', article_url: 'https://example.com/lesson-3', text_lines: ['Third: {{articleUrl}}', 'Unsubscribe: {{unsubscribeUrl}}', '{{mailingAddress}}'], html_lines: ['<p>Third: {{articleUrl}}</p>', '<p>{{unsubscribeUrl}} {{mailingAddress}}</p>'] },
   ],
 };
+const agreed = { kind: 'consent', text: course.consent_text };
 const interestCourse = {
   id: 'sample-course', public_origin: 'https://example.com/',
   consent_text: 'Email me one update if the free lesson series becomes available.',
@@ -56,14 +57,14 @@ function harness({ writeReply, onWrite } = {}) {
 
 test('consent is required before contact import or email delivery', async () => {
   const h = harness();
-  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: false, course }), /agree/);
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', basis: { kind: 'consent', text: 'Some other words.' }, course }), /agree/);
   assert.equal(h.asks.length, 0);
 });
 
 test('an unverified mailing address blocks enrollment before external effects', async () => {
   const h = harness();
   await assert.rejects(h.service.enroll({
-    email: 'reader@example.com', consent: true,
+    email: 'reader@example.com', basis: agreed,
     course: { ...course, mailing_address: '' },
   }), /consent or sender is incomplete/);
   assert.equal(h.asks.length, 0);
@@ -71,7 +72,7 @@ test('an unverified mailing address blocks enrollment before external effects', 
 
 test('capture-only course configuration cannot enroll or send lessons', async () => {
   const h = harness();
-  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: true, course: { ...course, capture_only: true } }), /not ready to send/);
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', basis: agreed, course: { ...course, capture_only: true } }), /not ready to send/);
   assert.equal(h.asks.length, 0);
 });
 
@@ -119,13 +120,13 @@ test('concurrent capture returns success only after reading the winning consent'
 
 test('a rejected consent write cannot send a lesson or report enrollment', async () => {
   const h = harness({ writeReply: { ok: false, error: 'ExpectedCurrentMismatch' } });
-  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: true, course }), /could not be saved/);
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', basis: agreed, course }), /could not be saved/);
   assert.equal(h.asks.filter((ask) => ask.target === 'send-email').length, 0);
 });
 
 test('enrollment stores consent, schedules later lessons, and sends once', async () => {
   const h = harness();
-  assert.deepEqual(await h.service.enroll({ email: 'Reader@Example.com', consent: true, course, source: '/contact' }), { status: 'enrolled', already_enrolled: false });
+  assert.deepEqual(await h.service.enroll({ email: 'Reader@Example.com', basis: agreed, course, source: '/contact' }), { status: 'enrolled', already_enrolled: false });
   const state = [...h.records.values()].find((row) => row.kind === 'email-course-subscription');
   assert.equal(state.consent_text, course.consent_text);
   assert.equal(state.source, '/contact');
@@ -136,13 +137,13 @@ test('enrollment stores consent, schedules later lessons, and sends once', async
   assert.equal(firstScheduled.input.token, state.unsubscribe_token);
   assert.equal(firstScheduled.input.lesson_index, 1);
   assert.equal(h.asks.filter((ask) => ask.target === 'send-email').length, 1);
-  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  await h.service.enroll({ email: 'reader@example.com', basis: agreed, course });
   assert.equal(h.asks.filter((ask) => ask.target === 'send-email').length, 1);
 });
 
 test('a lesson cannot be triggered before its scheduled time', async () => {
   const h = harness();
-  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  await h.service.enroll({ email: 'reader@example.com', basis: agreed, course });
   const state = [...h.records.values()].find((row) => row.kind === 'email-course-subscription');
   assert.deepEqual(await h.service.deliver({ token: state.unsubscribe_token, lesson_index: 1 }), { status: 'not-due' });
   assert.equal(h.asks.filter((ask) => ask.target === 'send-email').length, 1);
@@ -150,7 +151,7 @@ test('a lesson cannot be triggered before its scheduled time', async () => {
 
 test('unsubscribe stops a scheduled lesson from sending', async () => {
   const h = harness();
-  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  await h.service.enroll({ email: 'reader@example.com', basis: agreed, course });
   const state = [...h.records.values()].find((row) => row.kind === 'email-course-subscription');
   assert.deepEqual(await h.service.unsubscribe(state.unsubscribe_token), { status: 'unsubscribed' });
   assert.deepEqual(await h.service.deliver({ token: state.unsubscribe_token, lesson_index: 1 }), { status: 'unsubscribed' });
@@ -159,7 +160,7 @@ test('unsubscribe stops a scheduled lesson from sending', async () => {
 
 test('a non-receipt lesson is sent with its unsubscribe headers and copy variables', async () => {
   const h = harness();
-  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  await h.service.enroll({ email: 'reader@example.com', basis: agreed, course });
   const [lessonSend] = h.asks.filter((ask) => ask.target === 'send-email');
   assert.match(lessonSend.input.headers['List-Unsubscribe'], /email-course\/unsubscribe\?token=/);
   assert.match(lessonSend.input.variables.unsubscribeUrl, /email-course\/unsubscribe\?token=/);
@@ -168,19 +169,19 @@ test('a non-receipt lesson is sent with its unsubscribe headers and copy variabl
 
 test('a course with its own stop page links every lesson there, and a stop page with no token or on another site is refused', async () => {
   const h = harness();
-  await h.service.enroll({ email: 'reader@example.com', consent: true, course: { ...course, stop_path: 'courses/stop/{token}?from=email' } });
+  await h.service.enroll({ email: 'reader@example.com', basis: agreed, course: { ...course, stop_path: 'courses/stop/{token}?from=email' } });
   const [lessonSend] = h.asks.filter((ask) => ask.target === 'send-email');
   const token = [...h.records.values()].find((row) => row.kind === 'email-course-subscription').unsubscribe_token;
   assert.equal(lessonSend.input.variables.unsubscribeUrl, `https://example.com/courses/stop/${token}?from=email`);
   assert.equal(lessonSend.input.headers['List-Unsubscribe'], `<https://example.com/courses/stop/${token}?from=email>`);
   for (const stop_path of ['courses/stop', 'stop/{token}/{token}', 'https://elsewhere.example/stop/{token}', '//elsewhere.example/{token}', 42]) {
-    await assert.rejects(harness().service.enroll({ email: 'reader@example.com', consent: true, course: { ...course, stop_path } }), /stop link is invalid/, String(stop_path));
+    await assert.rejects(harness().service.enroll({ email: 'reader@example.com', basis: agreed, course: { ...course, stop_path } }), /stop link is invalid/, String(stop_path));
   }
 });
 
 test('a course that names no stop page keeps the default one, as before', async () => {
   const h = harness();
-  await h.service.enroll({ email: 'reader@example.com', consent: true, course });
+  await h.service.enroll({ email: 'reader@example.com', basis: agreed, course });
   const token = [...h.records.values()].find((row) => row.kind === 'email-course-subscription').unsubscribe_token;
   const [lessonSend] = h.asks.filter((ask) => ask.target === 'send-email');
   assert.equal(lessonSend.input.variables.unsubscribeUrl, `https://example.com/email-course/unsubscribe?token=${token}`);
@@ -196,7 +197,7 @@ const receiptCourse = {
 
 test('a receipt step is sent without unsubscribe headers, unsubscribe copy or mailing address', async () => {
   const h = harness();
-  assert.deepEqual(await h.service.enroll({ email: 'reader@example.com', consent: true, course: receiptCourse }), { status: 'enrolled', already_enrolled: false });
+  assert.deepEqual(await h.service.enroll({ email: 'reader@example.com', basis: agreed, course: receiptCourse }), { status: 'enrolled', already_enrolled: false });
   const [receiptSend] = h.asks.filter((ask) => ask.target === 'send-email');
   assert.deepEqual(receiptSend.input.headers, {});
   assert.equal(receiptSend.input.variables.articleUrl, 'https://example.com/lesson-1');
@@ -207,9 +208,9 @@ test('a receipt step is sent without unsubscribe headers, unsubscribe copy or ma
 
 test('the receipt flag must be a boolean, and only a non-receipt lesson must carry unsubscribe copy', async () => {
   const h = harness();
-  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: true,
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', basis: agreed,
     course: { ...course, lessons: [{ ...course.lessons[0], receipt: 'yes' }, ...course.lessons.slice(1)] } }), /receipt flag is invalid/);
-  await assert.rejects(h.service.enroll({ email: 'reader@example.com', consent: true,
+  await assert.rejects(h.service.enroll({ email: 'reader@example.com', basis: agreed,
     course: { ...course, lessons: [{ ...course.lessons[0], receipt: false, text_lines: ['No unsubscribe here'], html_lines: ['<p>None</p>'] }, ...course.lessons.slice(1)] } }),
   /copy is incomplete/);
   assert.equal(h.asks.length, 0);

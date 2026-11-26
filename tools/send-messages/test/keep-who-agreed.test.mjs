@@ -84,7 +84,7 @@ describe('the rows and the seam agree', () => {
 describe('signing up, the first lesson, the queue and the due runner', () => {
   it('answers the consent and the queued lesson as rows to keep, sends the first with unsubscribe headers and sends nothing twice', async () => {
     const sender = adapter();
-    const result = await enrollInEmailCourse({ email: 'Reader@Example.com', consent: true, course, source: '/sign-up', provider: 'resend', records: [] }, { ...keys, send: { run: sender.run }, ...at('2026-10-01T12:00:00.000Z') });
+    const result = await enrollInEmailCourse({ email: 'Reader@Example.com', basis: { kind: 'consent', text: course.consent_text }, course, source: '/sign-up', provider: 'resend', records: [] }, { ...keys, send: { run: sender.run }, ...at('2026-10-01T12:00:00.000Z') });
     assert.deepEqual({ status: result.status, already_enrolled: result.already_enrolled }, { status: 'enrolled', already_enrolled: false });
     assert.deepEqual(result.keep.map(record => record.type).sort(), ['contact-point', 'email-course-subscription', 'email-course-token', 'email-lesson-due']);
     assert.ok(result.keep.every(record => record.expected === null), 'every row is new, so each is to be written as absent');
@@ -108,23 +108,23 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
     assert.equal(env.RESEND_API_KEY, 'test-key-resend');
     assert.equal(env.EMAIL_FROM, 'Teacher <teacher@example.com>');
     assert.ok(!JSON.stringify(input).includes('test-key-resend'), 'the key is not in what the adapter is asked to send');
-    const again = await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend', records: kept }, { ...keys, send: { run: sender.run }, ...at('2026-10-01T12:00:00.000Z') });
+    const again = await enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: course.consent_text }, course, provider: 'resend', records: kept }, { ...keys, send: { run: sender.run }, ...at('2026-10-01T12:00:00.000Z') });
     assert.deepEqual({ status: again.status, already_enrolled: again.already_enrolled }, { status: 'enrolled', already_enrolled: true });
     assert.equal(sender.calls.length, 1, 'signing up again sends nothing twice');
   });
 
   it('refuses without consent and answers no rows', async () => {
     const sender = adapter();
-    await assert.rejects(enrollInEmailCourse({ email: 'reader@example.com', consent: false, course, provider: 'resend', records: [] }, { ...keys, send: { run: sender.run } }), /agree/);
+    await assert.rejects(enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: 'Some other words.' }, course, provider: 'resend', records: [] }, { ...keys, send: { run: sender.run } }), /agree/);
     assert.equal(sender.calls.length, 0);
   });
 
   it('asks for the rows it works over', async () => {
-    await assert.rejects(enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend' }, { ...keys, send: { run: adapter().run } }), /records is a list of the rows/);
+    await assert.rejects(enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: course.consent_text }, course, provider: 'resend' }, { ...keys, send: { run: adapter().run } }), /records is a list of the rows/);
   });
 
   it('the due runner sends a lesson once it has fallen due, answers it marked sent and its queue row removed', async () => {
-    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
+    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: course.consent_text }, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
     const records = held([], enrolled.keep);
     const early = adapter();
     const before = await sendDueEmailLessons({ provider: 'resend', records }, { ...keys, send: { run: early.run }, ...at('2026-10-02T11:00:00.000Z') });
@@ -143,7 +143,7 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
   });
 
   it('a failed send answers its own later retry and the row that failed removed', async () => {
-    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
+    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: course.consent_text }, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
     const records = held([], enrolled.keep);
     const answer = await sendDueEmailLessons({ provider: 'resend', records }, { ...keys, send: { run: adapter(true).run }, ...at('2026-10-02T12:00:00.000Z') });
     assert.equal(answer.results[0].status, 'failed');
@@ -155,12 +155,12 @@ describe('signing up, the first lesson, the queue and the due runner', () => {
   });
 
   it('an unsubscribed person gets nothing from the queue', async () => {
-    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
+    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: course.consent_text }, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
     const records = held([], enrolled.keep);
     const token = ofType(records, 'email-course-subscription')[0].value.unsubscribe_token;
     const stopped = await unsubscribeFromEmailCourse({ token, records }, at('2026-10-01T13:00:00.000Z'));
     assert.equal(stopped.status, 'unsubscribed');
-    assert.deepEqual(stopped.keep.map(row => row.type), ['email-course-subscription']);
+    assert.deepEqual(stopped.keep.map(row => row.type), ['email-course-subscription', 'email-course-stop']);
     assert.deepEqual((await unsubscribeFromEmailCourse({ token: 'x'.repeat(43), records })).status, 'unsubscribed', 'an unknown token answers unsubscribed too');
     const sender = adapter();
     const answer = await sendDueEmailLessons({ provider: 'resend', records: held(records, stopped.keep) }, { ...keys, send: { run: sender.run }, ...at('2026-10-05T12:00:00.000Z') });
@@ -178,7 +178,7 @@ describe('interest in one update, and who agreed', () => {
     const second = await saveEmailInterest({ email: 'asker@example.com', consent: true, course: interestCourse, records: interest });
     assert.deepEqual({ status: second.status, already_saved: second.already_saved }, { status: 'interest_saved', already_saved: true });
     assert.deepEqual(second.keep, []);
-    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', consent: true, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
+    const enrolled = await enrollInEmailCourse({ email: 'reader@example.com', basis: { kind: 'consent', text: course.consent_text }, course, provider: 'resend', records: [] }, { ...keys, send: { run: adapter().run }, ...at('2026-10-01T12:00:00.000Z') });
     const records = [...interest, ...held([], enrolled.keep)];
     const all = await whoAgreedToGetEmails({ records });
     assert.deepEqual(all.people.map(item => [item.email, item.kind, item.status]).sort(), [['asker@example.com', 'update', 'pending'], ['reader@example.com', 'course', 'active']]);
