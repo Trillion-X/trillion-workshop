@@ -14,7 +14,7 @@ import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { actsToDerive, applyARow, applyEdits, checkApplyProtocol, deriveActs, heldNamesOf, hostsOf, isAncestorIn, parsePath, rowsOnComputer, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
+import { actsToDerive, applyARow, applyEdits, checkApplyProtocol, deriveActs, heldNamesOf, hostsOf, isAncestorIn, parsePath, requestFromRow, rowsOnComputer, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
 import { ROW_APPLY_RESULT_PROTOCOL, SLOT_SWITCH_UNCONFIRMED_EXIT } from '../do-work/start-a-computer.mjs';
 import { grantDifference } from '../../serve-a-sites-pages-from-its-rows/do-work/rights.ts';
 
@@ -227,6 +227,16 @@ test('a dry run prints the changes and writes, unpacks and applies nothing', asy
   assert.equal(code, 0);
   assert.deepEqual(summary.changes.map(({ at, before, after }) => ({ at, before, after })), [{ at: edit.at, before: OLD, after: NEW }]);
   assert.deepEqual([seen.writes.length, seen.applied.length, seen.archived.length], [0, 0, 0]);
+});
+
+test('a request made from the row gives each to and remove edit the from the row holds now, so a row that moves after is refused', () => {
+  const live = row();
+  const made = requestFromRow(live, { computer: 'example-box', workshop_commit: TREE, edits: [{ at: edit.at, to: NEW }, { at: edit.at, to: 'again' }, { at: 'runs.units', add: { unit: 'b.service' } }] });
+  assert.deepEqual(made.edits, [{ at: edit.at, from: OLD, to: NEW }, { at: edit.at, from: NEW, to: 'again' }, { at: 'runs.units', add: { unit: 'b.service' } }]);
+  assert.equal(applyEdits(live, made.edits).row.runs.units.at(-1).unit, 'b.service');
+  const moved = applyEdits(row(), [{ at: edit.at, to: 'someone else' }]).row;
+  assert.throws(() => applyEdits(moved, made.edits), /The row changed or the request is stale/);
+  assert.throws(() => requestFromRow(live, { computer: 'example-box', workshop_commit: TREE, edits: [{ at: 'runs.nothing[unit=x].y', to: 1 }] }), /no nothing to enter|no element|is not an array/);
 });
 
 test('a plan unpacks the edited row and runs the computer\'s own plan with the held values, and holds, writes and probes nothing', async () => {

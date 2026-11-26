@@ -1,4 +1,4 @@
-// apply-a-computer-row.mjs [--dry-run | --plan] --targets FILE REQUEST_FILE   (the database connection string on descriptor 3)
+// apply-a-computer-row.mjs [--dry-run | --plan | --make] --targets FILE REQUEST_FILE   (the database connection string on descriptor 3)
 //
 // Verify the selected child's result contract and a completed response from every probe URL before a row or link write.
 // Missing machine results need readback; missing final probe evidence is separate and never rolls back a verified switch.
@@ -38,6 +38,8 @@
 // check, says what the check found, and writes nothing. `--plan` goes further and still writes nothing: it renders the edited row
 // at the request's commit and runs the computer's own apply steps through start-a-computer's readsOnly runner, so the summary says
 // which files the apply would write, which units it would restart, what it would remove and every changing command, none sent.
+// `--make` reads the row and prints the request the file wants with each `to` and `remove` edit's `from` filled from the row as it is
+// now (requestFromRow), so the request a window runs was checked against the live row when it was made; it writes nothing.
 // One apply of a row at a time: a run holds the row (an advisory lock on a database session of its own, do-work/hold-a-computer-row.mjs)
 // from before it reads it until after its last write-back, and a second run of the same row is refused at once with who holds it and
 // since when (exit 3). A dry run takes no hold.
@@ -187,6 +189,24 @@ export function applyEdits(row, edits) {
   if (edited.name !== row.name) throw refused('an edit changed the row name; a rename is not an apply.');
   if (!isObject(edited.runs)) throw refused('the edited row has no runs object.');
   return { row: edited, changes };
+}
+
+/**
+ * A request made from what its author wants and the row as it is now: each `to` or `remove` edit that names no `from` gets the value
+ * there now (after the edits before it), so the apply refuses it if the row moves between this read and its own. An `add` checks
+ * nothing (applyEdits). The edits are made once here too, so one that cannot be made is refused now, not at the window.
+ */
+export function requestFromRow(row, { computer, workshop_commit, edits, ...rest }) {
+  const filled = [];
+  for (const [index, edit] of (edits ?? []).entries()) {
+    const op = operationOf(edit, `edits[${index}] (${edit?.at})`);
+    if (op === 'add' || Object.hasOwn(edit, 'from')) { filled.push(edit); continue; }
+    const { row: before } = applyEdits(row, filled);
+    const { container, key, found } = locate(before, edit.at);
+    filled.push({ at: edit.at, ...(found ? { from: structuredClone(container[key]) } : {}), ...(op === 'to' ? { to: edit.to } : { remove: true }) });
+  }
+  applyEdits(row, filled);
+  return checkRequest({ computer, workshop_commit, edits: filled, ...rest });
 }
 
 /** Set the links and return their undo. If installation fails partway through, undo the links already set. */
@@ -803,11 +823,11 @@ const realDeps = ({ store, targets, workshop, connection }) => ({
 });
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2), dryRun = args.includes('--dry-run'), plan = args.includes('--plan');
+  const args = process.argv.slice(2), dryRun = args.includes('--dry-run'), plan = args.includes('--plan'), make = args.includes('--make');
   const flagAt = args.indexOf('--targets'), targetsFile = flagAt < 0 ? undefined : args[flagAt + 1];
-  const [file, extra] = args.filter((arg, index) => arg !== '--dry-run' && arg !== '--plan' && arg !== '--targets' && index !== flagAt + 1);
+  const [file, extra] = args.filter((arg, index) => !['--dry-run', '--plan', '--make', '--targets'].includes(arg) && index !== flagAt + 1);
   try {
-    if (!file || extra || !targetsFile || (dryRun && plan)) throw refused('usage: apply-a-computer-row.mjs [--dry-run | --plan] --targets FILE REQUEST_FILE (the database connection string on descriptor 3)');
+    if (!file || extra || !targetsFile || [dryRun, plan, make].filter(Boolean).length > 1) throw refused('usage: apply-a-computer-row.mjs [--dry-run | --plan | --make] --targets FILE REQUEST_FILE (the database connection string on descriptor 3)');
     const connection = await pipe(3);
     if (!connection) throw refused('the database connection string arrives on descriptor 3; none did.');
     const defaults = JSON.parse(readFileSync(join(here, '../read-data/apply-a-computer-row.json'), 'utf8'));
@@ -816,6 +836,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (typeof targets.row_connection_name !== 'string' || !targets.row_connection_name) throw refused(`${targetsFile} names no row_connection_name (the vault name of the connection on descriptor 3).`);
     const workshop = (await run('git', ['-C', here, 'rev-parse', '--show-toplevel'])).stdout.trim();
     const sql = sqlBy(targets.sql_runner.map(part => placed(part, { workshop })), connection, targets.row_connection_name);
+    if (make) {
+      // The request the file wants, made from the row as it is now; it is printed, and nothing is written or applied.
+      const wanted = JSON.parse(readFileSync(file, 'utf8'));
+      const { computer } = await sqlRowStore(sql).read(wanted.computer);
+      process.stdout.write(`${JSON.stringify(requestFromRow(computer, wanted), null, 1)}\n`);
+      process.exit(0);
+    }
     const { code, summary } = await applyARow(JSON.parse(readFileSync(file, 'utf8')), { dryRun, plan }, realDeps({ store: sqlRowStore(sql), targets, workshop, connection }));
     process.stdout.write(`${JSON.stringify(summary, null, 1)}\n`);
     process.exitCode = code;
