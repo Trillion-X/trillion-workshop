@@ -239,6 +239,13 @@ def render(job):
             for name, clip, k, index, window, peak in (
                     ("target", t, pair["target"], "targets", pair["target_t"], pair["target_peak"]),
                     ("reference", r, pair["reference"], "references", pair["reference_t"], pair["reference_peak"])):
+                marks = [m for m in (job.get("contact_marks") or {}).get(clip.get("identity"), [])
+                         if window[0] <= float(m) <= window[1]]
+                if marks:  # a person's mark is the contact: no detector here is frame-exact on every kind of video
+                    near = min(marks, key=lambda m: abs(float(m) - peak))
+                    contacts[name] = {"time": float(near), "source": "mark", "hit": None,
+                                      "why": f"marked by a person, {float(near) - peak:+.3f} s from the wrist peak"}
+                    continue
                 tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)  # 0 = never the sound (its audio
                 got = run_json([sys.executable, os.path.join(HERE, "contact_moment.py"), "--clip", clip["path"],  # may be off)
                                 "--t0", str(window[0]), "--t1", str(window[1]), "--wrist-peak", str(peak),

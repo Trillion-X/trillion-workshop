@@ -92,6 +92,15 @@ class RenderStage(unittest.TestCase):
         spec = json.load(open(made[0]["file"].rsplit(".", 2)[0] + ".spec.json"))
         self.assertNotIn("sync", spec["left"])
 
+    def test_a_marked_contact_wins_over_the_detectors(self):
+        self.job["contact_marks"] = {T["identity"]: [12.0, 40.75], R["identity"]: [1.33]}  # 12.0 is another swing's
+        m.render(self.job)
+        self.assertNotIn("contact_moment.py", self.calls)
+        folder = os.path.join(self.work, "clips")
+        spec = next(f for f in os.listdir(folder) if f.endswith(".sync-spec.json"))
+        spec = json.load(open(os.path.join(folder, spec)))
+        self.assertEqual((spec["target"]["contact"], spec["reference"]["contact"]), (40.75, 1.33))
+
     def test_a_refused_framing_makes_no_clip_of_that_format(self):
         self.refuse = {"whole_movement_check.py"}
         got = m.render(self.job)
