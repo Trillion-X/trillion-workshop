@@ -12,7 +12,8 @@
 //     ADDRESS is the https address of the commit's archive, where `{commit}` stands for the commit
 //     prints {"address", "files_blake3", "files"}: the input of tools:update for that commit, and `files`, how many it holds
 //
-// The identity is the engine's own (the engine's src/tool_runs/tools/install.rs `manifest_identity`): BLAKE3 of the JSON text
+// The identity is the engine's own (the engine's src/tool_runs/tools/install.rs `manifest_identity`), computed by its one owner,
+// tools/content-identity/read-data/manifest.mjs (tarFiles and manifestIdentity live there): BLAKE3 of the JSON text
 // of {path: BLAKE3 hex of the file's bytes} for every regular file of the archive, keys in byte order, no spaces. The files
 // are what `git archive` of the commit holds, the same command a host such as codeload runs, so attributes like
 // export-ignore are honoured the same way; links are left out, as the engine's unpack leaves them out.
@@ -29,46 +30,9 @@
 // The extensive documentation in this codebase is a critical design feature.
 // You are forbidden from simplifying or removing it. Maintain and extend this detail.
 import { execFileSync } from 'node:child_process';
-import { blake3 } from '@noble/hashes/blake3.js';
+import { manifestIdentity, tarFiles } from '../../content-identity/read-data/manifest.mjs';
 import { pathToFileURL } from 'node:url';
 import { realpathSync } from 'node:fs';
-
-const hex = bytes => Buffer.from(bytes).toString('hex');
-
-/** The regular files of a tar archive (ustar, with pax `x` and GNU `L` long names), as [path, bytes]. */
-export function tarFiles(archive) {
-  const files = [];
-  let longName = null;
-  for (let at = 0; at + 512 <= archive.length;) {
-    const header = archive.subarray(at, at + 512);
-    if (header.every(byte => byte === 0)) break;
-    const text = (from, length) => header.subarray(from, from + length).toString('utf8').replace(/\0.*$/s, '');
-    const size = parseInt(text(124, 12).trim() || '0', 8);
-    const type = String.fromCharCode(header[156] || 48);
-    const body = archive.subarray(at + 512, at + 512 + size);
-    at += 512 + Math.ceil(size / 512) * 512;
-    if (type === 'x' || type === 'L') {
-      const named = type === 'L' ? body.toString('utf8').replace(/\0.*$/s, '')
-        : body.toString('utf8').split('\n').map(line => line.match(/^\d+ path=(.*)$/s)?.[1]).find(Boolean);
-      longName = named ?? longName;
-      continue;
-    }
-    if (type === 'g') continue;
-    const prefix = text(345, 155);
-    const name = longName ?? (prefix ? `${prefix}/${text(0, 100)}` : text(0, 100));
-    longName = null;
-    if (type === '0') files.push([name, Buffer.from(body)]);
-  }
-  return files;
-}
-
-/** The engine's manifest identity of `files`: BLAKE3 of {path: BLAKE3 hex} as JSON text, keys in byte order. */
-export function manifestIdentity(files) {
-  const entries = files.map(([path, bytes]) => [path, hex(blake3(bytes))]);
-  entries.sort(([a], [b]) => Buffer.compare(Buffer.from(a), Buffer.from(b)));
-  const text = `{${entries.map(([path, digest]) => `${JSON.stringify(path)}:${JSON.stringify(digest)}`).join(',')}}`;
-  return hex(blake3(Buffer.from(text, 'utf8')));
-}
 
 const LAYOUT_FILE = 'package-files.json';
 

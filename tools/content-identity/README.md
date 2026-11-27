@@ -21,6 +21,8 @@ the `read-data` folder already include both. The compressor is internal to this 
 | File | Purpose |
 |------|---------|
 | `read-data/identity.mjs` | `makeHashCodeHexFromBytes(bytes)`, `makeHashCodeHexFromChunks(chunks)`, `makeHashCodeHexFromJson(value)` and `canonicalJson(value)`. |
+| `read-data/manifest.mjs` | The identity of a folder of files: `manifestIdentity(files)` (the engine's `manifest_identity`, bare 64 hex), `identityOfDigests({path: hex})`, `fileDigest(bytes)` and `tarFiles(archive)` (the regular files of a `git archive` tar). Moved from `tools/workflows/do-work/pin-a-commit-by-its-files.mjs`; the pin of a commit, a registry pointer's `files_blake3` and a project record's `copied_at_files_blake3` all come from here. Public beside `identity.mjs` (part.json). |
+| `test/manifest.test.mjs` | The golden pins of two Workshop folders at 01c2cc3a2, `identityOfDigests` equal to `manifestIdentity`, and the pin module keeping no copy. |
 | `read-data/blake3.mjs` | The exact licensed compressor source, imported and re-exported by the identity API. |
 | `do-work/identity-from-stdin.mjs` | Internal bridge: reads exact bytes from stdin and prints their identity for callers that cannot import ESM directly. It reads no file. |
 | `part.json` | `read-data/identity.mjs` is public. |

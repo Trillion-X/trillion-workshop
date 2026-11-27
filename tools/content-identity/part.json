@@ -1,6 +1,7 @@
 {
   "exports": {
-    "identity": "read-data/identity.mjs"
+    "identity": "read-data/identity.mjs",
+    "manifest": "read-data/manifest.mjs"
   },
-  "public": ["package.json", "read-data/identity.mjs"]
+  "public": ["package.json", "read-data/identity.mjs", "read-data/manifest.mjs"]
 }

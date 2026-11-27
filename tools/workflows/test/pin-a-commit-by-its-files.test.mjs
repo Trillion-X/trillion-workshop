@@ -9,7 +9,8 @@ import { mkdirSync, writeFileSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { blake3 } from '@noble/hashes/blake3.js';
-import { duplicateLayouts, layoutProblems, layoutReport, pinOf, tarFiles } from '../do-work/pin-a-commit-by-its-files.mjs';
+import { duplicateLayouts, layoutProblems, layoutReport, pinOf } from '../do-work/pin-a-commit-by-its-files.mjs';
+import { tarFiles } from '../../content-identity/read-data/manifest.mjs';
 
 test('a commit is pinned by exactly its archived files, in the engine\'s identity', () => {
   const repository = tempFolder(join(tmpdir(), 'pin-a-commit-'));

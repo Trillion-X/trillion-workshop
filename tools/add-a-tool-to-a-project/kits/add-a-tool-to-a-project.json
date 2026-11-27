@@ -1,0 +1,37 @@
+{
+  "start_here": "Say to your AI: \"Grant my project folder for change, then run tool:add-a-tool-to-a-project with project . and tool content-identity from my registry tools-in-this-registry.json.\" It copies the folder into trillion/content-identity/ and writes its line in trillion/where-each-tool-comes-from.json.",
+  "lists": [],
+  "no_lists_because": "This tool copies files into the granted project folder and writes the project's own record file; it reads and keeps no list rows.",
+  "workflows": [],
+  "tools": [
+    "tool:add-a-tool-to-a-project"
+  ],
+  "instructions": [
+    "1. Grant the project's folder (the folder holding its package.json) for change, and keep a registry file tools-in-this-registry.json there or give its https address.",
+    "2. Ask your AI to run tool:add-a-tool-to-a-project with {\"project\":\".\",\"tool\":\"content-identity\",\"from\":\"tools-in-this-registry.json\"}. Add as when the name is already another source's folder; add prepare false to skip the cards' prepare commands.",
+    "3. Read added, already and refused. A refused edited-copy carries the diff of what you changed; move a copy to a newer commit with the sync tool, never by adding again. Commit the new trillion/ folders and the record file in your project."
+  ],
+  "worked_examples": [
+    {
+      "title": "Add one tool from a registry",
+      "ask": "Add content-identity from my registry to this project.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:add-a-tool-to-a-project",
+            "input": {
+              "project": ".",
+              "tool": "content-identity",
+              "from": "tools-in-this-registry.json"
+            }
+          }
+        }
+      },
+      "given": "The granted folder holds package.json and a registry pointing content-identity at Workshop commit 01c2cc3a271f56ae6799b20501ab6153057aeb69 with files_blake3 7d9e45feea11f2842e6c49bc282d9a14bcacb09879865edaf2c167d99ce50428.",
+      "hands_back": "{\"added\": [{\"tool\": \"content-identity\", \"commit\": \"01c2cc3a271f56ae6799b20501ab6153057aeb69\", \"files\": 10, \"files_blake3\": \"7d9e45feea11f2842e6c49bc282d9a14bcacb09879865edaf2c167d99ce50428\", \"closure_blake3\": \"b964cec8134a30f7b82d0dbce86b7746cc2bfe1d894c35a7355bd723a41dd1c9\"}], \"already\": [], \"refused\": [], \"prepared\": [], \"not_prepared\": []}"
+    }
+  ]
+}
