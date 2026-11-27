@@ -35,14 +35,14 @@ import { fileDigest, identityOfDigests } from '../../content-identity/read-data/
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
 import { BadFrom, TOOL_NAME, isInsidePath, readRegistry, type Hex64, type Registry } from '../read-data/registry.ts';
 import { FetchedCommit, GitRefused, NotAtCommit, type Fetched } from '../read-data/fetch-folder.ts';
-import { BadCard, cardFacts } from '../read-data/card.ts';
+import { BadCard, OldCardName, cardFacts } from '../read-data/card.ts';
 import { RecordChanged, readProjectRecord, writeProjectRecord, type FromWhere, type RecordFile, type ToolRecord } from '../read-data/record.ts';
 import { unifiedDiff } from '../read-data/diff-text.ts';
 
 export type Direct = { repo: string; path: string; commit: string };
 export type AddInput = { project: string; tool: string; from?: string | Direct; as?: string; prepare?: boolean };
 export type Why = 'edited-copy' | 'other-version-present' | 'name-clash' | 'not-in-registry' | 'tool-not-found-at-commit'
-  | 'identity-mismatch' | 'record-changed-meanwhile' | 'bad-from' | 'bad-card' | 'fetch-refused';
+  | 'identity-mismatch' | 'record-changed-meanwhile' | 'bad-from' | 'bad-card' | 'old-card-name' | 'fetch-refused';
 export type Refusal = { tool: string; why: Why; said: string; diff?: string };
 export type Added = { tool: string; commit: string; files: number; files_blake3: Hex64; closure_blake3: Hex64 };
 export type AddOutput = { added: Added[]; already: string[]; refused: Refusal[]; prepared: string[]; not_prepared: Array<{ tool: string; said: string }> };
@@ -203,8 +203,9 @@ export async function add(input: AddInput): Promise<AddOutput> {
           continue;
         }
         let card;
-        try { card = cardFacts(new Map(fetched.files.map(([path, bytes]) => [path, bytes]))); } catch (error) {
+        try { card = cardFacts(wanted.path, new Map(fetched.files.map(([path, bytes]) => [path, bytes]))); } catch (error) {
           if (error instanceof BadCard) { refused.push({ tool: wanted.folder, why: 'bad-card', said: error.message }); continue; }
+          if (error instanceof OldCardName) { refused.push({ tool: wanted.folder, why: 'old-card-name', said: error.message }); continue; }
           throw error;
         }
         needs = [...new Set([...wanted.needs, ...card.needs_tools])].sort();

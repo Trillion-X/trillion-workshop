@@ -42,8 +42,9 @@ A record line (keyed by the folder's name):
 5. Each new folder's card `prepare` (a list of words: a program and its arguments) runs in the folder, needs first.
    What it makes is never in `files`.
 
-The card is `what-this-tool-does-and-how-to-run-it.json`, or the older `tool-rows.json`; its top-level `prepare` and
-`needs_tools` are the two facts read.
+The card is `what-this-tool-does-and-how-to-run-it.json` and nothing else; its top-level `prepare` and `needs_tools` are
+the two facts read. A folder whose card still has the old name `tool-rows.json` is refused (`old-card-name`), naming the
+folder. (This tool's own card is still `tool-rows.json` until the Workshop renames every card in one change.)
 
 ## Invariants
 
@@ -57,7 +58,7 @@ The card is `what-this-tool-does-and-how-to-run-it.json`, or the older `tool-row
 ## Refusals
 
 `edited-copy`, `other-version-present`, `name-clash`, `not-in-registry`, `tool-not-found-at-commit`,
-`identity-mismatch`, `record-changed-meanwhile`, `bad-from`, `bad-card`, `fetch-refused`. Each carries `said`, the plain
+`identity-mismatch`, `record-changed-meanwhile`, `bad-from`, `bad-card`, `old-card-name`, `fetch-refused`. Each carries `said`, the plain
 reason; `edited-copy` also carries `diff`.
 
 ## Files
