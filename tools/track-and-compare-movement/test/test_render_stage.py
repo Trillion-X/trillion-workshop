@@ -100,6 +100,9 @@ class RenderStage(unittest.TestCase):
         spec = next(f for f in os.listdir(folder) if f.endswith(".sync-spec.json"))
         spec = json.load(open(os.path.join(folder, spec)))
         self.assertEqual((spec["target"]["contact"], spec["reference"]["contact"]), (40.75, 1.33))
+        self.assertEqual((spec["target"]["clip"], spec["reference"]["clip"]), ("/t.mp4", "/r.mp4"))  # landmark sheet
+        self.assertNotIn("in", spec["target"])                       # each window comes from the swing's landmarks
+        self.assertEqual(spec["settings"]["landmarks"]["contact_off_s"], 0.35)  # a mark is not refused as early
 
     def test_a_refused_framing_makes_no_clip_of_that_format(self):
         self.refuse = {"whole_movement_check.py"}

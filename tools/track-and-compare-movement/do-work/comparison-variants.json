@@ -1,13 +1,50 @@
 {
   "formats": [
-    {"id": "9x16", "width": 1080, "height": 1920, "layout": "v"},
-    {"id": "16x9", "width": 1920, "height": 1080, "layout": "h"}
+    {
+      "id": "9x16",
+      "width": 1080,
+      "height": 1920,
+      "layout": "v"
+    },
+    {
+      "id": "16x9",
+      "width": 1920,
+      "height": 1080,
+      "layout": "h"
+    }
   ],
   "passes": [
-    {"id": "full", "half": 1.0},
-    {"id": "half-speed", "half": 0.6, "speed": 0.5, "smooth": true, "label_suffix": " 0.5x"},
-    {"id": "quarter-speed", "half": 0.4, "speed": 0.25, "smooth": true, "label_suffix": " 0.25x"},
-    {"id": "tenth-speed", "half": 0.2, "speed": 0.1, "smooth": true, "label_suffix": " 0.1x"},
-    {"id": "contact-still", "still": 1.5, "label_suffix": " contact"}
+    {
+      "id": "full",
+      "half": 1.0,
+      "span": "swing"
+    },
+    {
+      "id": "half-speed",
+      "half": 0.6,
+      "speed": 0.5,
+      "smooth": true,
+      "label_suffix": " 0.5x",
+      "span": "swing"
+    },
+    {
+      "id": "quarter-speed",
+      "half": 0.4,
+      "speed": 0.25,
+      "smooth": true,
+      "label_suffix": " 0.25x"
+    },
+    {
+      "id": "tenth-speed",
+      "half": 0.2,
+      "speed": 0.1,
+      "smooth": true,
+      "label_suffix": " 0.1x"
+    },
+    {
+      "id": "contact-still",
+      "still": 1.5,
+      "label_suffix": " contact"
+    }
   ]
 }

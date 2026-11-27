@@ -255,10 +255,13 @@ def render(job):
                 contacts[name] = got["result"]
             steps["contact"] = contacts
             tc, rc = contacts["target"]["time"], contacts["reference"]["time"]
-            sync_spec = {"fps": 30, "target": {"kp": kp_of("targets", pair["target"]), "in": round(tc - full_half, 3),
-                                              "contact": tc, "out": round(tc + full_half, 3)},
-                         "reference": {"kp": kp_of("references", pair["reference"]), "in": round(rc - full_half, 3),
-                                       "contact": rc, "out": round(rc + full_half, 3)}}
+            # each side's window comes from its own swing landmarks (phase_sync); the clips make its landmark sheet
+            sync_spec = {"fps": 30, "target": {"kp": kp_of("targets", pair["target"]), "contact": tc, "clip": t["path"]},
+                         "reference": {"kp": kp_of("references", pair["reference"]), "contact": rc, "clip": r["path"]}}
+            if "mark" in (contacts["target"]["source"], contacts["reference"]["source"]):
+                # a person's mark is the contact; the fastest hands can come before it (measured Nov 26 2026: 0.127 s
+                # on a student's phone clip), so the fastest-moment check only asks for the same swing
+                sync_spec["settings"] = {"landmarks": {"contact_off_s": 0.35}}
             with open(base + ".sync-spec.json", "w") as f:
                 json.dump(sync_spec, f, indent=1)
             got = run_json([sys.executable, os.path.join(HERE, "phase_sync.py"), "--spec", base + ".sync-spec.json",

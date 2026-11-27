@@ -169,6 +169,15 @@ class TheSyncedEdit(unittest.TestCase):
         self.assertAlmostEqual(self.played(reference), 1.0, places=5)
         self.assertEqual(slow["speed"], 0.4)
 
+    def test_a_swing_span_pass_shows_the_whole_synced_swing_not_a_half_around_contact(self):
+        self.spec["passes"] = [{"id": "near", "half": 0.3}, {"id": "swing", "half": 0.3, "span": "swing", "speed": 0.5}]
+        near, swing = M.build_edl(self.spec)["spine"]["segments"]
+        self.assertEqual((near["sources"][1]["in"], near["sources"][1]["out"]), (1.3, 1.9))
+        reference, target = swing["sources"]
+        self.assertEqual((target["in"], target["out"]), (1.0, 2.2))            # takeback start to finish, from the sync
+        self.assertEqual((reference["in"], reference["out"]), (1.2, 2.6))
+        self.assertAlmostEqual(self.played(reference), self.played(target), places=5)
+
     def test_the_sync_can_be_a_file_and_must_be_for_these_peaks(self):
         path = self.tmp / "sync.json"
         path.write_text(json.dumps(made_up_sync()))

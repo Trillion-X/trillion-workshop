@@ -131,18 +131,22 @@ def build_edl(spec: dict[str, Any], clip_durations: dict[str, float] | None = No
         target = float(one_pass.get("half", 1.0))
         # One symmetric half clamped to BOTH clips keeps the two cells phase-aligned and in bounds.
         half = min(safe_half(target, float(side["peak"]), durations[side["clip"]]) if durations.get(side["clip"]) else target for side in sides)
+        span = None  # (from, to) in target seconds when the pass shows the whole synced swing
         if sync:
             window = sync["target"]
             half = min(half, window["contact"] - window["in"], window["out"] - window["contact"])
+            if one_pass.get("span") == "swing" and not one_pass.get("still"):
+                span = (window["in"], window["out"])
         suffix = one_pass.get("label_suffix", "")
         still = one_pass.get("still")
         sources = []
         for side in sides:
             peak = float(side["peak"])
-            seconds: dict[str, Any] = {"in": round(peak - half, 3), "out": round(peak + half, 3)}
-            centre, reach = peak, half
+            lo, hi = span if span else (sync["target"]["contact"] - half, sync["target"]["contact"] + half) if sync else (peak - half, peak + half)
+            seconds: dict[str, Any] = {"in": round(lo if span else peak - half, 3), "out": round(hi if span else peak + half, 3)}
+            centre, reach = (seconds["in"] + seconds["out"]) / 2, (seconds["out"] - seconds["in"]) / 2
             if side.get("sync") and not still:
-                seconds = reference_window(sync, sync["target"]["contact"] - half, sync["target"]["contact"] + half)
+                seconds = reference_window(sync, lo, hi)
                 centre, reach = (seconds["in"] + seconds["out"]) / 2, (seconds["out"] - seconds["in"]) / 2
             if still:
                 seconds = {"in": round(peak, 3)}
