@@ -61,6 +61,7 @@ from typing import Any
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 import swing_landmarks  # noqa: E402  (the one landmark reader: its rules are reused, not copied)
+import whole_swing_map  # noqa: E402  (every moment matched by pose, pinned at contact)
 
 SETTINGS = json.loads((HERE / "phase-sync.json").read_text(encoding="utf-8"))
 KEYS = ("L1", "L2", "L3", "L4")
@@ -111,6 +112,8 @@ def phase_sync(spec: dict[str, Any]) -> dict[str, Any]:
                           {"piece": index, "speed": round(speed, 6), "min_speed": settings["min_speed"], "max_speed": settings["max_speed"],
                            "landmarks": {"target": dict(zip(KEYS, t)), "reference": dict(zip(KEYS, r))}})
 
+    if (settings.get("pose_map") or {}).get("use"):  # the landmarks' speeds are checked first: a swing that would need
+        return by_pose(spec, settings, fps, target, reference)  # more than the bounds is refused, never clamped into a wrong sync
     # Lead before L1 and tail after L4: the target's seconds, played by the reference at its first / last piece's
     # speed, shortened where either track ends (a clip has no frames before its first pose frame either).
     lead = min(float(settings["lead_s"]), t[0] - target["from"], (r[0] - max(reference["from"], 0.0)) / speeds[0])
@@ -144,6 +147,54 @@ def phase_sync(spec: dict[str, Any]) -> dict[str, Any]:
             raise ValueError("a landmark sheet needs both sides' `clip` (the videos the pose tracks were made from)")
         rows = [{"name": name, "clip": spec[name]["clip"], "frames": side["frames"], "landmarks": side["landmarks"],
                  **swing_landmarks.video_facts(side["track"])} for name, side in (("target", target), ("reference", reference))]
+        sync["landmark_sheet"] = swing_landmarks.landmark_sheet(rows, spec["sheet"], settings["landmarks"])
+    return sync
+
+
+def by_pose(spec: dict[str, Any], settings: dict[str, Any], fps: float, target: dict[str, Any], reference: dict[str, Any]) -> dict[str, Any]:
+    """The reference follows the target moment by moment: one constant-speed piece between each two knots of the
+    pose map. Contact meets contact exactly; the landmarks are reported (where the pose map and the landmark rules
+    disagree is shown, not refused, because the pose map is the better reading of the moments between them)."""
+    s = {**settings["pose_map"], "min_speed": settings["min_speed"], "max_speed": settings["max_speed"]}
+    try:
+        found = whole_swing_map.pose_map(target, reference, settings["landmarks"], s)
+    except swing_landmarks.NoLandmark as missing:
+        raise Refused(f"the pose map: {missing}", dict(missing.facts)) from missing
+    kt, kr = found["t"], found["r"]
+    pieces = []
+    for k in range(len(kt) - 1):
+        speed = (kr[k + 1] - kr[k]) / (kt[k + 1] - kt[k])
+        pieces.append({"from": round(kr[k], 6), "to": round(kr[k + 1], 6), "plays_from": round(kt[k] - kt[0], 6),
+                       "plays_to": round(kt[k + 1] - kt[0], 6), "speed": round(speed, 6)})
+    tl, rl = target["landmarks"], reference["landmarks"]
+    sync = {
+        "kind": "phase_sync.v1",
+        "align": "pose",
+        "target": {"in": round(kt[0], 6), "contact": round(tl["L3"], 6), "out": round(kt[-1], 6)},
+        "reference": {"in": round(kr[0], 6), "contact": round(rl["L3"], 6), "out": round(kr[-1], 6)},
+        "landmarks": {"target": {key: tl[key] for key in KEYS}, "reference": {key: rl[key] for key in KEYS}},
+        "pieces": pieces,
+        "speed_ramp": [{"t": round(piece["from"] - kr[0], 6), "speed": piece["speed"]} for piece in pieces],
+        "pose_distance": found["pose_distance"],
+        "settings": settings,
+    }
+    misses = landmark_misses(sync, fps)
+    sync["landmark_misses_frames"] = misses
+    sync["max_phase_error_frames"] = misses["L3"]                # the one moment fixed by the caller
+    if misses["L3"] > settings["refuse_above_frames"]:
+        raise Refused(f"contact is missed by {misses['L3']:.2f} output frames", {"landmark_misses_frames": misses})
+    if spec.get("sheet"):
+        clips = [spec[name].get("clip") for name in ("target", "reference")]
+        if not all(clips):
+            raise ValueError("a sheet needs both sides' `clip` (the videos the pose tracks were made from)")
+        count = int(settings["pose_map"]["sheet_moments"])
+        moments_t = [kt[0] + (kt[-1] - kt[0]) * k / (count - 1) for k in range(count)]
+        at = lambda second: kt[0] + plays_at(sync, second)  # noqa: E731
+        rows = [{"name": "target", "clip": clips[0], "frames": target["frames"], "landmarks": tl,
+                 "moments": [(f"+{m - kt[0]:.2f} s", m) for m in moments_t], **swing_landmarks.video_facts(target["track"])},
+                {"name": "reference", "clip": clips[1], "frames": reference["frames"], "landmarks": rl,
+                 "moments": [(f"+{m - kt[0]:.2f} s", reference_second(sync, m)) for m in moments_t], **swing_landmarks.video_facts(reference["track"])}]
+        del at
         sync["landmark_sheet"] = swing_landmarks.landmark_sheet(rows, spec["sheet"], settings["landmarks"])
     return sync
 

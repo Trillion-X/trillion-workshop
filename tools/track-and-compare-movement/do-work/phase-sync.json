@@ -17,6 +17,29 @@
     "finish_frames": 2,
     "turn_torso": 0.15,
     "hold_torso": 0.35,
-    "sheet_cell": [360, 480]
+    "sheet_cell": [
+      360,
+      480
+    ]
+  },
+  "pose_map": {
+    "use": true,
+    "rate_hz": 60,
+    "lead_s": 0.3,
+    "tail_s": 0.3,
+    "reference_search_before_s": 2.0,
+    "reference_search_after_s": 1.2,
+    "feature_weights": [
+      1.5,
+      1.5,
+      0.7,
+      0.7,
+      1.0,
+      0.7,
+      0.4
+    ],
+    "smooth_s": 0.1,
+    "knot_every": 4,
+    "sheet_moments": 8
   }
 }

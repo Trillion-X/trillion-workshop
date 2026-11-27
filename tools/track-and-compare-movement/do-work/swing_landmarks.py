@@ -265,20 +265,23 @@ def landmark_sheet(rows: list[dict[str, Any]], out: str, settings: dict[str, Any
     args = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y"]
     chains, labels = [], []
     index = 0
+    columns = 4
     for row in rows:
-        for key in ("L1", "L2", "L3", "L4"):
-            second = float(row["landmarks"][key])
+        moments = row.get("moments") or [(f"{key} {NAMES[key]}", row["landmarks"][key]) for key in ("L1", "L2", "L3", "L4")]
+        columns = len(moments)
+        for title, second in moments:
+            second = float(second)
             number = video_frame(row["frames"], second, float(row["fps"]))
             # The frame is picked by its number, not by a seek: which frame ffmpeg's -ss lands on differs between files
             # (the first at or after the second in one clip, the one on screen in another). Reading stops just after it.
             args += ["-t", f"{(number + 3) / float(row['fps']):.4f}", "-i", str(row["clip"])]
             w, h, x, y = player_box(row["frames"], second, int(row["width"]), int(row["height"]), cell_w / cell_h, float(s["min_confidence"]))
-            text = f"{row['name']}  {key} {NAMES[key]}  {second:.3f} s".replace(":", "\\:")
+            text = f"{row['name']}  {title}  {second:.3f} s".replace(":", "\\:")
             chains.append(f"[{index}:v]select=eq(n\\,{number}),setpts=PTS-STARTPTS,crop={w}:{h}:{x}:{y},scale={cell_w}:{cell_h},setsar=1,"
                           f"drawtext=text='{text}':x=8:y=8:fontsize={max(cell_h // 24, 12)}:fontcolor=white:box=1:boxcolor=black@0.6[c{index}]")
             labels.append(f"[c{index}]")
             index += 1
-    layout = "|".join(f"{(k % 4) * cell_w}_{(k // 4) * cell_h}" for k in range(index))
+    layout = "|".join(f"{(k % columns) * cell_w}_{(k // columns) * cell_h}" for k in range(index))
     graph = ";".join(chains) + f";{''.join(labels)}xstack=inputs={index}:layout={layout}[sheet]"
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     done = subprocess.run(args + ["-filter_complex", graph, "-map", "[sheet]", "-frames:v", "1", "-update", "1", str(out)],

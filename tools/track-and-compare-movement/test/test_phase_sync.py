@@ -96,6 +96,38 @@ def frames_of(plan, seconds=3.0, **kwargs):
     return track(seconds, plan, **kwargs)["persons"][0]["frames"]
 
 
+LANDMARKS_ONLY = {"pose_map": {"use": False}}   # the four-landmark pieces (the pose map is tested in ThePoseMap)
+
+
+class ThePoseMap(unittest.TestCase):
+    """The reference follows the target moment by moment: each planned moment of the swing (top of the takeback, the
+    drop, contact, the finish) plays on the same output frame, though the phases between them run at different speeds
+    in the two swings and the reference is filmed with the other hand on screen."""
+
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+        self.tmp = Path(self.folder.name)
+
+    def tearDown(self):
+        self.folder.cleanup()
+
+    def test_every_moment_of_the_swing_meets_its_same_moment(self):
+        # the reference's takeback is quicker, its drop slower and its finish quicker than the target's
+        uneven = swing_plan(l1=5.0, top=5.2, l2=5.6, drop=6.0, contact=6.1, l4=6.4)
+        sync = M.phase_sync(write_pair(self.tmp, reference_plan=uneven, reference_contact=6.1))
+        self.assertEqual(sync["align"], "pose")
+        self.assertGreater(len(sync["pieces"]), 10)
+        for target_at, reference_at, what in ((0.9, 5.2, "top"), (1.55, 6.0, "drop"), (1.7, 6.1, "contact"), (2.3, 6.4, "finish")):
+            self.assertLessEqual(abs(M.reference_second(sync, target_at) - reference_at) * FPS, 2.0, what)
+        self.assertEqual(sync["landmark_misses_frames"]["L3"], 0.0)
+
+    def test_every_piece_stays_within_the_speed_bounds(self):
+        sync = M.phase_sync(write_pair(self.tmp))
+        bounds = M.SETTINGS["min_speed"] - 1e-6, M.SETTINGS["max_speed"] + 1e-6
+        self.assertTrue(all(bounds[0] <= p["speed"] <= bounds[1] for p in sync["pieces"]), [p["speed"] for p in sync["pieces"]])
+        self.assertAlmostEqual(M.reference_second(sync, sync["target"]["contact"]), sync["reference"]["contact"], delta=1e-3)
+
+
 class TheLandmarks(unittest.TestCase):
     def assert_within_a_frame(self, found, planned):
         for key, second in planned.items():
@@ -133,6 +165,7 @@ class TheSync(unittest.TestCase):
         self.folder = tempfile.TemporaryDirectory()
         self.tmp = Path(self.folder.name)
         self.spec = write_pair(self.tmp)
+        self.spec["settings"] = LANDMARKS_ONLY
 
     def tearDown(self):
         self.folder.cleanup()
@@ -153,7 +186,7 @@ class TheSync(unittest.TestCase):
         # Every moment of the target from the top on is 0.6 s later in its clip; its takeback still starts at 0.4 s, so
         # it starts 1.9 s before contact against the usual target's 1.3 s and the reference's 1.2 s.
         early = swing_plan(l1=0.4, top=0.9, l2=1.95, drop=2.15, contact=2.3, l4=2.9)
-        sync = M.phase_sync(write_pair(self.tmp, target_plan=early))
+        sync = M.phase_sync({**write_pair(self.tmp, target_plan=early), "settings": LANDMARKS_ONLY})
         target_l1, reference_l1 = sync["landmarks"]["target"]["L1"], sync["landmarks"]["reference"]["L1"]
         self.assertAlmostEqual(sync["landmarks"]["target"]["L3"] - target_l1, 1.9, delta=1 / FPS)
         self.assertLessEqual(abs(M.reference_second(sync, target_l1) - reference_l1) * FPS, 1.0)
@@ -246,7 +279,7 @@ class TheSheetAndTheCommand(unittest.TestCase):
     def test_the_sheet_shows_each_persons_frame_at_each_landmark_and_the_command_writes_both(self):
         with tempfile.TemporaryDirectory() as folder:
             tmp = Path(folder)
-            spec = write_pair(tmp)
+            spec = {**write_pair(tmp), "settings": LANDMARKS_ONLY}
             numbered_video(tmp / "target.mp4", 3.0)
             numbered_video(tmp / "reference.mp4", 8.0)
             spec["target"]["clip"], spec["reference"]["clip"] = str(tmp / "target.mp4"), str(tmp / "reference.mp4")

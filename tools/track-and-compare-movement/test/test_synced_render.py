@@ -97,7 +97,7 @@ class TheRenderedSync(unittest.TestCase):
     def setUpClass(cls):
         cls.folder = tempfile.TemporaryDirectory()
         tmp = Path(cls.folder.name)
-        swing = SWINGS.write_pair(tmp)
+        swing = {**SWINGS.write_pair(tmp), "settings": SWINGS.LANDMARKS_ONLY}  # the renderer's fidelity to known pieces
         cls.sync = SWINGS.M.phase_sync(swing)
         numbered_video(tmp / "target.mp4", 3, 25)
         numbered_video(tmp / "reference.mp4", 8, 145)
