@@ -31,10 +31,11 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `what-this-tool-does-and-how-to-run-it.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1699 tools in 391 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `what-this-tool-does-and-how-to-run-it.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1700 tools in 392 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
+| `add-a-tool-to-a-project` | `tool:add-a-tool-to-a-project` |
 | `admit-attachments-to-a-message` | `tool:admit-attachments-to-a-message` |
 | `ai-readiness` | `tool:check-a-page-for-search-and-answer-engines` |
 | `answer-questions-about-many-states` | `tool:answer-questions-about-many-states`, `tool:get-a-classifier-ready-on-this-mac` |
