@@ -1,44 +1,52 @@
 #!/usr/bin/env python3
-"""Turn the phase alignment of two swing windows into a few constant-speed pieces for the reference, so its swing
-arrives at each phase at the same moment as the target's.
+"""Retime a reference swing so its four landmarks play on the same output frames as the target swing's.
 
-PURPOSE: a comparison plays the target as recorded and retimes the reference. Contact is pinned: the reference's
-contact second plays at exactly the output moment the target's contact second plays. Before and after contact the
-reference plays a small number of pieces, each at one constant speed, chosen so the reference follows the posture
-alignment of align_dtw.py (the one phase matcher; nothing here matches postures itself).
+PURPOSE: a comparison plays the target as recorded and retimes the reference. swing_landmarks.py reads four moments of
+each swing from its pose track (L1 takeback start, L2 furthest back, L3 contact as given, L4 finish). The reference is
+retimed piecewise-linearly so that each of its landmarks lands on the output frame of the target's same landmark. So
+the takeback starts together, the takebacks end together, contact meets contact and the finishes meet.
 
 HOW:
-1. Each window is cut in two at its contact second (start..contact and contact..end), and each half of the target is
-   aligned to the same half of the reference with align_dtw's features and DTW. So contact meets contact by
-   construction and the window edges meet the window edges.
-2. The alignment becomes a curve: for each target frame, the mean reference second the path pairs it with.
-3. The pieces start as two (start..contact, contact..end). The piece whose curve is worst followed is cut at its worst
-   point, again and again, until every target frame's phase is reached within `tolerance_frames` output frames, or
-   `max_pieces` is reached. A cut never makes a piece shorter than `min_piece_seconds`.
-4. Each piece's speed is reference seconds per target second (2 = the reference plays twice as fast). A speed outside
-   [min_speed, max_speed], or a phase error still above `refuse_above_frames`, is refused: the pair cannot be synced
-   without distortion, and a wrong sync would make a misleading comparison.
+1. Each side's landmarks come from its own pose track around its own contact (swing_landmarks.find_landmarks). There
+   is no fixed window: each side's window runs from its L1 minus `lead_s` to its L4 plus `tail_s` (the reference's lead
+   and tail are the target's played at the speed of the reference's first and last piece). A lead or tail is shortened
+   where a track or clip ends.
+2. Three pieces, each at one constant speed (reference seconds per target second): window start..L2 (L1 lies on it),
+   L2..L3, L3..window end (L4 lies on it).
+3. A piece outside [min_speed, max_speed] is refused: the two swings cannot be synced without distortion, and a wrong
+   sync makes a misleading comparison. A side whose landmarks cannot be read (a wrong contact, a track that starts
+   mid-takeback or stops mid-follow-through) is refused the same way, never guessed.
+4. The error is the landmark misses: for each landmark, how many output frames apart the target and the retimed
+   reference reach it, read back through the written pieces. It is never scored on the features of a matcher.
+5. With both clips given, a landmark sheet is written: both people's frames at L1..L4 side by side, labelled, for a
+   person to check that each pair shows the same moment. The numbers cannot show that; the sheet can.
 
-Every number is DATA in phase-sync.json beside this file; a spec's `settings` overrides any of them.
+Every number is DATA in phase-sync.json beside this file; a spec's `settings` overrides any of them (its `landmarks`
+object overrides the landmark rules).
 
-USAGE: phase_sync.py --spec SPEC.json --out SYNC.json
+USAGE: phase_sync.py --spec SPEC.json --out SYNC.json [--sheet SHEET.png]
 SPEC.json:
 {
-  "fps": 30,                                         output frames per second (the error is counted in these frames)
-  "target":    {"kp": "t.pose.json", "in": 3.0, "contact": 4.1, "out": 5.0, "track_id": 1},   plays as recorded
-  "reference": {"kp": "r.pose.json", "in": 10.2, "contact": 11.0, "out": 11.6},                 is retimed
-  "settings": {"max_speed": 3}                       optional overrides of phase-sync.json
+  "fps": 30,                                              output frames per second (misses are counted in these)
+  "target":    {"kp": "t.pose.json", "contact": 4.1, "track_id": 1, "clip": "t.mp4"},   plays as recorded
+  "reference": {"kp": "r.pose.json", "contact": 11.0, "clip": "r.mp4"},                 is retimed
+  "settings": {"max_speed": 3},                           optional overrides of phase-sync.json
+  "sheet": "sheet.png"                                    optional; written when both sides give `clip`
 }
-`in`/`contact`/`out` are source seconds of each clip; `track_id` picks the person (the most confident when absent).
+`contact` is the source second of each clip's contact; `track_id` picks the person (the main player when absent);
+`clip` is the video the pose track was made from (only the sheet reads it). The window comes from the landmarks, so a
+side's `in`/`out` are refused.
 OUTPUT (SYNC.json, kind phase_sync.v1):
 {
   "kind": "phase_sync.v1",
   "target":    {"in", "contact", "out"},  "reference": {"in", "contact", "out"},
+  "landmarks": {"target": {"L1", "L2", "L3", "L4"}, "reference": {...}},     source seconds of each clip
   "pieces": [{"from": s, "to": s, "plays_from": s, "plays_to": s, "speed": x}],
       from/to = reference source seconds; plays_from/plays_to = output seconds from the cell's start at 1x
   "speed_ramp": [{"t": s, "speed": x}],    the same pieces as the renderer's speed envelope: t = reference seconds
                                            from the reference `in`, each speed holding until the next t
-  "max_phase_error_frames": e,  "settings": {...}
+  "landmark_misses_frames": {"L1": e, ...},  "max_phase_error_frames": the largest miss,
+  "landmark_sheet": "sheet.png" (when made),  "settings": {...}
 }
 The last line printed is {"result": ...} or {"error": ..., "refused": {...}}.
 """
@@ -50,90 +58,20 @@ import sys
 from pathlib import Path
 from typing import Any
 
-import numpy as np
-
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-import align_dtw  # noqa: E402  (the one phase matcher: its features and DTW are reused, not copied)
+import swing_landmarks  # noqa: E402  (the one landmark reader: its rules are reused, not copied)
 
 SETTINGS = json.loads((HERE / "phase-sync.json").read_text(encoding="utf-8"))
+KEYS = ("L1", "L2", "L3", "L4")
 
 
 class Refused(ValueError):
-    """The pair cannot be synced within the settings; `facts` say which piece and why."""
+    """The pair cannot be synced within the settings; `facts` say which side or piece and why."""
 
     def __init__(self, message: str, facts: dict[str, Any]):
         super().__init__(message)
         self.facts = facts
-
-
-def person_frames(track: dict[str, Any], track_id: int | None) -> list[dict[str, Any]]:
-    if track_id is None:
-        return align_dtw._primary_person(track)
-    for person in track.get("persons") or []:
-        if person.get("track_id") == track_id:
-            return person.get("frames", [])
-    raise ValueError(f"the pose track has no person with track_id {track_id}")
-
-
-def posture_frames(frames: list[dict[str, Any]], start: float, end: float) -> tuple[np.ndarray, np.ndarray]:
-    """The seconds and align_dtw features of the frames in [start, end] that show a torso."""
-    times: list[float] = []
-    rows: list[np.ndarray] = []
-    for frame in frames:
-        if not start - 1e-6 <= float(frame["t"]) <= end + 1e-6:
-            continue
-        feature = align_dtw._feature_matrix([frame])
-        if len(feature):
-            times.append(float(frame["t"]))
-            rows.append(feature[0])
-    return np.array(times, dtype=float), np.array(rows, dtype=float)
-
-
-def half_curve(target: tuple[np.ndarray, np.ndarray], reference: tuple[np.ndarray, np.ndarray], gamma: float, what: str) -> tuple[np.ndarray, np.ndarray]:
-    """For each target frame of one half, the mean reference second the alignment pairs it with."""
-    (target_t, target_f), (reference_t, reference_f) = target, reference
-    if len(target_f) < 2 or len(reference_f) < 2:
-        raise Refused(f"the {what} has too few frames showing a torso to align (target {len(target_f)}, reference {len(reference_f)}; each needs 2)",
-                      {"half": what, "target_frames": int(len(target_f)), "reference_frames": int(len(reference_f))})
-    if not (np.isfinite(target_f).all() and np.isfinite(reference_f).all()):
-        raise Refused(f"the {what} has a keypoint that is not a finite number", {"half": what})
-    # The inputs are checked finite above; macOS's BLAS sets floating-point flags on a correct matmul, so numpy's
-    # divide/overflow warnings inside align_dtw's cost matrix are noise here.
-    with np.errstate(all="ignore"):
-        path, _ = align_dtw._dtw(target_f, reference_f, gamma)
-    paired: dict[int, list[float]] = {}
-    for i, j in path:
-        paired.setdefault(i, []).append(between_frames(target_f[i], reference_f, reference_t, j))
-    return target_t[sorted(paired)], np.array([np.mean(paired[i]) for i in sorted(paired)])
-
-
-def between_frames(posture: np.ndarray, reference_f: np.ndarray, reference_t: np.ndarray, j: int) -> float:
-    """The reference second of the posture between frames: the path pairs a posture with a whole reference frame, so a
-    reference played slower than the target repeats one frame; the parabola through the posture's cost at frames
-    j-1, j and j+1 puts it between them (at most half a frame from j)."""
-    if j == 0 or j == len(reference_f) - 1:
-        return float(reference_t[j])
-    before, at, after = (float(np.sum((posture - reference_f[k]) ** 2)) for k in (j - 1, j, j + 1))
-    bend = before - 2 * at + after
-    shift = 0.0 if bend <= 1e-12 else max(-0.5, min(0.5, (before - after) / (2 * bend)))
-    return float(reference_t[j] + shift * (reference_t[j + 1] - reference_t[j - 1]) / 2)
-
-
-def phase_curve(spec: dict[str, Any], gamma: float) -> tuple[np.ndarray, np.ndarray]:
-    """target second -> reference second over the whole window, with in, contact and out meeting exactly."""
-    target, reference = spec["target"], spec["reference"]
-    target_frames = person_frames(read_json(target["kp"]), target.get("track_id"))
-    reference_frames = person_frames(read_json(reference["kp"]), reference.get("track_id"))
-    xs: list[float] = [float(target["in"])]
-    ys: list[float] = [float(reference["in"])]
-    for what, (t0, t1), (r0, r1) in (("part before contact", (target["in"], target["contact"]), (reference["in"], reference["contact"])),
-                                     ("part after contact", (target["contact"], target["out"]), (reference["contact"], reference["out"]))):
-        times, seconds = half_curve(posture_frames(target_frames, t0, t1), posture_frames(reference_frames, r0, r1), gamma, what)
-        inside = (times > t0 + 1e-6) & (times < t1 - 1e-6)
-        xs += list(times[inside]) + [float(t1)]
-        ys += list(seconds[inside]) + [float(r1)]
-    return np.array(xs), np.maximum.accumulate(np.array(ys))
 
 
 def read_json(path: str) -> dict[str, Any]:
@@ -141,58 +79,91 @@ def read_json(path: str) -> dict[str, Any]:
         return json.load(handle)
 
 
-def fit_pieces(xs: np.ndarray, ys: np.ndarray, contact: float, settings: dict[str, Any], fps: float) -> tuple[list[float], float]:
-    """Knots (target seconds) of the piecewise-linear fit, and its worst phase error in output frames."""
-    knots = [float(xs[0]), float(contact), float(xs[-1])]
-    while True:
-        fitted = np.interp(xs, knots, np.interp(knots, xs, ys))
-        speeds = np.diff(np.interp(knots, xs, ys)) / np.diff(knots)
-        piece = np.clip(np.searchsorted(knots, xs, side="right") - 1, 0, len(knots) - 2)
-        # A reference that is e seconds off its phase reaches that phase e / speed output seconds early or late.
-        error = np.abs(ys - fitted) / np.maximum(speeds[piece], 1e-9) * fps
-        worst = float(error.max()) if len(error) else 0.0
-        if worst <= settings["tolerance_frames"] or len(knots) - 1 >= settings["max_pieces"]:
-            return knots, worst
-        room = np.array([min(abs(x - k) for k in knots) >= settings["min_piece_seconds"] - 1e-9 for x in xs])
-        if not (room & (error > settings["tolerance_frames"])).any():
-            return knots, worst
-        knots = sorted(knots + [float(xs[int(np.argmax(np.where(room, error, -1.0)))])])
+def read_side(side: dict[str, Any], name: str, landmark_settings: dict[str, Any]) -> dict[str, Any]:
+    """One side's pose frames, landmarks and the seconds its track covers."""
+    for key in ("in", "out"):
+        if key in side:
+            raise ValueError(f"the {name} gives `{key}`; the window comes from the swing's landmarks, so give only kp, contact, track_id and clip")
+    track = read_json(side["kp"])
+    frames = swing_landmarks.person_frames(track, side.get("track_id"))
+    try:
+        landmarks = swing_landmarks.find_landmarks(frames, float(side["contact"]), landmark_settings)
+    except swing_landmarks.NoLandmark as missing:
+        raise Refused(f"the {name}: {missing}", {"side": name, **missing.facts}) from missing
+    seconds = [float(frame["t"]) for frame in frames]
+    return {"track": track, "frames": frames, "landmarks": landmarks, "from": min(seconds), "to": max(seconds)}
 
 
 def phase_sync(spec: dict[str, Any]) -> dict[str, Any]:
-    settings = {**SETTINGS, **(spec.get("settings") or {})}
+    settings = {**SETTINGS, **{key: value for key, value in (spec.get("settings") or {}).items() if key != "landmarks"}}
+    settings["landmarks"] = {**SETTINGS["landmarks"], **((spec.get("settings") or {}).get("landmarks") or {})}
     fps = float(spec.get("fps", 30))
-    target, reference = spec["target"], spec["reference"]
-    for side, name in ((target, "target"), (reference, "reference")):
-        if not float(side["in"]) < float(side["contact"]) < float(side["out"]):
-            raise ValueError(f"the {name} needs in < contact < out (got {side['in']}, {side['contact']}, {side['out']})")
-    xs, ys = phase_curve(spec, float(settings["gamma"]))
-    knots, worst = fit_pieces(xs, ys, float(target["contact"]), settings, fps)
-    # The knots' reference seconds; in, contact and out are points of the curve, so they are the given seconds exactly.
-    seconds = [float(value) for value in np.interp(knots, xs, ys)]
-    pieces = []
-    for index in range(len(knots) - 1):
-        speed = (seconds[index + 1] - seconds[index]) / (knots[index + 1] - knots[index])
-        pieces.append({"from": round(seconds[index], 6), "to": round(seconds[index + 1], 6),
-                       "plays_from": round(knots[index] - float(target["in"]), 6), "plays_to": round(knots[index + 1] - float(target["in"]), 6),
-                       "speed": round(speed, 6)})
-    for index, piece in enumerate(pieces):
-        if not settings["min_speed"] <= piece["speed"] <= settings["max_speed"]:
-            raise Refused(f"piece {index + 1} of {len(pieces)} would play the reference at {piece['speed']:.3g}x, outside {settings['min_speed']}x..{settings['max_speed']}x; "
+    target = read_side(spec["target"], "target", settings["landmarks"])
+    reference = read_side(spec["reference"], "reference", settings["landmarks"])
+    t = [target["landmarks"][key] for key in KEYS]
+    r = [reference["landmarks"][key] for key in KEYS]
+    speeds = [(r[k + 1] - r[k]) / (t[k + 1] - t[k]) for k in range(3)]       # L1..L2, L2..L3, L3..L4
+    names = ("start..L2", "L2..L3", "L3..end")
+    for index, speed in enumerate(speeds):
+        if not settings["min_speed"] <= speed <= settings["max_speed"]:
+            raise Refused(f"piece {names[index]} would play the reference at {speed:.3g}x, outside {settings['min_speed']}x..{settings['max_speed']}x; "
                           "these two swings cannot be synced without distorting the reference",
-                          {"piece": index, "speed": piece["speed"], "min_speed": settings["min_speed"], "max_speed": settings["max_speed"], "pieces": pieces})
-    if worst > settings["refuse_above_frames"]:
-        raise Refused(f"with {len(pieces)} pieces the reference still misses a phase by {worst:.2f} output frames (refused above {settings['refuse_above_frames']})",
-                      {"max_phase_error_frames": round(worst, 3), "pieces": pieces})
-    return {
+                          {"piece": index, "speed": round(speed, 6), "min_speed": settings["min_speed"], "max_speed": settings["max_speed"],
+                           "landmarks": {"target": dict(zip(KEYS, t)), "reference": dict(zip(KEYS, r))}})
+
+    # Lead before L1 and tail after L4: the target's seconds, played by the reference at its first / last piece's
+    # speed, shortened where either track ends (a clip has no frames before its first pose frame either).
+    lead = min(float(settings["lead_s"]), t[0] - target["from"], (r[0] - max(reference["from"], 0.0)) / speeds[0])
+    tail = min(float(settings["tail_s"]), target["to"] - t[3], (reference["to"] - r[3]) / speeds[2])
+    lead, tail = max(lead, 0.0), max(tail, 0.0)
+    knots_t = [t[0] - lead, t[1], t[2], t[3] + tail]
+    knots_r = [r[0] - lead * speeds[0], r[1], r[2], r[3] + tail * speeds[2]]
+    pieces = []
+    for k in range(3):
+        pieces.append({"from": round(knots_r[k], 6), "to": round(knots_r[k + 1], 6),
+                       "plays_from": round(knots_t[k] - knots_t[0], 6), "plays_to": round(knots_t[k + 1] - knots_t[0], 6),
+                       "speed": round(speeds[k], 6)})
+    sync = {
         "kind": "phase_sync.v1",
-        "target": {key: float(target[key]) for key in ("in", "contact", "out")},
-        "reference": {key: float(reference[key]) for key in ("in", "contact", "out")},
+        "target": {"in": round(knots_t[0], 6), "contact": round(t[2], 6), "out": round(knots_t[3], 6)},
+        "reference": {"in": round(knots_r[0], 6), "contact": round(r[2], 6), "out": round(knots_r[3], 6)},
+        "landmarks": {"target": dict(zip(KEYS, t)), "reference": dict(zip(KEYS, r))},
         "pieces": pieces,
-        "speed_ramp": [{"t": round(piece["from"] - float(reference["in"]), 6), "speed": piece["speed"]} for piece in pieces],
-        "max_phase_error_frames": round(worst, 3),
+        "speed_ramp": [{"t": round(piece["from"] - knots_r[0], 6), "speed": piece["speed"]} for piece in pieces],
         "settings": settings,
     }
+    misses = landmark_misses(sync, fps)
+    sync["landmark_misses_frames"] = misses
+    sync["max_phase_error_frames"] = max(misses.values())
+    if sync["max_phase_error_frames"] > settings["refuse_above_frames"]:
+        raise Refused(f"a landmark is missed by {sync['max_phase_error_frames']:.2f} output frames (refused above {settings['refuse_above_frames']})",
+                      {"landmark_misses_frames": misses, "pieces": pieces})
+    if spec.get("sheet"):
+        clips = [spec[name].get("clip") for name in ("target", "reference")]
+        if not all(clips):
+            raise ValueError("a landmark sheet needs both sides' `clip` (the videos the pose tracks were made from)")
+        rows = [{"name": name, "clip": spec[name]["clip"], "frames": side["frames"], "landmarks": side["landmarks"],
+                 **swing_landmarks.video_facts(side["track"])} for name, side in (("target", target), ("reference", reference))]
+        sync["landmark_sheet"] = swing_landmarks.landmark_sheet(rows, spec["sheet"], settings["landmarks"])
+    return sync
+
+
+def landmark_misses(sync: dict[str, Any], fps: float) -> dict[str, float]:
+    """For each landmark, the output frames between the target reaching it (it plays as recorded) and the retimed
+    reference reaching it, read back through the written (rounded) pieces."""
+    misses = {}
+    for key in KEYS:
+        target_plays = sync["landmarks"]["target"][key] - sync["target"]["in"]
+        misses[key] = round(abs(plays_at(sync, sync["landmarks"]["reference"][key]) - target_plays) * fps, 3)
+    return misses
+
+
+def plays_at(sync: dict[str, Any], reference_second: float) -> float:
+    """The output second (from the cell's start) at which the retimed reference shows `reference_second`."""
+    for piece in sync["pieces"]:
+        if reference_second <= piece["to"] + 1e-9:
+            return piece["plays_from"] + (max(reference_second, piece["from"]) - piece["from"]) / piece["speed"]
+    return sync["pieces"][-1]["plays_to"]
 
 
 def reference_second(sync: dict[str, Any], target_second: float) -> float:
@@ -220,21 +191,29 @@ def reference_window(sync: dict[str, Any], target_from: float, target_to: float)
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="two swing windows -> constant-speed pieces that phase-sync the reference to the target")
+    parser = argparse.ArgumentParser(description="two swings -> constant-speed pieces that land the reference's landmarks on the target's")
     parser.add_argument("--spec", required=True)
     parser.add_argument("--out", required=True)
+    parser.add_argument("--sheet", help="where to write the landmark sheet (default: beside OUT when both sides give `clip`)")
     args = parser.parse_args()
     try:
-        result = phase_sync(read_json(args.spec))
+        spec = read_json(args.spec)
+        if args.sheet:
+            spec["sheet"] = args.sheet
+        elif not spec.get("sheet") and spec["target"].get("clip") and spec["reference"].get("clip"):
+            spec["sheet"] = str(Path(args.out).with_suffix("")) + ".landmarks.png"
+        result = phase_sync(spec)
     except Refused as refusal:
         print(json.dumps({"error": str(refusal), "refused": refusal.facts}))
         return 1
-    except (OSError, ValueError, KeyError) as error:
+    except (OSError, ValueError, KeyError, RuntimeError) as error:
         print(json.dumps({"error": f"{type(error).__name__}: {error}; check the spec against the shape in the file's header"}))
         return 2
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(result, indent=2), encoding="utf-8")
-    print(json.dumps({"result": {"out": args.out, "pieces": len(result["pieces"]), "max_phase_error_frames": result["max_phase_error_frames"]}}))
+    print(json.dumps({"result": {"out": args.out, "pieces": len(result["pieces"]), "max_phase_error_frames": result["max_phase_error_frames"],
+                                 "landmark_misses_frames": result["landmark_misses_frames"], "landmarks": result["landmarks"],
+                                 **({"landmark_sheet": result["landmark_sheet"]} if "landmark_sheet" in result else {})}}))
     return 0
 
 

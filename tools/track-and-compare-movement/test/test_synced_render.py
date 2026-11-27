@@ -3,7 +3,7 @@ media-composition renderer (render-an-edit.mjs), read back frame by frame.
 
 Each test video is a grey whose brightness is its own frame number, so the frame each cell shows can be read from the
 rendered picture, with a moving bar so smooth slow motion has motion to make in-between frames of. The reference is played through the sync's speed ramp; at every output frame of the 1x
-pass the reference must show the source second the sync names (within one output frame), the target must play as
+pass the reference must show the source second the sync names (within 1.5 output frames, see that test), the target must play as
 recorded, and every pass must come out exactly as many frames long as planned. Skips, saying why, without ffmpeg or node.
 """
 import json
@@ -145,8 +145,11 @@ class TheRenderedSync(unittest.TestCase):
             wanted = SWINGS.M.reference_second(self.sync, target["in"] + frame / FPS)
             plays = target["in"] + frame / FPS - self.sync["target"]["in"]
             speed = next((p["speed"] for p in self.sync["pieces"] if p["plays_from"] - 1e-9 <= plays < p["plays_to"] - 1e-9), self.sync["pieces"][-1]["speed"])
-            # How many OUTPUT frames early or late the reference is: its source frames off, divided by its speed.
-            self.assertLessEqual(abs(top - wanted * FPS) / speed, 1.0, (frame, top, wanted * FPS, speed))
+            # How many OUTPUT frames early or late the reference is: its source frames off, divided by its speed. The
+            # renderer starts a cell at the first source frame at or after its `in` (ffmpeg's accurate seek drops the
+            # frame on screen at `in`), so an `in` between two frames can show the reference up to one source frame
+            # early on top of the fps filter's half-frame rounding: 1.5 output frames, not 1 (measured 1.39 at 0.96x).
+            self.assertLessEqual(abs(top - wanted * FPS) / speed, 1.5, (frame, top, wanted * FPS, speed))
 
     def test_contact_meets_contact_and_the_still_holds_both_contacts(self):
         segment, out, _ = self.pieces[0]

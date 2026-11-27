@@ -15,7 +15,7 @@ for (const [file, what] of [
   ['test_estimate_pose.py', 'the pose contract makes a keypoint safe, a track is reused only for the same bytes, refusals say what to change'],
   ['test_track_selected_object.py', 'the tracker refuses a bad range, frame rate, point or output folder, and follows a made-up object when its model is cached'],
   ['test_author_comparison_edl.py', 'the side-by-side edit takes labels, layout, mirror and passes from the spec, keeps every crop inside the frame, and refuses a bad spec'],
-  ['test_phase_sync.py', 'the reference is retimed in a few bounded speed pieces that reach every phase of the target within one output frame, contact pinned'],
+  ['test_phase_sync.py', 'a swing\'s takeback start, furthest back, contact and finish are read within one frame whatever the wrist labels, the reference lands each on the target\'s output frame, and a wrong contact or a speed outside the bounds is refused'],
   ['test_synced_render.py', 'a synced comparison renders each pass to its planned frames with the reference on its synced frames and smooth slow motion'],
   ['test_stroke_variants.py', 'the clip-library variants take their shapes and speeds from comparison-variants.json, the one list'],
   ['test_make_site_clip.py', 'a site clip is cut from its kept stretches, silent unless asked, kept by its identity, and wrong source bytes are refused'],

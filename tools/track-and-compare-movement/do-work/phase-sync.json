@@ -1,9 +1,22 @@
 {
   "min_speed": 0.25,
   "max_speed": 4.0,
-  "max_pieces": 6,
-  "min_piece_seconds": 0.1,
-  "tolerance_frames": 1.0,
-  "refuse_above_frames": 1.5,
-  "gamma": 0.0
+  "refuse_above_frames": 1.0,
+  "lead_s": 0.2,
+  "tail_s": 0.2,
+  "landmarks": {
+    "search_before_s": 2.5,
+    "search_after_s": 1.6,
+    "min_confidence": 0.3,
+    "peak_within_s": 0.15,
+    "contact_check_s": 0.35,
+    "contact_off_s": 0.1,
+    "ready_fraction": 0.15,
+    "ready_frames": 4,
+    "finish_fraction": 0.25,
+    "finish_frames": 2,
+    "turn_torso": 0.15,
+    "hold_torso": 0.35,
+    "sheet_cell": [360, 480]
+  }
 }
