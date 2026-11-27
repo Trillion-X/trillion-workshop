@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/cite-principles-from-captions/tool-rows.json, do-work/cite_principles.py, read-data/captions.py, ../settings/read-data/settings.mjs, the list definition list:settings (read only) and test/cite-principles.test.mjs; the corpus and find commands were run here on 2026-11-13 on the test's own made-up fixture (test/make_fixture.py)",
+  "drafted_from": "tools/cite-principles-from-captions/what-this-tool-does-and-how-to-run-it.json, do-work/cite_principles.py, read-data/captions.py, ../settings/read-data/settings.mjs, the list definition list:settings (read only) and test/cite-principles.test.mjs; the corpus and find commands were run here on 2026-11-13 on the test's own made-up fixture (test/make_fixture.py)",
   "start_here": "Say to your AI: \"Build a corpus from my folder of captions at ./captions, with my views table ./views.tsv, and prove this quote is really said in video vidA1: The secret is patience.\" It runs the tool's corpus and find commands on your computer.",
   "lists": [
     {

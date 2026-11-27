@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_cut_speech.py and test/test_plan_and_cut_speech.py (CutSpeech), which I ran with the test's tone-word stand-in speech reader",
+  "drafted_from": "tool row in tools/check-a-rendered-video/what-this-tool-does-and-how-to-run-it.json, do-work/check_cut_speech.py and test/test_plan_and_cut_speech.py (CutSpeech), which I ran with the test's tone-word stand-in speech reader",
   "start_here": "Say to your AI: \"Listen to my cut /work/cut.mp4 against its timeline /work/timeline.json for the ask and reply lines, and show me the first ask, the middle reply and the last reply.\" It reads the tool's row and runs check_cut_speech.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads the plans, recordings and settings file it is given on the person's computer and writes one report file.",

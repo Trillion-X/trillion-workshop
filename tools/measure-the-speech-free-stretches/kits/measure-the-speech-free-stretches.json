@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/measure-the-speech-free-stretches/tool-rows.json, do-work/measure_speech_free.py and its test",
+  "drafted_from": "tool row in tools/measure-the-speech-free-stretches/what-this-tool-does-and-how-to-run-it.json, do-work/measure_speech_free.py and its test",
   "start_here": "Say to your AI: \"Find the longest dead-air stretch in clip.mp4 by its transcript and its audio, counting the whole clip.\"",
   "lists": [
     {

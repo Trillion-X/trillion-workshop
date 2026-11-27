@@ -10,7 +10,7 @@ Keeps the finished work a person is getting ready to publish as a changelog: whi
 | `do-work/record-action-steps.ts` | `buildRecordStep` and `materializeRecordActionGraph`: a step becomes an operation or, when its action names an owner, a handoff with bound inputs; operations fold into records and receipts that are only added to. |
 | `do-work/see-what-is-ready.mjs` | `tool:see-what-work-is-ready-to-publish`. |
 | `do-work/record-a-step.mjs` | `tool:record-a-publishing-step`. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder. |
 | `test/see-what-is-ready.test.mjs` | The reader's cases on a made-up bakery queue. |
 | `test/record-a-step.test.mjs` | Steps, handoffs, refusals and the fold. |
 
@@ -26,4 +26,4 @@ Keeps the finished work a person is getting ready to publish as a changelog: whi
 
 **Depends on:** nothing (Node 24 in the tool container runs the `.ts` files by stripping their types).
 
-**Depended on by:** `tool-rows.json`, Trillion's deploy (it bundles the files a row names).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`, Trillion's deploy (it bundles the files a row names).

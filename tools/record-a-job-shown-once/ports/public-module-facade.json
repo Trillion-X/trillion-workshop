@@ -44,7 +44,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/record-a-job-shown-once/tool-rows.json",
+      "path": "tools/record-a-job-shown-once/what-this-tool-does-and-how-to-run-it.json",
       "why": "These are invocation descriptors and sample inputs, not module export-forwarding code."
     },
     {

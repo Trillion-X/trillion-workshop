@@ -27,7 +27,7 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/stream-an-answer-in-keyed-parts/tool-rows.json",
+   "path": "tools/stream-an-answer-in-keyed-parts/what-this-tool-does-and-how-to-run-it.json",
    "why": "This tool's own rows, which run this entry; they declare it and own no other job."
   }
  ],

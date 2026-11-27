@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:manage-harness's own row (its words and input schema) in tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json; it runs as a tool of the person's own computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:manage-harness's own row (its words and input schema) in tools/keep-and-wake-ai-sessions-on-this-computer/what-this-tool-does-and-how-to-run-it.json; it runs as a tool of the person's own computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Inspect the Claude Code hooks my account set on my computer studio-mac\", with {\"computer_id\": \"studio-mac\", \"harness\": \"claude-code\", \"action\": \"inspect\"}. It runs tool:manage-harness on that computer and answers what is set and what would change.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads and changes the hook settings of one AI app on one computer you own.",

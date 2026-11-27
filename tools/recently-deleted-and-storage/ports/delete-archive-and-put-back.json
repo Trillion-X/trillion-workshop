@@ -48,7 +48,7 @@
    ]
   },
   "test_refs": [
-   "tools/recently-deleted-and-storage/tool-rows.json sample run (tool:delete-archive-and-put-back-my-files)"
+   "tools/recently-deleted-and-storage/what-this-tool-does-and-how-to-run-it.json sample run (tool:delete-archive-and-put-back-my-files)"
   ]
  }
 }

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:answer-a-checks-questions-with-a-model-on-this-computer row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs, its row's verify sample run and do-work/answer_with_a_downloaded_model.py; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:answer-a-checks-questions-with-a-model-on-this-computer row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs, its row's verify sample run and do-work/answer_with_a_downloaded_model.py; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Answer the is-this-line-vague question for the line 'Things happen.' and for 'The kettle boils in two minutes.' with my answering settings.\" It runs the answerer and gives each line's probability for no and yes.",
   "lists": [
     {
@@ -329,7 +329,7 @@
           }
         }
       },
-      "given": "From the row's own verify sample run in tools/ask-a-small-model-for-a-verdict/tool-rows.json, answered by running do-work/answer_with_a_downloaded_model.py with the same stand-in: the setting row for person sample-person and four ruled lines in list:checks (set sample-rulings: \"Things happen.\" and \"It works somehow.\" bad for vague; \"Ten people came.\" and \"The door is red.\" good). The stand-in answers each listed text from its own table and every other text with {\"no\": 0.95, \"yes\": 0.05}.",
+      "given": "From the row's own verify sample run in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, answered by running do-work/answer_with_a_downloaded_model.py with the same stand-in: the setting row for person sample-person and four ruled lines in list:checks (set sample-rulings: \"Things happen.\" and \"It works somehow.\" bad for vague; \"Ten people came.\" and \"The door is red.\" good). The stand-in answers each listed text from its own table and every other text with {\"no\": 0.95, \"yes\": 0.05}.",
       "hands_back": "[{\"no\": 0.1, \"yes\": 0.9}, {\"no\": 0.95, \"yes\": 0.05}]: the first line is probably vague, the kettle line is not."
     }
   ],

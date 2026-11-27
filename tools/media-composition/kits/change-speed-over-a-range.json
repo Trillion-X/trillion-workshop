@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:change-speed-over-a-range's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/change-speed-over-a-range.mjs, and the script run on a synthetic 7 second clip",
+  "drafted_from": "tool:change-speed-over-a-range's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/change-speed-over-a-range.mjs, and the script run on a synthetic 7 second clip",
   "start_here": "Say to your AI: \"Play seconds 2 to 4 of my video at half speed and keep everything else.\" It runs tool:change-speed-over-a-range and saves the new video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

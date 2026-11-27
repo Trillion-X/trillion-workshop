@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-against-a-persons-rules-and-verdicts's row in tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (its verify sample runs), do-work/check-against-their-rules-and-verdicts.mjs, do-work/check-a-branch.mjs and test/branch.test.mjs; the answer was observed by running check-a-branch.mjs on the sample's rows on the records handed in",
+  "drafted_from": "tool:check-against-a-persons-rules-and-verdicts's row in tools/check-against-a-persons-rules-and-verdicts/what-this-tool-does-and-how-to-run-it.json (its verify sample runs), do-work/check-against-their-rules-and-verdicts.mjs, do-work/check-a-branch.mjs and test/branch.test.mjs; the answer was observed by running check-a-branch.mjs on the sample's rows on the records handed in",
   "start_here": "Say to your AI: \"Check the title 'A sparkle of zorblax' against my made-up-post branch of rules and tell me pass, fail or uncertain, with why.\" It reads your branch's rows from list:checks and says which rules the title breaks.",
   "lists": [
     {
@@ -181,7 +181,7 @@
           }
         }
       },
-      "given": "From tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (the second verify sample run) and do-work/check-a-branch.mjs, run on the records handed in: your list:checks holds the four example rows above (record:check:made-up-base, record:check:made-up-post, record:check:no-sparkle, record:check:no-zorblax), and made-up-post carries judge_settings (fold lowercase and collapse_space, stage default final, stance_rule their-stance, novel rule novel, agree_clears none).",
+      "given": "From tools/check-against-a-persons-rules-and-verdicts/what-this-tool-does-and-how-to-run-it.json (the second verify sample run) and do-work/check-a-branch.mjs, run on the records handed in: your list:checks holds the four example rows above (record:check:made-up-base, record:check:made-up-post, record:check:no-sparkle, record:check:no-zorblax), and made-up-post carries judge_settings (fold lowercase and collapse_space, stage default final, stance_rule their-stance, novel rule novel, agree_clears none).",
       "hands_back": "{\"status\":\"failed\",\"passed\":false,\"results\":[{\"text\":\"A sparkle of zorblax\",\"kind\":\"title\",\"applicable_rule_ids\":[\"no-sparkle\"],\"qualification\":\"word-rules-only\",\"breaks\":[{\"rule\":\"no-sparkle\",\"found\":\"sparkle\",\"says\":\"No sparkle.\"},{\"rule\":\"no-zorblax\",\"found\":\"zorblax\",\"says\":\"Never zorblax.\"}],\"uncertain\":[],\"waived\":[],\"verdict\":\"fail\",\"advisory\":false}],\"questions\":[],\"lines\":[\"1 units: 1 fail, 0 uncertain, 0 pass\",\"FAIL [title]\",\"  no-sparkle: \\\"sparkle\\\". No sparkle.\",\"  no-zorblax: \\\"zorblax\\\". Never zorblax.\"],\"branch\":\"made-up-post\",\"lineage\":[\"made-up-post\",\"made-up-base\"],\"rows_used\":{\"branches\":{\"made-up-post\":1,\"made-up-base\":2},\"lists\":{},\"skipped\":{\"branch\":1,\"step\":0,\"off\":0,\"no_test\":0}},\"read_by_a_model\":{\"rows\":[],\"more\":0,\"settings_from\":null}} (also questions_page and ask_all, both empty)"
     },
     {

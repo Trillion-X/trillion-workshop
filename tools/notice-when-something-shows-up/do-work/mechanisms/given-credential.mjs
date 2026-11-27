@@ -1,8 +1,8 @@
 /**
  * The credential a mechanism reads, only from a descriptor the run was given.
  *
- * The engine mounts a waiter's credential on a descriptor only when the run's input names it (tool-rows.json
- * credential_mounts: `credential_name` on 4 only when present, each waiter's own `credential_name` on 5 + its place). A
+ * The engine mounts a waiter's credential on a descriptor only when the run's input names it (what-this-tool-does-and-how-to-run-it.json
+ * key: `credential_name` on 4 only when present, each waiter's own `credential_name` on 5 + its place). A
  * descriptor the run was not given is still open in the process (node's own kqueue or epoll), so reading it fails with
  * a word that says nothing of the cause (ENXIO on a Mac, EINVAL on Linux): on Nov 21 2026 from 7:27 AM CST the three
  * keep-noticing-row-changes copies were switched on with no credential_name, read node's own descriptor 4, told their

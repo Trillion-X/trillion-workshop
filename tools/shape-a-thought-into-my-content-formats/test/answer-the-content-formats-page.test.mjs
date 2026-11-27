@@ -5,7 +5,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import starters from '../data/content-format-starters.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:answer-the-content-formats-page');
@@ -88,10 +88,10 @@ test('follow answers how far the words heard reach, and an unknown spelling or m
 });
 
 test('the row runs the function runner, reaches no door and mounts no records door', () => {
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.equal(row.invoke.records, undefined);
   assert.equal(row.stored, undefined);
   assert.ok(!row.invoke.files.package_files.some(item => item.package === 'records-door'));
   assert.ok(!row.uses_tools.includes('trillion-workshop/records-door'));
-  assert.equal(row.invoke.internet, false);
+  assert.equal(row.invoke.may_reach, undefined);
 });

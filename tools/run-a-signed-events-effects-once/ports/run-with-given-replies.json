@@ -50,7 +50,7 @@
    ]
   },
   "test_refs": [
-   "tools/run-a-signed-events-effects-once/tool-rows.json sample run (tool:turn-signed-events-into-effects-once)"
+   "tools/run-a-signed-events-effects-once/what-this-tool-does-and-how-to-run-it.json sample run (tool:turn-signed-events-into-effects-once)"
   ]
  }
 }

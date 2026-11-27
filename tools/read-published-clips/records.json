@@ -173,10 +173,10 @@
         },
         "invoke": {
           "kind": "container",
-          "internet": true,
+          "may_reach": [],
           "workdir": "/opt/read-published-clips",
           "stdout": "json",
-          "argv": [
+          "run": [
             "node",
             "/opt/records-door/do-work/run-an-export.mjs",
             "/opt/read-published-clips/do-work/read-published-clips-run.mjs",
@@ -187,7 +187,7 @@
               "from": "input"
             }
           },
-          "credential_mounts": [
+          "key": [
             {
               "secret_name_from_input": "database",
               "held_suffix": "-connection",
@@ -481,7 +481,7 @@
               {
                 "package": "run-sql-in-my-database",
                 "paths": [
-                  "tool-rows.json"
+                  "what-this-tool-does-and-how-to-run-it.json"
                 ],
                 "at": "/opt/run-sql-in-my-database"
               },

@@ -1,0 +1,407 @@
+{
+  "kind": "tool-rows",
+  "record_set": "carry-a-computer-to-a-meeting-point-tool-rows",
+  "what_this_is": "The Workshop row for tools/carry-a-computer-to-a-meeting-point: what a meeting point's host runs for the computers carried to it. The computer's own half (a program kept running by the init row for its kind of computer) is `carry-a-computer.mjs install` on that computer; a kept run that reaches this computer's door is not a row.",
+  "records": [
+    {
+      "id": "package::carry-a-computer-to-a-meeting-point::tool::carry-a-computer-to-a-meeting-point",
+      "address": "package::carry-a-computer-to-a-meeting-point::tool::carry-a-computer-to-a-meeting-point",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/move-the-public-door",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-a-computer",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:carry-a-computer-to-a-meeting-point",
+        "label": "Carry a computer to a meeting point",
+        "status": "active",
+        "job": "Say what a public host must run so my computers behind a router can be reached through it, and which port each one gets there",
+        "description": "Takes the id of a way row (frp, rathole and ssh-reverse-forward are shipped; pass `ways` to use rows of your own), the meeting point's relay host (its hostname and the values the way's text names, such as control_port) and the computers carried to it, each with its id and the value the host needs to admit it (`server_value`: a token, or a public key). Answers the ordered steps the host runs (a file to write with its mode, or a command to run), the arguments of the program that serves the meeting point, and the program's pinned download. Each computer's port at the host is a stable hash of its id into a range held as data; two computers that hash to one port are refused, and one of them is given a `salt`. The computer's own half is kept running by `serve` under the init row for its kind of computer; run the file's `install` on that computer. The tool holds no vendor, operating system or host: each is a row.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "way_id",
+            "relay_host",
+            "computers"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "way_id": {
+              "type": "string",
+              "description": "The way row to render the host half of"
+            },
+            "ways": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Way rows of your own; used before the shipped ones"
+            },
+            "relay_host": {
+              "type": "object",
+              "required": [
+                "id",
+                "hostname"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "hostname": {
+                  "type": "string"
+                },
+                "params": {
+                  "type": "object",
+                  "description": "Values the way's text names, such as control_port, ssh_port, host_key"
+                }
+              }
+            },
+            "computers": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1024,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "maxLength": 128
+                  },
+                  "salt": {
+                    "type": "string",
+                    "maxLength": 64
+                  },
+                  "server_value": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "description": "The token or public key the host needs to admit this computer, when the way's host half names one"
+                  }
+                }
+              }
+            },
+            "values": {
+              "type": "object",
+              "description": "Values the way's host half names that are not the relay host's, such as config_dir or user"
+            },
+            "ports": {
+              "type": "object",
+              "properties": {
+                "min": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "max": {
+                  "type": "integer",
+                  "maximum": 65535
+                }
+              },
+              "description": "The port range, when not the shipped one"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "steps",
+            "argv"
+          ],
+          "properties": {
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "argv": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "program": {
+              "type": [
+                "object",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "max_run_ms": 30000,
+          "workdir": "/opt/carry-a-computer-to-a-meeting-point",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/carry-a-computer-to-a-meeting-point/do-work/carry-a-computer.mjs",
+            "render-meeting-point"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "carry-a-computer-to-a-meeting-point",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/carry-a-computer-to-a-meeting-point"
+              },
+              {
+                "package": "start-a-computer",
+                "paths": [
+                  "do-work/fill-fields.mjs",
+                  "do-work/install-init.mjs",
+                  "read-data/init-rows.json",
+                  "read-data/unit-templates"
+                ],
+                "at": "/opt/start-a-computer"
+              },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "way_id": "rathole",
+              "relay_host": {
+                "id": "relay-example",
+                "hostname": "relay.example.test",
+                "params": {
+                  "control_port": 2333
+                }
+              },
+              "computers": [
+                {
+                  "id": "computer-one",
+                  "server_value": "a-synthetic-token"
+                }
+              ],
+              "values": {
+                "config_dir": "/etc/example"
+              }
+            },
+            "output_selector": "$.argv[0]",
+            "contains": "--server",
+            "records": []
+          }
+        ],
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "maker": "maker:carry-a-computer-to-a-meeting-point",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ]
+      }
+    }
+  ]
+}

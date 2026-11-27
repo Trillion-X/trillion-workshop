@@ -14,7 +14,7 @@ Rules it keeps: a need is matched to the doer whose phrase covers the most of it
 | `read-data/words.json` | The default sentences and the ranking. |
 | `do-work/who-does-each-step.mjs` | The command of `tool:who-does-each-step`. |
 | `do-work/list-who-can-do.mjs` | The command of `tool:what-can-my-account-do`. |
-| `tool-rows.json` | The two rows, with sample runs. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two rows, with sample runs. |
 | `test/who-does.test.mjs` | The old module's cases on a made-up bakery plan and made-up doers: no step lands on the person, taps and prices, the person's own part, nobody-yet, approved doers and ranking, the most specific phrase, consent given once, sign-in first try, refused input, and the rows. |
 
 ## Key Types / Functions
@@ -29,4 +29,4 @@ Rules it keeps: a need is matched to the doer whose phrase covers the most of it
 
 **Depends on:** Node 24 only.
 
-**Depended on by:** `tool-rows.json`; the workflows that name `tool:who-does-each-step`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the workflows that name `tool:who-does-each-step`.

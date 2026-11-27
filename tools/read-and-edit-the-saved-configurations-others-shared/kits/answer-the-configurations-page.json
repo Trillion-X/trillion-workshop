@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:answer-the-configurations-page row in tool-rows.json, do-work/answer-the-configurations-page.mjs, tools/query-and-change-list-rows/src/configurations.mjs (the list definition) and test/answer-the-configurations-page.test.mjs",
+  "drafted_from": "tool:answer-the-configurations-page row in what-this-tool-does-and-how-to-run-it.json, do-work/answer-the-configurations-page.mjs, tools/query-and-change-list-rows/src/configurations.mjs (the list definition) and test/answer-the-configurations-page.test.mjs",
   "start_here": "Say to your AI: \"Save my current accounts search as a configuration called Configuration c1 for list:accounts, with the title and owner columns and the search 'Sam', then list my saved configurations.\" It runs tool:answer-the-configurations-page for each route and tells you what was saved.",
   "lists": [
     {

@@ -43,5 +43,5 @@
       "hands_back": "{\"action\":\"send_confirmation\",\"statements\":[],\"message\":{\"to\":\"sam@example.com\",\"subject\":\"Confirm your signup\",\"text\":\"Open the link to confirm.\"}}"
     }
   ],
-  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/signup.ts"
+  "drafted_from": "tool row in tools/publish-articles/what-this-tool-does-and-how-to-run-it.json and tools/publish-articles/do-work/signup.ts"
 }

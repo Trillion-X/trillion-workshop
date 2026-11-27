@@ -45,5 +45,5 @@
       "hands_back": "{\"outcome\":\"send_confirmation\",\"attempt\":{\"id\":\"s1\",\"digest\":\"d1\"},\"mail\":{\"to\":\"sam@example.com\",\"subject\":\"Confirm\",\"text\":\"Press the button.\\n\\nhttps://site.example.com/subscribe/confirm?s=s1&t=t1\",\"link\":\"https://site.example.com/subscribe/confirm?s=s1&t=t1\",\"button\":\"Confirm now\"}}"
     }
   ],
-  "drafted_from": "tool row in tools/serve-articles-and-signup/tool-rows.json and routes/keep-a-newsletter-signup.ts"
+  "drafted_from": "tool row in tools/serve-articles-and-signup/what-this-tool-does-and-how-to-run-it.json and routes/keep-a-newsletter-signup.ts"
 }

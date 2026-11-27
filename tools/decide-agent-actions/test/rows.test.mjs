@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { promisify } from 'node:util';
 
 const folder = new URL('..', import.meta.url).pathname;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const run = (argv, input) => new Promise(resolve => {
   const child = promisify(execFile)(argv[0], argv.slice(1), { cwd: folder });
   child.child.stdin.end(typeof input === 'string' ? input : JSON.stringify(input));
@@ -20,7 +20,7 @@ test('the two rows run their own sample and the output holds the words the row s
   assert.equal(rows.length, 2);
   for (const row of rows) {
     for (const check of row.verify) {
-      const { code, last } = await run(row.invoke.argv, check.input);
+      const { code, last } = await run(row.invoke.run, check.input);
       assert.equal(code, 0, `${row.id}: ${JSON.stringify(last)}`);
       assert.ok(String(select(select(last, row.result_selector), check.output_selector)).includes(check.contains), row.id);
     }
@@ -31,7 +31,7 @@ test('every row names its folder, is offline, packs what it imports and keeps it
   for (const row of rows) {
     const packed = row.invoke.files.package_files;
     assert.deepEqual(packed.map(item => item.package ?? item.module), ['decide-agent-actions', 'formulas', 'formula-engine', 'content-identity', '@noble/hashes']);
-    assert.deepEqual([row.invoke.internet, row.invoke.workdir, row.maker], [false, '/opt/decide-agent-actions', 'maker:decide-agent-actions']);
+    assert.deepEqual([row.invoke.may_reach, row.invoke.workdir, row.maker], [undefined, '/opt/decide-agent-actions', 'maker:decide-agent-actions']);
     assert.ok(Array.isArray(row.input_schema.required) && row.job.length > 20, row.id);
   }
 });
@@ -49,7 +49,7 @@ test('a request that is not JSON, an unknown function and a request missing its 
 
 test('a grant for the same action allows it, and the answer names the once grant to mark used', async () => {
   const sample = rows[0].verify[0].input;
-  const asked = (await run(rows[0].invoke.argv, sample)).last.result;
-  const { last } = await run(rows[0].invoke.argv, { ...sample, grants: [{ id: 'g1', identity: asked.identity, scope: 'once' }] });
+  const asked = (await run(rows[0].invoke.run, sample)).last.result;
+  const { last } = await run(rows[0].invoke.run, { ...sample, grants: [{ id: 'g1', identity: asked.identity, scope: 'once' }] });
   assert.deepEqual([last.result.verdict, last.result.decided_by, last.result.grant_used], ['allow', { kind: 'grant', id: 'g1' }, 'g1']);
 });

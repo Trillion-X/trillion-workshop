@@ -31,7 +31,7 @@
 //                  (a write is the declared write tool the row names).
 //   heldOf(tool) answers [{ path, use_from_input }], or null for a tool this tree does not hold: where that tool's input names a
 //   held value (its row's credential mounts' `secret_name_from_input`) and the input path its use comes from
-//   (`under_use.use_from_input`, null when it binds none). heldInputsOfTools(toolsFolder) reads it from every tool-rows.json.
+//   (`under_use.use_from_input`, null when it binds none). heldInputsOfTools(toolsFolder) reads it from every what-this-tool-does-and-how-to-run-it.json.
 //
 //   Every call that names a database and no use is given settings.pages.use, as the site gives it (serve.ts withPagesUse).
 //
@@ -277,12 +277,12 @@ export function askedBy(site: SiteRows, tools: string[], options: DeriveOptions 
   return Object.fromEntries(tools.map(tool => [tool, [...new Set(calls.filter(call => call.tool === tool).map(call => call.where))].sort()]));
 }
 
-/** Where each tool of a tools folder names a held value from its input, read from every tool folder's tool-rows.json. */
+/** Where each tool of a tools folder names a held value from its input, read from every tool folder's what-this-tool-does-and-how-to-run-it.json. */
 export function heldInputsOfTools(toolsFolder: string): (tool: string) => Held[] | null {
   const byTool = new Map();
   for (const folder of readdirSync(toolsFolder)) {
     let rows: { records?: { payload?: Fields }[] };
-    try { rows = JSON.parse(readFileSync(join(toolsFolder, folder, 'tool-rows.json'), 'utf8')); } catch { continue; }
+    try { rows = JSON.parse(readFileSync(join(toolsFolder, folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')); } catch { continue; }
     for (const { payload } of rows.records ?? []) {
       if (!payload || typeof payload.id !== 'string') continue;
       const items: Held[] = [];

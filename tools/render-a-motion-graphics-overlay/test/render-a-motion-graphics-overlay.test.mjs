@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Readable, Writable } from 'node:stream';
 import { fileURLToPath } from 'node:url';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { renderOverlay, withSpec, refuseRowIds, FOLDER } from '../do-work/render-overlay.mjs';
 import { makeRecord } from '../../settings/read-data/settings.mjs';

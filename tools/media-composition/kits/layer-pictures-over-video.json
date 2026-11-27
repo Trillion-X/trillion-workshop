@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:layer-pictures-over-video's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/layer-over-video.mjs, tools/media-composition/test/layer-over-video.test.mjs, and the script run on a synthetic 7 second clip with a 200x100 logo",
+  "drafted_from": "tool:layer-pictures-over-video's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/layer-over-video.mjs, tools/media-composition/test/layer-over-video.test.mjs, and the script run on a synthetic 7 second clip with a 200x100 logo",
   "start_here": "Say to your AI: \"Put my logo in the top right corner of my video from second 1 to second 4, at 90% opacity.\" It runs tool:layer-pictures-over-video and saves the new video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

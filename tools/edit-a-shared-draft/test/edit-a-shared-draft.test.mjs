@@ -156,11 +156,11 @@ test('only the owner can freeze', () => {
 
 // The row names this function and the files it packs; the sample run's answer is the row's own proof.
 test('the row names this function and every file the container packs, and its sample run answers', async () => {
-  const { default: rows } = await import('../tool-rows.json', { with: { type: 'json' } });
+  const { default: rows } = await import('../what-this-tool-does-and-how-to-run-it.json', { with: { type: 'json' } });
   const { readFileSync, existsSync } = await import('node:fs');
   const row = rows.records.find(record => record.payload.id === 'tool:edit-a-shared-draft').payload;
-  assert.equal(row.invoke.argv.at(-1), 'editSharedDraft');
-  assert.ok(row.invoke.argv[2].endsWith('do-work/edit-a-shared-draft.mjs'));
+  assert.equal(row.invoke.run.at(-1), 'editSharedDraft');
+  assert.ok(row.invoke.run[2].endsWith('do-work/edit-a-shared-draft.mjs'));
   assert.equal(row.invoke.files.package_files[0].package, 'edit-a-shared-draft');
   for (const path of ['do-work/edit-a-shared-draft.mjs', 'read-data/edit-a-shared-draft.json']) {
     assert.ok(existsSync(new URL('../' + path, import.meta.url)), path);

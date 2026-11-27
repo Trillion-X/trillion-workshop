@@ -8,7 +8,7 @@ Dictation on the person's own computer. The words a hearing program returns for 
 |------|---------|
 | `read-data/dictation.mjs` | The cleaning steps and `clean`, `biasPrompt`, `wordChanges` and `learnChanges`, `insertText`, `keyMachine`, `recordDictation`, `modelStep`, and `dictationTools.dictate`. The named exports `dictate` and `typeDictatedText` are what `do-work/run-a-function.mjs` calls. |
 | `read-data/dictation.json` | The pipeline, spoken commands, styles, learning limits, the bias prompt, the clipboard commands, the key table, the history limits, the model steps' words and every sentence said. |
-| `tool-rows.json` | `tool:dictate` (`change-a-folder`): every action except insert. `tool:type-dictated-text` (`change-a-folder`, `type-into-the-front-app`): the clipboard transaction. Both read `{ input, folder }` on standard input. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:dictate` (`change-a-folder`): every action except insert. `tool:type-dictated-text` (`change-a-folder`, `type-into-the-front-app`): the clipboard transaction. Both read `{ input, folder }` on standard input. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/dictation.test.mjs` | The old app's tests, repointed to this folder. |
 | `test/tool-rows.test.mjs` | The rows' capabilities, the two exports over a granted folder, and polish asked of a stand-in model server through the `dictation-polish` job (and left as it was when no server answers). |
@@ -41,4 +41,4 @@ Dictation on the person's own computer. The words a hearing program returns for 
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), `tools/models-on-this-computer` (`askLocal` and its `dictation-polish` job, packed by both rows), `@noble/hashes` (BLAKE3) and Node's standard library. On a Mac, `/usr/bin/pbcopy`, `/usr/bin/pbpaste` and `/usr/bin/osascript` for typing at the cursor.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

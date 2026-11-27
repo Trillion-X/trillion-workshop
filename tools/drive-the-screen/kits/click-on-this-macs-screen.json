@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:click-on-this-macs-screen row in tools/drive-the-screen/tool-rows.json, read-data/drive-the-screen.mjs (clickOnThisMacsScreen), read-data/hard-deny.json and test/click-on-this-macs-screen.test.mjs",
+  "drafted_from": "tool:click-on-this-macs-screen row in tools/drive-the-screen/what-this-tool-does-and-how-to-run-it.json, read-data/drive-the-screen.mjs (clickOnThisMacsScreen), read-data/hard-deny.json and test/click-on-this-macs-screen.test.mjs",
   "start_here": "Say to your AI: \"In Notes, click New Note.\" It runs tool:click-on-this-macs-screen once with action click, app Notes and target New Note, and says what changed, with a capture identity from before and after.",
   "lists": [],
   "no_lists_because": "It names no list: it does one thing on the screen when run and answers what it did; workflow:do-a-thing-on-the-macs-screen keeps the record of a longer job.",

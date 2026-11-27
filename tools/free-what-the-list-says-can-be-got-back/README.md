@@ -18,7 +18,7 @@ The adopting checkout retains those original objects through local `refs/proposa
 | `read-data/kept-file-shape.json` | DATA: the list's field names (path, state, kind, frees, hold, source addresses, recipe files), its state words and the quiet hours. |
 | `read-data/url-checks.json` | DATA: how a source is asked whether it still answers (a video address is asked through its oEmbed, because a removed video still serves a page). |
 | `part.json` | Nothing is public. |
-| `tool-rows.json` | The row. It runs on the person's computer with the `change-a-folder` grant and internet (to ask the sources). |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. It runs on the person's computer with the `change-a-folder` grant and internet (to ask the sources). |
 | `test/free.test.mjs` | Synthetic repositories, parent actions and fd3 HTTP descriptors, through the actual workflows runner: eligibility, recoverable stand-in moves/readback, refusal, unknown, busy and lost answers, and a missing grant refused. Tests and fixture cleanup never invoke real Trash. |
 
 ## Key Types / Functions
@@ -45,4 +45,4 @@ The earlier direct-command tests on 2026-11-07 found a sandbox denial while an u
 
 ## Dependencies
 
-**Depends on:** Node, `git`, the workflows `run-a-function` runner with its `read-data/host-actions.mjs` host action route, and the authenticated native parent. **Depended on by:** `tool-rows.json`.
+**Depends on:** Node, `git`, the workflows `run-a-function` runner with its `read-data/host-actions.mjs` host action route, and the authenticated native parent. **Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

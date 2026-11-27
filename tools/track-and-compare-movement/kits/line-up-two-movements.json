@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/align_dtw.py and test/test_align_dtw.py (run on its synthetic skeletons)",
+  "drafted_from": "tool row in tools/track-and-compare-movement/what-this-tool-does-and-how-to-run-it.json, do-work/align_dtw.py and test/test_align_dtw.py (run on its synthetic skeletons)",
   "start_here": "Say to your AI: \"Line up my serve track /work/poses/mine.json with the reference /work/poses/coach.json and write the alignment to /work/align/mine-vs-coach.json, soft warping 0.1.\" It reads the tool's row and runs align_dtw.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",

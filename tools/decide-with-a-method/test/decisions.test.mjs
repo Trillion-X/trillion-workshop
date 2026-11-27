@@ -15,7 +15,7 @@ import { account, answerAll, seedSteps } from './old-engine-for-tests.mjs';
 import { methodAnswered, recordMethodAnswers } from '../method-rows/answers.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 // The largest record the store holds, measured as the record alone (its id, type and value as JSON). A change's own list also
 // carries the `expected` each record is checked against, so the store's records are what a record's size is measured on.
 const storedRecordBytes = door => Math.max(...[...door.records].map(([id, kept]) => Buffer.byteLength(JSON.stringify({ id, type: kept.type, value: kept.value }))));

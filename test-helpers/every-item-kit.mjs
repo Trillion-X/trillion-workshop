@@ -16,7 +16,7 @@
 
 import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
+import { CARD, root, rows, rowsOf, folders, tools as TOOLS } from './tool-rows.mjs';
 import { KIT_TEMPLATE, answerDraftProblems, kitProblems } from '../tools/workflows/read-data/kit-problems.mjs';
 import { publicRecipes } from '../tools/workflows/read-data/public-recipes.mjs';
 import { pathToFileURL } from 'node:url';
@@ -25,12 +25,12 @@ export const OWED_FILE = resolve(root, 'test/items-without-a-kit.json');
 
 const slugOf = id => id.slice(id.indexOf(':') + 1);
 export const kitFileOf = (folder, id) => resolve(root, 'tools', folder, 'kits', `${slugOf(id)}.json`);
-// The folder a tool's kit goes in: the folder whose tool-rows.json offers the row. A row a tool-row-source lists from a records
+// The folder a tool's kit goes in: the folder whose what-this-tool-does-and-how-to-run-it.json offers the row. A row a tool-row-source lists from a records
 // folder is offered by the folder holding the source, so its kit sits there, not in the records folder.
 function offeringFolders() {
   const offered = new Map();
   for (const folder of folders) {
-    if (!existsSync(resolve(TOOLS, folder, 'tool-rows.json'))) continue;
+    if (!existsSync(resolve(TOOLS, folder, CARD))) continue;
     for (const { folder: where, payload } of rowsOf(folder)) if (!offered.has(payload.id)) offered.set(payload.id, folder);
   }
   return offered;

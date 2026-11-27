@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:collect-and-rank-viewer-questions's row (tools/collect-and-rank-viewer-questions/tool-rows.json), do-work/candidates.py, do-work/rank.py and test/viewer-questions.test.mjs",
+  "drafted_from": "tool:collect-and-rank-viewer-questions's row (tools/collect-and-rank-viewer-questions/what-this-tool-does-and-how-to-run-it.json), do-work/candidates.py, do-work/rank.py and test/viewer-questions.test.mjs",
   "start_here": "Say to your AI: \"Find the questions in the forum posts and video comments saved in ./viewer-questions, using my sample-baker settings row, and rank them into my buckets.\" It runs the candidates script on your computer, then rank with your settings file, and tells you how many questions it found and which bucket each fits.",
   "lists": [
     {

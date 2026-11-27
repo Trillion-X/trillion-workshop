@@ -166,14 +166,14 @@ test('readLinkCard reports the body deadline when abort rejects the stream first
 // The row as the container runs it: { url } on standard input, one JSON line out. Which addresses are public is the
 // engine's proxy's to judge, so these runs ask nothing of the network.
 const script = fileURLToPath(new URL('../do-work/read_a_link.mjs', import.meta.url));
-const [row] = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records
+const [row] = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records
   .map(record => record.payload).filter(payload => payload.id === 'tool:read-a-link');
 
 test('the row runs the link reader in an internet container and packs the one page reader with it', () => {
   assert.equal(row.invoke.kind, 'container');
-  assert.equal(row.invoke.internet, true);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.equal(row.result_selector, '$');
-  assert.deepEqual(row.invoke.argv, ['/usr/local/bin/node', '/opt/browse-public-page/do-work/read_a_link.mjs']);
+  assert.deepEqual(row.invoke.run, ['/usr/local/bin/node', '/opt/browse-public-page/do-work/read_a_link.mjs']);
   assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/read_a_link.mjs', 'do-work/page-facts.mjs', 'do-work/page-conventions.json']);
 });
 

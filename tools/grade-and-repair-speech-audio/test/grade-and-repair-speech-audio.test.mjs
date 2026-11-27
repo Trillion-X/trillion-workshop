@@ -18,7 +18,7 @@ import { pythonForTests } from 'trillion-workshop/test-helpers/python-environmen
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
 const doWork = join(folder, 'do-work');
-const allRows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const allRows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 // The scripts the person's AI runs by hand; tool:enhance-speech is the one `computer` row (test/speech-enhance.test.mjs).
 const rows = allRows.filter(row => row.invoke.kind === 'on-your-computer');
 const settingsFile = join(here, 'settings-for-synthetic-speech.json');
@@ -61,7 +61,7 @@ test('the rows run on the person\'s computer and name scripts that exist', () =>
     // the grade's stages cut and measure with ffmpeg; the plans reader and the voice-take checks read files only
     if (/grade_and_repair|probe|clone|check_speech|choose_clone/.test(script)) assert.ok(row.invoke.needs.includes('ffmpeg'), `${row.id} needs ffmpeg`);
   }
-  assert.deepEqual(allRows.filter(row => !rows.includes(row)).map(row => [row.id, row.invoke.kind, row.invoke.argv.at(-1)]), [['tool:enhance-speech', 'computer', 'enhanceSpeech']]);
+  assert.deepEqual(allRows.filter(row => !rows.includes(row)).map(row => [row.id, row.invoke.kind, row.invoke.run.at(-1)]), [['tool:enhance-speech', 'computer', 'enhanceSpeech']]);
 });
 
 test('every model the rows need is named in needs, so nothing is fetched unseen', () => {

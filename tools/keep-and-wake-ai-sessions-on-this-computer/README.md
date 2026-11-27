@@ -48,7 +48,7 @@ From old trillion main at 5dc302be37 (the old-trillion sweep): `test/tell-a-chat
 
 ## Not yet
 
-- Rows: `tool-rows.json` offers the two commands a person's AI runs here, both through `harness/setup.mjs`: setting up the hooks in an AI app (inspect, apply, remove) and its Trillion MCP entry (inspect, preview, register, unregister). The other scripts are hooks or long-running helpers that setup starts, not rows; adapting their `../src/` imports to the records door is still a later lane.
+- Rows: `what-this-tool-does-and-how-to-run-it.json` offers the two commands a person's AI runs here, both through `harness/setup.mjs`: setting up the hooks in an AI app (inspect, apply, remove) and its Trillion MCP entry (inspect, preview, register, unregister). The other scripts are hooks or long-running helpers that setup starts, not rows; adapting their `../src/` imports to the records door is still a later lane.
 - `src/` holds the old app's files these scripts imported (the import closure), each still in its old shape.
 
 ## Files moved from bitfield-packages (packages/eeaf)

@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { createServer, request } from 'node:http';
 import { generateKeyPairSync, sign as edSign } from 'node:crypto';
 import config from '../browser-relay.json' with { type: 'json' };
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { makeRelay } from '../browser-relay.mjs';
 import { askMyBrowser, signWithVault } from '../ask-my-browser.mjs';
 import { makeComputerRelay } from '../computer-relay.mjs';
@@ -226,7 +226,7 @@ test('a computer that reports no port for the door opens nothing, and a run give
       { error: config.words.no_port.replaceAll('{name}', config.port_name) });
   for (const row of rows.records) {
     assert.ok(row.payload.invoke.local_doors.includes(config.port_name));
-    assert.deepEqual(row.payload.invoke.argv.at(-1), { fill: { from: 'computer', field: `local_ports.${config.port_name}` } });
+    assert.deepEqual(row.payload.invoke.run.at(-1), { fill: { from: 'computer', field: `local_ports.${config.port_name}` } });
   }
 });
 

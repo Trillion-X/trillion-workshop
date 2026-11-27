@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/carry-an-account-into-its-own-records/tool-rows.json, do-work/imported-history-receipt.mjs, read-data/imported-history-receipt.mjs, test/imported-history-receipt.test.mjs",
+  "drafted_from": "tools/carry-an-account-into-its-own-records/what-this-tool-does-and-how-to-run-it.json, do-work/imported-history-receipt.mjs, read-data/imported-history-receipt.mjs, test/imported-history-receipt.test.mjs",
   "start_here": "Say to your AI: \"Make the history receipt for import run sample-import, then tell me which archive files it names.\" It runs tool:check-imported-history-receipt to create the receipt, list its archive keys, or verify every archive it names against the files.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it answers a receipt, its archive keys or whether it still verifies, and the caller keeps the receipt.",

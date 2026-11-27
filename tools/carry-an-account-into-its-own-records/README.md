@@ -2,7 +2,7 @@
 
 Carrying a person's records from the old storage shapes into their own records, and the one place a filling store turns away work that only adds.
 
-Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/older-repository-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. The imported-history receipt port now also has an executable `tool-rows.json` row.
+Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/older-repository-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. The imported-history receipt port now also has an executable `what-this-tool-does-and-how-to-run-it.json` row.
 
 ## Files
 

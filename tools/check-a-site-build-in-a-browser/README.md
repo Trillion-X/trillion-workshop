@@ -49,7 +49,7 @@ A blank page is only as tall as the window (`scrollHeight` is never under the vi
 | `do-work/serve-build.mjs` | `serveBuild({ root, live, settings })` and `fileFor`: the local front door with pass-through. |
 | `do-work/measure-page.mjs` | `measurePage({ url, shot, settings, browser })`: one page in Chromium. |
 | `do-work/judge.mjs` | The refusing comparisons. |
-| `tool-rows.json`, `kits/check-a-site-build-in-a-browser.json` | The row `tool:check-a-site-build-in-a-browser` and its kit. |
+| `what-this-tool-does-and-how-to-run-it.json`, `kits/check-a-site-build-in-a-browser.json` | The row `tool:check-a-site-build-in-a-browser` and its kit. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/check-site-build.test.mjs` | Made-up built and "live" sites on two local servers: a blank course with a `toUpperCase` error, a serif home, a matching page, a new kind with and without errors, a missing file, the command's exit codes and the pass-through headers. |
 

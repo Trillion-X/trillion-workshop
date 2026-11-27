@@ -8,8 +8,8 @@
   "input_schema": {"type":"object","additionalProperties":false,"properties":{"need":{"type":["string","boolean"]},"wait":{"type":"boolean"}}},
   "output_schema": {"type":"object","required":["reads","rows","unavailable","configuration_identity"],"properties":{"reads":{"type":"array"},"rows":{"type":"array"},"unavailable":{"type":"array"},"configuration_identity":{"type":"string"}}},
   "invoke": {
-    "kind": "container", "internet": true, "public_read": true, "stdout": "json", "workdir": "/opt/ai-tool-catalog",
-    "argv": ["node","/opt/workflows/do-work/run-a-function.mjs","/opt/ai-tool-catalog/do-work/account-live-sources.mjs","readLiveSourcesFromTask"],
+    "kind": "container", "may_reach": [], "public_read": true, "stdout": "json", "workdir": "/opt/ai-tool-catalog",
+    "run": ["node","/opt/workflows/do-work/run-a-function.mjs","/opt/ai-tool-catalog/do-work/account-live-sources.mjs","readLiveSourcesFromTask"],
     "stdin": {"input":{"fill":{"from":"input"}},"source_data":{"fill":{"from":"task","field":"source_data"}},"request_key":{"fill":{"from":"task","field":"request_key"}}},
     "files": {"package_files":[
       {"package":"ai-tool-catalog","paths":["do-work/account-live-sources.mjs","do-work/source-template.mjs","do-work/derive-tool-rows-from-sources.mjs","do-work/read-openapi.mjs","do-work/public-post.mjs","read-data/account-live-source-reads.json","read-data/remote-call-protocol.json","read-data/read-ai-tool-catalog.ts","read-data/declared-effects.ts"],"at":"/opt/ai-tool-catalog"},

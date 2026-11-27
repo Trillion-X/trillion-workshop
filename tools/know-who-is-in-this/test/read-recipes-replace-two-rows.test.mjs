@@ -22,6 +22,6 @@ for (const name of RECIPES) {
 }
 
 test('no row of this folder names a records method', () => {
-  const rows = read('../tool-rows.json');
+  const rows = read('../what-this-tool-does-and-how-to-run-it.json');
   assert.doesNotMatch(JSON.stringify(rows), /records:(read|write|list|search)\b/);
 });

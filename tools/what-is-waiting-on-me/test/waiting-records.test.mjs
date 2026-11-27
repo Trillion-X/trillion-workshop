@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readWaitingOnMe, finishWaitingOnMe, verifyWaitingCompletion } from '../read-data/waiting-records.mjs';
 import DATA from '../read-data/waiting-sources.json' with { type: 'json' };
-import ROWS from '../tool-rows.json' with { type: 'json' };
+import ROWS from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
 const own = (id, value) => ({ id, type: DATA.registry_type, value });

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/arrange-screens-in-panes/tool-rows.json (tool:read-pane-and-feel-settings) and do-work/read-pane-and-feel-settings.mjs",
+  "drafted_from": "tools/arrange-screens-in-panes/what-this-tool-does-and-how-to-run-it.json (tool:read-pane-and-feel-settings) and do-work/read-pane-and-feel-settings.mjs",
   "start_here": "Say to your AI: \"Show me the Panes and Feel settings\". It runs tool:read-pane-and-feel-settings and answers the pane defaults, the settings rows a person edits, and each moment with the feel it plays on touch, sound and motion.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it reads the pane-sizes file and the feel rows that tools/feel owns, and keeps no row.",

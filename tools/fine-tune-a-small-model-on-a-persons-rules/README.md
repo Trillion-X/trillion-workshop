@@ -33,7 +33,7 @@ The settings live in the person's `list:settings` as `record:setting:fine-tune-a
 | `do-work/score_held_out_lines.py` | Step 3: writes `<name>.json` with the report per law (`film` is the held-out set, `narrator` the never-train lines) and every score it was made from; `scores_from` reports again from an earlier run's kept scores with no model. `auc`, `at_fpr` and `report` are pure. |
 | `read-data/common.py` | The request (a file or `-` for standard input), refusals that say what to change, rows given inline or as a JSON Lines file, the person's settings under the request; and the decider model folder (its own `decider` package and `decider_config.json`), loaded with or without an adapter on the device asked for, else `DECIDER_DEVICE`, else cuda, mps or cpu, framing and scoring asks at the stored temperature. torch is imported only when a model is configured. |
 | `ports/*.json` | The four port contracts: each file's first commit here is the byte copy of its old owner. |
-| `tool-rows.json` | The three Workshop rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three Workshop rows. |
 | `test/test_fine_tune.py`, `test/fine-tune.test.mjs` | Building rows and reporting from kept scores on made-up laws and lines, determinism, settings rows (merged, retired, another tool's), refusals, and that each row names its script. |
 
 ## What is fixed in code, and why

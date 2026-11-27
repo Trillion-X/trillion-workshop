@@ -123,7 +123,7 @@ test('a reload plan writes earlier stands first, oldest first, counts changed re
   assert.deepEqual([plan.summary.rows, plan.summary.records, plan.summary.versions], [5, 3, 6]);
 });
 
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const at = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)\]/).filter(Boolean).reduce((node, key) => node?.[key], value);
 // The container's /opt/<package>/ folders are this checkout's tools/<package>/ folders.
 const local = part => part.replace(/^\/opt\/([^/]+)\//, (_, name) => `${resolve(folder, '..', name)}/`);
@@ -132,7 +132,7 @@ const run = (argv, input) => spawnSync(process.execPath, argv.map(local), { cwd:
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, () => {
     for (const sample of row.verify.filter(item => item.kind === 'sample-run')) {
-      const ran = run(row.invoke.argv.slice(1), sample.input);
+      const ran = run(row.invoke.run.slice(1), sample.input);
       assert.equal(ran.status, 0, ran.stderr);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
       assert.ok(String(at(answer, sample.output_selector)).includes(sample.contains), JSON.stringify(answer));
@@ -143,11 +143,11 @@ for (const row of rows) {
 test('the stance record the row answers has its type and id read from its own fields, and no row keeps records itself', () => {
   const keep = rows.find(row => row.id === 'tool:keep-where-you-stand');
   assert.equal(keep.keeps_records, undefined);
-  const ran = run(keep.invoke.argv.slice(1), { ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00Z' });
+  const ran = run(keep.invoke.run.slice(1), { ...said, stance: 'agree', why: 'good', at: '2026-01-01T11:00:00Z' });
   const output = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), keep.result_selector);
   const record = output.stance_record;
   assert.deepEqual([record.type, record.id], ['stance', `stance:file:${IDENTITY}`]);
-  const refused = run(keep.invoke.argv.slice(1), { ...said, stance: 'agree', answered_by: 'ai' });
+  const refused = run(keep.invoke.run.slice(1), { ...said, stance: 'agree', answered_by: 'ai' });
   assert.equal(refused.status, 1);
   assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /answered_by/);
 });

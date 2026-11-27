@@ -796,7 +796,7 @@ export function makeScreenTools({ settings = screenSettings(), driver = home => 
 let shared = null;
 const toolsHere = () => (shared ??= makeScreenTools());
 
-// The functions tools/workflows/do-work/run-a-function.mjs calls with the run's input, one per row of ../tool-rows.json.
+// The functions tools/workflows/do-work/run-a-function.mjs calls with the run's input, one per row of ../what-this-tool-does-and-how-to-run-it.json.
 export const lookAtTheScreen = input => toolsHere().look(input);
 export const findOnTheScreen = input => toolsHere().find(input);
 export const screenActions = input => toolsHere().actions(input);

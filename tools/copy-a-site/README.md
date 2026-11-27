@@ -9,7 +9,7 @@ Copies a live website into the file map a public app is published from: each pag
 | `part.json` | What other parts and tools may use from this part. |
 | `do-work/copy-a-site.mjs` | Opens each page in a headless browser, follows same-site links and a bounded same-site sitemap, fetches the files the pages use, reports pages left for another run, and leaves `<out>/site.json`; prints one JSON line. |
 | `do-work/copy-addresses.mjs` | The route and link rules: the file a page is kept as, and how addresses in a page or style sheet are pointed at the copy. |
-| `tool-rows.json` | The Workshop row for this folder: `tool:copy-a-site`, an internet:true container row that packs `do-work` and `tools/headless-browser`'s `devtools.mjs`, `quiet-switches.json` and `browser-places.json`; declares the BLAKE3-pinned Chrome for Testing headless shell the engine fetches and puts on the run's PATH. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row for this folder: `tool:copy-a-site`, a container row with may_reach that packs `do-work` and `tools/headless-browser`'s `devtools.mjs`, `quiet-switches.json` and `browser-places.json`; declares the BLAKE3-pinned Chrome for Testing headless shell the engine fetches and puts on the run's PATH. |
 | `test/` | The copier run on a small site reached only through a proxy (Playwright's Chromium), and its naming, sitemap and page-limit rules. |
 
 ## Key Types / Functions
@@ -25,7 +25,7 @@ Copies a live website into the file map a public app is published from: each pag
 
 **Depends on:** `tools/headless-browser` (`devtools.mjs`, a Chromium spoken to over DevTools with `quiet-switches.json`); Node's own `fetch`; the row's declared Chrome for Testing headless shell, fetched and checked by the engine on macOS arm64 and Linux x86_64. No browser installed on the host or browser-path input is needed for the tool. Direct local script runs can name their own browser with `--browser` or `BROWSER_EXECUTABLE`; that is not the installed tool's dependency proof.
 
-**Depended on by:** the Workshop row `tool:copy-a-site` (`tool-rows.json`).
+**Depended on by:** the Workshop row `tool:copy-a-site` (`what-this-tool-does-and-how-to-run-it.json`).
 
 ## Invariants
 
@@ -33,4 +33,4 @@ Copies a live website into the file map a public app is published from: each pag
 - Only the start address's own origin is copied or followed; other sites stay linked where they are.
 - A kept page carries no script, inline event handler, frame or `<base>`; script files are never kept, since a public app serves only its own scripts and the copy is the rendered result.
 - A page or file that cannot be copied is listed under `skipped` with the reason in plain words; omitted links keep their original addresses. Past 100 findings, the last row says how many more were left out. A start page that cannot be copied ends the run with the reason.
-- No address rule lives here. The start must be a web address (http or https, no user name or password); which addresses are public is the engine's to judge: it runs the row as internet:true, so the copier's fetches and its browser reach only the engine's public-only proxy, which judges every address and redirect.
+- No address rule lives here. The start must be a web address (http or https, no user name or password); which addresses are public is the engine's to judge: it runs the row with may_reach, so the copier's fetches and its browser reach only the engine's public-only proxy, which judges every address and redirect.

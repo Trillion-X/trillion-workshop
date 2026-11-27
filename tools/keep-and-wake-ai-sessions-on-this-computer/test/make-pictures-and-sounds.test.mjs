@@ -43,13 +43,13 @@ test('every style is its own Workshop tool with no screen of its own, derived fr
     assert.deepEqual(tool.invoke.stdin, { fill: { from: 'input' } }, 'the whole input is read on standard input at run time');
     // A style that runs a model or a program on the person's own computer (runs_on) is a computer tool that writes into the folder they grant.
     if (style.runs_on === 'your-computer') {
-      assert.deepEqual(tool.invoke.argv.slice(0, 6), ['node', '/opt/media-composition/do-work/make-pictures-and-sounds.mjs', '--style', id, '--out', { fill: { from: 'task', field: 'grants.change-a-folder.folder' } }]);
+      assert.deepEqual(tool.invoke.run.slice(0, 6), ['node', '/opt/media-composition/do-work/make-pictures-and-sounds.mjs', '--style', id, '--out', { fill: { from: 'task', field: 'grants.change-a-folder.folder' } }]);
       assert.equal(tool.invoke.kind, 'computer');
       assert.deepEqual(tool.placements, ['placement:your-computer']);
       assert.equal(tool.billing.gateway, undefined, 'nothing is paid through Trillion for a run on the person\'s computer');
       continue;
     }
-    assert.deepEqual(tool.invoke.argv.slice(0, 4), ['node', 'do-work/make-pictures-and-sounds.mjs', '--style', id]);
+    assert.deepEqual(tool.invoke.run.slice(0, 4), ['node', 'do-work/make-pictures-and-sounds.mjs', '--style', id]);
     assert.equal(tool.invoke.outputs[0].media_type, style.media_type);
     assert.equal(tool.invoke.outputs[0].keep_in, 'files', 'what is made is kept in the person\'s own files');
     assert.deepEqual(tool.placements, ['placement:deployed-container']);
@@ -62,7 +62,7 @@ test('a style names exactly the connection its makers read, and the runner finds
     const wanted = connectionsOf(id);
     if (!wanted.length) {
       assert.equal(tool.invoke.connection_id, undefined, `${id} uses no connected account`);
-      assert.equal(tool.invoke.credential_mounts, undefined);
+      assert.equal(tool.invoke.key, undefined);
       continue;
     }
     assert.equal(wanted.length, 1, `${id} reads one connection`);

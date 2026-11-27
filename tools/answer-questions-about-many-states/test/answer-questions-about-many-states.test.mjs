@@ -16,7 +16,7 @@ import * as B from '../read-data/bulk-answer.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
-const file = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8'));
+const file = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
 const rows = file.records.map(record => record.payload);
 const runtimePython = process.env.WORKSHOP_TEST_PYTHON ?? 'python3';
 const python = spawnSync(runtimePython, ['--version'], { encoding: 'utf8' });
@@ -42,11 +42,11 @@ const madeUp = (action, input) => B.startWorker(action, input, { python: runtime
 
 test('the classifier runs on the person\'s Mac and every row keeps no rows', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:get-a-classifier-ready-on-this-mac', 'tool:answer-questions-about-many-states']);
-  const exports = rows.map(row => row.invoke.argv.at(-1));
+  const exports = rows.map(row => row.invoke.run.at(-1));
   assert.deepEqual(exports, ['getAClassifierReady', 'answerManyStates']);
   for (const [i, row] of rows.entries()) {
     assert.equal(typeof B[exports[i]], 'function', exports[i]);
-    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+    assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.placements, ['placement:your-computer']);
     assert.ok(!('records' in row.invoke), `${row.id} is handed no records door`);

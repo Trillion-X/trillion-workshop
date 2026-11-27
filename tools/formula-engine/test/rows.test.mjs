@@ -13,7 +13,7 @@ import * as engine from '../built-stored-bytes/formula-engine/formula_engine.js'
 const component = new URL('../built-stored-bytes/component/formula-engine.wasm', import.meta.url).pathname;
 const host = spawnSync('which', ['wasmtime']).status === 0 ? 'wasmtime' : 'the built module';
 engine.initSync({ module: readFileSync(new URL('../built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const viaModule = (name, input) => {
   try {
     if (typeof engine[name] !== 'function') throw new Error(`Unknown request: ${name}.`);
@@ -36,9 +36,9 @@ const argvOf = fn => ['component', component, fn];
 test(`the four rows run their own sample and the output holds the words the row says it will (host: ${host})`, async () => {
   assert.equal(rows.length, 4);
   for (const row of rows) {
-    assert.deepEqual(row.invoke.argv.slice(0, 2), ['component', '/opt/formula-engine/built-stored-bytes/component/formula-engine.wasm'], row.id);
+    assert.deepEqual(row.invoke.run.slice(0, 2), ['component', '/opt/formula-engine/built-stored-bytes/component/formula-engine.wasm'], row.id);
     for (const check of row.verify) {
-      const { code, last } = await run(row.invoke.argv, check.input);
+      const { code, last } = await run(row.invoke.run, check.input);
       assert.equal(code, 0, `${row.id}: ${JSON.stringify(last)}`);
       assert.ok(String(select(select(last, row.result_selector), check.output_selector)).includes(check.contains), row.id);
     }
@@ -47,7 +47,7 @@ test(`the four rows run their own sample and the output holds the words the row 
 
 test('every row names its folder, is offline, and keeps its own words generic', () => {
   for (const row of rows) {
-    assert.deepEqual([row.invoke.files.package_files.map(spec => spec.package), row.invoke.internet, row.maker], [['formula-engine'], false, 'maker:formula-engine']);
+    assert.deepEqual([row.invoke.files.package_files.map(spec => spec.package), row.invoke.may_reach, row.maker], [['formula-engine'], undefined, 'maker:formula-engine']);
     assert.ok(Array.isArray(row.input_schema.required ?? []) && row.job.length > 20, row.id);
   }
 });

@@ -11,7 +11,7 @@ import {runRow} from '../../../test-helpers/run-a-row.mjs';
 import {lookAtThisComputer} from '../do-work/look-at-this-computer.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const [row] = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const [row] = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
 test('the row\'s sample run finds the made-up store and folder, leaves out what is not there, and does not look at a drive', async () => {
   const [sample] = row.verify;

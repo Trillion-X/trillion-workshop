@@ -31,9 +31,9 @@
           }
         }
       },
-      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/orgs/42/balance?limit=5 with your token in X-Treg-Token and returns treg's reply unchanged; balance_micro is the field its output_schema requires. Values are a synthetic sample.",
+      "given": "Read from tools/treg/what-this-tool-does-and-how-to-run-it.json: the row sends GET https://treg.to/orgs/42/balance?limit=5 with your token in X-Treg-Token and returns treg's reply unchanged; balance_micro is the field its output_schema requires. Values are a synthetic sample.",
       "hands_back": "{\"balance_micro\":12000000,\"blocks\":[],\"holds\":[]}, plus the 5 most recent charges as treg sends them. 12000000 millionths is 12.00 US dollars."
     }
   ],
-  "drafted_from": "tools/treg/tool-rows.json (its row), its README; the values are a synthetic sample of the shape its output_schema names"
+  "drafted_from": "tools/treg/what-this-tool-does-and-how-to-run-it.json (its row), its README; the values are a synthetic sample of the shape its output_schema names"
 }

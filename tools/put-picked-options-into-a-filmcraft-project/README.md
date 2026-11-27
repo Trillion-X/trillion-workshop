@@ -61,7 +61,7 @@ The film's row is the same `list:settings` row the pick gate reads (the previews
 | `test/filmcraft-preview.test.mjs` | Runs them under `npm test`. |
 | `do-work/pick_gate.py` | The command: `--film FOLDER --stored FILE [--settings-record ID] check OPTION`, `rows`, `apply OPTION --project FILE --ops FILE [--print]`. Its docstring holds the invariants. |
 | `do-work/stance-id-from-stdin.mjs` | The bridge: `{ kind, fold, texts }` on stdin, `{ ids: { <text>: { id, artifact } } }` out, from `tools/where-a-person-stands` `artifactRef`, `foldWith` and `stanceRecordId` (`ports/stance-id-from-stdin.json`). |
-| `tool-rows.json` | The rows `tool:put-a-picked-option-into-a-filmcraft-project`, `tool:build-a-filmcraft-option-preview`, `tool:publish-a-checked-filmcraft-preview`, `tool:make-a-working-preview-of-a-stitched-opening` and `tool:make-a-fresh-viewer-review-pack-of-a-preview`, all `on-your-computer`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The rows `tool:put-a-picked-option-into-a-filmcraft-project`, `tool:build-a-filmcraft-option-preview`, `tool:publish-a-checked-filmcraft-preview`, `tool:make-a-working-preview-of-a-stitched-opening` and `tool:make-a-fresh-viewer-review-pack-of-a-preview`, all `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/pick-gate.test.mjs` | The script against a throwaway film, the rows of a made-up store in a `--stored` file and a stand-in `filmcraft-cli`, and the bridge against `tools/where-a-person-stands`. Made-up films and words. |
 
@@ -87,4 +87,4 @@ The film's row is the same `list:settings` row the pick gate reads (the previews
 
 **Depends on:** `tools/settings` (`read-data/settings.py`), `tools/render-a-motion-graphics-overlay` (run as a program by the build's overlay step), `tools/make-a-contact-sheet-of-pictures-or-video-frames` (run as a program by the review pack), `tools/audio-transcription` (`do-work/whisper_here.py`), ffmpeg and ffprobe, `tools/where-a-person-stands` (`artifact-ref.mjs`, `where-a-person-stands.mjs`), `tools/content-identity` (through `artifact-ref.mjs`), Python 3 with `blake3`, Node, the `trillion` command and `filmcraft-cli`.
 
-**Depended on by:** the rows in `tool-rows.json`.
+**Depended on by:** the rows in `what-this-tool-does-and-how-to-run-it.json`.

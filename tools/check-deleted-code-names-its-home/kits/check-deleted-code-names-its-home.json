@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/check-deleted-code-names-its-home/tool-rows.json, do-work/check-deleted-code-names-its-home.mjs, read-data/rules.json and test/check-row.test.mjs",
+  "drafted_from": "tools/check-deleted-code-names-its-home/what-this-tool-does-and-how-to-run-it.json, do-work/check-deleted-code-names-its-home.mjs, read-data/rules.json and test/check-row.test.mjs",
   "start_here": "Say to your AI: \"Check that the source files my last commit deleted from my trillion checkout say where they went: range HEAD~1..HEAD.\" It runs tool:check-deleted-code-names-its-home on the folder you grant and tells you, per deleted file, its new home or why it was retired.",
   "lists": [],
   "no_lists_because": "It reads commits and moved-from.json receipts in your checkouts and keeps no list of its own.",

@@ -60,7 +60,7 @@
    ]
   },
   "test_refs": [
-   "tools/messages-screen/tool-rows.json sample run (tool:list-my-conversations-newest-first)"
+   "tools/messages-screen/what-this-tool-does-and-how-to-run-it.json sample run (tool:list-my-conversations-newest-first)"
   ]
  }
 }

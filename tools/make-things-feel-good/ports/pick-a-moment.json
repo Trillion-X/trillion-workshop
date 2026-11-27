@@ -56,7 +56,7 @@
    ]
   },
   "test_refs": [
-   "tools/make-things-feel-good/tool-rows.json sample run (tool:pick-a-small-good-moment)"
+   "tools/make-things-feel-good/what-this-tool-does-and-how-to-run-it.json sample run (tool:pick-a-small-good-moment)"
   ]
  }
 }

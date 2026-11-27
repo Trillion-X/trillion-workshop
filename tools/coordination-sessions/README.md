@@ -16,7 +16,7 @@ A gathering a person organizes: its purpose, the times, places and modes it coul
 | `read-data/session-catalog.ts` | `publishSessionCatalogEntry`, `readSessionCatalog`, `updateSessionCatalogEntry`, `retractSessionCatalogEntry`, `supersedeSessionCatalogEntry`, `crossOfferSessionCatalogEntry`. Copied; the access and recommendation delegates, the owner references and the screen-projection reference are gone, and `readSessionCatalog` takes its options second. |
 | `read-data/plan-an-event.ts` | `planAnEvent`: a draft to session, catalog entry, capacity ledger input and addresses. Rewritten from `materializeOrganizerEvent`: mode and visibility are open words, and the branding, access, intake, publication and projection plans (all references to other packages) and the sign-up copy are gone. |
 | `do-work/coordination-sessions.mjs` | The tool seam, run by `tools/workflows/do-work/run-a-function.mjs`. |
-| `tool-rows.json` | Three rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | Three rows. |
 | `part.json` | No public files. |
 | `test/session-lifecycle.test.mjs`, `test/session-catalog.test.mjs`, `test/plan-an-event.test.mjs` | The package's cases (with a made-up bakery club), plus refusals. |
 | `test/coordination-sessions-rows.test.mjs` | Every row run as the container runs it. |
@@ -34,4 +34,4 @@ A gathering a person organizes: its purpose, the times, places and modes it coul
 
 **Depends on:** `tools/workflows` (its `do-work/run-a-function.mjs` is packed by every row at `/opt/workflows`; these rows read no records). Node 24 in the tool container runs the `.ts` files by stripping their types.
 
-**Depended on by:** Trillion's deploy reads `tool-rows.json`.
+**Depended on by:** Trillion's deploy reads `what-this-tool-does-and-how-to-run-it.json`.

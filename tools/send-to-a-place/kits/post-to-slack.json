@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:post-to-slack row in tools/send-to-a-place/tool-rows.json and tools/send-to-a-place/test/send-to-a-place-rows.test.mjs",
+  "drafted_from": "tool:post-to-slack row in tools/send-to-a-place/what-this-tool-does-and-how-to-run-it.json and tools/send-to-a-place/test/send-to-a-place-rows.test.mjs",
   "start_here": "Say to your AI: \"Post 'Draft is ready for review.' with a link to my Spring menu draft (https://example.com/menu/spring) in Slack channel #general.\" It runs tool:post-to-slack.",
   "lists": [],
   "no_lists_because": "It keeps no list: it takes the things and note it is given and posts them once to the person's connected service.",
@@ -38,7 +38,7 @@
           }
         }
       },
-      "given": "Read from tools/send-to-a-place/tool-rows.json (the row's invoke body) and checked against tools/send-to-a-place/test/send-to-a-place-rows.test.mjs: the person has connected Slack (service_connection:slack). The body posts text \"Draft is ready for review.\" in #general with an attachment titled \"Spring menu draft\" linking to https://example.com/menu/spring; Slack's own ok: false is treated as a refusal (answer_ok_field ok). I could not run it: it needs a live Slack bot token, so the answer is worked out from the row, and the exact \"said\" wording follows the webhook sibling's pattern \"<host> answered <status>\".",
+      "given": "Read from tools/send-to-a-place/what-this-tool-does-and-how-to-run-it.json (the row's invoke body) and checked against tools/send-to-a-place/test/send-to-a-place-rows.test.mjs: the person has connected Slack (service_connection:slack). The body posts text \"Draft is ready for review.\" in #general with an attachment titled \"Spring menu draft\" linking to https://example.com/menu/spring; Slack's own ok: false is treated as a refusal (answer_ok_field ok). I could not run it: it needs a live Slack bot token, so the answer is worked out from the row, and the exact \"said\" wording follows the webhook sibling's pattern \"<host> answered <status>\".",
       "hands_back": "{\"status\":200,\"said\":\"slack.com answered 200\",\"answer\":\"<Slack's reply as text, with ok true>\"}. If Slack cannot find the channel it answers ok false and the reply is told in Slack's words (for example channel_not_found)."
     }
   ]

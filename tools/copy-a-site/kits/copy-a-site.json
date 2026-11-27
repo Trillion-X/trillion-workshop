@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:copy-a-site's row in tools/copy-a-site/tool-rows.json, do-work/copy-a-site.mjs and test/copy-a-site.test.mjs with its test/site.mjs",
+  "drafted_from": "tool:copy-a-site's row in tools/copy-a-site/what-this-tool-does-and-how-to-run-it.json, do-work/copy-a-site.mjs and test/copy-a-site.test.mjs with its test/site.mjs",
   "start_here": "Say to your AI: \"Copy the website at https://example.com/ into files I can publish as a public app, at most 10 pages.\" It runs tool:copy-a-site and hands back site.json in your files with every page, picture, style and font it could copy and a list of what it could not.",
   "lists": [],
   "no_lists_because": "It keeps and reads no list: it takes a web address, copies the public site and answers one site.json file in your files.",

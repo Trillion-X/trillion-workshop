@@ -1,7 +1,7 @@
 // tools/work-on-connected-drives/read-data/drives.mjs
 //
 // PURPOSE
-//   The drive tools that change things on a person's computer (tool-rows.json, `computer` rows run by
+//   The drive tools that change things on a person's computer (what-this-tool-does-and-how-to-run-it.json, `computer` rows run by
 //   tools/workflows' run-a-function, one process per run): list and pause/resume/stop the long file work on drives,
 //   copy or move between drives, and eject. Each is a plain function from the tool's input to its answer. What a drive
 //   is (the listing, its identity, the programs holding it) is tools/connected-drives' one copy.
@@ -137,7 +137,7 @@ export const driveTools = {
   },
 };
 
-// run-a-function calls each tool by its exported name, as fn(input) (tool-rows.json names which); a host on the
+// run-a-function calls each tool by its exported name, as fn(input) (what-this-tool-does-and-how-to-run-it.json names which); a host on the
 // person's computer may hand transfer a `note_written` function reference as its second argument.
 export const listDriveWork = () => driveTools.work();
 export const controlDriveWork = (input = {}) => driveTools.workControl(input);

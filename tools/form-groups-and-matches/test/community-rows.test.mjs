@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { ids } from '../read-data/matchmaker-records.mjs';
 import { answersFor, C, guild, PAGE, START } from './community-fixtures.mjs';
 

@@ -19,19 +19,19 @@ test('the style data names 13 styles, each made by a listed maker', () => {
 });
 
 test('every local make style is one declared tool:make-<style> row with its kit and a placed run', () => {
-  const rows = read('tool-rows.json').records.map(record => record.payload).filter(payload => payload.kind === 'ai-tool-descriptor');
+  const rows = read('what-this-tool-does-and-how-to-run-it.json').records.map(record => record.payload).filter(payload => payload.kind === 'ai-tool-descriptor');
   for (const style of LOCAL) {
     const row = rows.find(payload => payload.id === `tool:make-${style}`);
     assert.ok(row, `tool:make-${style} is a row`);
     assert.ok(existsSync(join(folder, 'kits', `make-${style}.json`)), `tool:make-${style} has its kit`);
-    assert.ok(row.invoke.argv.includes(style), `tool:make-${style} runs its own style`);
+    assert.ok(row.invoke.run.includes(style), `tool:make-${style} runs its own style`);
     assert.ok(Array.isArray(row.invoke.files.package_files), `tool:make-${style} names its package files as a list`);
-    assert.ok(!row.invoke.internet || row.invoke.hosts || row.invoke.public_read, `tool:make-${style} declares the hosts it reaches`);
+    assert.ok(row.invoke.may_reach === undefined || row.invoke.may_reach.length > 0 || row.invoke.public_read, `tool:make-${style} declares the hosts it reaches`);
   }
 });
 
 test('no style held on the treg question has a row or a kit yet', () => {
-  const ids = read('tool-rows.json').records.map(record => record.payload.id);
+  const ids = read('what-this-tool-does-and-how-to-run-it.json').records.map(record => record.payload.id);
   for (const style of HELD_ON_TREG) {
     assert.ok(!ids.includes(`tool:make-${style}`), `tool:make-${style} stays out until its question is ruled`);
   }

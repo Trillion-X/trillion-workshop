@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/export-browser-login-cookies-for-yt-dlp/tool-rows.json, do-work/export_cookies.py and test/test_export_cookies.py (made-up encrypted profile)",
+  "drafted_from": "tools/export-browser-login-cookies-for-yt-dlp/what-this-tool-does-and-how-to-run-it.json, do-work/export_cookies.py and test/test_export_cookies.py (made-up encrypted profile)",
   "start_here": "Say to your AI: \"Export my Arc browser's YouTube login from Profile 1 to ~/private/cookies.txt so yt-dlp can download as me.\" It reads the tool row, asks you before touching your login, and has you run the one command in your own Terminal.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one browser profile's cookie database and writes a cookies.txt file.",

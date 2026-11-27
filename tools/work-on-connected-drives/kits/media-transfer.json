@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/work-on-connected-drives/tool-rows.json, code in read-data/drives.mjs and read-data/file-transfer.mjs, test/drives.test.mjs",
+  "drafted_from": "tool row in tools/work-on-connected-drives/what-this-tool-does-and-how-to-run-it.json, code in read-data/drives.mjs and read-data/file-transfer.mjs, test/drives.test.mjs",
   "start_here": "Say to your AI: \"Check what copying /Volumes/Card/DCIM to /Volumes/Backup/Footage would do, change nothing.\" It runs tool:media-transfer with check true and tells you whether the copy is ready; then say \"Do it\" and it starts the copy.",
   "lists": [],
   "no_lists_because": "It copies or moves the files and folders it is given between connected drives and keeps no list of its own.",

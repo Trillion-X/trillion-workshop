@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:register-my-account-in-my-ai-apps row in tool-rows.json, read-data/mcp-registration.json, do-work/register-in-ai-apps.mjs and test/mcp-registration.test.mjs",
+  "drafted_from": "tool:register-my-account-in-my-ai-apps row in what-this-tool-does-and-how-to-run-it.json, read-data/mcp-registration.json, do-work/register-in-ai-apps.mjs and test/mcp-registration.test.mjs",
   "start_here": "Say to your AI: \"Preview adding Trillion to my Cursor MCP settings, show me exactly what would change, and register it once I approve.\" It runs the preview first, shows the before and after lines, then registers with the review hash you approved.",
   "lists": [],
   "no_lists_because": "It names no list: it reads and edits the MCP config file of each AI app you name on your own computer.",

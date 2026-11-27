@@ -26,7 +26,7 @@
           }
         }
       },
-      "given": "Reads tools/hetzner-dns/tool-rows.json: GET https://api.hetzner.cloud/v1/zones/{zone}/rrsets with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
+      "given": "Reads tools/hetzner-dns/what-this-tool-does-and-how-to-run-it.json: GET https://api.hetzner.cloud/v1/zones/{zone}/rrsets with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
       "hands_back": "It answers each record set with its name, type, TTL and values, for example @ A 60 with 203.0.113.10."
     }
   ]

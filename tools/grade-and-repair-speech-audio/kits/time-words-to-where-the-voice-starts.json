@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:time-words-to-where-the-voice-starts's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:time-words-to-where-the-voice-starts's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Move the word start times of my voice take /Work/demo/take.wav to where the voice really begins, from /Work/demo/take.words.json, writing /Work/demo/take.tight.json.\" It runs tool:time-words-to-where-the-voice-starts on your computer and writes the new word times.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a take and its word times on your computer and writes the word file you name.",

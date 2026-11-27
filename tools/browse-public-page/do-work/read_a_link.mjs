@@ -4,7 +4,7 @@ import { realpathSync } from 'node:fs';
 // PURPOSE
 //   One public link read whole into a card: its title, picture, description, site name and icon, every picture and
 //   video it declares, its structured data (schema.org JSON-LD) and the words a person reads on it. A link that is
-//   itself a picture or a video is that picture or video. The container tool tool:read-a-link (tool-rows.json).
+//   itself a picture or a video is that picture or video. The container tool tool:read-a-link (what-this-tool-does-and-how-to-run-it.json).
 //
 //   readLinkCard(url, { fetchPage?, waitMs? }) -> { url, final_url, host, site, title, description, image, images, videos,
 //                                                   icon, data, text, unread }
@@ -12,7 +12,7 @@ import { realpathSync } from 'node:fs';
 // NON-NEGOTIABLE INVARIANTS
 //   1. The page's bytes are read by the one page reader (./page-facts.mjs), the same one tool:read-public-web-page
 //      runs, so a link reads the same everywhere.
-//   2. Where the read may go is not decided here: the engine runs this tool as internet:true, so Node's own fetch
+//   2. Where the read may go is not decided here: the engine runs this tool with may_reach, so Node's own fetch
 //      reaches only the engine's public-only proxy, which judges every address and every redirect hop. A hop it
 //      refuses answers as a page that did not answer, naming no address.
 //   3. Bounded: at most READ_BYTES bytes and waitMs milliseconds. A page that does not answer, is not a page, or says

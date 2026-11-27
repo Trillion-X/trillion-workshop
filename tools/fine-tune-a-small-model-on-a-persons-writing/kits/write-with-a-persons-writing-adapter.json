@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-writing/tool-rows.json and test/test_writing_fine_tune.py, run here Nov 21 2026",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-writing/what-this-tool-does-and-how-to-run-it.json and test/test_writing_fine_tune.py, run here Nov 21 2026",
   "start_here": "Say to your AI: \"Write my 35 test cases with my texting adapter, then with the base model alone, at temperature 0.\" It writes a request file and runs write_with_the_adapter.py on your Mac.",
   "tools": [
     "tool:build-writing-pairs-from-a-persons-messages",

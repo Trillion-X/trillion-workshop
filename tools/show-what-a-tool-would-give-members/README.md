@@ -17,6 +17,6 @@ Moved byte for byte from Trillion-X/trillion (commit b92aa549f2) by `tools/move-
 | `src/access-impact.mjs` | `accessImpact`, `operationsOf`, `reachesOf`. |
 | `src/access-impact.json` | Operations, the consequence rows and the words. |
 | `test/access-impact.test.mjs` | The original assertions: gains beyond held grants, owner decisions, one member, an unknown operation. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `moved-from.json` | Where each moved file came from and its identities. |
 | `part.json` | Public files. |

@@ -8,7 +8,7 @@ Four commands, run by the person's AI on the person's own computer, and `build.p
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The six Workshop rows: `tool:make-a-word-template`, `tool:fill-a-word-template`, `tool:check-words-against-a-word-template`, `tool:re-time-events-tied-to-words`, `tool:write-a-word-template-from-the-words-i-keep-and-the-slots`, `tool:make-spoken-line-candidates-one-slot-at-a-time`. All `on-your-computer`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The six Workshop rows: `tool:make-a-word-template`, `tool:fill-a-word-template`, `tool:check-words-against-a-word-template`, `tool:re-time-events-tied-to-words`, `tool:write-a-word-template-from-the-words-i-keep-and-the-slots`, `tool:make-spoken-line-candidates-one-slot-at-a-time`. All `on-your-computer`. |
 | `part.json` | The modules other code may import: the core, the operations, the renderer and the registry. |
 | `do-work/make_template.py` | `make_template.py <spec.json or one measurement> <out.template.json>`: measures a piece into a template and writes `<out>.md` beside it. |
 | `do-work/fill.py` | `fill.py <template.json> <fills.json> <out.md> [--piece out.piece.json]`: fills the slots from sourced values. |

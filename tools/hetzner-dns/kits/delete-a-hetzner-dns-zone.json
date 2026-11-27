@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Reads tools/hetzner-dns/tool-rows.json: DELETE https://api.hetzner.cloud/v1/zones/{zone} with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
+      "given": "Reads tools/hetzner-dns/what-this-tool-does-and-how-to-run-it.json: DELETE https://api.hetzner.cloud/v1/zones/{zone} with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
       "hands_back": "It answers that zone example.com is deleted, with its id 42."
     }
   ]

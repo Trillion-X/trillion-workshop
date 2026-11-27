@@ -14,7 +14,7 @@ import { createServer } from 'node:http';
 import { askedAddress, freeWhatTheListSays, judgeRow, run, shapeOf, sourceAnswers } from '../do-work/free-what-the-list-says-can-be-got-back.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const SAVED = 'Way back is saved: Mac copy can be freed';
 const shape = shapeOf();
 const OLD = new Date(Date.now() - 48 * 3600 * 1000);
@@ -522,9 +522,9 @@ test('the row asks for the folder grant and the internet, runs on the person\'s 
   const [tool] = rows;
   assert.equal(tool.id, 'tool:free-what-the-list-says-can-be-got-back');
   assert.deepEqual(tool.invoke.capabilities, ['change-a-folder']);
-  assert.equal(tool.invoke.internet, true);
+  assert.ok(Array.isArray(tool.invoke.may_reach));
   assert.deepEqual(tool.invoke.parent_actions, { fd: 3 });
-  assert.deepEqual(tool.invoke.argv, ['node', '/opt/workflows/do-work/run-a-function.mjs', '/opt/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs', 'freeWhatTheListSays', '--parent-actions-fd', '3']);
+  assert.deepEqual(tool.invoke.run, ['node', '/opt/workflows/do-work/run-a-function.mjs', '/opt/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs', 'freeWhatTheListSays', '--parent-actions-fd', '3']);
   assert.ok(tool.invoke.files.package_files.some(file => file.package === 'workflows' && file.paths.includes('read-data/host-actions.mjs')));
   assert.ok(!tool.invoke.files.package_files.some(file => file.package === 'records-door'));
   assert.doesNotMatch(JSON.stringify(tool), /records:(read|write|list)|"record:|records-door|openParentActions/);

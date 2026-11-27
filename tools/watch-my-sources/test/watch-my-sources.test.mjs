@@ -11,7 +11,7 @@ import { questionIdentity, watchMySources } from '../do-work/watch-my-sources.mj
 import data from '../read-data/watch-sources.json' with { type: 'json' };
 import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const rss = items => `<?xml version="1.0"?><rss version="2.0"><channel><title>Blog</title>${items.map(item => `<item><title>${item.title}</title><link>${item.link}</link><pubDate>Wed, 07 Oct 2026 07:00:00 GMT</pubDate></item>`).join('')}</channel></rss>`;
 const pursuit = { id: 'pursuit:podcast', type: 'pursuit', value: { title: 'Launch the podcast', now: 'Recording episode one', after: 'Publish weekly', status: 'active' } };
 
@@ -129,7 +129,7 @@ test('records that are not a list, a weighed reply that is not { identity, reply
 test('the row runs as a plain function with no records door and answers what to keep', async () => {
   const row = rowOf(rows, 'tool:watch-my-sources');
   assert.equal(row.invoke.records, undefined, 'the row holds no records door');
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the plain function runner');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the plain function runner');
   assert.equal(row.invoke.files.package_files.some(files => files.package === 'records-door'), false, 'the records door is not mounted');
   assert.doesNotMatch(JSON.stringify(rows), /records:(list|read|write)/, 'no records operation is named in the rows');
   const made = await answerOf(row, { records: [pursuit] });

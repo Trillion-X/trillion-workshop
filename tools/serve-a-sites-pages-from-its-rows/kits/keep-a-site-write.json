@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:keep-a-site-write's own row (tool-rows.json), do-work/keep-a-site-write.ts and read-data/site-writes.json",
+  "drafted_from": "tool:keep-a-site-write's own row (what-this-tool-does-and-how-to-run-it.json), do-work/keep-a-site-write.ts and read-data/site-writes.json",
   "start_here": "Say to your AI: \"Keep this lead from my site's book-a-call form.\" It runs tool:keep-a-site-write with the write site-lead and the form's values, and the lead is one row of the database's statements.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: each write adds or changes rows of the tables its fixed statement names in the pursuit database you give (statements, price_views, the welcome stop through stop_welcome_series).",

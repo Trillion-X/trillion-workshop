@@ -188,7 +188,7 @@ test('no hold ever closes the apps the AIs run in (found by kind), and a live ca
 });
 
 test('each row runs on the person\'s computer with only the capabilities its function uses, and names a function this folder exports', async () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const module = await import('../read-data/hold-this-mac.mjs');
   assert.deepEqual(rows.map(row => row.id).sort(), ['tool:device-holds', 'tool:focus', 'tool:hold-a-device-quiet', 'tool:release-a-device']);
   for (const row of rows) {
@@ -197,10 +197,10 @@ test('each row runs on the person\'s computer with only the capabilities its fun
     // microphone check (every name is one the engine's computer-capabilities.json offers).
     assert.deepEqual(row.invoke.capabilities, { 'tool:hold-a-device-quiet': ['close-apps', 'run-shortcuts', 'read-processes'],
       'tool:release-a-device': ['run-shortcuts'], 'tool:device-holds': [], 'tool:focus': ['run-shortcuts'] }[row.id]);
-    assert.notEqual(row.invoke.internet, true);
+    assert.equal(row.invoke.may_reach, undefined);
     assert.deepEqual(row.placements, ['placement:your-computer']);
     assert.equal(row.result_selector, '$.result');
-    assert.equal(typeof module[row.invoke.argv.at(-1)], 'function', row.id);
+    assert.equal(typeof module[row.invoke.run.at(-1)], 'function', row.id);
   }
   assert.equal(typeof module.resumeHolds, 'function', 'the tool host resumes holds that still last when it starts');
 });

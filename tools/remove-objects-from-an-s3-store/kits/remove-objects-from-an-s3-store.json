@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:remove-objects-from-an-s3-store row in tool-rows.json, do-work/remove-objects.ts and test/remove-objects.test.ts",
+  "drafted_from": "tool:remove-objects-from-an-s3-store row in what-this-tool-does-and-how-to-run-it.json, do-work/remove-objects.ts and test/remove-objects.test.ts",
   "start_here": "Say to your AI: \"Remove these three files from my files store: site/old/a.html, site/old/b.png, site/old/c.css.\" It runs tool:remove-objects-from-an-s3-store with that exact list and answers, for each key, removed with its size, absent, or failed with why.",
   "lists": [],
   "no_lists_because": "It names no list: it removes objects by their exact keys from a bucket whose key the person keeps in their vault.",

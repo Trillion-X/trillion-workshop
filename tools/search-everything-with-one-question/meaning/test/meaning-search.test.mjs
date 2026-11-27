@@ -288,7 +288,7 @@ test('the package\'s own fact-row tests pass here', () => {
 });
 
 test('the rows run the seam\'s exports with no store right: the search hands its records in', () => {
-  const all = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const all = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const rows = all.filter(row => row.invoke.kind === 'container');
   assert.deepEqual(rows, [], 'search implementations are internal exports, not duplicate public tools');
   assert.deepEqual([findSimilarVector, findSimilar, findSimilarAcross, findWordsSaid].map(fn => fn.name), ['findSimilarVector', 'findSimilar', 'findSimilarAcross', 'findWordsSaid']);
@@ -297,11 +297,11 @@ test('the rows run the seam\'s exports with no store right: the search hands its
   assert.equal(builder.invoke.kind, 'on-your-computer');
   assert.match(builder.invoke.run, /tools\/search-everything-with-one-question\/meaning\/do-work\/make_picture_vector_set\.py --videos \{input\} --out \{output\}/);
   assert.ok(builder.invoke.needs.some(need => need.startsWith('model: CLIP ViT-B-32')));
-  const ownerRows = JSON.parse(readFileSync(new URL('../../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const ownerRows = JSON.parse(readFileSync(new URL('../../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const callers = ownerRows.filter(row => row.id === 'tool:search-everything-with-one-question');
   assert.equal(callers.length, 1, 'one registered search caller owns the four internal exports');
   for (const row of callers) {
-    assert.equal(row.invoke.internet, false);
+    assert.equal(row.invoke.may_reach, undefined);
     assert.equal(row.stored, undefined, 'no declared store rights');
     assert.deepEqual(row.invoke.records, { fd: 3, runs: ['tool:words-as-picture-vector'] }, 'no records rights: the run may only run the picture query encoder');
     assert.ok(!JSON.stringify(row).includes('"records:'), 'no records method');

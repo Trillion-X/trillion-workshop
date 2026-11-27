@@ -195,7 +195,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/listen-for-a-while/tool-rows.json",
+      "path": "tools/listen-for-a-while/what-this-tool-does-and-how-to-run-it.json",
       "why": "This declares tools, grants and verification samples."
     },
     {

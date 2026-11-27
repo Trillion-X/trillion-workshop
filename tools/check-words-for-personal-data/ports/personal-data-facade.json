@@ -57,7 +57,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/check-words-for-personal-data/tool-rows.json",
+      "path": "tools/check-words-for-personal-data/what-this-tool-does-and-how-to-run-it.json",
       "why": "This declares the user-facing scanner tool entry, not a module export-forwarding implementation."
     },
     {

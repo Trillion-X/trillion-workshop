@@ -1,18 +1,18 @@
 import { realpathSync } from 'node:fs';
 // tools/notice-when-something-shows-up/do-work/send-signed-test-calls.mjs
 //
-// The container tool `tool:send-signed-test-calls` (tool-rows.json): proves a signed webhook receiver the way the service that
+// The container tool `tool:send-signed-test-calls` (what-this-tool-does-and-how-to-run-it.json): proves a signed webhook receiver the way the service that
 // calls it would, with made-up events: a call signed with the person's own held signing secret, one with a wrong signature,
 // one with none, one too old, one too large, and the very same signed call sent again. It answers each call's status and the
 // receiver's reply, and nothing else.
 //
 // The signing secret is never in the request, argv, a file or the environment: the engine hands the person's own held
-// value to this one process on a private pipe, descriptor 3 (the row's invoke.credential_mounts { fd: 3 }). It is used only
+// value to this one process on a private pipe, descriptor 3 (the row's invoke.key { fd: 3 }). It is used only
 // for the HMAC, in memory. The answer never carries it, a digest of it, or a signature made with it; the receiver's reply
 // is cut to a few hundred characters and any appearance of the secret in it is replaced.
 //
 // Input
-//   url        the receiver's https address (the row's internet rule refuses private and local addresses)
+//   url        the receiver's https address (the row's may_reach rule refuses private and local addresses)
 //   sign       how the service signs: { signed, hash, encoding, secret_prefix?, secret_encoding? }, the same fields as a
 //              signing rule of do-work/mechanisms/signing-rules.json ("{id}.{ts}.{body}", sha256, base64, whsec_, base64)
 //   headers    the headers each call carries, by name, each a template of {id}, {ts} and {sig}

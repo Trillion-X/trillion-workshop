@@ -5,7 +5,7 @@ import { readBody, readPublicPageOrArchive } from '../do-work/browse_public_page
 import { checkedWalk, walkArchive } from '../do-work/walk-archive.mjs';
 import { cdxEntries, dateInText, dateOfUrl, eraOf, eraSpans, evenlyDated, inWindow, listingEntries, nextListing, pageDate, robotsRules, sitemapEntries, waybackQuery } from '../do-work/archive-facts.mjs';
 
-const toolRecords = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const toolRecords = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 
 // A made-up bakery newsletter: twelve issues, four to a listing page, newest first.
 const SITE = 'https://crumbs.example.test';

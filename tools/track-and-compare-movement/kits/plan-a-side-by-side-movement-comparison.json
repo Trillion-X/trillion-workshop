@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/author_comparison_edl.py and test/test_author_comparison_edl.py (run on its synthetic tracks)",
+  "drafted_from": "tool row in tools/track-and-compare-movement/what-this-tool-does-and-how-to-run-it.json, do-work/author_comparison_edl.py and test/test_author_comparison_edl.py (run on its synthetic tracks)",
   "start_here": "Say to your AI: \"Plan a side by side video of a.mp4 (peak at 2.0 seconds, labelled ONE) and b.mp4 (peak at 1.6 seconds, labelled TWO, mirrored), with a full pass and a slow pass, using their pose tracks; write the edit to /work/out/edit.json.\" It reads the tool's row and runs author_comparison_edl.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",

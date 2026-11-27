@@ -3,7 +3,7 @@
     "hold": "do-work/hold.mjs",
     "needs-you-hold": "read-data/needs-you-hold.mjs",
     "required-cover": "read-data/required-cover.mjs",
-    "tool-rows.json": "tool-rows.json",
+    "what-this-tool-does-and-how-to-run-it.json": "what-this-tool-does-and-how-to-run-it.json",
     "waiting-nudge": "read-data/waiting-nudge.mjs"
   }
 }

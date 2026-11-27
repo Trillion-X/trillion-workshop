@@ -24,7 +24,7 @@ The app's `src/workspace/instant-screen.tsx` and `src/meaning-or-words.mjs` (whi
 | `src/word-match.mjs` | Words compared without a model (stems, common words, terms). |
 | `test/instant-screens.test.mjs` | Ported from the old tree, the parser, answer-cache and kept-screen cases as written; the cases that rank the app's own screen catalog, made-controls and the Workshop screen rows stay there. |
 | `test/pick-a-screen-as-you-type.test.mjs` | The run over made-up input, and each row run as the container runner runs it, on its own sample. |
-| `tool-rows.json` | The Workshop rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows. |
 | `moved-from.json` | Where each moved file came from, and both identities. |
 | `part.json` | The public files. |
 
@@ -32,4 +32,4 @@ The app's `src/workspace/instant-screen.tsx` and `src/meaning-or-words.mjs` (whi
 
 **Depends on:** `tools/workflows` (the run command), Node.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

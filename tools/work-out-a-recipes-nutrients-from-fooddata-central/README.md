@@ -8,7 +8,7 @@ The recipe is the person's data, never this code's. It comes in the request, or 
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | `tool:work-out-a-recipes-nutrients-from-fooddata-central`: a container row (argv, the request on standard input, `result_selector` `"$"`), with a sample run on a made-up smoothie. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:work-out-a-recipes-nutrients-from-fooddata-central`: a container row (argv, the request on standard input, `result_selector` `"$"`), with a sample run on a made-up smoothie. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/work_out_recipe_nutrients.py` | The command. Reads the request on standard input or from `--request <file>`, reads each dataset (a folder or the CSV texts), and prints the answer as its last line: `{ profile, recipe, summary_lines, written }` or `{ error }` (exit 1). With `write_to` it also writes `<id>.profile.json` and `<id>.recipe.json` (indent 1). |
 | `read-data/fooddata_central.py` | The FoodData Central reader and the reference data, kept from the source: `NUTS` (33 nutrients: key, label, unit, FDC nutrient ids in fallback order), `DRI` (adult 19-30, male and female), `DOSE_MAX` (sodium, a limit). `load(base)` reads a download folder (an empty amount is skipped; a later row for the same food and nutrient wins), `load_texts(texts)` the same from CSV texts, `per100(src, fdc)` (first nutrient id a food has wins), `portion_g(src, fdc, word)` (the first portion whose modifier and description contain the word, case-insensitive, as gram_weight / amount). |
@@ -62,4 +62,4 @@ On a made-up FoodData-Central-shaped fixture set the old script and this tool ga
 
 **Depends on:** Python 3 standard library; `tools/settings` (`read-data/settings.py`, for `settings_record`); the person's FoodData Central CSV downloads (public domain), given in the request.
 
-**Depended on by:** `tool-rows.json`. Nothing imports this folder.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. Nothing imports this folder.

@@ -31,7 +31,7 @@ The one export. Any selection (a list, table, record, document, board, words, ca
 | `test/voice-classifier-stand-in.mjs` | A stand-in for the classifier's capture validator, so the gate's tests run without the classifier or a model. |
 | `test/reader-context-scope-repro.json` | The launch-video reproduction that showed why reader context had to be policy-bound: the two-block context cannot tell apart an older definition. |
 | `test/export-a-book.test.mjs` | Runs the three Python suites (skipped without python-docx, pypdf and pypdfium2), then the entry over a made-up book and checks branch handed in as records: a passing and two failing branches, a blocked export that writes nothing, a comparison copy exported and refused once its bytes change, the settings row read through `tools/settings`. |
-| `tool-rows.json` | The three tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three tool rows. |
 | `part.json` | The files other code may import: the page projection, `format-takes.mjs` and `read-data/export-formats.json` (the apps list and filter formats from them). |
 
 ## How a format is a row

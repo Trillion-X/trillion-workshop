@@ -1,7 +1,7 @@
 // tools/keep-the-labels-people-give-each-other-in-the-network/do-work/label-a-person-run.mjs
 //
-// The container command of `tool:label-a-person` (tool-rows.json): one label, written in the person's own Postgres database
-// named in the input, through the mounted connection the run hands on descriptor 3 (the row's invoke.credential_mounts:
+// The container command of `tool:label-a-person` (what-this-tool-does-and-how-to-run-it.json): one label, written in the person's own Postgres database
+// named in the input, through the mounted connection the run hands on descriptor 3 (the row's invoke.key:
 // the vault name `<database>-connection`). The connection string is never in the request, argv, a file or an answer.
 // The label itself is do-work/label-a-person.mjs; this file only opens the connection and answers { result } or { error }.
 import { readFileSync } from 'node:fs';

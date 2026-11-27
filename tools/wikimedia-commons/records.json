@@ -353,7 +353,7 @@
           },
           "workdir": "/opt/parts/wikimedia-commons",
           "stdout": "json",
-          "argv": [
+          "run": [
             "node",
             "do-work/assess-commons-reuse.mjs",
             {

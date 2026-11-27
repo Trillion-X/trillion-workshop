@@ -234,10 +234,10 @@ test('a condition on a field a part does not carry is named as unfinished, never
 });
 
 test('the shipped row, run as the engine runs it, reaches no database and chooses from the workflow rows it is given', async () => {
-  const row = rowOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')), 'tool:choose-the-workflows-that-fire');
+  const row = rowOf(JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')), 'tool:choose-the-workflows-that-fire');
   assert.equal(row.invoke.records, undefined, 'no records door');
   assert.equal(row.invoke.local_doors, undefined, 'no database door');
-  assert.equal(row.invoke.credential_mounts, undefined, 'no held connection');
+  assert.equal(row.invoke.key, undefined, 'no held connection');
   const ran = await runRow(row, { parts: [{ words: 'A finding.', kinds: ['finding'] }], ...handedIn([ownRow('research-to-plan', { title: 'Research to plan', fires_when: JSON.stringify([condition('a research finding arrives', ['finding'])]) })]) });
   assert.equal(ran.code, 0, ran.stderr + ran.out);
   assert.equal(ran.last.result.own, 1);

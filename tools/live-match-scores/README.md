@@ -13,7 +13,7 @@ Keeps the score of a match point by point, and shows live matches. The Workshop 
 | `read-data/run-as-main.mjs` | How a command runs: one JSON request on standard input, one JSON line out. |
 | `do-work/score-a-match.mjs` | The command of `tool:score-a-match`: `start-match`, `score-point`, `undo-point`, `record-score`, `link-context`; each answers with records for the caller to write. |
 | `do-work/read-live-matches.mjs` | The command of `tool:read-live-matches`: `{ rows, match_id? }` in, matches, board, and the next sequence number out. |
-| `tool-rows.json` | The two tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two tool rows. |
 | `part.json` | No module here is offered to other tools. |
 | `test/scoring-rules.test.mjs` | The rules as data: the tennis display against the longhand ladder for every score, raw counts, the tiebreak from the rule, a golden point, an invented rule, lookup. |
 | `test/live-matches.test.mjs` | A match start to finish on `node:test` with made-up players: tennis through game, tiebreak, set and match; pickleball and its board rows; a golden-point game; the replay of offline taps; undo; refusals. |
@@ -42,7 +42,7 @@ Keeps the score of a match point by point, and shows live matches. The Workshop 
 
 **Not carried:** the old workflow-slot submission of each builder (engine plumbing the new engine does not use), the scorer and board screens, and `scoreWithDelta` (a manual plus-or-minus on the team score that no screen used; `record-score` takes a typed score instead). Behaviour changed on purpose: a rule id nobody wrote is refused (the old builder quietly used the first rule), and a point after the match is won is refused (the old code stored a repeat event).
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.
 
 ## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
 

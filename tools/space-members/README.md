@@ -24,7 +24,7 @@ Ported from old Trillion (tag `old-trillion-before-worker-retire`): `src/communi
 | `read-data/held-access.mjs` | What each person holds, from one read of the account's access records. |
 | `do-work/space-members.mjs` | The functions the five rows run: `(input) => result`, over the `records` handed in; join, leave and choose-a-name answer the member row under `keep`. |
 | `do-work/space-members-run.mjs` | The command the rows run: one JSON request on standard input, the function named by the first argument, `{ result }` or `{ error }` as the last line. |
-| `tool-rows.json` | The five rows: `tool:join-a-space`, `tool:leave-a-space`, `tool:check-someone-is-in-a-space`, `tool:list-a-spaces-members`, `tool:choose-the-name-i-show-in-a-space`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The five rows: `tool:join-a-space`, `tool:leave-a-space`, `tool:check-someone-is-in-a-space`, `tool:list-a-spaces-members`, `tool:choose-the-name-i-show-in-a-space`. |
 | `kits/` | One kit per row. |
 | `test/space-members.test.mjs` | The rows run as the container runs them with the records handed in: join by a free row, by held access, refused without it, lapse on refund and back, leave and rejoin, a person put out stays out, only members list members. |
 

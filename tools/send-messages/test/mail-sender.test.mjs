@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { REJECTED, SHIPPED, bindingFor, mailSender, mailSettings, sendAnEmail } from '../do-work/mail-sender.mjs';
 import { rowsHandedIn } from '../read-data/rows-handed-in.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
@@ -235,10 +235,10 @@ describe('the mail row and the email rows', () => {
   it('each email row runs the mail rules with its keys on their own descriptors', () => {
     for (const id of ['tool:send-an-email']) {
       const row = rowOf(rows, id);
-      assert.equal(row.invoke.argv[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
+      assert.equal(row.invoke.run[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
       // The worn look every email is drawn in is the saved look values the caller hands in, by name.
       assert.equal(row.input_schema.properties.saved.type, 'object', id);
-      assert.ok(row.invoke.credential_mounts.every(mount => mount.fd >= 4), id);
+      assert.ok(row.invoke.key.every(mount => mount.fd >= 4), id);
       assert.equal(row.input_schema.properties.from, undefined, `${id}: the request never chooses the sender`);
     }
   });

@@ -21,6 +21,6 @@ Moved byte for byte from Trillion-X/trillion (commit b92aa549f2) by `tools/move-
 | `do-work/find-pictures.mjs` | The row's run: one of question, colour or like. |
 | `test/colour-search.test.mjs` | The original test. |
 | `test/find-pictures.test.mjs` | The row's run and its refusals. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `moved-from.json` | Where each moved file came from and its identities. |
 | `part.json` | Public files. |

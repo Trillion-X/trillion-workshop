@@ -76,7 +76,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/tool-rows.json",
+      "path": "tools/make-a-contact-sheet-of-pictures-or-video-frames/what-this-tool-does-and-how-to-run-it.json",
       "why": "This owner lays out supplied pictures or frames and can tile a local video. It does not fetch a bounded URL section, reuse a fetched clip, or own this command/log/failure lifecycle."
     },
     {

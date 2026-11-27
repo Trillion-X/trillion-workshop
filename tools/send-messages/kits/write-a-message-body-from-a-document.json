@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:write-a-message-body-from-a-document row in tools/send-messages/tool-rows.json, do-work/composition_mail_serializer.py and test/test_composition_mail_serializer.py",
+  "drafted_from": "tool:write-a-message-body-from-a-document row in tools/send-messages/what-this-tool-does-and-how-to-run-it.json, do-work/composition_mail_serializer.py and test/test_composition_mail_serializer.py",
   "start_here": "Say to your AI: \"Turn my draft update, a heading, two paragraphs and a chart picture, into an HTML and plain-text message body I can send.\" It writes a request file from the document, runs the serializer on your computer and hands you body_html, body_text and the pictures to attach.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one request file holding a document and writes one result file, with no provider and no stored rows.",

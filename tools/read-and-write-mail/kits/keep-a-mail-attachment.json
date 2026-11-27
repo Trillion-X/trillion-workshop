@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:keep-a-mail-attachment's own row in tools/read-and-write-mail/tool-rows.json, read-data/mail.mjs (keepAMailAttachment) and the Gmail and AgentMail adapters; the answer is the shape those operations produce for the sample input",
+  "drafted_from": "tool:keep-a-mail-attachment's own row in tools/read-and-write-mail/what-this-tool-does-and-how-to-run-it.json, read-data/mail.mjs (keepAMailAttachment) and the Gmail and AgentMail adapters; the answer is the shape those operations produce for the sample input",
   "start_here": "Say to your AI: \"Keep the PDF that was sent to my mail inbox as a file.\" It finds the message with find-mail, then runs tool:keep-a-mail-attachment as that account and gets back the name, size, media type and BLAKE3 identity of the kept file.",
   "lists": [],
   "no_lists_because": "It keeps no list: it asks the mail provider for one attachment of one message and keeps its bytes as a file of the run.",

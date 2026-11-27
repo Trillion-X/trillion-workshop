@@ -110,7 +110,7 @@ All data below is synthetic.
 - `tools/workflows` (`do-work/run-a-function.mjs`), which the rows pack.
 - On the Mac: `mlx`, `numpy`, `tokenizers`, `blake3`, and `huggingface_hub` (for `get-ready` from a repo), all from the rows' `get_it`. Python's standard library otherwise.
 
-**Depended on by:** `tool-rows.json` and the tests here.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` and the tests here.
 
 **Replaces:** the earlier per-question MLX helper and its batch-measurement companion, to be retired on landing; the immutable port contract keeps exact source citations.
 

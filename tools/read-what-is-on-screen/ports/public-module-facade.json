@@ -44,7 +44,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/read-what-is-on-screen/tool-rows.json",
+      "path": "tools/read-what-is-on-screen/what-this-tool-does-and-how-to-run-it.json",
       "why": "These are invocation descriptors and sample inputs, not module export-forwarding code."
     },
     {

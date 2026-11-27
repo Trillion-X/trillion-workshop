@@ -32,7 +32,7 @@ comparison clips had been made by hand scripts around this tool's matcher, conta
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Four rows: `tool:track-a-selected-object-in-a-video`, `tool:read-peoples-poses-from-a-video`, `tool:line-up-two-movements`, `tool:plan-a-side-by-side-movement-comparison`; each `on-your-computer`. |
+| `what-this-tool-does-and-how-to-run-it.json` | Four rows: `tool:track-a-selected-object-in-a-video`, `tool:read-peoples-poses-from-a-video`, `tool:line-up-two-movements`, `tool:plan-a-side-by-side-movement-comparison`; each `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/track_selected_object.py` | The tracker. Arguments `--video --output --start --end --time --points --fps --model [--device]`; last line `{"result": ...}` or `{"error": ...}`. |
 | `do-work/estimate_pose.py` | The pose reader. `--video --out --checkpoint [--device --conf --max-frames --no-cache]`. |

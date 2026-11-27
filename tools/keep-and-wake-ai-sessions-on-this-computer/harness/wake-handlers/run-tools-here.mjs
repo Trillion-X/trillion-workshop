@@ -10,7 +10,7 @@
 //      and its code archive (a gzipped tar).
 //   2. Checks the archive's BLAKE3 fingerprint is the one the Workshop saved, and puts its files side by side in a folder
 //      this handler makes, keeping their paths under invoke's `at`.
-//   3. Fills invoke.argv from the run's input with the service's own buildInvocation (src/workshop.mjs) and turns it into
+//   3. Fills invoke.run from the run's input with the service's own buildInvocation (src/workshop.mjs) and turns it into
 //      text with the container road's argvText (src/repo-explorer.mjs): a JSON value becomes its JSON text.
 //   4. Runs it under a macOS sandbox built from the reach the tool declares (tool-reach.mjs): its own folder and the
 //      system, and nothing of the person's (files, other disks, network, microphone, camera) it did not declare. A tool
@@ -57,7 +57,7 @@ export async function handle({ event, helper, call, read, run, workFolder, rules
   const answer = body => call(`/tasks/${encodeURIComponent(task_id)}/answer`, body);
   const { descriptor, made_by, bytes_base64 } = claim;
   const invoke = descriptor?.invoke;
-  if (invoke?.kind !== 'container' || !Array.isArray(invoke.argv)) return answer({ error: `${task.tool_id} is not a command this computer can run.` });
+  if (invoke?.kind !== 'container' || !Array.isArray(invoke.run)) return answer({ error: `${task.tool_id} is not a command this computer can run.` });
   const saved = typeof invoke.files === 'string' ? invoke.files : descriptor.bytes_fingerprint;
   let files = [];
   if (saved) {
@@ -84,7 +84,7 @@ export async function handle({ event, helper, call, read, run, workFolder, rules
     if (workdir !== folder && !workdir.startsWith(`${folder}/`)) return answer({ error: `${task.tool_id}'s workdir is outside its files.` });
     const built = await buildInvocation(invoke, { input: task.input, task: { task_id, request_key: task_id }, request: true });
     const seconds = Math.max(60, (descriptor.needs?.expected_seconds ?? 60) * 10);
-    const argv = argvText(built.argv);
+    const argv = argvText(built.run);
     const refusedArgs = argumentRefusal(argv);
     if (refusedArgs) return answer({ error: refusedArgs });
     let command;

@@ -148,11 +148,11 @@ test('the plan says when and in which zone it was made, and a request that is no
 // The row's own sample run, through the command the row names (the packed folders sit side by side here as they do under /opt).
 test('the row\'s sample run answers through the command the row runs', () => {
   const folder = new URL('../', import.meta.url);
-  const row = JSON.parse(readFileSync(new URL('tool-rows.json', folder), 'utf8')).records[0].payload;
+  const row = JSON.parse(readFileSync(new URL('what-this-tool-does-and-how-to-run-it.json', folder), 'utf8')).records[0].payload;
   const [sample] = row.verify;
   const runner = fileURLToPath(new URL('../workflows/do-work/run-a-function.mjs', folder));
   const module = fileURLToPath(new URL('do-work/plan-my-time.mjs', folder));
-  assert.deepEqual(row.invoke.argv.slice(-3), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/plan-my-time/do-work/plan-my-time.mjs', 'planMyTime']);
+  assert.deepEqual(row.invoke.run.slice(-3), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/plan-my-time/do-work/plan-my-time.mjs', 'planMyTime']);
   const run = spawnSync('node', [runner, module, 'planMyTime'], { input: JSON.stringify(sample.input), encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   const answer = JSON.parse(run.stdout.trim().split('\n').at(-1));

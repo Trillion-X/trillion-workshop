@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:send-signed-test-calls's own row (tools/notice-when-something-shows-up/tool-rows.json: its words, input schema and sample run) and tests/send-signed-test-calls.test.mjs",
+  "drafted_from": "tool:send-signed-test-calls's own row (tools/notice-when-something-shows-up/what-this-tool-does-and-how-to-run-it.json: its words, input schema and sample run) and tests/send-signed-test-calls.test.mjs",
   "start_here": "Say to your AI: \"Prove my webhook address https://shop.example.test/webhooks/mail with my held signing secret mail-webhook-signing-secret: one good call, a wrong signature, none, a stale one, one too large and the good one again.\" It runs tool:send-signed-test-calls and answers each call's status and reply, such as {\"calls\":[{\"label\":\"signed\",\"sent_at\":\"2026-11-25T12:00:00.000Z\",\"status\":200,\"reply\":\"{\\\"recorded\\\":true,\\\"changes\\\":1,\\\"duplicates\\\":0}\"},{\"label\":\"bad-signature\",\"sent_at\":\"2026-11-25T12:00:00.000Z\",\"status\":401,\"reply\":\"{\\\"recorded\\\":false,\\\"reason\\\":\\\"signature-mismatch\\\"}\"}]}",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it sends made-up calls to your own address and answers what came back.",

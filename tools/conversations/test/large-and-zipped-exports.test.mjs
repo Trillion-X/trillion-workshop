@@ -17,7 +17,7 @@ import { exportFilesInZip } from '../read-data/chat-import.mjs';
 import * as importer from '../read-data/chat-import.mjs';
 import { NotAJsonArray, firstByteOf, jsonArrayElements } from '../read-data/json-array-stream.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const NOW = new Date('2026-11-04T12:00:00Z');
 const PNG = Buffer.concat([Buffer.from('89504e470d0a1a0a', 'hex'), Buffer.alloc(5_000, 7)]);
 const JPEG = Buffer.concat([Buffer.from('ffd8ffe0', 'hex'), Buffer.alloc(2_000, 3)]);

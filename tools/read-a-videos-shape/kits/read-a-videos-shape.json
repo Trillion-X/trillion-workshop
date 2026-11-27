@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/read-a-videos-shape/tool-rows.json, do-work script and test",
+  "drafted_from": "tool row in tools/read-a-videos-shape/what-this-tool-does-and-how-to-run-it.json, do-work script and test",
   "start_here": "Say to your AI: \"Read the width, height, frame rate and length of clip.mp4 on my computer and keep it in my clip checks.\"",
   "lists": [
     {

@@ -29,7 +29,7 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 | `do-work/referral-rewards.mjs` | `makeAReferralCode`, `workOutReferralCodes` and `giveReferralRewards`, run through the export command with the business's rule rows given in the request (`rules`). `giveReferralRewards` also answers the `credits`, once each by id, for take-payments' `giveACustomerCredit`. |
 | `do-work/withdraw-a-referral-code.mjs` | The command of `tool:withdraw-a-referral-code`: `{ referrer, code, occurred_at? }` gives `{ event }`. |
 | `records.json` | The tool rows of make, withdraw, work out and give rewards. |
-| `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:referral-code-tools`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Lists `records.json`'s rows into the Workshop (`source:referral-code-tools`). |
 | `part.json` | No public files: only the tools run this code. |
 | `test/referral-codes.test.mjs` | The package's cases on a made-up bakery: readable codes, refused targets, first maker wins in any order, matching sales, withdrawal only by the maker, account state, whole-cent shares. |
 | `test/referral-rewards.test.mjs` | Each tool run as its row runs it with no records door: a changed rule row changes the answer, codes point only at what a rule names, the friend and referrer discounts are rows take-payments reads, access is held by the access rules, a second ask gives the same rows, malformed rows are named. |
@@ -62,4 +62,4 @@ A friend's discount is the referral code itself as a checkout code (typed at che
 
 **Depends on:** Node in the tool container; `tools/workflows` (the function runner, `do-work/run-a-function.mjs`, that runs each tool), `tools/paid-access` (the grant row shape), `tools/formula-engine` (paid-access's rule engine), `tools/content-identity`. A discount row it answers is read by `tools/take-payments` once the person's AI keeps it.
 
-**Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).
+**Depended on by:** Trillion's deploy (it reads `what-this-tool-does-and-how-to-run-it.json` and bundles the files a row names).

@@ -21,7 +21,7 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 | `src/ingest-normalization.json` | Every format, size cap, ffmpeg argument and word. |
 | `test/ingest-normalization.test.mjs` | Ported from the old tree's `test/saved-pages-adoption.test.mjs` F-0835 case, its assertions as written; the `finish_file_upload` half stays there. |
 | `test/make-a-video-playable-at-ingest.test.mjs` | The run over made-up input, and each row run as the container runner runs it, on its own sample. |
-| `tool-rows.json` | The Workshop rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows. |
 | `moved-from.json` | Where each moved file came from, and both identities. |
 | `part.json` | The public files. |
 
@@ -29,4 +29,4 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, the run command), Node.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

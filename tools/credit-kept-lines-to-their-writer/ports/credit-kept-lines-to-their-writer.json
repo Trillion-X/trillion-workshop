@@ -69,7 +69,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/credit-kept-lines-to-their-writer/tool-rows.json",
+      "path": "tools/credit-kept-lines-to-their-writer/what-this-tool-does-and-how-to-run-it.json",
       "why": "Invocation DATA names this exact wrapper and packs its existing algorithm dependency; it is a caller declaration rather than another implementation."
     },
     {

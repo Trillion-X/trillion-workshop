@@ -5,13 +5,13 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-const rows = JSON.parse(readFileSync(fileURLToPath(new URL('../tool-rows.json', import.meta.url)), 'utf8'));
+const rows = JSON.parse(readFileSync(fileURLToPath(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url)), 'utf8'));
 const READS_STDIN = ['tool:read-a-page-in-arc', 'tool:pull-a-page-in-arc'];
 
 test('each Arc read row fills its stdin from the run input', () => {
   for (const id of READS_STDIN) {
     const record = rows.records.find(row => row.payload.id === id);
-    assert.ok(record, `${id} is in tool-rows.json`);
+    assert.ok(record, `${id} is in what-this-tool-does-and-how-to-run-it.json`);
     assert.deepEqual(record.payload.invoke.stdin, { fill: { from: 'input' } }, `${id} passes its input on stdin`);
   }
 });

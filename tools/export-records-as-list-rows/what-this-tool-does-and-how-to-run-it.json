@@ -1,0 +1,1770 @@
+{
+  "kind": "package-set-records",
+  "record_set": "export-records-as-list-rows-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/export-records-as-list-rows: turning a person's records on disk (JSON, tab-separated files, markdown tables) into the payloads that put rows into their Trillion lists, by a mapping file the person writes. A script the person's AI runs on the person's own computer.",
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-a-list-view",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:export-records-as-list-rows",
+        "label": "Turn my records into rows for my Trillion lists (runs on your computer)",
+        "job": "Take records I keep in files (JSON, spreadsheets saved as tab-separated text, markdown tables) and prepare them as rows for my lists, using a mapping I write once",
+        "description": "Reads a mapping file the person gives: the lists to make and, for each source of records, where the records are, which to drop, what to work out from each and how a row is made from it (fields copied, filled into templates, read as numbers or dates, mapped to a list's choices, joined, counted in a file). Writes make_lists.json, the rows in batches and a manifest into a folder the person names. It sends nothing: the batches are put into the lists afterwards. Row ids are stable, so loading the same rows twice updates them. Rows whose ids are in a skip file are left out, so existing rows are never overwritten. When two records make the same row id the mapping must say which one to keep, because choosing silently would drop a record. A re-run replaces only the files an earlier run wrote. It knows no record kinds: every file, column and list comes from the mapping.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["mapping", "root", "out"],
+          "properties": {
+            "mapping": { "type": "string", "description": "The mapping file on the person's computer (the README describes its keys), put where {mapping} is in the command." },
+            "root": { "type": "string", "description": "The folder the mapping's files and globs are relative to, put where {root} is in the command." },
+            "out": { "type": "string", "description": "The folder to write the payloads into, put where {out} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last JSON the script prints: { <source name>: { list_id, rows } }, the number of rows each source made. The payloads and manifest.json are in the folder; exit status 2 with a reason on standard error when the mapping or a file could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 -I trillion-workshop/tools/export-records-as-list-rows/do-work/export_records_as_list_rows.py --mapping {mapping} --root {root} --out {out}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, never on Trillion. If they have no mapping yet, write one with them from the README: look at a few of their records, name each list's fields, and say for each source where its records are and how each field is made. Run `run`, read the counts and the manifest in the output folder, and tell the person how many rows each source made. A refusal says what to change, for example which source makes two rows with one id. The script sends nothing; putting the batches into the lists is a separate step they approve. Use `--only SOURCE` to run one source, `--batch N` for the batch size and `--skip-ids FILE` to leave out rows already in the lists."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Written for the Workshop: a declarative record-to-row mapping, in the way a data-loading tool maps source columns to a target table"
+        }
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-a-list-view",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:build-records-to-write",
+        "label": "Prepare records for my lists with their sources and basis (runs on your computer)",
+        "job": "Take records I keep in files and prepare everything to put them into my lists as records, each value with where it came from and how sure we are, in batches I can send",
+        "description": "Reads the mapping and source files from the one folder the person granted this tool. The records a mapping reads (a lists_read or a `kind: records` source, by type and id prefix) are not read here: the caller's AI reads them from a store and hands them in as `records`. Maps each source by the person's rules, then returns counts, pending or diverted items and the write commands as result data. It writes no local file and sends no records. A row with no address, two rows with one id, a link to a row that does not exist, a value over the limit or a basis naming too many sources is refused by name. It knows no record kinds or lists: all of it comes from the mapping.",
+        "status": "active",
+        "input_schema": { "type": "object", "required": ["mapping"], "properties": { "mapping": { "type": "string", "description": "The mapping file inside the folder granted to this tool." }, "roots": { "type": "string", "description": "The mapping's other folders as quoted --root NAME=DIR pairs. They must also be inside the granted folder." }, "records": { "type": "array", "description": "The records the mapping reads (its lists_read and its `kind: records` sources, each by type and id prefix), as { id, type, value } read from the person's records. Left out when the mapping reads none.", "items": { "type": "object", "required": ["id", "type"] } } } },
+        "output_schema": { "type": "object", "required": ["counts", "pending", "commands"], "properties": { "counts": { "type": "object" }, "pending": { "type": "array" }, "commands": { "type": "array", "items": { "type": "object" } }, "merged": { "type": "array" }, "extra_links": { "type": "array" } } },
+        "needs": { "expected_seconds": 10, "network_egress": false },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/tools/export-records-as-list-rows",
+          "stdout": "json",
+          "run": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/tools/export-records-as-list-rows/do-work/build_record_write.mjs", "buildRecordWrite"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": { "package_files": [
+            {
+              "package": "export-records-as-list-rows",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/tools/export-records-as-list-rows"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/tools/content-identity"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": ["node_modules/@noble/hashes"],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
+          ] }
+        },
+        "result_selector": "$.result",
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: a declarative mapping from staged records to write commands, with a basis kept for each derived value" },
+        "record_model": {
+          "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+          "kinds": [
+            {
+              "type": "list",
+              "guard_properties": {
+                "about": "text",
+                "fields": "objects",
+                "icon": "text",
+                "indexes": "objects",
+                "label": "text",
+                "managed_rows": "object",
+                "ordering": "object",
+                "placement": "object",
+                "public_page": "object",
+                "review": "object",
+                "review_changes": "boolean",
+                "row_sources": "objects",
+                "row_type": "text",
+                "share_when": "object",
+                "stamps": "boolean",
+                "title_field": "text",
+                "views": "objects"
+              }
+            },
+            {
+              "type": "list-view",
+              "_what": "One saved view of a list, kept on its own (lists.json view_records).",
+              "guard_properties": {
+                "list_id": "text",
+                "order": "text",
+                "view": "object"
+              }
+            },
+            {
+              "type": "naming-fields-mark",
+              "properties": {
+                "due": "boolean",
+                "looked_at": "number"
+              },
+              "_read_by": "src/naming-fields.mjs: whether a change marked the lists to be looked at again for fields that name things, and when they last were"
+            },
+            {
+              "type": "list-open-mark",
+              "guard_properties": {
+                "before": "text",
+                "done": "boolean",
+                "shared": "objects",
+                "signature": "text"
+              }
+            },
+            {
+              "type": "list-key",
+              "_what": "Which row of a list holds one value of a unique field in its shared form (src/list-keys.mjs); the id carries a BLAKE3 of the form, never the form.",
+              "guard_properties": {
+                "field_id": "text",
+                "list_id": "text",
+                "row_id": "text"
+              }
+            },
+            {
+              "type": "list-snapshot",
+              "_what": "The ids a list or saved view held when a snapshot was taken (src/list-snapshots.mjs), kept for snapshots.minutes.",
+              "guard_properties": {
+                "complete": "boolean",
+                "created_at": "text",
+                "expires_at": "text",
+                "ids": "texts",
+                "list_id": "text",
+                "view_id": "text"
+              }
+            },
+            {
+              "type": "list-tombstone",
+              "_what": "Where a row merged away went (src/lists.mjs, lists.json history).",
+              "guard_properties": {
+                "at": "text",
+                "list_id": "text",
+                "merged_into": "text",
+                "row_id": "text"
+              }
+            },
+            {
+              "type": "list-heat",
+              "_what": "How much one list row is used, halving with time (src/lists.mjs noteUse, src/list-review.mjs coldRows).",
+              "guard_properties": {
+                "at": "text",
+                "heat": "number",
+                "list_id": "text",
+                "row_id": "text"
+              }
+            },
+            {
+              "type": "list-proposal",
+              "_what": "A change an AI proposed to a list, waiting for a person to approve or decline it (src/list-proposals.mjs).",
+              "guard_properties": {
+                "by": "text",
+                "conflicts": "objects",
+                "decided_at": "text",
+                "decided_by": "text",
+                "decided_via": "object",
+                "editable": "texts",
+                "evidence": "objects",
+                "list_id": "text",
+                "note": "text",
+                "proposed_at": "text",
+                "remove": "texts",
+                "rows": "objects",
+                "saw": "objects",
+                "scopes": "objects",
+                "status": "text",
+                "via": "object"
+              }
+            },
+            {
+              "type": "list-trash",
+              "_what": "A removed list row, listed as recently removed and put back from the log (src/lists.mjs removedRows, restoreRows).",
+              "guard_properties": {
+                "by": "text",
+                "list_id": "text",
+                "removed_at": "text",
+                "row_id": "text",
+                "via": "object"
+              }
+            },
+            {
+              "type": "list-filter",
+              "_what": "One saved filter of a list, kept on its own for views and other filters to use (lists.json filters, src/list-filters.mjs).",
+              "guard_properties": {
+                "filter": "object",
+                "list_id": "text"
+              }
+            }
+          ],
+          "reference_lookup": [
+            {
+              "_what": "An existing public row address names this tool's exact declaration record and row. The declaration's current model rule owns the row kind; display names and slugs are not searched.",
+              "pattern": "^(list:[^:]+):rows:(.+)$",
+              "declaration": "$1",
+              "row": "$2",
+              "join": ":"
+            }
+          ],
+          "declared_by": [
+            {
+              "type": "list",
+              "kind": {
+                "path": [
+                  "row_type"
+                ],
+                "prefix": "record:"
+              },
+              "properties": {
+                "path": [
+                  "fields"
+                ],
+                "name": [
+                  "id"
+                ],
+                "kind": [
+                  "kind"
+                ],
+                "choices": [
+                  "choices"
+                ],
+                "moves": [
+                  "moves"
+                ]
+              },
+              "pairs": {
+                "_what": "A link field that names, in `pairs_with`, the link field of the list it links to that holds the way back is one relationship seen from both sides (src/list-pairs.mjs). The engine applies it to every write of a row of the list, whichever road the write took: a row added to or taken from the link is added to or taken from the partner row's field in the same write, a removed row leaves the partner's link, and the partner field's own link_constraints.max_links refuses a write that would hold more. `links_to` is the slug of the list linked to, `declared_prefix` turns it into the id of that list's declaring record.",
+                "links_to": [
+                  "links_to"
+                ],
+                "pairs_with": [
+                  "pairs_with"
+                ],
+                "max_links": [
+                  "link_constraints",
+                  "max_links"
+                ],
+                "declared_prefix": "list:"
+              },
+              "indexes": {
+                "path": [
+                  "indexes"
+                ]
+              },
+              "kind_values_from": "src/lists.json field_kinds",
+              "parts_when": [
+                "row-ids",
+                "file"
+              ],
+              "part_references": {
+                "link": {
+                  "path": [
+                    "links_to"
+                  ],
+                  "prefix": "list:",
+                  "absolute_prefix": "record:"
+                }
+              },
+              "_read_by": "src/lists.mjs: a list is a kind its person declared, its fields the kind's properties, and a field that names a thing is a link to it: a link field a set of rows of another list (row-ids), a file field one of their files (field kind file)"
+            }
+          ],
+          "field_kinds": [
+            {
+              "id": "text",
+              "icon": "Type",
+              "label": "Text",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text"
+            },
+            {
+              "id": "long-text",
+              "icon": "AlignLeft",
+              "label": "Long text",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "document": true,
+              "_what": "Written and read as a document (markdown): the first such field is each row's notes, edited with the documents editor wherever a row is opened."
+            },
+            {
+              "id": "record",
+              "icon": "Contact",
+              "label": "Name from records",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "record_pick": true,
+              "_what": "A name chosen with the shared record picker. The field declares from (lists, row_types and/or holds), and optionally new (where an explicitly requested missing row is made). Lists keep the chosen title as text, so existing name values and title-based filters still work; this is a name, not an identity link (use link for that). The picker transport JSON is decoded before storage, never displayed or compared as JSON."
+            },
+            {
+              "id": "number",
+              "icon": "Hash",
+              "label": "Number",
+              "kind": "number",
+              "ruleKind": "number",
+              "value": "number"
+            },
+            {
+              "id": "date",
+              "icon": "Calendar",
+              "label": "Date",
+              "kind": "date",
+              "ruleKind": "date",
+              "value": "text"
+            },
+            {
+              "id": "choice",
+              "icon": "CircleDot",
+              "label": "Choice",
+              "kind": "tag",
+              "ruleKind": "choice",
+              "value": "text"
+            },
+            {
+              "id": "tags",
+              "icon": "Tags",
+              "label": "Tags",
+              "kind": "tag",
+              "ruleKind": "tags",
+              "value": "texts"
+            },
+            {
+              "id": "email",
+              "icon": "Mail",
+              "label": "Email",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "normalize": "email"
+            },
+            {
+              "id": "phone",
+              "icon": "Phone",
+              "label": "Phone",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "normalize": "phone"
+            },
+            {
+              "id": "link-address",
+              "icon": "Link",
+              "label": "Web address",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "normalize": "domain"
+            },
+            {
+              "id": "link",
+              "icon": "Link2",
+              "label": "Link to another list",
+              "kind": "tag",
+              "ruleKind": "tags",
+              "value": "row-ids",
+              "links": true
+            },
+            {
+              "id": "formula",
+              "icon": "Sigma",
+              "label": "Formula",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "derive",
+                "defaults": {
+                  "target": "slot::formula-engine",
+                  "result_path": [
+                    "value"
+                  ]
+                },
+                "_what": "A value worked out from the row's other values by the formula engine: derive.request.binding is the formula (a formula-engine binding, e.g. { \"$kind\": \"binding\", \"select\": { \"from\": \"self\", \"path\": [\"minutes\"] }, \"transform\": [{ \"op\": \"op:core.mul\", \"args\": { \"value\": 60 } }] }); context_from_fields names the fields it reads (every kept field when left out)."
+              }
+            },
+            {
+              "id": "progress",
+              "icon": "CirclePercent",
+              "label": "Progress",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "reads_outside": true,
+              "carries": {
+                "key": "measure",
+                "defaults": {},
+                "_what": "Read-only bounded progress. Set source_field to a row field holding a work reference, or done_field and total_field to numeric fields plus evidence_field. tree_field may name a row field containing a JSON job tree; only verified completed leaves count, and it is used when source_field cannot be measured. Unknown scope or missing evidence reads as Not measured."
+              }
+            },
+            {
+              "id": "file",
+              "icon": "Image",
+              "label": "Picture, video or file",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "text",
+              "media": true,
+              "_what": "One of the person's files, by its identity (1f:...) or its name (/Media/clip.mp4). Lists and pages show it as the picture, video or sound it is; a shared or published copy of the list serves its bytes through that same link."
+            },
+            {
+              "id": "shown-when",
+              "icon": "Eye",
+              "label": "Shown when",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "rule",
+              "_what": "A rule over the row's own values and the moment it is read (now, a date in milliseconds; opened, how many times the link showing it was opened): the formula engine's tree { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] }. In a shared or published copy of the list the row shows only while its rule holds, so a row can start, stop, come back, or appear after so many views; the list itself shows every row."
+            },
+            {
+              "id": "applies-when",
+              "icon": "MapPin",
+              "label": "Applies when",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "rule",
+              "rule_over": "place-facts",
+              "_what": "A rule over the facts a place is chosen by (src/place-lists.mjs: what is known about a list to keep, or a piece of work to run): the formula engine's tree { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] } over the facts its kind declares (src/place-lists.json). A row of a places list is chosen only while its rule holds; a row without one always may be. It never leaves in a shared copy."
+            },
+            {
+              "id": "checked-by",
+              "icon": "CircleCheck",
+              "label": "Done once",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "rule",
+              "rule_over": "device-facts",
+              "_what": "A rule over what one of the person's devices reports about itself (src/device-facts.mjs: a page on a Mac says which cameras it sees as `cameras`, the iPhone app says whether a switch is on as `<switch>.on`): the formula engine's tree { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] } with each fact as a text field. On the person's Waiting on you list a row whose rule passes on one device's facts is marked Done by itself. It never leaves in a shared copy."
+            },
+            {
+              "id": "done-when-rule",
+              "icon": "ListChecks",
+              "label": "Done when (Trillion checks)",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "done-rule",
+              "rule_over": "done-when-facts",
+              "_what": "What done means, as a check Trillion makes itself against what is true now (src/done-when.mjs, src/done-when-facts.json): { over, match, tree, says }. `over` is a facts source id (saved-logins, connections, computer-sources, device-facts, files, arrived, work, or list:<list id>; arrived is what one of the person's own places brought, such as a route of Downloads with text containing .cer for a certificate download); `tree` is the formula engine's rule group { kind: \"group\", combinator, negate, rules: [{ kind: \"rule\", field, operator, params }] } over that source's rows (their fields are in src/done-when-facts.json); `match` says how many of the source's rows must pass the tree: all, any (at least one) or none; `says` is the plain words of what is counted, read after \"<passing> of <all> \" (for example \"logins your AIs can read\"). On the person's Waiting on you list a row whose check passes is set Done by itself when what waits is read and whenever a source changes, and its card says how far it is. It never leaves in a shared copy."
+            },
+            {
+              "id": "rollup",
+              "icon": "Sigma",
+              "label": "From linked rows",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "rollup",
+                "defaults": {},
+                "_what": "A value worked out on every read from the rows a link field of the same row names (src/list-rollups.mjs): rollup.through is that link field, rollup.field a field of the list it links to, rollup.op a row of `aggregates` (count, sum, average, min, max, distinct, values for the linked values themselves ...), run by the formula engine. Nothing is kept in the row, so it is never out of date."
+              }
+            },
+            {
+              "id": "relationship",
+              "icon": "Handshake",
+              "label": "How well you know them",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "reads_outside": true,
+              "carries": {
+                "key": "relationship",
+                "defaults": {},
+                "_what": "Always derived, never typed: worked out on every read from the records that name this row (messages mentioning them, arrivals they spoke in; src/list-relationships.json sources), through the store's participation index (src/list-relationships.mjs). relationship.attribute is a row of src/list-relationships.json attributes: first_interaction, last_interaction, next_interaction, last_message, last_heard, interactions or strength."
+              }
+            },
+            {
+              "id": "history",
+              "icon": "History",
+              "label": "From its history",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "history",
+                "defaults": {},
+                "_what": "A value worked out on every read from the values another field of the same row has held (src/list-value-history.mjs): history.field names a field that says keeps_history: true, history.op a row of value_history.ops (value_at with at or days_ago, previous_value, value_set_at, time_spent_in with value and unit, has_been_in with value). It answers null when the history it needs is not kept."
+              }
+            },
+            {
+              "id": "button",
+              "icon": "MousePointerClick",
+              "label": "Button",
+              "kind": "text",
+              "ruleKind": "text",
+              "value": "computed",
+              "carries": {
+                "key": "action",
+                "defaults": {
+                  "target": "workshop.run-tool"
+                },
+                "_what": "A button on every row that runs a Workshop tool: action.operation names the tool, action.label the button's words, action.input fixed inputs, and action.copy maps the row's values to the tool's inputs ({ key: <tool input>, from: \"answers.<field id>\" } or \"record.title\"). The tool receives only the inputs its own schema takes."
+              }
+            }
+          ],
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
+        },
+        "verify": [{"kind": "sample-run", "input": {"mapping": "{grant:read-a-folder}/mapping.json"}, "files": [{"grant": "read-a-folder", "path": "shelf-lists.json", "text": "{\"lists\": [{\"id\": \"stores\", \"value\": {\"label\": \"Stores\", \"row_type\": \"stores\", \"title_field\": \"name\", \"fields\": [{\"id\": \"name\", \"label\": \"Name\", \"kind\": \"text\"}]}}], \"views\": []}"}, {"grant": "read-a-folder", "path": "stores.json", "text": "{\"stores\": [{\"id\": \"corner\", \"values\": {\"name\": \"Corner Store\"}}]}"}, {"grant": "read-a-folder", "path": "mapping.json", "text": "{\"lists_file\": {\"root\": \"here\", \"path\": \"shelf-lists.json\"}, \"by\": \"sample-build\", \"confidence\": \"medium\", \"limits\": {\"text_chars\": 120, \"basis_sources\": 10, \"per_command\": 3}, \"sources\": [{\"name\": \"stores\", \"list\": \"stores\", \"kind\": \"rows\", \"rows\": {\"file\": {\"root\": \"here\", \"path\": \"stores.json\"}, \"path\": \"stores\"}, \"id\": {\"path\": \"id\"}, \"values\": {\"...\": {\"path\": \"values\"}}}]}"}]}]
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-a-list-view",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:publish-a-list-view-as-a-file",
+        "label": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
+        "job": "Put the rows one saved view of my list shows (a changelog, the articles I marked public) into a file my website renders when it is next deployed, without opening my account to the internet",
+        "description": "Takes the read of one saved view that my AI takes directly from my own store (one page holding the whole view: the rows its rules keep, in its order, with the list's fields) and a config naming the view's record id, and writes { schema, source: { view, list, blake3 }, fields, rows: [{ id, values }] }. With media in the config, the pictures and recordings the rows name are copied into the site's own static files under the BLAKE3 of their bytes (never twice) and the rows name the site's address. The BLAKE3 of the fields and rows is the file's key, so publishing the same rows again writes nothing. A read that holds only part of the view publishes nothing. It names no list, view or field.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["read", "config", "out"],
+          "properties": {
+            "read": { "type": "string", "description": "The file holding the saved view's read (one page of its rows, the whole view), put where {read} is in the command." },
+            "config": { "type": "string", "description": "The config file (view, and media when the rows' pictures are carried into the site), put where {config} is in the command." },
+            "out": { "type": "string", "description": "The file the site renders, put where {out} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "What the script prints: { file, rows, of, blake3, media: { copied, kept, not_public }, written }. written is false when the file already held these rows. Exit 0 published or current, 2 unreadable config or read, a read of part of the view, or a missing media file."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)", "python3 -m pip install -U blake3   # or have the b3sum command"],
+          "run": "python3 -I tools/export-records-as-list-rows/do-work/publish_view_file.py --read {read} --config {config} --out {out}",
+          "needs": ["python", "blake3 (the python module) or the b3sum command"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the view first from your own store into the read file: one page holding the whole view (its rows, at least the view's row count). This writes one file there; nothing goes online until their site is deployed with it, which needs their yes. Tell them how many rows the view showed of how many, and whether the file changed."
+        },
+        "maker": "maker:export-records-as-list-rows",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: a one-way publish of a saved list view into a site's data file" }
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-a-list-view",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-what-shipped",
+        "label": "Note new releases or commits from a repository (runs on your computer)",
+        "job": "Read a person's release mark or commit branch, stage each new entry once with its source identity, and let their mapping make list rows",
+        "description": "Reads settings the person gives: a program in the repository that prints JSON naming a release, a git ref for the newest release, or a commit branch where each commit is one entry. In commit mode, each entry has the commit identity, date and its own subject; the first run may start after an explicit commit, and skip_subjects are filters in the settings. The staged file is what the person's mapping turns into rows. The planner with keep_held plans only the rows the list lacks, so an existing row or a person's edits are preserved. The tool does not infer push boundaries or group commits by day, and knows no product, list or road.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["settings", "repository", "staged"],
+          "properties": {
+            "settings": { "type": "string", "description": "The settings file (mark, fields, most_subjects, and optionally each, after and skip_subjects), put where {settings} is in the command." },
+            "repository": { "type": "string", "description": "The repository folder, put where {repository} is in the command." },
+            "staged": { "type": "string", "description": "The staged file of releases, put where {staged} is in the command." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "What the script prints: { releases, added, added_count }, added being the name of the newest entry added or null. Exit 0, or 2 when the settings, the repository or the mark could not be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/export-records-as-list-rows/do-work/read_what_shipped.py --settings {settings} --repository {repository} --staged {staged}",
+          "needs": ["python", "git", "the mark command's runtime, when the mark is a command"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and only reads their repository. Say how many entries were added and the newest entry name. A mark command also needs its own runtime; a git ref does not. Entries are commits, not inferred pushes."
+        },
+        "maker": "maker:export-records-as-list-rows",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "source": "Written for the Workshop: releases and their commit subjects as staged records" }
+      }
+    },
+    {
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-a-list-view",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:put-records-into-my-account",
+      "label": "Work out which of my prepared records my account lacks (runs on your computer; writes nothing)",
+      "job": "Take the records I prepared and the target records my store holds now, and say which to write, in small commands, and whether my store matches after the writes",
+      "description": "Takes the result of tool:build-records-to-write and the target records (one record type and id prefix) that my store holds now, which my AI reads directly from my own store and hands in as held. It plans the writes: only the records the store lacks or holds with another value, or, when keep_held is true, only the records it lacks; or, with an optional previous-import baseline, source-field merges that keep live edits and deletions and report each conflict by id and field path. It returns commands of bounded size, each with a request key made from the BLAKE3 of its records. A record of a baseline refresh carries the value the store must still hold: the store's write has to check it and refuse any other value. The tool writes nothing: my AI writes each command into my store, then calls again with mode readback and the target records the store holds afterwards. A readback that differs is never all_equal. It reads no file, config file, keychain item or credential.",
+      "status": "active",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "payload",
+          "target_type",
+          "target_prefix",
+          "held",
+          "config"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "plan",
+              "readback"
+            ],
+            "description": "plan (the default) says what to write; readback checks the target records the store holds after the writes."
+          },
+          "payload": {
+            "type": "object",
+            "description": "The whole result object returned by tool:build-records-to-write, including commands."
+          },
+          "target_type": {
+            "type": "string",
+            "description": "The one record type this plan covers; other records in the payload are counted as out_of_scope and never written."
+          },
+          "target_prefix": {
+            "type": "string",
+            "description": "The record id prefix this plan covers."
+          },
+          "held": {
+            "type": "array",
+            "description": "The target records the store holds now, [{id, type, value}], read by my AI from my own store. Only records of target_type with ids under target_prefix; anything else is refused."
+          },
+          "config": {
+            "type": "object",
+            "required": [
+              "per_command",
+              "command_bytes",
+              "request_key_prefix"
+            ],
+            "description": "per_command and command_bytes bound each command (records, and UTF-8 JSON bytes of records); request_key_prefix starts every request key; keep_held (optional, true) writes only records the store lacks."
+          },
+          "baseline": {
+            "type": "object",
+            "description": "The previous imported builder payload. Refresh source fields only where the live value still matches it; live edits and deletions are kept and reported as conflicts. Cannot be combined with keep_held."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "to_write",
+              "nothing_to_write",
+              "all_equal",
+              "readback_differs"
+            ]
+          },
+          "records": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "to_write": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "commands": {
+            "type": "array",
+            "description": "Each { request_key, input: { records } }, in order. A record may carry expected: the value the store must still hold when the command writes it."
+          },
+          "out_of_scope": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "conflicts": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "readback": {
+            "type": "object",
+            "description": "Per target type: payload, held, equal, missing and differing record ids."
+          }
+        }
+      },
+      "invoke": {
+        "kind": "computer",
+        "capabilities": [],
+        "workdir": "/opt/tools/export-records-as-list-rows",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/tools/export-records-as-list-rows/do-work/plan_built_record_write.mjs",
+          "planBuiltRecordWrite"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        },
+        "files": {
+          "package_files": [
+            {
+              "package": "export-records-as-list-rows",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/tools/export-records-as-list-rows"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
+          ]
+        }
+      },
+      "result_selector": "$.result",
+      "maker": "maker:export-records-as-list-rows",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "provenance": {
+        "source": "Written for the Workshop: the planner that works out which writes an account lacks, and checks the account after them"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "payload": {
+              "commands": [
+                {
+                  "input": {
+                    "records": [
+                      {
+                        "id": "sample-list:row-1",
+                        "type": "sample-row",
+                        "value": {
+                          "title": "Sample row"
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "target_type": "sample-row",
+            "target_prefix": "sample-list:",
+            "held": [],
+            "config": {
+              "per_command": 10,
+              "command_bytes": 4000,
+              "request_key_prefix": "sample-load"
+            }
+          }
+        }
+      ]
+    }
+    }
+  ]
+}

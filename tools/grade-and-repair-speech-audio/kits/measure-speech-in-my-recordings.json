@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:measure-speech-in-my-recordings), do-work/probe_speech.py and show_probe.py, read-data/measure.py, test/grade-and-repair-speech-audio.test.mjs (the probe test)",
+  "drafted_from": "tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json (tool:measure-speech-in-my-recordings), do-work/probe_speech.py and show_probe.py, read-data/measure.py, test/grade-and-repair-speech-audio.test.mjs (the probe test)",
   "start_here": "Say to your AI: \"Measure how loud and noisy the speech in the spans of /Work/demo/spans.json is, without grading it, writing to /Work/demo/probe, so I can choose my settings.\" It runs tool:measure-speech-in-my-recordings on your computer and tells you each span's numbers.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a spans file on your computer and writes cuts and probe.json into a folder you name.",

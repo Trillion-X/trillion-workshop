@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:save-page's row in tools/keep-links-i-saved-elsewhere-such/tool-rows.json, do-work/saved-pages.mjs and test/saved-pages-tools.test.mjs",
+  "drafted_from": "tool:save-page's row in tools/keep-links-i-saved-elsewhere-such/what-this-tool-does-and-how-to-run-it.json, do-work/saved-pages.mjs and test/saved-pages-tools.test.mjs",
   "start_here": "Say to your AI: \"Save this page as a clip\" with its http or https address. It runs tool:save-page and answers what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: each saved page is a file in the person's Files, with one index file the tools keep in step.",

@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { promisify } from 'node:util';
 
 const folder = new URL('..', import.meta.url).pathname;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const run = (argv, input) => new Promise(resolve => {
   const child = promisify(execFile)(argv[0], argv.slice(1), { cwd: folder });
   child.child.stdin.end(typeof input === 'string' ? input : JSON.stringify(input));
@@ -20,7 +20,7 @@ test('the eight rows run their own sample and the output holds the words the row
   assert.equal(rows.length, 8);
   for (const row of rows) {
     for (const check of row.verify) {
-      const { code, last } = await run(row.invoke.argv, check.input);
+      const { code, last } = await run(row.invoke.run, check.input);
       assert.equal(code, 0, `${row.id}: ${JSON.stringify(last)}`);
       assert.ok(String(select(select(last, row.result_selector), check.output_selector)).includes(check.contains), row.id);
     }
@@ -30,7 +30,7 @@ test('the eight rows run their own sample and the output holds the words the row
 test('every row names its folder, is offline, and keeps its own words generic', () => {
   for (const row of rows) {
     // The tool's own folder is the first packed; the list engine's files (list-aggregates, lists.json, the formula engine) follow it.
-    assert.deepEqual([[row.invoke.files.package_files].flat()[0].package, row.invoke.internet, row.maker], ['evaluate-progress', false, 'maker:evaluate-progress']);
+    assert.deepEqual([[row.invoke.files.package_files].flat()[0].package, row.invoke.may_reach, row.maker], ['evaluate-progress', undefined, 'maker:evaluate-progress']);
     assert.deepEqual([row.invoke.files.package_files].flat().slice(1).map(packed => packed.package), ['query-and-change-list-rows', 'keep-and-wake-ai-sessions-on-this-computer', 'formula-engine'], row.id);
     assert.ok(Array.isArray(row.input_schema.required) && row.job.length > 20, row.id);
   }

@@ -157,11 +157,11 @@ test('read-only serving resolves each request, fails withdrawn rights closed, th
 });
 
 test('callable descriptors and package export metadata are valid JSON', () => {
-  const toolRows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const toolRows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const part = JSON.parse(readFileSync(new URL('../part.json', import.meta.url), 'utf8'));
   assert.equal(toolRows.records[0].payload.id, 'tool:prepare-public-content-for-discovery');
   assert.equal(toolRows.records[0].payload.invoke.kind, 'container', 'pure input projection needs no computer capability grant');
-  assert.equal(toolRows.records[0].payload.invoke.internet, false);
+  assert.equal(toolRows.records[0].payload.invoke.may_reach, undefined);
   assert.ok(part.public.includes('do-work/prepare-content-for-discovery.mjs'));
   assert.ok(part.public.includes('do-work/serve-content-for-discovery.mjs'));
 });

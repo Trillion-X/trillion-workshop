@@ -1,11 +1,11 @@
 import { realpathSync } from 'node:fs';
 // tools/read-objects-in-an-s3-store/do-work/read-objects.mjs
 //
-// The container tool `tool:read-objects-in-an-s3-store` (tool-rows.json): lists the objects of one bucket in any
+// The container tool `tool:read-objects-in-an-s3-store` (what-this-tool-does-and-how-to-run-it.json): lists the objects of one bucket in any
 // S3-compatible store, or reads one object, for the store the person connected (a service connection whose descriptor
 // names an S3 endpoint, a bucket and an access key). It only reads; it writes and deletes nothing.
 //
-// The connection's own fields reach this one process on private pipes (the row's invoke.credential_mounts): descriptor
+// The connection's own fields reach this one process on private pipes (the row's invoke.key): descriptor
 // 3 the access key ID, 4 the secret access key, 5 the endpoint, 6 the bucket. Every request goes to that endpoint only,
 // signed with AWS Signature Version 4, so the secret never leaves for another host. The answer carries object names,
 // sizes and bytes, never a key, a signature or the provider's raw reply.

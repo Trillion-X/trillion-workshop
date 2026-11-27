@@ -4,7 +4,7 @@ The Workshop rows for Hetzner DNS (Hetzner Cloud API, zones). One http row per c
 
 | File | Purpose |
 |---|---|
-| `tool-rows.json` | The http rows the engine runs (no code of their own). |
+| `what-this-tool-does-and-how-to-run-it.json` | The http rows the engine runs (no code of their own). |
 | `kits/*.json` | One kit per tool: how to ask for it and a worked example. |
 | `test/hetzner-dns-rows.test.mjs` | Checks that every row holds only `hetzner-api-token`, sent to `api.hetzner.cloud` as a bearer header. |
 

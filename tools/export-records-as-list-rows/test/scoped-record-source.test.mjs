@@ -107,7 +107,7 @@ test('the Workshop COMPUTER row returns its payload from the records handed in, 
   const root = tempFolder(join(tmpdir(), 'scoped-record-source-row-'));
   try {
     mappingAt(root);
-    const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+    const toolRows = JSON.parse(readFileSync(join(tool, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
     const row = rowOf(toolRows, 'tool:build-records-to-write');
     assert.equal(row.invoke.records, undefined, 'the row declares no records door');
     const answer = await runRow(row, { mapping: join(root, 'mapping.json'), records: sharedRecords });
@@ -156,7 +156,7 @@ test('a synthetic wake run plans the builder records for each kind, the caller w
   const root = tempFolder(join(tmpdir(), 'scoped-record-source-two-kinds-'));
   try {
     twoScopeMappingAt(root);
-    const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+    const toolRows = JSON.parse(readFileSync(join(tool, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
     const builderRow = rowOf(toolRows, 'tool:build-records-to-write');
     const sources = [
       { id: 'source-a:one', type: 'source-a', value: { identity: 'one', title: 'From A' } },
@@ -223,7 +223,7 @@ test('a records source with no matching record builds no row, and a missing fold
   const root = tempFolder(join(tmpdir(), 'scoped-record-source-denied-kind-'));
   try {
     twoScopeMappingAt(root, { includeDenied: true });
-    const toolRows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+    const toolRows = JSON.parse(readFileSync(join(tool, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
     const row = rowOf(toolRows, 'tool:build-records-to-write');
     const records = [
       { id: 'source-a:one', type: 'source-a', value: { identity: 'one', title: 'A' } },
@@ -242,7 +242,7 @@ test('a records source with no matching record builds no row, and a missing fold
 });
 
 test('the write planner refreshes through the same baseline, keeps live edits and deletions, and a store refuses a value that changed', async () => {
-  const rows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+  const rows = JSON.parse(readFileSync(join(tool, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
   const writer = rowOf(rows, 'tool:put-records-into-my-account');
   const record = (id, value) => ({ id: `record:fixture:${id}`, type: 'record:fixture', value });
   const payload = records => ({ commands: [{ input: { records } }] });
@@ -282,7 +282,7 @@ test('the write planner refreshes through the same baseline, keeps live edits an
 });
 
 test('a readback that lacks a target record is readback_differs, and a held record outside the target is refused', async () => {
-  const rows = JSON.parse(readFileSync(join(tool, 'tool-rows.json'), 'utf8'));
+  const rows = JSON.parse(readFileSync(join(tool, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
   const writer = rowOf(rows, 'tool:put-records-into-my-account');
   const record = { id: 'record:fixture:one', type: 'record:fixture', value: { name: 'One' } };
   const input = { payload: { commands: [{ input: { records: [record] } }] }, target_type: record.type, target_prefix: 'record:fixture:', config: plannerConfig };

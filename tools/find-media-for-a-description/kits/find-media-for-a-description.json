@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/find-media-for-a-description/tool-rows.json, do-work/find_media.mjs, do-work/bank-provider.mjs and test/find-media.test.mjs (bank provider, run on a made-up media folder)",
+  "drafted_from": "tools/find-media-for-a-description/what-this-tool-does-and-how-to-run-it.json, do-work/find_media.mjs, do-work/bank-provider.mjs and test/find-media.test.mjs (bank provider, run on a made-up media folder)",
   "start_here": "Say to your AI: \"Find a clip of boats at sunrise in my media folder /tmp/media-bank and save it as /tmp/picked.mp4.\" It writes a request file, runs the finder with the bank provider and tells you which file it picked.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one folder of your own media (or the stock libraries) and copies the best match to a file.",

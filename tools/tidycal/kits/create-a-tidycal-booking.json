@@ -34,7 +34,7 @@
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a POST to https://tidycal.com/api/booking-types/{booking_type_id}/bookings with the vault key tidycal-api-token. It books a real slot.",
+      "given": "Reads tools/tidycal/what-this-tool-does-and-how-to-run-it.json: a POST to https://tidycal.com/api/booking-types/{booking_type_id}/bookings with the vault key tidycal-api-token. It books a real slot.",
       "hands_back": "It answers the new booking: for example booking 12345 for Test Booker starting 2026-11-25 10:00 UTC, with its meeting link."
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/tool-rows.json; do-work/score-voice-adapter.py (main, summarize, apply_decision_policy); test/scoring-input-mode.test.mjs for the v3 challenge shape; do-work/score-voice-adapter.py (draft_rows, score_draft, draft_main) and test/test_score_voice_draft.py for draft mode; draft_request, prose_chars and the settings-row tests in test/test_score_voice_draft.py",
+  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/what-this-tool-does-and-how-to-run-it.json; do-work/score-voice-adapter.py (main, summarize, apply_decision_policy); test/scoring-input-mode.test.mjs for the v3 challenge shape; do-work/score-voice-adapter.py (draft_rows, score_draft, draft_main) and test/test_score_voice_draft.py for draft mode; draft_request, prose_chars and the settings-row tests in test/test_score_voice_draft.py",
   "start_here": "Say to your AI: \"Score the passages in ~/voice/challenge.json with my adapter in ~/voice/adapter-1 and write the report to ~/voice/report.json, role development-check.\" It runs the scorer on your computer and hands back the summary and the report path.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a challenge file and an adapter folder you name and writes one report file on your computer.",

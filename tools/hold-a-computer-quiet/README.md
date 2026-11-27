@@ -10,7 +10,7 @@ Moved here from `Trillion-X/trillion` `computer/hold-this-mac.mjs` (2026-11-02).
 |------|---------|
 | `read-data/hold-this-mac.mjs` | `holdADeviceQuiet`, `releaseADevice`, `deviceHolds`, `focus` (one per row) and `resumeHolds` (the tool host calls it once when it starts), over `makeHolds`, plus the pure helpers: the end of a hold, the identities no hold closes, which open apps a hold closes, which apps hold the microphone. |
 | `read-data/hold-this-mac.json` | Where holds are kept, how often to look, the longest hold, the apps never closed, which of the computer's places are kept open, the resources an app is spared while using, the default apps, the Focus shortcuts as DATA, and every word said. |
-| `tool-rows.json` | `tool:hold-a-device-quiet`, `tool:release-a-device`, `tool:device-holds`, `tool:focus`: `computer` rows with `capabilities: ["close-apps-and-switch-focus"]`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:hold-a-device-quiet`, `tool:release-a-device`, `tool:device-holds`, `tool:focus`: `computer` rows with `capabilities: ["close-apps-and-switch-focus"]`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/hold-this-mac.test.mjs` | A pretend Mac: holds close apps politely, never close kept apps, end by themselves, resume after a restart; the rows. |
 | `test/fixtures/keep-open-rows.json` | A computer's places as its tool host hands them in. |
@@ -39,4 +39,4 @@ Moved here from `Trillion-X/trillion` `computer/hold-this-mac.mjs` (2026-11-02).
 
 **Depends on:** Node's standard library and the Mac's `lsappinfo`, `osascript`, `kill`, `pmset`, `ps`, `plutil`, `shortcuts` and `open`; `tools/records-door` (`run-an-export.mjs`) for a `computer` run.
 
-**Depended on by:** `tool-rows.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs these functions on placement:your-computer.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs these functions on placement:your-computer.

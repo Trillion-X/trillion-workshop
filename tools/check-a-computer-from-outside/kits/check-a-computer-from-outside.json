@@ -42,5 +42,5 @@
       "hands_back": "{\"ports\":[{\"port\":22,\"open\":true},{\"port\":80,\"open\":true},{\"port\":443,\"open\":true},{\"port\":5432,\"open\":true}],\"ssh\":{\"port\":22,\"banner\":\"SSH-2.0-OpenSSH_9.6p1 Ubuntu-3ubuntu13.18\"},\"findings\":[{\"computer\":\"data\",\"kind\":\"undeclared-open-port\",\"about\":\"5432\",\"said\":\"Port 5432 answers from the internet, and the computer's row does not declare it.\"}]}"
     }
   ],
-  "drafted_from": "tools/check-a-computer-from-outside/tool-rows.json and its runs against the two computers on Nov 18 2026"
+  "drafted_from": "tools/check-a-computer-from-outside/what-this-tool-does-and-how-to-run-it.json and its runs against the two computers on Nov 18 2026"
 }

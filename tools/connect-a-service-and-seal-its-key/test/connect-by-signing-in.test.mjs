@@ -9,10 +9,10 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash, createPrivateKey, sign as signWith } from 'node:crypto';
 import { runRow, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import settings from '../sign-in-settings.json' with { type: 'json' };
 import descriptorFile from '../records.json' with { type: 'json' };
-import socialRows from '../../social-posts/tool-rows.json' with { type: 'json' };
+import socialRows from '../../social-posts/what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { resolvedInvoke } from '../../social-posts/test/by-input.mjs';
 
 const ROUTE = 'tool:connect-an-account-by-signing-in-to-the-service';
@@ -271,7 +271,8 @@ test('every switched-on service has a hosted sign-in descriptor whose callback i
     const secretName = acquire.client_auth === 'basic' ? acquire.hosted_client.basic_name : acquire.hosted_client.secret_name;
     assert.deepEqual(first.invoke.credential_injections.map(item => item.secret_name), [acquire.hosted_client.id_name, secretName]);
     if (acquire.client_auth === 'basic') assert.deepEqual(first.invoke.credential_injections[1].placement, { kind: 'header', name: 'Authorization', prefix: 'Basic ' });
-    for (const item of first.invoke.credential_injections) assert.deepEqual(item.hosts, [new URL(acquire.token_url).hostname]);
+    for (const item of first.invoke.credential_injections) assert.equal(item.hosts, undefined);
+    assert.deepEqual(first.invoke.may_reach, [new URL(acquire.token_url).hostname]);
     assert.equal(Boolean(first.input_schema.properties.code_verifier), Boolean(acquire.pkce), `${vendor}: the verifier goes where PKCE is asked`);
     assert.equal(following.length, (acquire.then ?? []).length, `${vendor}: one row per following trade`);
     following.forEach((step, index) => {
@@ -361,7 +362,8 @@ test('the Threads check asks only the Threads host, with the held token placed i
   assert.equal(check.invoke.url, 'https://graph.threads.net/v1.0/me');
   assert.equal(check.invoke.connection.vendor, 'threads');
   assert.equal(check.read_only, true);
-  assert.deepEqual(check.invoke.credential_injections.map(item => [item.field_id, item.hosts, item.placement.kind, item.placement.name]), [['access_token', ['graph.threads.net'], 'query', 'access_token']]);
+  assert.deepEqual(check.invoke.credential_injections.map(item => [item.field_id, item.hosts, item.placement.kind, item.placement.name]), [['access_token', undefined, 'query', 'access_token']]);
+  assert.deepEqual(check.invoke.may_reach, ['graph.threads.net']);
   assert.equal(check.invoke.refresh.token_url, 'https://graph.threads.net/refresh_access_token');
 });
 
@@ -371,12 +373,14 @@ test('the Facebook Page list holds no token, and the keep row keeps one named Pa
   const pagesRow = byId.get(service.verify.tool);
   assert.equal(pagesRow.read_only, true);
   assert.equal(new URL(pagesRow.invoke.url).hostname, 'graph.facebook.com');
-  assert.deepEqual(pagesRow.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['user_access_token', ['graph.facebook.com']]]);
+  assert.deepEqual(pagesRow.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['user_access_token', undefined]]);
+  assert.deepEqual(pagesRow.invoke.may_reach, ['graph.facebook.com']);
   assert.equal(pagesRow.invoke.query.fields.const, 'id,name');
   assert.equal(pagesRow.invoke.reply_holds_values, undefined);
   const keepRow = byId.get(service.choice.tool);
   assert.equal(new URL(keepRow.invoke.url).hostname, 'graph.facebook.com');
-  assert.deepEqual(keepRow.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['user_access_token', ['graph.facebook.com']]]);
+  assert.deepEqual(keepRow.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['user_access_token', undefined]]);
+  assert.deepEqual(keepRow.invoke.may_reach, ['graph.facebook.com']);
   assert.deepEqual(keepRow.invoke.reply_holds_values, [{ from: 'access_token', keep_as_field: 'page_access_token' }]);
   assert.ok(row.invoke.records.runs.includes(service.choice.tool));
 });

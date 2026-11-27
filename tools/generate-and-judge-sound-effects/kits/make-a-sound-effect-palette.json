@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:make-a-sound-effect-palette row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:make-a-sound-effect-palette row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Render my sound-effect palette from /work/sfx/PALETTE.json with sources under /work/sfx into /work/sfx/palette and check each sound by ear.\" It runs the palette maker and reads back each finished sound.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads PALETTE.json and source sound files on this computer and writes WAV files and palette_readings.json into the folder it is given.",

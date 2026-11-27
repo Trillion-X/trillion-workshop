@@ -24,7 +24,7 @@ const READER_PW = 'made-up-reader-pw';
 const connectionFor = (user, password) => `postgres://${user}:${password}@127.0.0.1:${PORT}/p_example`;
 const ownerConnection = connectionFor(OWNER, OWNER_PW);
 const readerConnection = connectionFor(READER, READER_PW);
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 const TIME_LIMITS = JSON.parse(readFileSync(new URL('../read-data/time-limits.json', import.meta.url), 'utf8'));
 let server;
 
@@ -53,8 +53,8 @@ after(async () => { await server.stop(); });
 test('the row mounts one held connection by the name the input gives and reaches the network only through the run\'s proxy', () => {
   assert.equal(row.id, 'tool:run-sql-in-my-database');
   assert.equal(row.invoke.local_doors, undefined, 'no local port: a database is reached by its address');
-  assert.equal(row.invoke.internet, true);
-  assert.deepEqual(row.invoke.credential_mounts, [
+  assert.ok(Array.isArray(row.invoke.may_reach));
+  assert.deepEqual(row.invoke.key, [
     { secret_name_from_input: 'credential_name', fd: 3, only_when: { input: 'credential_name', present: true } },
     { secret_name_from_input: 'database', held_suffix: '-connection', fd: 3, only_when: { input: 'database', present: true }, under_use: { use_from_input: 'use', ticket_fd: 5, held_suffix: '-reader-connection', key_suffix: '-use-key' } },
     { secret_name_from_input: 'role_credential_name', fd: 4, only_when: { input: 'role_credential_name', present: true } },
@@ -121,7 +121,7 @@ test('every connection ends its statements and open transactions at what is left
   const { default_ms: byDefault, margin_ms: margin } = TIME_LIMITS;
   const ceiling = row.invoke.max_run_ms;
   assert.ok(Number.isInteger(ceiling) && ceiling > byDefault, 'the row declares its own ceiling, above the default');
-  assert.deepEqual(row.invoke.files.package_files[0].paths, ['do-work', 'read-data', 'tool-rows.json'], 'the run reads its own row');
+  assert.deepEqual(row.invoke.files.package_files[0].paths, ['do-work', 'read-data', 'what-this-tool-does-and-how-to-run-it.json'], 'the run reads its own row');
   assert.equal(timeLimitOf(undefined, 500), byDefault - margin - 500, 'a call that asks none: the default, less the margin and the time used');
   assert.equal(timeLimitOf(ceiling - margin, 0), ceiling - 2 * margin, 'a longer time within the ceiling is given');
   assert.throws(() => timeLimitOf(ceiling, 0), /at most/);

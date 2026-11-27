@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/audio-transcription/tool-rows.json, read-data/hear-here.mjs, test/hear-a-link.test.mjs",
+  "drafted_from": "tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json, read-data/hear-here.mjs, test/hear-a-link.test.mjs",
   "start_here": "Say to your AI: \"Get the words said in the video at https://videos.example.com/watch?v=sample, from its captions if it has them.\" It runs tool:hear-a-link and hands back the title, the text and timed segments.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one link and answers its words; nothing is kept, not a list row and not a file.",
@@ -30,7 +30,7 @@
           }
         }
       },
-      "given": "From the sample-run in tools/audio-transcription/tool-rows.json and tools/audio-transcription/test/hear-a-link.test.mjs (a page with captions answers its captions without fetching the sound): the stand-in link reader reports title Sample garden talk, duration 12.5 and writes a two-cue captions.en.vtt. The answer was worked out from read-data/hear-here.mjs (hearALink, captionWords), not run here.",
+      "given": "From the sample-run in tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json and tools/audio-transcription/test/hear-a-link.test.mjs (a page with captions answers its captions without fetching the sound): the stand-in link reader reports title Sample garden talk, duration 12.5 and writes a two-cue captions.en.vtt. The answer was worked out from read-data/hear-here.mjs (hearALink, captionWords), not run here.",
       "hands_back": "{\"url\":\"https://videos.example.com/watch?v=sample\",\"title\":\"Sample garden talk\",\"duration_seconds\":12.5,\"text\":\"Welcome to the sample garden talk. Today we plant tomatoes.\",\"segments\":[{\"start\":0,\"end\":2.5,\"text\":\"Welcome to the sample garden talk.\"},{\"start\":2.5,\"end\":5,\"text\":\"Today we plant tomatoes.\"}],\"language\":\"en\",\"heard_whole\":true,\"source\":\"captions\",\"produced_by\":\"captions on the page, read on this computer\"}"
     }
   ]

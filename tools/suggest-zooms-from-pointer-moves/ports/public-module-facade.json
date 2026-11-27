@@ -44,7 +44,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/suggest-zooms-from-pointer-moves/tool-rows.json",
+      "path": "tools/suggest-zooms-from-pointer-moves/what-this-tool-does-and-how-to-run-it.json",
       "why": "These are invocation descriptors and sample inputs, not module export-forwarding code."
     },
     {

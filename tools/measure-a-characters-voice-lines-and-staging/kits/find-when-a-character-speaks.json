@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-when-a-character-speaks's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "drafted_from": "tool:find-when-a-character-speaks's row in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
   "start_here": "Say to your AI: \"Find when the parrot speaks in recording rec-a: score it with the seeds I labelled.\" It runs tool:find-when-a-character-speaks (step score) on your computer and writes the recording's turns file.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",

@@ -14,7 +14,7 @@
       "required": ["words", "longest"],
       "properties": { "words": { "type": "integer", "minimum": 0 }, "longest": { "type": "string" } }
     },
-    "invoke": { "kind": "container", "argv": ["python3", "main.py", { "from": "text" }], "stdout": "json" },
+    "invoke": { "kind": "container", "run": ["python3", "main.py", { "from": "text" }], "stdout": "json" },
     "result_selector": "$.result",
     "placements": ["placement:deployed-container"],
     "licence_class": "licence:maker-own",

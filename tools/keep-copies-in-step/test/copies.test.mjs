@@ -8,7 +8,7 @@ import { KEPT_APART } from '../read-data/catch-up.mjs';
 import settings from '../read-data/catch-up.json' with { type: 'json' };
 import { seeIfMyCopiesAreInStep, sayHowThisDeviceStands, settleTwoVersions } from '../do-work/copies.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const SEE = rowOf(ROWS, 'tool:see-if-my-copies-are-in-step');
 const HERE = rowOf(ROWS, 'tool:say-how-this-device-stands');
 const SETTLE = rowOf(ROWS, 'tool:settle-two-versions');

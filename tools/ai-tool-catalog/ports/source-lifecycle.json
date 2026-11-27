@@ -65,7 +65,7 @@
       "path": "tools/ai-tool-catalog/read-data/source-records.json"
     },
     {
-      "path": "tools/ai-tool-catalog/tool-rows.json"
+      "path": "tools/ai-tool-catalog/what-this-tool-does-and-how-to-run-it.json"
     }
   ],
   "preserve": [

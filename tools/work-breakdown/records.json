@@ -113,7 +113,7 @@
      },
      "workdir": "/opt/parts/work-breakdown",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/roll-up-work-completion.mjs",
       {
@@ -326,7 +326,7 @@
      },
      "workdir": "/opt/parts/work-breakdown",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/intake-work-item.mjs",
       {
@@ -624,7 +624,7 @@
      },
      "workdir": "/opt/parts/work-breakdown",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/list-tasks-and-what-blocks-them.mjs",
       {

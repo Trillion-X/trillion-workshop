@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:tell-it-when-it-was-wrong row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:tell-it-when-it-was-wrong row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"The claims-done verdict was wrong for 'rye ready, checked twice': it should have been false because it says it was checked. Add it to my rubric.\" It adds the case to your rubrics file and says calibration runs again.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it adds one known case to a rubric inside the rubrics file you name on this computer.",

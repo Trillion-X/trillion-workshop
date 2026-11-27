@@ -6,7 +6,7 @@ Checks that every sampled frame of a clip shows every required phrase (names, cr
 |------|---------|
 | `do-work/check_text_in_every_frame.py` | The check. Prints `{"result": {...}}` or `{"error": ...}`. |
 | `test/test_check_text_in_every_frame.py` | A made-up card with two names on every frame, and the pass, miss, refusal and missing-clip cases. |
-| `tool-rows.json` | The one Workshop row, `tool:check-text-in-every-frame`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The one Workshop row, `tool:check-text-in-every-frame`. |
 | `kits/check-text-in-every-frame.json` | The kit (L082). |
 | `part.json` | Nothing here is imported by other code. |
 

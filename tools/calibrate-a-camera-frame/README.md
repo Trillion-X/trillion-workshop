@@ -20,7 +20,7 @@ Its callers in the old tree, `tools/media-composition/do-work/cut-by-events.mjs`
 | `src/frame-calibration.mjs` | `homographyFromCorners`, `toFrame`, `calibrate`: blind; the detector, the manual view and the confidence floor are the caller's. |
 | `test/frame-and-stream.test.mjs` | Ported from the old tree as it was (moved by the tool). |
 | `test/calibrate-a-camera-frame.test.mjs` | The run over made-up input, and each row run as the container runner runs it, on its own sample. |
-| `tool-rows.json` | The Workshop rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows. |
 | `moved-from.json` | Where each moved file came from, and both identities. |
 | `part.json` | The public files. |
 
@@ -28,4 +28,4 @@ Its callers in the old tree, `tools/media-composition/do-work/cut-by-events.mjs`
 
 **Depends on:** `tools/workflows` (the run command), Node.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

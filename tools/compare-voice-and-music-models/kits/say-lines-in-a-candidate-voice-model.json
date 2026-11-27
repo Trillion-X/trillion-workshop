@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/say_lines.py and tools/compare-voice-and-music-models/test/test_compare_models.py",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/what-this-tool-does-and-how-to-run-it.json, do-work/say_lines.py and tools/compare-voice-and-music-models/test/test_compare_models.py",
   "start_here": "Say to your AI: \"Say lines l01 and l02 in the candidate voice model some-org/candidate-tts, cloned from ref.wav, into ./candidate so I can compare it with my current voice.\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it takes a model id, a reference recording and lines on its command line and writes one WAV per line into a folder.",

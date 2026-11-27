@@ -8,7 +8,7 @@ The parts every page of a site carries in its head and at the start of its body,
 |------|---------|
 | `do-work/site-head.ts` | `siteHeadProblems(data)` lists every problem with a site's head data; `siteHeadMarkup(data)` makes the head markup (the consent default first, the bar's stylesheet, the declared parts in order, the bar) and the body-start markup; `withSiteHead(html, markup)` places them in a page. The default and the bar are the shared `tools/ui/show/consent-banner` part. |
 | `reads/read-the-site-head.ts` | `tool:read-the-site-head {database, site}`: reads `site_head` and `site_head_parts`, checks them and answers `{ head, body_start }`. |
-| `kits/read-the-site-head.json`, `tool-rows.json` | The kit and the card. |
+| `kits/read-the-site-head.json`, `what-this-tool-does-and-how-to-run-it.json` | The kit and the card. |
 | `test/site-head.test.ts` | The order (nothing before the consent default), the denied default, every refusal, the placing and the read. |
 
 ## Rules

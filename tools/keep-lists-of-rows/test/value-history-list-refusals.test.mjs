@@ -10,8 +10,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 test('the declared history rows refuse with one refusal class through their real consumer', async t => {
   const repository = fileURLToPath(new URL('../../..', import.meta.url));
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records.map(record => record.payload);
-  const row = rows.find(row => row.invoke.argv.at(-1) === 'historyFieldValues');
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url))).records.map(record => record.payload);
+  const row = rows.find(row => row.invoke.run.at(-1) === 'historyFieldValues');
   assert.ok(row, 'the history consumer retains its actual descriptor');
   const sandbox = tempFolder(join(tmpdir(), 'list-refusal-package-'));
   t.after(() => rmSync(sandbox, { recursive: true, force: true }));
@@ -40,7 +40,7 @@ test('the declared history rows refuse with one refusal class through their real
     assert.equal(admittedWork, true, 'a refusal does not establish that prior work did not execute');
   }
   assert.equal(api.listRefusal(new Error('another failure')), null);
-  const argv = row.invoke.argv.map(placed);
+  const argv = row.invoke.run.map(placed);
   const child = spawnSync(process.execPath, argv.slice(1), { cwd: folder, input: JSON.stringify(input), encoding: 'utf8', timeout: 10_000 });
   assert.equal(child.status, 1);
   assert.match(JSON.parse(child.stdout.trim().split('\n').at(-1)).error, /works its value out from a field's history/);

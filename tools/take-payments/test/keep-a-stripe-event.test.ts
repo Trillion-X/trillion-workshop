@@ -21,7 +21,7 @@ const SECRET = 'whsec_keep_a_stripe_event_fixture';
 const USE = { purpose: 'keep-payments', surface: 'site/example.test' };
 const offers = [{ kind: 'commercial-offer', id: 'offer:seat', label: 'Seat', access_refs: ['access:seat'], price_options: [{ id: 'price:seat', label: 'Seat', amount_cents: 29900, currency: 'usd', payment_timing: 'one_time' }] }];
 const rights = JSON.parse(readFileSync(new URL('../read-data/writer-rights.json', import.meta.url), 'utf8')).writes as Array<{ table: string; select: string[]; insert: string[]; update?: string[] }>;
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map((record: { payload: unknown }) => record.payload)
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map((record: { payload: unknown }) => record.payload)
   .find((payload: { id: string }) => payload.id === 'tool:keep-a-stripe-event');
 
 const checkout = (id: string, paymentIntent: string) => ({
@@ -114,8 +114,8 @@ describe('tool:keep-a-stripe-event', () => {
   });
 
   it('the row mounts the Stripe key on 4, the webhook secret on 5 and the writer login on 6 with the use ticket on 7', () => {
-    const mounts = row.invoke.credential_mounts;
-    assert.deepEqual(row.invoke.argv, ['node', '/opt/workflows/do-work/run-a-function.mjs', '/opt/take-payments/keeps/keep-a-stripe-event.ts', 'keepAStripeEvent']);
+    const mounts = row.invoke.key;
+    assert.deepEqual(row.invoke.run, ['node', '/opt/workflows/do-work/run-a-function.mjs', '/opt/take-payments/keeps/keep-a-stripe-event.ts', 'keepAStripeEvent']);
     assert.deepEqual(mounts.filter((mount: { fd: number }) => mount.fd === 5), [
       { secret_name_from_input: 'webhook_secret_name', share_by_listing: true, fd: 5, only_when: { input: 'webhook_secret_name', present: true } },
       { fd: 5, field_id: 'webhook_secret', only_when: { input: 'seller_connection', present: true } },

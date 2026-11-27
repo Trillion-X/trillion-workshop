@@ -5,7 +5,7 @@ import test from 'node:test';
 import { answerOf, rowOf, select } from '../../../test-helpers/run-a-row.mjs';
 import { calibrateACameraFrame } from '../do-work/calibrate-a-camera-frame.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 
 test('a sure detection stands, an unsure one falls back to the manual corners, and each failure is handed back', async () => {
   const corners = [[100, 50], [500, 80], [540, 400], [60, 380]];

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:answer-questions-about-a-state row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-state-questions.test.mjs and tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:answer-questions-about-a-state row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-state-questions.test.mjs and tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Answer these three questions about the state {customer: table 4} with my local chat model: is the order late, which loaf, how rushed.\" It sends them in one request and reports each answer under its question.",
   "lists": [],
   "no_lists_because": "It keeps no list: it sends one state and its typed questions to a model server on this computer and prints the answers.",

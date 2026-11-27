@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "drafted_from": "tool row in tools/connected-drives/what-this-tool-does-and-how-to-run-it.json, read-data/drives.mjs and test/drives.test.mjs",
   "start_here": "Say to your AI: \"List the files in the DCIM folder on my SAMPLE DRIVE, folders first, 200 at a time.\" It runs tool:list-a-drive-folder with path /Volumes/SAMPLE DRIVE/DCIM and hands back each entry with its kind, size and date.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",

@@ -360,7 +360,7 @@ test('a provider is the absolute path of a description with an id and a name', (
 
 test('the tool\'s own files name no provider', () => {
   const read = path => readFileSync(new URL(path, import.meta.url), 'utf8');
-  for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../do-work/render-what-a-computer-runs.mjs', '../do-work/build-from-source.sh', '../tool-rows.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare|gettrillion/i, path);
+  for (const path of ['../do-work/rent-a-machine.mjs', '../do-work/start-a-computer.mjs', '../do-work/render-what-a-computer-runs.mjs', '../do-work/build-from-source.sh', '../what-this-tool-does-and-how-to-run-it.json', '../README.md']) assert.doesNotMatch(read(path), /hetzner|cloudflare|gettrillion/i, path);
   for (const path of ['../do-work/start-a-computer.mjs', '../do-work/rent-a-machine.mjs', '../do-work/render-what-a-computer-runs.mjs', '../do-work/set-up-the-machine.sh', '../do-work/cap-the-journal.sh']) {
     assert.doesNotMatch(read(path).split('\n').filter(line => !/^\s*(\/\/|#|\*|\/\*\*)/.test(line)).join('\n'), /\/var\/lib\/place|\/opt\/place|-u place\b|-o place\b|\bplace\.(service|json|key)\b|99-place/, `${path} holds no service user, folder or file of one product`);
   }

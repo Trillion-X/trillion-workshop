@@ -2,7 +2,7 @@
 //
 // PURPOSE
 //   The command the tool rows read-a-page-in-my-browser, act-in-my-browser and drive-my-browser run on the person's own
-//   computer (tool-rows.json): it asks the door for a nonce, has the vault sign it, posts the run's input to the browser relay door on this computer (browser-relay.mjs,
+//   computer (what-this-tool-does-and-how-to-run-it.json): it asks the door for a nonce, has the vault sign it, posts the run's input to the browser relay door on this computer (browser-relay.mjs,
 //   at the port the engine fills in from this computer's report, the same name the row's `local_doors` lists) and prints
 //   { result } or { error } as its last line.
 //

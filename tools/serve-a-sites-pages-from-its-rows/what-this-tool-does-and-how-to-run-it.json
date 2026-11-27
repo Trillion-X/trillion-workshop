@@ -1,0 +1,644 @@
+{
+  "kind": "tool-rows",
+  "record_set": "serve-a-sites-pages-from-its-rows-tool-rows",
+  "what_this_is": "The Workshop row for the serve-a-sites-pages-from-its-rows folder: one kept-running program that serves a whole site from the site's own page and look rows, drawing each page from the screens of the tools that own its jobs, with their answers read through the engine's door.",
+  "records": [
+    {
+      "id": "package::serve-a-sites-pages-from-its-rows::tool::serve-a-sites-pages-from-its-rows",
+      "address": "package::serve-a-sites-pages-from-its-rows::tool::serve-a-sites-pages-from-its-rows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:serve-a-sites-pages-from-its-rows",
+        "label": "Serve a site's pages from its rows (runs on your computer)",
+        "status": "active",
+        "job": "Serve a whole site from its page rows: each page drawn on the server from the screens of the tools that own its jobs, filled with their answers",
+        "description": "Starts one kept-running program (node do-work/serve.ts <settings.json>) that answers a site's requests behind the computer's front web server. A page is one row of the site's `pages` table (address pattern, title, public or members, a layout tree of shared parts and tool screens, the page's own tool and input); the site's colours and fonts are rows of its `site_look` table. Every row and every tool answer is read through the engine's door (tools:run) as a caller: the site's own pass for public pages, the member's own pass for members pages, so it holds no database login. Each page is drawn on the server with renderToStaticMarkup of the tools' own screens (the card's module screen) and drawn again in the browser by one generic mount script, kept with the page's stylesheet by BLAKE3 identity. It also answers /sitemap.xml from the public rows, and a member's file address with a 302 to a presigned link for members only.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "settings"
+          ],
+          "properties": {
+            "settings": {
+              "type": "string",
+              "description": "The path of the site's settings file, put where {settings} is in the command: listen, origin, lang, door, pages, sign_in and member_files, as README.md shows."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "serving": {
+              "type": "string",
+              "description": "The program's first line on standard error: how many pages of which site it serves, and where it listens."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "npm ci at the top folder of the Workshop copy the computer installed (its tool source's pinned commit)"
+          ],
+          "run": "cd tools/serve-a-sites-pages-from-its-rows && node do-work/serve.ts {settings}",
+          "needs": [
+            "node 26.13 or newer (it runs TypeScript as it is, with no build)",
+            "the Workshop's packages installed (npm ci): react, react-dom, esbuild, @tailwindcss/node, @noble/hashes",
+            "the site's pass for the engine door in the unit's credentials folder, under the name settings door.pass_credential gives",
+            "for member files: the files store's read key (two lines, AWS_ACCESS_KEY_ID=... and AWS_SECRET_ACCESS_KEY=...) in the unit's credentials folder, under member_files.credential"
+          ],
+          "say": "This runs on the computer that serves the site, as a unit its computer row starts (tool:start-a-computer), behind that computer's front web server, which passes the site's requests to the socket or port settings.listen names. The settings file holds no secret: the door's pass and the store's read key are credentials the computer seals for the unit from the vault. Pages, look and answers come from rows, so changing a page is changing its row; the program reads the rows again every pages.refresh_seconds. Check it with GET /sitemap.xml and a page address."
+        },
+        "maker": "maker:serve-a-sites-pages-from-its-rows",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "new: one shared program that serves any site from its page rows and the screens of the tools that own each job (Nov 25 2026); its ideas came from tools/serve-articles-and-signup (handle a request from rows) and tools/serve-and-publish-a-package-sets-public-app (renderToStaticMarkup of a tool's view), with no file copied"
+        }
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-site-write",
+        "label": "Keep a site write",
+        "job": "Keep one of a site's named writes (a lead, a visit, a price view, a welcome stop) from the values its action row gives",
+        "description": "Runs one named write of read-data/site-writes.json (site-lead, site-visit, price-view, welcome-series-stop) in the pursuit database for database, with the values given as its statement's parameters: the caller sends a write's name and values, never SQL. A value the write does not take, a required one missing or one too long is refused before anything is sent. Given a use, the computer opens the database with its writer login (role recipe may-write-named-columns-under-a-use: only the columns and functions the writes need) and the statement's one transaction claims the use first. Answers { write, row_count, rows }; the welcome stop's one row says where to go next (goto).",
+        "status": "active",
+        "read_only": false,
+        "result_selector": "$",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "database",
+            "write",
+            "values"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "database": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The pursuit database the write goes to, bound by the trusted caller (the site's action row). The engine opens it with the login its vault holds as that name and -writer-connection under a use (-connection without one); no caller supplies a login."
+            },
+            "use": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "purpose",
+                "surface"
+              ],
+              "description": "The use this write runs for: the site's declared use, such as purpose publish and surface site/example.com. Given with database, the computer opens the database with its writer login and hands the run a ticket of this use; the write's transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+              "properties": {
+                "purpose": {
+                  "type": "string",
+                  "description": "The purpose path, such as publish."
+                },
+                "surface": {
+                  "type": "string",
+                  "description": "The surface path, such as site/example.com; empty for any surface."
+                }
+              }
+            },
+            "write": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "The name of the write in read-data/site-writes.json: site-lead, site-visit, price-view or welcome-series-stop."
+            },
+            "values": {
+              "type": "object",
+              "description": "The write's values by name (read-data/site-writes.json lists each write's names, kinds and most lengths); a value not given is null."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "write",
+            "row_count",
+            "rows"
+          ],
+          "properties": {
+            "write": {
+              "type": "string"
+            },
+            "row_count": {
+              "type": "integer"
+            },
+            "rows": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/serve-a-sites-pages-from-its-rows",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/serve-a-sites-pages-from-its-rows/do-work/keep-a-site-write.ts"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "serve-a-sites-pages-from-its-rows",
+                "paths": [
+                  "do-work/keep-a-site-write.ts",
+                  "read-data/site-writes.json"
+                ],
+                "at": "/opt/serve-a-sites-pages-from-its-rows"
+              },
+              {
+                "package": "run-sql-in-my-database",
+                "paths": [
+                  "do-work/run-sql.mjs",
+                  "do-work/through-the-run-proxy.mjs",
+                  "read-data/role-recipes.json",
+                  "read-data/time-limits.json",
+                  "what-this-tool-does-and-how-to-run-it.json"
+                ],
+                "at": "/opt/run-sql-in-my-database"
+              },
+              {
+                "packages": [
+                  "pg"
+                ],
+                "at": "/opt/node_modules/pg"
+              },
+              {
+                "packages": [
+                  "pg-connection-string"
+                ],
+                "at": "/opt/node_modules/pg-connection-string"
+              },
+              {
+                "packages": [
+                  "pg-pool"
+                ],
+                "at": "/opt/node_modules/pg-pool"
+              },
+              {
+                "packages": [
+                  "pg-protocol"
+                ],
+                "at": "/opt/node_modules/pg-protocol"
+              },
+              {
+                "packages": [
+                  "pg-types"
+                ],
+                "at": "/opt/node_modules/pg-types"
+              },
+              {
+                "packages": [
+                  "pg-int8"
+                ],
+                "at": "/opt/node_modules/pg-int8"
+              },
+              {
+                "packages": [
+                  "postgres-array"
+                ],
+                "at": "/opt/node_modules/postgres-array"
+              },
+              {
+                "packages": [
+                  "postgres-bytea"
+                ],
+                "at": "/opt/node_modules/postgres-bytea"
+              },
+              {
+                "packages": [
+                  "postgres-date"
+                ],
+                "at": "/opt/node_modules/postgres-date"
+              },
+              {
+                "packages": [
+                  "postgres-interval"
+                ],
+                "at": "/opt/node_modules/postgres-interval"
+              },
+              {
+                "packages": [
+                  "xtend"
+                ],
+                "at": "/opt/node_modules/xtend"
+              },
+              {
+                "packages": [
+                  "pgpass"
+                ],
+                "at": "/opt/node_modules/pgpass"
+              },
+              {
+                "packages": [
+                  "split2"
+                ],
+                "at": "/opt/node_modules/split2"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "packages": {
+            "pg": {
+              "version": "8.23.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+                  "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+                  "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+                }
+              }
+            },
+            "pg-connection-string": {
+              "version": "2.14.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+                  "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+                  "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+                }
+              }
+            },
+            "pg-pool": {
+              "version": "3.14.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+                  "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+                  "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+                }
+              }
+            },
+            "pg-protocol": {
+              "version": "1.16.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+                  "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+                  "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+                }
+              }
+            },
+            "pg-types": {
+              "version": "2.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+                  "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+                  "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+                }
+              }
+            },
+            "pg-int8": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+                  "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+                  "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+                }
+              }
+            },
+            "postgres-array": {
+              "version": "2.0.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+                  "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+                  "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+                }
+              }
+            },
+            "postgres-bytea": {
+              "version": "1.0.1",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+                  "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+                  "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+                }
+              }
+            },
+            "postgres-date": {
+              "version": "1.0.7",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+                  "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+                  "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+                }
+              }
+            },
+            "postgres-interval": {
+              "version": "1.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+                  "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+                  "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+                }
+              }
+            },
+            "xtend": {
+              "version": "4.0.2",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+                  "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+                  "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+                }
+              }
+            },
+            "pgpass": {
+              "version": "1.0.5",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+                  "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+                  "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+                }
+              }
+            },
+            "split2": {
+              "version": "4.2.0",
+              "archive": "tgz",
+              "fetch": {
+                "any": {
+                  "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+                  "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+                  "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+                }
+              }
+            }
+          },
+          "key": [
+            {
+              "secret_name_from_input": "database",
+              "held_suffix": "-connection",
+              "fd": 3,
+              "only_when": {
+                "input": "database",
+                "present": true
+              },
+              "under_use": {
+                "use_from_input": "use",
+                "ticket_fd": 5,
+                "held_suffix": "-writer-connection",
+                "key_suffix": "-use-key"
+              }
+            }
+          ],
+          "max_run_ms": 12000
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:serve-a-sites-pages-from-its-rows",
+        "provenance": {
+          "source": "Written in tools/serve-a-sites-pages-from-its-rows/do-work from the run-sql statements a site's action rows sent (Nov 25 2026), made named and fixed; run through run-sql-in-my-database/do-work/run-sql.mjs withSqlWrite"
+        }
+      }
+    },
+    {
+      "id": "package::serve-a-sites-pages-from-its-rows::tool::check-a-sites-act-against-its-rows",
+      "address": "package::serve-a-sites-pages-from-its-rows::tool::check-a-sites-act-against-its-rows",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "tool:run-sql-in-my-database"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-a-sites-act-against-its-rows",
+        "label": "Check a site's act against its rows",
+        "job": "Say how the tools a site's own key may run differ from the ones its rows ask for now",
+        "description": "A site's act (the tools its own key may run, a computer row's vault reader whose act is given as { derive_from }) is made from the site's rows when the computer row is applied. This derives it again from the rows as they are now, the same way and at the same Workshop commit (the act's pin, unpacked from the granted Workshop folder), and compares it with the act the row last applied. It answers same; widened (tools, held names, identity or journal the rows now ask for that the applied act does not give, with the rows asking for each), which needs a person and is never applied on its own; narrowed (what the applied act gives that the rows no longer ask for), which may be applied; refused (calls no grant can let the site make as written); needs_a_person and narrowed_only; and difference_id, the BLAKE3 identity of what differs. It reads the computer's row and the site's rows through tool:run-sql-in-my-database by the held connections the row names, and writes nothing.",
+        "status": "active",
+        "read_only": true,
+        "result_selector": "$",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "computer_row",
+            "uid",
+            "store"
+          ],
+          "properties": {
+            "computer_row": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The computer row's name (not `computer`, which carries a run's grants)."
+            },
+            "uid": {
+              "type": "integer",
+              "description": "The uid of the vault reader whose act is checked (the site program's own account)."
+            },
+            "store": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9._-]+$",
+              "description": "The held connection of the database the computer rows are kept in."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "same",
+            "needs_a_person",
+            "narrowed_only",
+            "widened",
+            "narrowed",
+            "refused",
+            "difference_id"
+          ],
+          "properties": {
+            "computer_row": {
+              "type": "string"
+            },
+            "uid": {
+              "type": "integer"
+            },
+            "site": {
+              "type": "string"
+            },
+            "pin": {
+              "type": "string"
+            },
+            "same": {
+              "type": "boolean"
+            },
+            "needs_a_person": {
+              "type": "boolean"
+            },
+            "narrowed_only": {
+              "type": "boolean"
+            },
+            "widened": {
+              "type": "object"
+            },
+            "narrowed": {
+              "type": "object"
+            },
+            "refused": {
+              "type": "array"
+            },
+            "asked_by": {
+              "type": "object"
+            },
+            "derived_tools": {
+              "type": "integer"
+            },
+            "applied_tools": {
+              "type": "integer"
+            },
+            "difference_id": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/serve-a-sites-pages-from-its-rows",
+          "stdout": "json",
+          "run": [
+            "node",
+            "--no-warnings",
+            "/opt/serve-a-sites-pages-from-its-rows/do-work/check-a-sites-act.ts",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            },
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "kept_folder": true,
+          "records": {
+            "fd": 3,
+            "runs": [
+              "tool:run-sql-in-my-database"
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "serve-a-sites-pages-from-its-rows",
+                "paths": [
+                  "do-work/check-a-sites-act.ts"
+                ],
+                "at": "/opt/serve-a-sites-pages-from-its-rows"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/blake3.mjs",
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 30,
+          "memory_mb": 512
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:serve-a-sites-pages-from-its-rows",
+        "provenance": {
+          "source": "Written in tools/serve-a-sites-pages-from-its-rows/do-work (Nov 25 2026) so a site's act, made from its rows at each apply, is checked whenever its rows change: the same rights.ts at the act's own pin"
+        }
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-a-webhook-event's own row (tools/email-sending-domains/tool-rows.json: its words, input schema and sample run), test/read-a-webhook-event.test.mjs, and Resend's retrieve-event and email.bounced references (read 2026-11-25)",
+  "drafted_from": "tool:read-a-webhook-event's own row (tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: its words, input schema and sample run), test/read-a-webhook-event.test.mjs, and Resend's retrieve-event and email.bounced references (read 2026-11-25)",
   "start_here": "Say to your AI: \"Was event msg_1srOsB4mXhCqCVwAxYRNnpFZhb3 on my Resend webhook 00000000-0000-4000-8000-000000000011 a hard bounce?\", naming the held key. It runs tool:read-a-webhook-event and answers {\"id\":\"msg_1srOsB4mXhCqCVwAxYRNnpFZhb3\",\"type\":\"email.bounced\",\"created_at\":\"2026-11-22T13:13:02.348Z\",\"status\":\"failed\",\"email_id\":\"00000000-0000-4000-8000-000000000031\",\"bounce\":{\"type\":\"Permanent\",\"sub_type\":\"General\"}}",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads one event your email-sending account sent to one webhook and writes nothing.",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:export-records-as-list-rows row (tools/export-records-as-list-rows/tool-rows.json), do-work/export_records_as_list_rows.py, read-data/list_rows.py and test/test_list_rows.py; the answer is what the script printed on the same made-up bakery input",
+  "drafted_from": "tool:export-records-as-list-rows row (tools/export-records-as-list-rows/what-this-tool-does-and-how-to-run-it.json), do-work/export_records_as_list_rows.py, read-data/list_rows.py and test/test_list_rows.py; the answer is what the script printed on the same made-up bakery input",
   "start_here": "Say to your AI: \"Turn my bakery orders in data/orders.json into rows for my orders list with the mapping I wrote, and tell me how many rows came out.\"",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: every list and column comes from the mapping, and it only writes payload files into a folder and sends nothing.",

@@ -17,7 +17,7 @@ import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { heldStore } from './support/held-store.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 
 // The person's files, laid in the folder the row's read-a-folder capability is granted.
 const HOME = [
@@ -39,7 +39,7 @@ function homeWith(t) {
 // One run of a row as the engine starts it: its argv with this folder laid on /opt/conversations (and the workflows runner
 // on /opt/workflows), its stdin with the input (the values handed in are its `stored`) and the granted folder.
 function runRow(row, input, home, stored) {
-  const argv = row.invoke.argv.map(part => (typeof part === 'string' ? part.replace('/opt/workflows', join(folder, '..', 'workflows')).replace('/opt/conversations', folder) : part));
+  const argv = row.invoke.run.map(part => (typeof part === 'string' ? part.replace('/opt/workflows', join(folder, '..', 'workflows')).replace('/opt/conversations', folder) : part));
   const ran = spawnSync(argv[0], argv.slice(1), { input: JSON.stringify({ input: { ...input, stored }, folder: home }), encoding: 'utf8' });
   return JSON.parse(ran.stdout.trim().split('\n').at(-1));
 }

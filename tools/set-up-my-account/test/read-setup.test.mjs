@@ -18,7 +18,7 @@ import { seeWhatIsLeftToSetUp } from '../do-work/see-what-is-left-to-set-up.mjs'
 import { pendingSetup, provenSetup } from './setup-fixtures.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const ROW = rowOf(ROWS, 'tool:read-setup');
 const GOLDEN = JSON.parse(readFileSync(new URL('./fixtures/get-started-descriptions.json', import.meta.url), 'utf8')).cases;
 const ORIGIN = 'https://app.example';
@@ -98,7 +98,7 @@ test('a source that could not be read is unknown, never empty, so the screen doe
 test('the row runs its function with its two settings handed in, and reaches no door', async () => {
   assert.equal(ROW.invoke.records, undefined, 'the row opens no records door');
   assert.equal(ROW.stored, undefined, 'the row declares no stored rights');
-  assert.deepEqual(ROW.invoke.argv.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/set-up-my-account/do-work/read-setup.mjs', 'readSetup']);
+  assert.deepEqual(ROW.invoke.run.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/set-up-my-account/do-work/read-setup.mjs', 'readSetup']);
   const run = await answerOf(ROW, asked(answered(pendingSetup()), { user_agent: 'Mozilla/5.0 (Macintosh)' }));
   assert.equal(run.status, 0, run.error);
   const { refresh_at: at, ...drawn } = run.result;

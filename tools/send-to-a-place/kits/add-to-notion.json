@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:add-to-notion row in tools/send-to-a-place/tool-rows.json and tools/send-to-a-place/test/send-to-a-place-rows.test.mjs",
+  "drafted_from": "tool:add-to-notion row in tools/send-to-a-place/what-this-tool-does-and-how-to-run-it.json and tools/send-to-a-place/test/send-to-a-place-rows.test.mjs",
   "start_here": "Say to your AI: \"Add my Spring menu draft (https://example.com/menu/spring) to my Notion database 0123456789abcdef0123456789abcdef with the note 'Check prices before we print.'\" It runs tool:add-to-notion and makes the page.",
   "lists": [],
   "no_lists_because": "It keeps no list: it takes the things and note it is given and posts them once to the person's connected service.",
@@ -39,7 +39,7 @@
           }
         }
       },
-      "given": "Read from tools/send-to-a-place/tool-rows.json (the row's invoke body) and checked against tools/send-to-a-place/test/send-to-a-place-rows.test.mjs: the person has connected Notion (service_connection:notion). The body makes a page in database 0123456789abcdef0123456789abcdef titled \"Spring menu review\", with a paragraph holding the note and a paragraph linking \"Spring menu draft\" to https://example.com/menu/spring. I could not run it: it needs a live Notion token, so the answer is worked out from the row, and the exact \"said\" wording follows the webhook sibling's pattern \"<host> answered <status>\".",
+      "given": "Read from tools/send-to-a-place/what-this-tool-does-and-how-to-run-it.json (the row's invoke body) and checked against tools/send-to-a-place/test/send-to-a-place-rows.test.mjs: the person has connected Notion (service_connection:notion). The body makes a page in database 0123456789abcdef0123456789abcdef titled \"Spring menu review\", with a paragraph holding the note and a paragraph linking \"Spring menu draft\" to https://example.com/menu/spring. I could not run it: it needs a live Notion token, so the answer is worked out from the row, and the exact \"said\" wording follows the webhook sibling's pattern \"<host> answered <status>\".",
       "hands_back": "{\"status\":200,\"said\":\"api.notion.com answered 200\",\"answer\":\"<Notion's page object as text>\"}: the verify step requires $.said to contain \"answered\". With no title the page is titled with things.0.label."
     }
   ]

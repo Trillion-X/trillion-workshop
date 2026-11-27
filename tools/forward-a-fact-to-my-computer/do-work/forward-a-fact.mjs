@@ -12,7 +12,7 @@
 //   `fact:<event id>` (one longer than the door takes is named by its identity, tools/content-identity
 //   `requestKeyForEngine`), so the same fact told again is the same call, and the far computer admits a sender's fact once
 //   per event id whatever the request key.
-// - The key is the held value on descriptor 3 (the row's credential_mounts): a key made for wake:arrive alone and kept with
+// - The key is the held value on descriptor 3 (the row's key): a key made for wake:arrive alone and kept with
 //   the gateway's host alone (read-data/forward.json `key_name`). Its value is never written to the answer, an error or a
 //   line; a refusal names the key by its held name.
 // - A run that told the fact answers what the far computer said: kept, and by how many wakes it is heard, or that no wake

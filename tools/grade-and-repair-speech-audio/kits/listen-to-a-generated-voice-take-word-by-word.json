@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:listen-to-a-generated-voice-take-word-by-word's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:listen-to-a-generated-voice-take-word-by-word's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Listen to my voice take /Work/demo/take.wav word by word with its word times /Work/demo/take.words.json and tell me which words sound least like a warm, calm narrator.\" It runs tool:listen-to-a-generated-voice-take-word-by-word on your computer and writes each word's scores to /Work/demo/take.listen.json.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a take and its word times on your computer and writes the JSON file you name.",

@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:derive-current-api-description-rows's own row (its words, input schema and sample run) in tools/describe-the-workshop/tool-rows.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:derive-current-api-description-rows's own row (its words, input schema and sample run) in tools/describe-the-workshop/what-this-tool-does-and-how-to-run-it.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Derive the current tools of my connected source tool:fixture:any without opening my account records\", with {\"need\": \"tool:fixture:any\", \"wait\": false}. It runs tool:derive-current-api-description-rows and answers that source's tools as rows.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it derives one source's tools as rows and answers, and keeps no row.",

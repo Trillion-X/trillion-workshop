@@ -48,7 +48,7 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "tools/keep-my-records-on-this-device/tool-rows.json sample run (tool:pack-my-device-copys-settle-upload)"
+   "tools/keep-my-records-on-this-device/what-this-tool-does-and-how-to-run-it.json sample run (tool:pack-my-device-copys-settle-upload)"
   ]
  }
 }

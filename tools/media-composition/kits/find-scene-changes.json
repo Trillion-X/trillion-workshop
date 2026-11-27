@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-scene-changes's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-scenes.mjs, and the script run on a synthetic 7 second clip (3 s red, 2 s blue, 2 s green)",
+  "drafted_from": "tool:find-scene-changes's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/detect-scenes.mjs, and the script run on a synthetic 7 second clip (3 s red, 2 s blue, 2 s green)",
   "start_here": "Say to your AI: \"Find where my video cuts from one shot to another.\" It runs tool:find-scene-changes and hands back the time in seconds of every cut.",
   "lists": [],
   "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",

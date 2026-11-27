@@ -14,4 +14,4 @@ The formula engine built from `../crates/formula-engine` by `tools/build-engine-
 
 **Depends on:** `../crates/formula-engine` over `tools/shared-code/crates/composition-ast` and `ops-core`.
 
-**Depended on by:** every caller of the formula engine (they import `formula-engine/formula_engine.js`), `tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs` (copies `formula-engine/` for the app's release), `../tool-rows.json` (runs `component/formula-engine.wasm`).
+**Depended on by:** every caller of the formula engine (they import `formula-engine/formula_engine.js`), `tools/build-engine-modules-for-web-hosts/build/compiled-modules.mjs` (copies `formula-engine/` for the app's release), `../what-this-tool-does-and-how-to-run-it.json` (runs `component/formula-engine.wasm`).

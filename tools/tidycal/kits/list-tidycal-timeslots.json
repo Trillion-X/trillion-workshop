@@ -33,7 +33,7 @@
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a GET to https://tidycal.com/api/booking-types/{booking_type_id}/timeslots with the vault key tidycal-api-token. Reads only.",
+      "given": "Reads tools/tidycal/what-this-tool-does-and-how-to-run-it.json: a GET to https://tidycal.com/api/booking-types/{booking_type_id}/timeslots with the vault key tidycal-api-token. Reads only.",
       "hands_back": "It answers the open slots, for example a slot starting 2026-12-01T16:00:00Z. The real times are read from the live TidyCal answer when the row runs."
     }
   ]

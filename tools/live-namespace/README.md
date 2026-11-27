@@ -113,7 +113,7 @@ shares).
 | `Cargo.lock` | The resolved versions of this program. |
 | `settings.json` | One run's settings: account name, where the rows are kept, key prefix, call time, attached connection fields. |
 | `mcp-tools.json` | Each MCP tool: name, description, input schema. |
-| `tool-rows.json` | The Workshop row `tool:your-files`: the session the engine keeps open and reaches by calls (`session.calls`, the computer's own `live-namespace` program, the credentials mounted by name, `internet` for the byte store and the database, each reached through the run's proxy). |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:your-files`: the session the engine keeps open and reaches by calls (`session.calls`, the computer's own `live-namespace` program, the credentials mounted by name, `may_reach` for the byte store and the database, each reached through the run's proxy). |
 | `kits/your-files.json` | The kit that row ships with. |
 | `moved-from.json` | Each moved file's source path, commit and identities, and what was left behind. |
 | `part.json` | The files the app imports from this folder. |

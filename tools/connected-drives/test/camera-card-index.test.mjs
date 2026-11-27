@@ -112,9 +112,9 @@ test('seedOfSession names its source and clip list with times', () => {
 
 test('the tool row runs a function this module exports, from the connected-drives folder', async () => {
   const { readFileSync } = await import('node:fs');
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const row = rows.find(payload => payload.id === 'tool:read-a-camera-card-index');
-  const [, , file, fn] = row.invoke.argv;
+  const [, , file, fn] = row.invoke.run;
   assert.equal(file, '/opt/connected-drives/read-data/camera-card-index.mjs');
   const module = await import('../read-data/camera-card-index.mjs');
   assert.equal(typeof module[fn], 'function');

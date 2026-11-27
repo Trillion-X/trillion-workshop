@@ -6,7 +6,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
-const text = readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8');
+const text = readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8');
 const rows = new Map(JSON.parse(text).records.map(({ payload }) => [payload.id, payload]));
 const row = id => { assert.ok(rows.has(id), `${id} is a row`); return rows.get(id); };
 
@@ -59,7 +59,8 @@ test('Notion and Slack take their token only from their own connection, only in 
     const address = new URL(tool.invoke.url);
     assert.equal(address.host, host, id);
     assert.equal(address.protocol, 'https:', id);
-    assert.deepEqual(tool.invoke.credential_injections, [{ field_id: field, hosts: [address.host], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ', suffix: '' } }], id);
+    assert.deepEqual(tool.invoke.credential_injections, [{ field_id: field, placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ', suffix: '' } }], id);
+    assert.deepEqual(tool.invoke.may_reach, [address.host], id);
   }
 });
 

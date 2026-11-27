@@ -8,7 +8,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { exampleId, handleSavedExamplesRequest, makeSavedExamples } from '../do-work/answer-the-saved-examples-page.mjs';
 
 const card = url => ({ url, final_url: url, host: 'instagram.com', site: 'Instagram', title: 'A reel that worked', description: 'The caption', image: 'https://cdn.test/1.jpg', images: ['https://cdn.test/1.jpg', 'https://cdn.test/2.jpg'], videos: [], icon: null, data: [], text: 'Page words', unread: null });
@@ -110,7 +110,7 @@ const route = (path, method, body = {}) => ({ path, method, query: {}, body, bro
 
 // The row as the engine runs it: the argv of the row, with the folders of this checkout under /opt, the input on stdin.
 function runRow(input) {
-  const [, runner, file, name] = row.invoke.argv;
+  const [, runner, file, name] = row.invoke.run;
   const local = file.replace('/opt/saved-examples/', fileURLToPath(new URL('../', import.meta.url)));
   const ran = spawnSync(process.execPath, [fileURLToPath(new URL('../../workflows/do-work/run-a-function.mjs', import.meta.url)), local, name], { input: JSON.stringify(input), encoding: 'utf8' });
   assert.ok(runner.endsWith('/do-work/run-a-function.mjs'), runner);
@@ -160,7 +160,7 @@ test('the page and any AI reach the same saved-example rows: rows come in as sto
 test('the route row names no records method and reads the internet only to read a link', () => {
   assert.doesNotMatch(JSON.stringify(rows.records.map(record => record.payload)), /"records:(read|write|list)"/);
   assert.deepEqual(row.stored, [{ kind: 'saved-example' }]);
-  assert.equal(row.invoke.internet, true);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.equal(row.needs.network_egress, true);
-  assert.doesNotMatch(row.invoke.argv.join(' '), /records-door/);
+  assert.doesNotMatch(row.invoke.run.join(' '), /records-door/);
 });

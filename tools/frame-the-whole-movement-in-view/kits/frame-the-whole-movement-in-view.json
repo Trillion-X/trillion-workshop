@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/frame-the-whole-movement-in-view/tool-rows.json, do-work/frame_the_movement.py, test/test_frame_the_movement.py, and the reel recipe's three framing steps (workflow:make-a-trial-reel-and-post-it-on-instagram)",
+  "drafted_from": "tools/frame-the-whole-movement-in-view/what-this-tool-does-and-how-to-run-it.json, do-work/frame_the_movement.py, test/test_frame_the_movement.py, and the reel recipe's three framing steps (workflow:make-a-trial-reel-and-post-it-on-instagram)",
   "start_here": "Say to your AI: \"Keep the whole swing in view in my reel of the forehand clip.\" It measures each shot of the clip, picks each shot's layout by the measured fit and gates the result at 0 frames out of view.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the film file and the layout rows the reel recipe passes it, and writes its measurements and the framing evidence as files in the folder the request names.",

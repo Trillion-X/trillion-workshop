@@ -16,7 +16,7 @@ their broker takes an order. With no policy, no limits or no route, nothing is s
 | `read-data/broker-requests.mjs` | Order to request (`orderRequest`, `statusRequest`, `lookupRequest`), credentials and signed headers onto a request (`withCredentials`, `mergeHeaders`), answer to state (`readOrderAnswer`, `readLookupAnswer`). Every broker difference is route DATA. |
 | `read-data/values.mjs` | Shared readers: numbers from text, dotted paths, the ASCII JSON forms an identity and a body use. |
 | `read-data/account-board.ts` | `accountBoardOf({ cycle })`: the account board read from the trading agent's last cycle (hero, the account's own figures, holdings), pure; `humanLabelForSymbol` gives an option contract its label. Run by `tool:read-my-trading-account-board`. |
-| `tool-rows.json` | Seven rows: place, check and look up, each for paper and for live, and the account board read. Each row that runs `records-door`'s run-an-export or `workflows`' run-a-function packs the files it imports (workflows' host reader and large-file settings for the broker rows). |
+| `what-this-tool-does-and-how-to-run-it.json` | Seven rows: place, check and look up, each for paper and for live, and the account board read. Each row that runs `records-door`'s run-an-export or `workflows`' run-a-function packs the files it imports (workflows' host reader and large-file settings for the broker rows). |
 | `test/fixtures.mjs` | A made-up broker at broker.example, its routes, synthetic policies and a fake broker. |
 | `test/decide-orders.test.mjs`, `test/broker-requests.test.mjs`, `test/trading.test.mjs` | The old package's cases and the runs in process with a fake broker and no records door. |
 
@@ -99,7 +99,7 @@ The tool keeps nothing. Your AI reads the earlier `trade-order` and `trade-day-s
 **Depends on:** `tools/records-door` (the run-an-export command only; no door is opened), `tools/content-identity` (BLAKE3,
 with `@noble/hashes`), Node's `fetch` and `node:crypto`.
 
-**Depended on by:** the rows in `tool-rows.json`. Prices for market orders come from the caller, for example from the
+**Depended on by:** the rows in `what-this-tool-does-and-how-to-run-it.json`. Prices for market orders come from the caller, for example from the
 price-reading rows of `tools/live-market-prices`.
 
 ## Invariants

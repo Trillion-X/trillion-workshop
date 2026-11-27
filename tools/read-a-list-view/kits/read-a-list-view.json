@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-a-list-view row in tool-rows.json, do-work/read-list-view.mjs, read-data/list-view.mjs and test/read-a-list-view.test.mjs",
+  "drafted_from": "tool:read-a-list-view row in what-this-tool-does-and-how-to-run-it.json, do-work/read-list-view.mjs, read-data/list-view.mjs and test/read-a-list-view.test.mjs",
   "start_here": "Say to your AI: \"Refresh my chores list from its recipes folder source, then read me the first page of it.\" Your AI reads the list's records from your store, hands them to the list reader on your computer, writes back the rows it answers, and shows the rows as a table.",
   "lists": [],
   "no_lists_because": "It names no list of its own: it reads or refreshes whichever list or saved view you give it by id, from the records your AI hands in.",

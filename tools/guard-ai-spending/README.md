@@ -14,7 +14,7 @@ Keeps an AI's own spending inside the budget its person set. Before a spend, the
 | `read-data/spend-rails.ts` | `readPaymentRail(s)`: a rail is valid only when its guard is `tool:reserve-a-spend-within-budget` and its ledger is `tool:record-a-spend`. |
 | `read-data/spend-rails.json` | The shipped rails (x402, disabled), as DATA a person's own `payment-rail` record replaces. |
 | `read-data/spend-authority.ts` | `SpendAuthority`: the one type of the person's `spend-authority` record. |
-| `tool-rows.json` | The five rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The five rows. |
 | `part.json` | No public files: only the container runs this code. |
 | `test/decide-budget.test.mjs` | The package's 4 gate cases. |
 | `test/read-agent-budget-authority.test.ts` | The package's 7 go-ahead cases. |
@@ -43,4 +43,4 @@ Keeps an AI's own spending inside the budget its person set. Before a spend, the
 
 **Depends on:** `tools/records-door` (packed by every row at `/opt/records-door`). Node 24 in the tool container: it runs the `.ts` files by stripping their types, and it runs the `do-work/` scripts as child processes.
 
-**Depended on by:** any rail's settlement tool (each must reserve before paying and record after). Trillion's deploy reads `tool-rows.json`.
+**Depended on by:** any rail's settlement tool (each must reserve before paying and record after). Trillion's deploy reads `what-this-tool-does-and-how-to-run-it.json`.

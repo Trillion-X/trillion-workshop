@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { shareAnything } from '../do-work/share-anything.mjs';
 import { grantOf, labelOf } from '../read-data/share-label.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { applyWrites, assertNoRecordReach, callTool, memoryStore } from './caller-store.mjs';
 
 const digest = key => makeHashCodeHexFromBytes(new TextEncoder().encode(key)).slice(3);
@@ -193,7 +193,7 @@ test('an end rule is kept beside the run grant, set again by op end, and a share
 
 test('the row is a function with its source files, not record authority from a source-fetch dependency', () => {
   assertNoRecordReach(shareRow);
-  assert.deepEqual(shareRow.invoke.argv.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/share-anything/do-work/share-anything.mjs', 'shareAnything']);
+  assert.deepEqual(shareRow.invoke.run.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/share-anything/do-work/share-anything.mjs', 'shareAnything']);
 });
 
 test('the row contract allows fetch-only dependencies but rejects actual record grants, targets and host reach', () => {
@@ -203,7 +203,7 @@ test('the row contract allows fetch-only dependencies but rejects actual record 
   for (const change of [
     row => { row.invoke.records = { fd: 4, runs: ['tool:run-sql-in-my-database'] }; },
     row => { row.stored = [{ at: '@own-records', operations: ['records:read'] }]; },
-    row => { row.invoke.argv.push('records:write'); },
+    row => { row.invoke.run.push('records:write'); },
     row => { row.invoke.files.package_files.push({ package: 'records-door', paths: ['do-work'], at: '/opt/records-door' }); },
     row => { row.invoke.local_doors = ['records']; },
     row => { row.invoke.parent_actions = { operations: ['records:read'] }; },

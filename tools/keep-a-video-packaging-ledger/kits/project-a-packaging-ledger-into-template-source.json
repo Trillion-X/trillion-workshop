@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/project_packaging_ledger.py and the fixture of test/test_channel_intake_append_new.py (run to observe)",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/what-this-tool-does-and-how-to-run-it.json, do-work/project_packaging_ledger.py and the fixture of test/test_channel_intake_append_new.py (run to observe)",
   "start_here": "Say to your AI: \"Make the ch-example-videos rows of my packaging ledger into a source I can build a word-for-word template from, as out/SOURCE.html and out/SPEC.json.\" It reads the tool's row and runs project_packaging_ledger.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",

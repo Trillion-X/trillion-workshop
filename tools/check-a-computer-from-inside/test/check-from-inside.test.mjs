@@ -215,9 +215,9 @@ test('nothing outside its shape is written into a command', () => {
 });
 
 test('the row runs this script with the held key at the path its argument names, and packs the SSH helper beside it', () => {
-  const { records } = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const { records } = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const row = records.map(record => record.payload).find(payload => payload.id === 'tool:check-a-computer-from-inside');
-  const { argv, credential_mounts: mounts, files } = row.invoke;
+  const { run: argv, key: mounts, files } = row.invoke;
   assert.equal(argv[1], '/opt/check-a-computer-from-inside/do-work/check-from-inside.mjs');
   assert.equal(mounts.length, 1);
   assert.equal(mounts[0].mount_path, argv[2], 'the key file the script reads is the one mounted');

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:list-the-longest-still-holds-of-my-video's row in tools/check-a-videos-motion-against-a-reference/tool-rows.json, do-work/list-holds.mjs, read-data/measure-motion.mjs and test/list-holds.test.mjs; the answers were observed by running the command on an ffmpeg test clip",
+  "drafted_from": "tool:list-the-longest-still-holds-of-my-video's row in tools/check-a-videos-motion-against-a-reference/what-this-tool-does-and-how-to-run-it.json, do-work/list-holds.mjs, read-data/measure-motion.mjs and test/list-holds.test.mjs; the answers were observed by running the command on an ffmpeg test clip",
   "start_here": "Say to your AI: \"List the three longest places where clips/draft.mp4 holds still, with the second each one starts, up to its end card at 5 seconds.\" It reads the video on your computer and gives each hold as its length and start second, longest first.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one video file on your computer and prints the holds it found.",

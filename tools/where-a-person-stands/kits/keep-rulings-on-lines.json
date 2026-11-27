@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/where-a-person-stands/tool-rows.json (tool:keep-rulings-on-lines), do-work/ruling-records.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
+  "drafted_from": "tools/where-a-person-stands/what-this-tool-does-and-how-to-run-it.json (tool:keep-rulings-on-lines), do-work/ruling-records.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
   "start_here": "Say to your AI: \"Keep my ruling that the line 'A line that says too much.' in films/x/SCRIPT.md line 3 is bad, using my settings for this tool.\" It runs tool:keep-rulings-on-lines and hands you the one write that adds the ruling to my Checks list.",
   "lists": [
     {

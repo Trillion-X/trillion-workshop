@@ -42,7 +42,7 @@ import {
 
 export const settings = JSON.parse(readFileSync(new URL('./pull-settings.json', import.meta.url), 'utf8'));
 
-// `computer` is the engine's grant (computer.automate-an-app), which tool-rows.json requires; `most_scroll_steps` caps one
+// `computer` is the engine's grant (computer.automate-an-app), which what-this-tool-does-and-how-to-run-it.json requires; `most_scroll_steps` caps one
 // read's scrolls (5e75dfbf8). Both were dropped by 188cb225c, which rewrote this file from older bytes, so every engine
 // run of this tool was refused "The input has a field it does not take: computer" (found 4:3x AM CST Nov 22 2026).
 const INPUT_FIELDS = ['url', 'links', 'scroll_selector', 'follow', 'save', 'save_attachments', 'most_scroll_steps', 'computer'];

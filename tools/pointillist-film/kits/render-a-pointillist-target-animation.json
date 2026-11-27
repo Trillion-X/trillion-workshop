@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/pointillist-film/tool-rows.json (tool:render-a-pointillist-target-animation), examples/encode_target_animation.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
+  "drafted_from": "tools/pointillist-film/what-this-tool-does-and-how-to-run-it.json (tool:render-a-pointillist-target-animation), examples/encode_target_animation.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
   "start_here": "Say to your AI: \"Pack my two-cell film at 4 frames a second into one target-animation file, animation.pfat.\" It runs encode_target_animation on your computer and tells you where the file is.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one animation request file and writes one packed animation file.",

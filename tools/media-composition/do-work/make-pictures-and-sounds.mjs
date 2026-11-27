@@ -13,7 +13,7 @@
  * settings, given at run time with --settings, over the maker's and the style's own.
  *
  * NON-NEGOTIABLE INVARIANTS:
- * 1. A key is read from the file its maker's connection is placed at (the tool row's credential_mounts), sent only in
+ * 1. A key is read from the file its maker's connection is placed at (the tool row's key), sent only in
  *    the request header or query its maker names, and never written to a file, argument, output or error. With no
  *    key placed, a maker that names `through_trillion` sends the same request through the relay file placed at
  *    --relay (the Workshop's relay for this run: { url, person, key }), and Trillion's gateway account pays; its key

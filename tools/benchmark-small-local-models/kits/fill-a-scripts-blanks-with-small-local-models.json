@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/make_candidate_pool.py, read-data/template_blanks.py, do-work/render_choices_as_fills.py and test/test_benchmark.py (Pool.test_blanks_ranked_typed_chosen_and_rendered_as_fills)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/make_candidate_pool.py, read-data/template_blanks.py, do-work/render_choices_as_fills.py and test/test_benchmark.py (Pool.test_blanks_ranked_typed_chosen_and_rendered_as_fills)",
   "start_here": "Say to your AI: \"Fill the blanks of my script template with sourced phrases a small model on my computer chooses, and leave a blank empty when no phrase has a source.\"",
   "lists": [
     {

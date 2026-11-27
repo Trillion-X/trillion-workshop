@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:picture-an-app-window row in tools/look-at-screen/tool-rows.json, do-work/look-at-screen.mjs (lookAtWindow), read-data/rules.json and test/look-at-screen.test.mjs",
+  "drafted_from": "tool:picture-an-app-window row in tools/look-at-screen/what-this-tool-does-and-how-to-run-it.json, do-work/look-at-screen.mjs (lookAtWindow), read-data/rules.json and test/look-at-screen.test.mjs",
   "start_here": "Say to your AI: \"Show me what the Notes window looks like right now.\" It runs tool:picture-an-app-window once with owner_name \"Notes\" and describes the picture.",
   "lists": [],
   "no_lists_because": "It names no list: it takes a picture only when run, keeps nothing on the Mac and answers the picture in its reply.",

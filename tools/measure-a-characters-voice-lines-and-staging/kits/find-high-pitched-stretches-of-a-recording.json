@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-high-pitched-stretches-of-a-recording's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "drafted_from": "tool:find-high-pitched-stretches-of-a-recording's row in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
   "start_here": "Say to your AI: \"Find the stretches of recordings/vid-a.wav spoken between 200 and 600 Hz and write them to the pitch folder.\" It runs tool:find-high-pitched-stretches-of-a-recording on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",

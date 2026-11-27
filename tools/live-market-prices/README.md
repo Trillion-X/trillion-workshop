@@ -11,7 +11,7 @@ Reads live market prices. From public prediction markets (no account, no key): w
 | `do-work/normalize-order-book.py` | Carried unchanged: the order-book reply to `{ book, status }`. Best bid is the highest bid price and best ask the lowest ask price (the ladder is not assumed sorted); spread, midpoint and depth are derived. |
 | `do-work/normalize-price-bars.py` | From the old market-data-feed package's bar normalizer: a bars reply to `{ bars, latest, status }`, with every field name taken from the feed. |
 | `sources/public-markets-api.json` | DATA: the two public addresses, paths, query names, headers, the User-Agent, the default and largest limit and which normalizer reads each reply. Another venue is another file of this shape. |
-| `tool-rows.json` | `tool:list-public-prediction-markets` and `tool:read-prediction-market-order-book` (no credential) and `tool:read-price-bars-from-my-market-data-account` (the held `market-data-credentials` on descriptor 3). All are container rows with `internet: true`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:list-public-prediction-markets` and `tool:read-prediction-market-order-book` (no credential) and `tool:read-price-bars-from-my-market-data-account` (the held `market-data-credentials` on descriptor 3). All are container rows with `may_reach`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/normalize-gamma-markets.test.py`, `test/normalize-order-book.test.py` | The old package's 28 and 35 checks, run as scripts. |
 | `test/normalize-price-bars.test.py` | 5 tests of the bars normalizer with synthetic replies. |
@@ -46,7 +46,7 @@ A bars node that is an object holds one list per symbol; a list holds bars that 
 
 **Depends on:** Python 3's standard library, the two public APIs named in `sources/public-markets-api.json`, and for bars the person's own market-data account.
 
-**Depended on by:** `tool-rows.json`. `tools/trading` takes `latest` as the prices of a policy's market orders, through the caller; it does not copy these reads.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. `tools/trading` takes `latest` as the prices of a policy's market orders, through the caller; it does not copy these reads.
 
 ## Restored from bitfield-packages `market-data-feed`
 

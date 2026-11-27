@@ -47,5 +47,5 @@ Input built at run time (jq, a variable, a loop) is listed as unresolved, never 
 | `test-fixtures/task-records.mjs` | An in-memory account for the task tests: records:read, records:list and records:write with the engine's expected-value rule, and the task rows run for real over them. |
 | `test/replay-recorded-writes.test.mjs` | Synthetic transcripts: a success is kept in each shape, a refused, unknown or unanswered call is skipped and listed, the newest write wins across files, removals are carried, malformed lines and shell escapes are tolerated, file inputs come only from the transcript or an unchanged file, credential-like rows stay out, and the replay writes only its inventory folder. |
 | `ports/replay-recorded-writes.json` | The NO_PRIOR_OWNER claim for `do-work/replay-recorded-writes.mjs`, with the search that found no older owner. |
-| `tool-rows.json` | `tool:use-your-tools-from-a-shell` (`on-your-computer`). |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:use-your-tools-from-a-shell` (`on-your-computer`). |
 | `part.json` | `do-work/local-door.mjs` is imported by another folder. |

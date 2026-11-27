@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/file-spoken-moments-into-topic-buckets/tool-rows.json, do-work/bucket_moments.py and test/bucket-moments.test.mjs, run against the test's stand-in model (test/fake_ollama.py) on test/write_fixtures.py's synthetic transcript",
+  "drafted_from": "tools/file-spoken-moments-into-topic-buckets/what-this-tool-does-and-how-to-run-it.json, do-work/bucket_moments.py and test/bucket-moments.test.mjs, run against the test's stand-in model (test/fake_ollama.py) on test/write_fixtures.py's synthetic transcript",
   "start_here": "Say to your AI: \"Go through the transcripts in /tmp/my-transcripts, cut them into moments, file each under topics and tell me how many moments are usable.\" It checks Ollama is running with the model pulled, runs the tag step, then the report step and tells you the counts per bucket.",
   "lists": [],
   "no_lists_because": "It keeps no list: it writes moments, buckets and relevance into your transcript files and a buckets.json vocabulary file beside them.",

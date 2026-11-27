@@ -1,5 +1,5 @@
 // tools/run-experiments/test/run-experiments-tools.test.mjs
-// Each tool runs the way its row runs it: its argv, in the folder its workdir stands for. The package's own tests
+// Each tool runs the way its row runs it: its run, in the folder its workdir stands for. The package's own tests
 // cover the scoring, the sticky choice, the outcome counts and the join; these check the three commands and their rows.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,12 +11,12 @@ const folder = resolve(import.meta.dirname, '..');
 const rows = JSON.parse(readFileSync(resolve(folder, 'records.json'), 'utf8')).things.map(thing => thing.payload);
 const bandit = JSON.parse(readFileSync(resolve(folder, 'data/decider-bandit.example.json'), 'utf8'));
 
-/** Run a tool by its row: the whole input fills argv, in the folder its workdir stands for. */
+/** Run a tool by its row: the whole input fills its run, in the folder its workdir stands for. */
 function runByRow(toolId, input) {
   const row = rows.find(item => item.id === toolId);
   assert.ok(row, `${toolId} is a row in records.json`);
   assert.equal(row.invoke.workdir, [row.invoke.files.package_files].flat()[0].at);
-  const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
+  const argv = row.invoke.run.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   if (ran.status !== 0) return { refused: ran.stderr.trim() };
   return JSON.parse(ran.stdout.trim().split('\n').at(-1));

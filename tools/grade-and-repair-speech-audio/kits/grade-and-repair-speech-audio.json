@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:grade-and-repair-speech-audio), do-work/grade_and_repair_speech.py, read-data/grade_rules.py and spans.py, test/grade-and-repair-speech-audio.test.mjs and its fixture (build_fixture.py, settings-for-synthetic-speech.json)",
+  "drafted_from": "tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json (tool:grade-and-repair-speech-audio), do-work/grade_and_repair_speech.py, read-data/grade_rules.py and spans.py, test/grade-and-repair-speech-audio.test.mjs and its fixture (build_fixture.py, settings-for-synthetic-speech.json)",
   "start_here": "Say to your AI: \"Grade the speech in the three spans of /Work/demo/spans.json against my settings in /Work/settings.json and clean up the ones that sound poor, writing to /Work/demo/out.\" It runs tool:grade-and-repair-speech-audio on your computer and tells you how many spans were good, remastered or need a clone.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a spans file and settings file on your computer and writes grades.json and audio files into a folder you name.",

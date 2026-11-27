@@ -31,7 +31,7 @@ changes a bucket.
 | File | Purpose |
 |------|---------|
 | `do-work/put-object.mjs` | `putObject(given, { store })`: checks, hashes, signs and sends; `fileInFolder` and `checkedKey`, the refusals |
-| `tool-rows.json` | The row `tool:put-an-object-in-an-s3-store` (kind `computer`, capability `read-a-folder`) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:put-an-object-in-an-s3-store` (kind `computer`, capability `read-a-folder`) |
 | `kits/put-an-object-in-an-s3-store.json` | How a person's AI uses the tool, with a worked example |
 | `test/put-object.test.mjs` | A made-up store that keeps what one PUT sends: the address, the signed region and payload hash, the bytes; every refusal |
 
@@ -48,5 +48,5 @@ The test is synthetic. A live store accepting a put needs the store's values in 
 **Depends on:** `tools/read-objects-in-an-s3-store/do-work/read-objects.mjs` (`signRequest`, `endpointOrigin`); Node's `fetch`,
 `crypto` and `fs`.
 
-**Depended on by:** `tool-rows.json`; a Mac app release, which publishes its disk images and its Sparkle
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; a Mac app release, which publishes its disk images and its Sparkle
 appcast to the `downloads-store` bucket with it.

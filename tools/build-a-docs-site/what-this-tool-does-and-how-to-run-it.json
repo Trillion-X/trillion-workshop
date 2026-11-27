@@ -1,0 +1,295 @@
+{
+  "kind": "tool-rows",
+  "record_set": "build-a-docs-site-tool-rows",
+  "what_this_is": "The Workshop row for tools/build-a-docs-site: tool:build-docs-site turns a docs manifest (site facts, navigation, pages, palettes, roles) into every file a Mintlify docs site is made of. It keeps nothing; the files come back in the answer.",
+  "records": [
+    {
+      "id": "package::build-a-docs-site::tool::build-docs-site",
+      "address": "package::build-a-docs-site::tool::build-docs-site",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "id": "tool:build-docs-site",
+        "listed_on": "2026-10-01T19:11:24Z",
+        "label": "Build a docs site (Mintlify)",
+        "job": "Docs site builder: turn pages, navigation and colours into every file a Mintlify documentation site needs, ready to save and put in a repository",
+        "description": "Give site (name, description, url; optional logo, favicon, fonts and font_faces, keywords, social, navbar, contextual, appearance, search_prompt), navigation (tabs, each with groups of page routes), pages ({route, title, description, body in Markdown or MDX}), palettes {light, dark} (colour name → value) and roles {accent, page} naming which palette colours are the accent and the page background. Returns files: [{path, text}] (docs.json, theme.css, theme.js, llms.txt and one .mdx per page) and problems: every missing or wrong field in plain words, in which case files is empty. Nothing is published: save the files, push them to a repository, and connect that repository in Mintlify once.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "site",
+            "navigation",
+            "pages",
+            "palettes",
+            "roles"
+          ],
+          "properties": {
+            "site": {
+              "type": "object",
+              "required": [
+                "name",
+                "description",
+                "url"
+              ],
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": "string"
+                }
+              }
+            },
+            "navigation": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tab",
+                  "groups"
+                ],
+                "properties": {
+                  "tab": {
+                    "type": "string"
+                  },
+                  "groups": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "group",
+                        "pages"
+                      ],
+                      "properties": {
+                        "group": {
+                          "type": "string"
+                        },
+                        "pages": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "pages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "route",
+                  "title",
+                  "description",
+                  "body"
+                ],
+                "properties": {
+                  "route": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "body": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "palettes": {
+              "type": "object",
+              "required": [
+                "light",
+                "dark"
+              ],
+              "properties": {
+                "light": {
+                  "type": "object"
+                },
+                "dark": {
+                  "type": "object"
+                }
+              }
+            },
+            "roles": {
+              "type": "object",
+              "required": [
+                "accent",
+                "page"
+              ],
+              "properties": {
+                "accent": {
+                  "type": "string"
+                },
+                "page": {
+                  "type": "string"
+                },
+                "accent_strong": {
+                  "type": "string"
+                }
+              }
+            },
+            "variable_prefix": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "files",
+            "problems"
+          ],
+          "properties": {
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "text"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "problems": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/build-a-docs-site",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
+            "buildDocsSite"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "build-a-docs-site",
+                "paths": [
+                  "parts"
+                ],
+                "at": "/opt/build-a-docs-site"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "site": {
+                "name": "Salt & Fire Kitchen",
+                "description": "Recipes, class times and kitchen safety for students.",
+                "url": "https://learn.saltandfire.example",
+                "navbar": {
+                  "primary": {
+                    "label": "Book a class",
+                    "href": "https://saltandfire.example/book"
+                  }
+                }
+              },
+              "navigation": [
+                {
+                  "tab": "Handbook",
+                  "groups": [
+                    {
+                      "group": "Start here",
+                      "pages": [
+                        "index",
+                        "safety/knives"
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "pages": [
+                {
+                  "route": "index",
+                  "title": "Welcome",
+                  "description": "What to bring to your first class.",
+                  "body": "Bring an apron and closed shoes."
+                },
+                {
+                  "route": "safety/knives",
+                  "title": "Knife safety",
+                  "description": "How to hold and pass a knife.",
+                  "body": "Pinch the blade and curl your fingers."
+                }
+              ],
+              "palettes": {
+                "light": {
+                  "accent": "#c2410c",
+                  "page": "#fffaf5"
+                },
+                "dark": {
+                  "accent": "#fb923c",
+                  "page": "#0c0a09"
+                }
+              },
+              "roles": {
+                "accent": "accent",
+                "page": "page"
+              }
+            },
+            "output_selector": "$.files[0].path",
+            "contains": "docs.json"
+          }
+        ],
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-worker"
+        ],
+        "maker": "maker:build-a-docs-site",
+        "provenance": {
+          "source": "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs:63 (buildDocsSite); the held worker-module descriptor (module docs-site, export buildDocsSite) named an engine file that is not in this repository, so it is a container run"
+        }
+      }
+    }
+  ]
+}

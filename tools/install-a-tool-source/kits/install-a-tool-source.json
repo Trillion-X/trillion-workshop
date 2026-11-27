@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:install-a-tool-source's row in tool-rows.json, do-work/install-a-tool-source.mjs and test/install-a-tool-source.test.mjs",
+  "drafted_from": "tool:install-a-tool-source's row in what-this-tool-does-and-how-to-run-it.json, do-work/install-a-tool-source.mjs and test/install-a-tool-source.test.mjs",
   "start_here": "Say to your AI: \"Add my team's tools to all my computers: the archive at https://git.example.net/team/tools/-/archive/<commit>/tools.tar.gz, pinned by its files.\" It adds a row to your tool sources, and each of your computers installs it on its own.",
   "lists": [],
   "no_lists_because": "It keeps no list: your tool sources are rows in your own database, and this installs what one row says on the computer it runs on.",

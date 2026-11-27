@@ -16,7 +16,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `do-work/measure-funnel-stages.mjs` | The command of `tool:measure-funnel-stages`. |
 | `do-work/draft-a-funnel.mjs` | The command of `tool:draft-a-funnel`. |
 | `records.json` | The four tool rows. |
-| `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:funnel-and-offer-tools`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Lists `records.json`'s rows into the Workshop (`source:funnel-and-offer-tools`). |
 | `part.json` | Public pure reference, flow and measure readers for other consumers; the commands keep using these same readers. |
 | `read-data/offer-variants.mjs` | `resolveOfferVariants`: a row with `variant_of` (a price-test arm) reads as the row it varies, with `replace_words` applied to inherited words and its own fields winning. The reader resolves every row through it. |
 | `test/offer-variants.test.mjs` | Variants, quantity, checkout note and retired offers through the reader. |
@@ -63,7 +63,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 
 **Depends on:** Node in the tool container.
 
-**Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).
+**Depended on by:** Trillion's deploy (it reads `what-this-tool-does-and-how-to-run-it.json` and bundles the files a row names).
 
 ## Screens moved from the web client
 

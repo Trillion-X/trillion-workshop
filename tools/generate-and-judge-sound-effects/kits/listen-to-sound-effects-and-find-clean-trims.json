@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:listen-to-sound-effects-and-find-clean-trims row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:listen-to-sound-effects-and-find-clean-trims row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Rank my hits folder against the description a low hit and find the cleanest trim of the best one.\" It writes CATEGORIES.json for the hit category, runs the listener and reads back the trim it found.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads CATEGORIES.json and sound files on this computer and merges its findings into an OUT.json file.",

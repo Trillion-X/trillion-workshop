@@ -8,7 +8,7 @@ Places a person's tasks into their free time and judges their meetings against t
 |------|---------|
 | `do-work/plan-my-time.mjs` | `planMyTime(request)`: pure, deterministic, no calendar or network. Free time from the weekly schedule in the person's zone minus busy events, then each task placed in rank order; meetings proposed for decline; each day against its cap. |
 | `read-data/rules.json` | The planning policy as DATA: window, stale days, chunk sizes, pursuit and priority weights, the default weekly schedule, gap, slot choice, daily caps, the rollover alert and named schedules. A request overrides any of it under `rules`. |
-| `tool-rows.json` | The row `tool:plan-my-time`, run in the small container. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:plan-my-time`, run in the small container. |
 | `test/plan-my-time.test.mjs` | The plan's behaviour on small weeks, and the row's own sample run. |
 | `part.json` | Nothing here is imported by other code. |
 

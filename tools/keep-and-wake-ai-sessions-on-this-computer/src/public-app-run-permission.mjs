@@ -31,9 +31,9 @@ export function publicRunEligible(tool) {
     safeFields;
   return tool?.show_on_public_site === true && tool?.price_ref === undefined && !tool?.billing &&
     simpleInput &&
-    invoke?.kind === 'container' && Array.isArray(invoke.argv) && invoke.argv.length > 0 &&
-    (invoke.workdir === undefined || invoke.workdir === '/work') && invoke.internet !== true &&
-    !invoke.external_effect && !invoke.credential_injections?.length && !invoke.credential_mounts?.length &&
+    invoke?.kind === 'container' && Array.isArray(invoke.run) && invoke.run.length > 0 &&
+    (invoke.workdir === undefined || invoke.workdir === '/work') && invoke.may_reach === undefined &&
+    !invoke.external_effect && !invoke.credential_injections?.length && !invoke.key?.length &&
     !invoke.credentials?.length && !invoke.mounts?.length && !invoke.gateway_relay &&
     (invoke.outputs === undefined || (Array.isArray(invoke.outputs) && invoke.outputs.length === 0)) &&
     !tool?.needs?.secret_names?.length && !tool?.keeps_records?.length && !tool?.result_saved_as_tool;

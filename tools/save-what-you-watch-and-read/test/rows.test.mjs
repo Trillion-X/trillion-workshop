@@ -1,5 +1,5 @@
 // tools/save-what-you-watch-and-read: the three rows are the shape the engine runs, and each command, run the way the
-// engine runs it (the granted folder in argv, the input on standard input, the answer on the last line, /opt/<folder>
+// engine runs it (the granted folder in its run, the input on standard input, the answer on the last line, /opt/<folder>
 // laid on the tool folders), answers over made-up files in a made-up folder. Needs python3 (standard library only).
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import test from 'node:test';
@@ -11,13 +11,13 @@ import { join, resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
 const tools = resolve(folder, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const row = id => rows.find(item => item.id === id);
 const skip = spawnSync('python3', ['--version']).status === 0 ? false : 'needs python3';
 
-// The command a row runs: its argv with /opt/<folder> laid on that tool folder and the folder grant filled.
+// The command a row runs: its run with /opt/<folder> laid on that tool folder and the folder grant filled.
 function run(item, granted, input) {
-  const argv = item.invoke.argv.map(part => (typeof part === 'string'
+  const argv = item.invoke.run.map(part => (typeof part === 'string'
     ? part.replace(/^\/opt\/([a-z-]+)/, (_, name) => join(tools, name))
     : granted));
   const ran = spawnSync(argv[0], ['-B', ...argv.slice(1)], { input: input === undefined ? '' : JSON.stringify(input), encoding: 'utf8' });
@@ -47,10 +47,10 @@ test('the two folder rows run on the person\'s computer over a granted folder, r
     const item = row(id);
     assert.equal(item.invoke.kind, 'computer', id);
     assert.deepEqual(item.invoke.capabilities, ['read-a-folder'], id);
-    assert.notEqual(item.invoke.internet, true, id);
+    assert.equal(item.invoke.may_reach, undefined, id);
     assert.deepEqual(item.placements, ['placement:your-computer'], id);
     assert.equal(item.result_selector, '$.result', id);
-    assert.ok(item.invoke.argv.some(part => part.fill?.field === 'grants.read-a-folder.folder'), id);
+    assert.ok(item.invoke.run.some(part => part.fill?.field === 'grants.read-a-folder.folder'), id);
     assert.deepEqual(item.invoke.files.package_files.map(spec => spec.package), ['conversations', 'save-what-you-watch-and-read', 'keep-and-wake-ai-sessions-on-this-computer', 'records-door', 'content-identity', 'take-pictures-out-of-a-zip-archive', 'decide-with-a-method', 'browse-and-upload-my-files', 'set-up-my-account'], id);
   }
 });
@@ -58,7 +58,7 @@ test('the two folder rows run on the person\'s computer over a granted folder, r
 test('the observation row runs in a container with no folder and its sample run is the line the engine checks', { skip }, () => {
   const item = row('tool:observe-something-i-watched-or-read');
   assert.equal(item.invoke.kind, 'container');
-  assert.notEqual(item.invoke.internet, true);
+  assert.equal(item.invoke.may_reach, undefined);
   const [check] = item.verify;
   const { status, answer } = run(item, null, check.input);
   assert.equal(status, 0);

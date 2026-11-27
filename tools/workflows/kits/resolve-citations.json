@@ -38,5 +38,5 @@
       "hands_back": "result[0] says ok true for the citation, and against names example-repo at commit 434ee11fd0, the commit the citation names."
     }
   ],
-  "drafted_from": "tool:resolve-citations' own row (tools/workflows/tool-rows.json) and its function (read-data/resolve-citations.mjs), run through the runner on the citations of commit 14c689357's direct tests"
+  "drafted_from": "tool:resolve-citations' own row (tools/workflows/what-this-tool-does-and-how-to-run-it.json) and its function (read-data/resolve-citations.mjs), run through the runner on the citations of commit 14c689357's direct tests"
 }

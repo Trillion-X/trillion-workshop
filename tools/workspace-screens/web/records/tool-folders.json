@@ -1,6 +1,6 @@
 {
  "what_this_is": "Where the Workshop's shared rows and tool folders are (scripts/tool-folders.mjs). Each folder is in this repository, or in an installed module when it names one. rows + rows_named: the files of rows in that folder; packages: a folder whose sub-folders are tool folders, found by name; rows_in_each_package: the file of rows each tool folder may hold. A tool folder name is found in exactly one place. A new place to read tools from is one row here. The client is built from the Workshop, so its only folder is the Workshop module (the web shell's own folder of workshop-*.json rows and parts it once listed first are gone).",
  "folders": [
-  { "module": "trillion-workshop", "rows": ".", "rows_named": "^licence-classes\\.json$", "packages": "tools", "rows_in_each_package": "tool-rows.json", "exclude_packages": ["headless-browser", "screen-look"] }
+  { "module": "trillion-workshop", "rows": ".", "rows_named": "^licence-classes\\.json$", "packages": "tools", "rows_in_each_package": "what-this-tool-does-and-how-to-run-it.json", "exclude_packages": ["headless-browser", "screen-look"] }
  ]
 }

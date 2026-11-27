@@ -11,7 +11,7 @@ import { root, tools, folders, json } from '../test-helpers/tool-rows.mjs';
 
 const callers = [];
 for (const folder of folders) {
-  const file = join(tools, folder, 'tool-rows.json');
+  const file = join(tools, folder, 'what-this-tool-does-and-how-to-run-it.json');
   if (!existsSync(file)) continue;
   for (const record of json(file).records ?? []) {
     const row = record.payload;

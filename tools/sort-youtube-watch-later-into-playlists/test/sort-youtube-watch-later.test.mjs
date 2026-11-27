@@ -8,7 +8,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map((r) => r.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map((r) => r.payload);
 const python = spawnSync('python3', ['--version'], { encoding: 'utf8' });
 
 test('each row names a script that exists', () => {

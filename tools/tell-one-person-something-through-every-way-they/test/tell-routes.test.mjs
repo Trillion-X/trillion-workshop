@@ -11,7 +11,7 @@ import { answerTellNoticesRoute } from '../do-work/tell-routes.mjs';
 import { makeTellThePerson } from '../read-data/tell-the-person.mjs';
 
 const rows = JSON.parse(readFileSync(new URL('../read-data/tell-the-person.json', import.meta.url), 'utf8'));
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const ROUTE = rowOf(ROWS, 'tool:answer-the-tell-notices-route');
 const NOW = new Date('2026-01-10T12:00:00.000Z');
 const withRecords = (request, records) => ({ ...request, stored: { records } });

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/label_frames_with_image_text_model.py and test/test_benchmark.py (Labels)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/label_frames_with_image_text_model.py and test/test_benchmark.py (Labels)",
   "start_here": "Say to your AI: \"Label the two sampled frames of my video with the open_clip model some/clip, using my shot vocabulary of size (wide, close) and colour (red, blue).\"",
   "lists": [
     {

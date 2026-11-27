@@ -9,7 +9,7 @@ import { realpathSync } from 'node:fs';
 //   provider's adapter its keys in the adapter's own environment, and answers who was sent to and who was not.
 //
 // NON-NEGOTIABLE INVARIANTS
-//   1. A provider key arrives on a private pipe (the row's invoke.credential_mounts: one descriptor per key, named in
+//   1. A provider key arrives on a private pipe (the row's invoke.key: one descriptor per key, named in
 //      the provider's row) and goes to the one adapter process in its environment. It is never in argv, a file, the
 //      request or the answer.
 //   2. No sending identity is shipped. An email has a sender the person gives (`from`, or a template merged with it);

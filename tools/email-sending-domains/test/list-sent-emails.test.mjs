@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { listSentEmails } from '../do-work/list-sent-emails.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:list-sent-emails');
 const canary = 'held-key-canary-0123456789';
 const now = Date.parse('2026-11-25T15:00:00Z');
@@ -20,8 +20,8 @@ const pages = list => {
 };
 
 test('the row hands the held key on a private pipe, the input on stdin, reads only, and runs on the person\'s computer', () => {
-  assert.ok(row, 'tools/email-sending-domains/tool-rows.json has tool:list-sent-emails');
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'key_name', fd: 3 }]);
+  assert.ok(row, 'tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json has tool:list-sent-emails');
+  assert.deepEqual(row.invoke.key, [{ secret_name_from_input: 'key_name', fd: 3 }]);
   assert.deepEqual(row.invoke.stdin, { fill: { from: 'input' } });
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.deepEqual(row.input_schema.required, ['key_name', 'days']);

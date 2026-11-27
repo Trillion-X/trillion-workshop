@@ -1,0 +1,769 @@
+{
+  "kind": "package-set-records",
+  "record_set": "answer-questions-about-many-states-tool-rows",
+  "what_this_is": "The Workshop rows for the answer-questions-about-many-states folder: get a questions-first classifier ready on the person's Mac, and run one question set over many states there. Each takes what it works on in its request and returns its result in its answer; nothing is kept in the person's records.",
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "provenance": {
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
+        },
+        "id": "tool:get-a-classifier-ready-on-this-mac",
+        "label": "Get a questions-first classifier ready on this Mac",
+        "job": "Get my question classifier model ready to run on my Mac",
+        "description": "Takes the model's value in the request ({classifier, weights}: a pinned Hugging Face revision, or a local folder), fetches and checks the weights, and names each checked file plus the whole set by BLAKE3. It copies those verified files into one private output tree; the engine keeps the files in this account’s Files and returns their exact identities under files.snapshot. The answer holds the original model file manifest, so another computer can verify the snapshot before using it. A gated model needs the person’s own `huggingface-cli login`. Run it once per model on a computer that has the model. Nothing is written to the person's records.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model"
+          ],
+          "properties": {
+            "model": {
+              "type": "object",
+              "required": [
+                "classifier",
+                "weights"
+              ],
+              "description": "The model's value, read by the caller from the person's list: `classifier` names the family (questions-first-decider) and `weights` says where the weights are ({\"folder\": a folder on this Mac} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision). No model is built in.",
+              "properties": {
+                "classifier": {
+                  "type": "string"
+                },
+                "weights": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Returns {classifier, identity, files: [{name, bytes, blake3}], ready}. The engine also keeps the verified snapshot tree in Files as files.snapshot: [{name, identity, bytes, media_type}]."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/answer-questions-about-many-states",
+          "may_reach": ["huggingface.co", "hf.co"],
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
+            "getAClassifierReady"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx==0.32.3 mlx-lm==0.32.2 transformers==5.22.2 numpy tokenizers blake3 huggingface_hub"
+          ],
+          "needs": [
+            "a Mac with Apple silicon",
+            "python3 with mlx 0.32.3, mlx-lm 0.32.2, transformers 5.22.2, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
+          ],
+          "programs": {
+            "python3": {
+              "warm": "python-script",
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                }
+              },
+              "search": "python3",
+              "runtime_read_dirs": [
+                "../lib",
+                {
+                  "from_program": "../lib/{executable_name}/site-packages"
+                }
+              ],
+              "runtime_programs": [
+                "../Resources/Python.app/Contents/MacOS/Python"
+              ]
+            }
+          },
+          "outputs": [
+            {
+              "name": "snapshot",
+              "path": "/opt/answer-questions-about-many-states/.training-output/snapshot",
+              "keep_in": "files",
+              "media_type": "application/octet-stream",
+              "max_bytes": 8589934592,
+              "tree": {
+                "files_from": "files",
+                "max_files": 64,
+                "max_bytes": 8589934592
+              }
+            }
+          ]
+        },
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": true,
+          "memory_mb": 2048
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "model": {
+                "classifier": "questions-first-decider",
+                "weights": {
+                  "folder": "/made-up/model"
+                }
+              }
+            },
+            "stand_in_programs": {
+              "python3": "req=$(cat)\ncase \" $* \" in\n  *\" get-ready\"*) echo '{\"result\": {\"model\": \"sample-model\", \"classifier\": \"questions-first-decider\", \"identity\": \"1f:0000000000000000000000000000000000000000000000000000000000000000\", \"files\": [{\"name\": \"config.json\", \"bytes\": 2, \"blake3\": \"0000000000000000000000000000000000000000000000000000000000000000\"}], \"ready\": true}}' ;;\n  *\" work\"*) echo '{\"checked\": {\"states\": 2}}'; echo '{\"answered\": [{\"state\": 0, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.25}}}, {\"state\": 1, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.75}}}]}'; echo '{\"result\": {\"status\": \"finished\", \"states_done\": 2, \"states\": 2, \"classifier_answers_as\": \"made-up\", \"seconds\": {\"wall\": 0.01}}}' ;;\n  *) echo '{\"error\": \"made-up stand-in\"}'; exit 1 ;;\nesac"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "provenance": {
+          "source": "The MLX forward in read-data/mlx_decider_core.py derives from the captured MlxDecider source at ports/source-baselines/answer-questions-about-many-states/decide_in_batches_on_mlx.py.held. Source qualification and installed execution remain unproved. The existing package contributes the raw-weight loader, prompt/tokenizer owners and controller. The adapted gated-delta kernel retains the MLX-LM MIT notice; model weights retain their own terms."
+        },
+        "id": "tool:answer-questions-about-many-states",
+        "label": "Answer the same questions about many states, in bulk, on this Mac",
+        "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
+        "description": "Takes the model's value, the question set, the settings and the states in the request, and asks every state every question on this Mac: the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The answer returns them all: {status, states_done, states, classifier_answers_as, seconds, answers: [{index, id?, answers: {question id: answer}}]}. The caller reads the inputs from the person's lists and puts the answers wherever it wants them; nothing is written to the person's records, and nothing is kept on this Mac: the states go to the classifier program on a pipe and its answers come back on one.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "questions",
+            "settings",
+            "states"
+          ],
+          "properties": {
+            "model": {
+              "type": "object",
+              "required": [
+                "classifier",
+                "weights"
+              ],
+              "description": "The model's value: `classifier` names the family (questions-first-decider) and `weights` says where its weights are ({\"folder\"} or {\"hugging_face\": {\"repo\", \"revision\"}}), made ready on this Mac by tool:get-a-classifier-ready-on-this-mac.",
+              "properties": {
+                "classifier": {
+                  "type": "string"
+                },
+                "weights": {
+                  "type": "object"
+                }
+              }
+            },
+            "questions": {
+              "type": "object",
+              "description": "The question set: {question id: {type: choice|score|noul, instructions, criteria?}}; choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false."
+            },
+            "settings": {
+              "type": "object",
+              "required": [
+                "layout",
+                "dtype",
+                "tokens_per_batch",
+                "max_state_tokens"
+              ],
+              "description": "layout (independent: one row per question, so no question sees another; packed: every question in one prefix, several times fewer tokens), dtype (bfloat16 or float32), tokens_per_batch and max_state_tokens. None has a default.",
+              "properties": {
+                "layout": {
+                  "type": "string"
+                },
+                "dtype": {
+                  "type": "string"
+                },
+                "tokens_per_batch": {
+                  "type": "integer"
+                },
+                "max_state_tokens": {
+                  "type": "integer"
+                }
+              }
+            },
+            "states": {
+              "type": "array",
+              "minItems": 1,
+              "description": "The states to ask about, in order: each {id?, state}, where `state` is text or JSON (written compactly) and `id` is the caller's name for it, returned beside its answers.",
+              "items": {
+                "type": "object",
+                "required": [
+                  "state"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "state": {}
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {\"status\": \"finished\" | \"cancelled\", \"states_done\", \"states\", \"classifier_answers_as\", \"seconds\", \"answers\": [{\"index\", \"id\"?, \"answers\"}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "max_run_ms": 14400000,
+          "workdir": "/opt/answer-questions-about-many-states",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
+            "answerManyStates"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "package": "workflows",
+                "paths": ["do-work/run-a-function.mjs"],
+                "at": "/opt/workflows"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx==0.32.3 mlx-lm==0.32.2 transformers==5.22.2 numpy tokenizers blake3 huggingface_hub"
+          ],
+          "needs": [
+            "a Mac with Apple silicon",
+            "python3 with mlx 0.32.3, mlx-lm 0.32.2, transformers 5.22.2, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
+          ],
+          "programs": {
+            "python3": {
+              "warm": "python-script",
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                }
+              },
+              "search": "python3",
+              "runtime_read_dirs": [
+                "../lib",
+                {
+                  "from_program": "../lib/{executable_name}/site-packages"
+                }
+              ],
+              "runtime_programs": [
+                "../Resources/Python.app/Contents/MacOS/Python"
+              ]
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": false,
+          "memory_mb": 16384
+        },
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "model": {
+                "classifier": "questions-first-decider",
+                "weights": {
+                  "folder": "/made-up/model"
+                }
+              },
+              "questions": {
+                "warm": {
+                  "type": "noul",
+                  "instructions": "Is the lamp warm?"
+                }
+              },
+              "settings": {
+                "layout": "independent",
+                "dtype": "float32",
+                "tokens_per_batch": 2048,
+                "max_state_tokens": 512
+              },
+              "states": [
+                {
+                  "id": "line-1",
+                  "state": "The warm lamp glowed."
+                },
+                {
+                  "id": "line-2",
+                  "state": "The river grew."
+                }
+              ]
+            },
+            "stand_in_programs": {
+              "python3": "req=$(cat)\ncase \" $* \" in\n  *\" get-ready\"*) echo '{\"result\": {\"model\": \"sample-model\", \"classifier\": \"questions-first-decider\", \"identity\": \"1f:0000000000000000000000000000000000000000000000000000000000000000\", \"files\": [{\"name\": \"config.json\", \"bytes\": 2, \"blake3\": \"0000000000000000000000000000000000000000000000000000000000000000\"}], \"ready\": true}}' ;;\n  *\" work\"*) echo '{\"checked\": {\"states\": 2}}'; echo '{\"answered\": [{\"state\": 0, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.25}}}, {\"state\": 1, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.75}}}]}'; echo '{\"result\": {\"status\": \"finished\", \"states_done\": 2, \"states\": 2, \"classifier_answers_as\": \"made-up\", \"seconds\": {\"wall\": 0.01}}}' ;;\n  *) echo '{\"error\": \"made-up stand-in\"}'; exit 1 ;;\nesac"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

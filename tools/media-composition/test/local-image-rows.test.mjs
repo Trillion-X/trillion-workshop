@@ -12,7 +12,7 @@ const folder = join(dirname(fileURLToPath(import.meta.url)), '..');
 const read = file => JSON.parse(readFileSync(file, 'utf8'));
 
 test('the two MFLUX picture rows run their app through the app-job owner', () => {
-  const rows = read(join(folder, 'tool-rows.json')).records.map(record => record.payload);
+  const rows = read(join(folder, 'what-this-tool-does-and-how-to-run-it.json')).records.map(record => record.payload);
   const apps = read(join(folder, 'do-work', 'apps-here.json')).apps.map(app => app.id);
   const owner = read(join(folder, '..', 'run-on-a-persons-computer', 'mac-tools.json'));
   assert.ok(owner.tools['tool:run-an-app-job'], 'the app-job owner is declared');

@@ -35,5 +35,5 @@
       "hands_back": "{\"lesson\":{\"id\":\"grip\",\"position\":1,\"title\":\"Grip\",\"done\":false},\"video\":null,\"segments\":[]}"
     }
   ],
-  "drafted_from": "tool row in tools/lessons-and-learning-paths/tool-rows.json and tools/lessons-and-learning-paths/do-work/courses.ts"
+  "drafted_from": "tool row in tools/lessons-and-learning-paths/what-this-tool-does-and-how-to-run-it.json and tools/lessons-and-learning-paths/do-work/courses.ts"
 }

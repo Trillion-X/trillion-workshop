@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/check_takes_with_decider.py and test/test_benchmark.py (Decider)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/check_takes_with_decider.py and test/test_benchmark.py (Decider)",
   "start_here": "Say to your AI: \"Test whether the decider someone/decider-small can tell a complete take from a cut-short one, using the word-timed transcripts in my transcripts folder.\"",
   "lists": [
     {

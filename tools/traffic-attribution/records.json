@@ -119,7 +119,7 @@
      },
      "workdir": "/opt/parts/traffic-attribution",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/make-a-tracked-link.mjs",
       {
@@ -341,7 +341,7 @@
      },
      "workdir": "/opt/parts/traffic-attribution",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/break-down-visits-and-sales.mjs",
       {
@@ -727,7 +727,7 @@
      },
      "workdir": "/opt/parts/traffic-attribution",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/measure-ad-return.mjs",
       {
@@ -1020,7 +1020,7 @@
      },
      "workdir": "/opt/parts/traffic-attribution",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/prepare-ad-conversions.mjs",
       {
@@ -1152,10 +1152,10 @@
     },
     "invoke": {
      "kind": "container",
-     "internet": true,
+     "may_reach": [],
      "workdir": "/opt/show-funnel-by-source",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "/opt/show-funnel-by-source/do-work/show-funnel-by-source.mjs"
      ],
@@ -1411,7 +1411,7 @@
        }
       }
      },
-     "credential_mounts": [
+     "key": [
       {
        "secret_name_from_input": "credential_name",
        "fd": 3,

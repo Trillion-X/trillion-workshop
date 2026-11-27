@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:read-a-codex-run-on-this-computer), harness/codex-runs.mjs (readCodexRun and its command line), test/codex-runs.test.mjs",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/what-this-tool-does-and-how-to-run-it.json (tool:read-a-codex-run-on-this-computer), harness/codex-runs.mjs (readCodexRun and its command line), test/codex-runs.test.mjs",
   "start_here": "Say to your AI: \"Read my Codex run codex-<id> from the beginning.\" It answers the run's state and the output so far, and the next position to read from.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads one Codex run's output file and state from this computer and changes nothing.",

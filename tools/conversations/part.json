@@ -2,7 +2,7 @@
   "exports": {
     "chat-archives": "read-data/chat-archives.mjs",
     "chat-import": "read-data/chat-import.mjs",
-    "tool-rows.json": "tool-rows.json"
+    "what-this-tool-does-and-how-to-run-it.json": "what-this-tool-does-and-how-to-run-it.json"
   },
   "public": [
     "read-data/decode_source.py",

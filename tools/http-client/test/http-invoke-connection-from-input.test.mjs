@@ -6,7 +6,8 @@ import { buildInvocation, connectionFieldName } from '../do-work/http-invocation
 
 const stripe = { vendor: 'stripe', from_input: 'connection' };
 const read = { url: 'https://api.stripe.com/v1/balance_transactions?limit=100', method: 'GET', connection: stripe,
-  credential_injections: [{ field_id: 'secret_key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' }, hosts: ['api.stripe.com'] }] };
+  credential_injections: [{ field_id: 'secret_key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }],
+  may_reach: ['api.stripe.com'] };
 const account = 'service_connection:stripe:main-account';
 
 test('a fixed connection_id names the same held key it always did', async () => {

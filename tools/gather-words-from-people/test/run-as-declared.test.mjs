@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const tools = fileURLToPath(new URL('../..', import.meta.url));
-const rows = Object.fromEntries(JSON.parse(readFileSync(`${folder}/tool-rows.json`, 'utf8')).records.map(({ payload }) => [payload.id, payload]));
+const rows = Object.fromEntries(JSON.parse(readFileSync(`${folder}/what-this-tool-does-and-how-to-run-it.json`, 'utf8')).records.map(({ payload }) => [payload.id, payload]));
 
 const fields = ['words', 'who', 'person', 'consent', 'consent_note', 'status', 'case', 'win', 'asked_at', 'approved_identity'];
 const list = {
@@ -29,8 +29,8 @@ const list = {
 async function run(toolId, input) {
   const row = rows[toolId];
   assert.equal(row.invoke.records, undefined, `${toolId} declares no records door`);
-  assert.ok(!row.invoke.argv.some(part => part.includes('records-door')), `${toolId} runs no records-door program`);
-  const [, driver, entry, name] = row.invoke.argv.map(part => part.replace('/opt/workflows/', `${tools}/workflows/`).replace('/opt/gather-words-from-people/', `${folder}/`));
+  assert.ok(!row.invoke.run.some(part => part.includes('records-door')), `${toolId} runs no records-door program`);
+  const [, driver, entry, name] = row.invoke.run.map(part => part.replace('/opt/workflows/', `${tools}/workflows/`).replace('/opt/gather-words-from-people/', `${folder}/`));
   return new Promise((done, fail) => {
     const child = spawn(process.execPath, [driver, entry, name], { stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '';

@@ -148,7 +148,7 @@ test('a health probe asks the address for the name and is healthy only on HTTP 2
 test('the tool\'s code, rows, kits and README name no DNS or hosting vendor of the person\'s', async () => {
   const { readFileSync, readdirSync } = await import('node:fs');
   const here = new URL('../', import.meta.url), read = path => readFileSync(new URL(path, here), 'utf8');
-  const files = ['tool-rows.json', 'README.md', ...['do-work', 'read-data', 'kits'].flatMap(dir => readdirSync(new URL(`${dir}/`, here)).map(name => `${dir}/${name}`))];
+  const files = ['what-this-tool-does-and-how-to-run-it.json', 'README.md', ...['do-work', 'read-data', 'kits'].flatMap(dir => readdirSync(new URL(`${dir}/`, here)).map(name => `${dir}/${name}`))];
   for (const path of files) assert.doesNotMatch(read(path), /hetzner|cloudflare|points_a_name|dns_provider/i, path);
 });
 

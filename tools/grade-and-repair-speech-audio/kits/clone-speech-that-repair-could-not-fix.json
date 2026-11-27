@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:clone-speech-that-repair-could-not-fix), do-work/clone_speech.py, speaker_check.py, grade_and_repair_speech.py (write_result), read-data/phrases.py; no test runs the clone stage",
+  "drafted_from": "tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json (tool:clone-speech-that-repair-could-not-fix), do-work/clone_speech.py, speaker_check.py, grade_and_repair_speech.py (write_result), read-data/phrases.py; no test runs the clone stage",
   "start_here": "Say to your AI: \"Re-voice in the speaker's own voice, with their agreement, the spans still graded clone in /Work/demo/out, using the reference /Work/demo/ref/clean_0.50.wav whose words are 'alpha bravo'.\" It runs tool:clone-speech-that-repair-could-not-fix on your computer and tells you which spans were cloned or refused.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it updates grades.json and audio files in the output folder a grade made, from a spans file and a reference recording on your computer.",

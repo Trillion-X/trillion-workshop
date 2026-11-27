@@ -11,7 +11,7 @@ Says what is still open on a trip, in the order to deal with it, and how far a c
 | `read-data/run-as-main.mjs` | How a command runs: one JSON request on standard input, one JSON line out. |
 | `do-work/rank-open-trip-things.mjs` | The command of `tool:rank-open-trip-things`. |
 | `do-work/measure-a-checklist.mjs` | The command of `tool:measure-a-checklist`. |
-| `tool-rows.json` | The two tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two tool rows. |
 | `part.json` | No module here is offered to other tools. |
 | `test/trip-things.test.mjs` | The ranking, lane counts, sort fields, detail words, skipped rows, refusals, and the checklist count and grouping, on `node:test` with a made-up trip. |
 | `test/plan-trips-commands.test.mjs` | Both commands over standard input. |
@@ -38,7 +38,7 @@ Says what is still open on a trip, in the order to deal with it, and how far a c
 
 **Not carried:** the old operation records, action definitions, "mark packed" and "confirm" transitions, the create-a-thing actions, travel notes and candidate-fact evidence state, and the privacy classes (engine plumbing of the previous runtime, which writes through the records door now); the English reason sentences and the lane names (the person's words); the panel (a screen).
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.
 
 ## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
 

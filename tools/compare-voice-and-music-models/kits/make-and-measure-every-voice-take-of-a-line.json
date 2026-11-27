@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/render_takes.sh, say_a_line_in_kokoro.py (--take-rows run for real) and tools/compare-voice-and-music-models/test/test_voice_ab.py",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/what-this-tool-does-and-how-to-run-it.json, do-work/render_takes.sh, say_a_line_in_kokoro.py (--take-rows run for real) and tools/compare-voice-and-music-models/test/test_voice_ab.py",
   "start_here": "Say to your AI: \"Make my narration line in line.json in every voice take my made-up-film settings row lists, master them all the same way, and measure them into ./ab.\"",
   "lists": [
     {

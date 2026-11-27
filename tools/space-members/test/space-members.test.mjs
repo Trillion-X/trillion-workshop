@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { admission, joinRowProblems, memberNow } from '../read-data/member-now.mjs';
 import { inheritedMemberTypes, joinsAs, memberTypesOf } from '../read-data/member-types.mjs';
 import { rowId } from '../read-data/space-rows.mjs';

@@ -10,7 +10,7 @@ Each presentation frame on a board becomes one slide, in story order, drawn by t
 | `do-work/make-slides.mjs` | `node do-work/make-slides.mjs <request.json> --out <folder> [--browser <chromium>] [--pdf] [--pictures]`: look values, assets and filled words into the board, then the slides, the document, the PDF and the pictures. |
 | `do-work/slides-to-board.mjs` | `slidesToBoard(slides)`: a deck written as slides (kinds `words`, `compare` with 2 to 4 columns, `picture`, `table`) laid out onto a board of 1920x1080 frames in the look's roles; a request's `slides` takes the place of `board`, and the words are judged the same. |
 | `read-data/words-a-reader-sees.json` | DATA: the rule rows (tools/judge-words rows) every line on a slide is judged by before anything is drawn: no long dash, no small-print hedging, no small label above the title. A request's `words_rules` (the person's own rows) are judged with them. |
-| `tool-rows.json` | `tool:turn-frames-into-slides`, an `on-your-computer` row. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:turn-frames-into-slides`, an `on-your-computer` row. |
 | `part.json` | The graph files other tools may import. |
 | `test/board-deck.test.ts` | The deck export's own tests, carried with it. |
 | `test/words-a-reader-sees.test.mjs` | A long dash, an en dash, small-print hedging, a label above the title (whatever it is named) and a person's own rule row each stop the deck; plain words, a hyphen, a caption under a picture and a subtitle below the title are drawn. |

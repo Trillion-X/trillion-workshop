@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Silence the clicks and hiss in the pauses of my voice take /Work/demo/take.wav, writing /Work/demo/take.clean.wav.\" It runs tool:silence-the-ticks-in-a-generated-voice-takes-pauses on your computer and tells you how many pauses it silenced.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a take on your computer and writes the cleaned wav you name.",

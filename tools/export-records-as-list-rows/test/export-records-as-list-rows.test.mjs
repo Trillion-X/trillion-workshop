@@ -17,7 +17,7 @@ test('the Python tests of export-records-as-list-rows pass', { skip: python.stat
 
 // Read the descriptor shipped to the actual installed-model consumer, not the native test fixture's model.
 test('the published list rule exposes field choices and lifecycle moves to the installed record model', async () => {
-  const rows = JSON.parse(await readFile(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(await readFile(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const rules = rows.records.flatMap(row => row.payload?.record_model?.declared_by ?? []);
   const list = rules.find(rule => rule.type === 'list');
   assert.ok(list, 'the published tool owns the actual list declaration');

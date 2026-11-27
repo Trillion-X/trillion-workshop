@@ -1,0 +1,79 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-a-repository-as-text-tool-rows",
+  "what_this_is": "The Workshop row that pulls one outside git repository onto the person's computer as one text bundle: its address, commit and licence, its file list, then each text file in full. Runs keep-a-repository-as-text.mjs. Nothing in the repository is run.",
+  "records": [
+    {
+      "id": "package::keep-a-repository-as-text::tool::keep-a-repository-as-text",
+      "address": "package::keep-a-repository-as-text::tool::keep-a-repository-as-text",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-repository-as-text",
+        "label": "Keep a repository as text",
+        "status": "active",
+        "job": "Pull one outside git repository (an https address) onto the person's computer as one text file that any AI can read",
+        "description": "Makes a shallow copy of the public repository at the address (the newest commit, or the branch, tag or commit named by ref) in a fresh folder under the person's pulled-files folder, with git hooks switched off. Writes ONE text bundle named by the owner, repository and commit: a header (address, commit, licence, caps), the list of files kept and skipped, then each text file in full. Binary files, files over the per-file cap, symbolic links and files that are not UTF-8 text are left out and listed with why; the total cap on file contents stops the rest. Licence: the GitHub licence id when GitHub gives one, else the licence file's id, else 'none declared (all rights reserved by default)'. Answers { url, commit, licence, bundle_path, bundle_bytes, bundle_blake3 (the 1f: identity of the bundle bytes), files_kept, files_skipped, description } or { error } in plain words. Runs nothing from the repository: no install, build, import or source. Removes its copy when the bundle is written.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The repository's https address, for example https://github.com/OWNER/REPO. No user name, password, query or fragment."
+            },
+            "ref": {
+              "type": "string",
+              "description": "Optional branch, tag or commit to keep instead of the newest commit: plain letters, digits, dots, dashes, underscores and slashes"
+            }
+          },
+          "required": [
+            "url"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "local_doors": [],
+          "workdir": "/opt/keep-a-repository-as-text",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/keep-a-repository-as-text/keep-a-repository-as-text.mjs"
+          ],
+          "max_run_ms": 180000
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "test",
+            "requires": "node --test tools/keep-a-repository-as-text/test/keep-a-repository-as-text.test.mjs runs local fixture tests for the default output root, hooks, binary and oversized files, symlinks, licences, the total cap, missing repositories and refs, and equal bundle bytes and BLAKE3 on repeat pulls. The live test is skipped by default; REPOSITORY_TEXT_LIVE_TEST=1 enables it on https://github.com/TheMattBerman/ad-spy-kit (licence MIT), with network access and output confined to a test folder, never the person's saved bundles.",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:keep-a-repository-as-text",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "provenance": {
+          "source": "Written for the Workshop: a plain git shallow copy with hooks off, read as text by the Workshop's own file reader, identity from tools/content-identity"
+        }
+      }
+    }
+  ]
+}

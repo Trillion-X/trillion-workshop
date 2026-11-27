@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/conversations/tool-rows.json, read-data/chat-import.mjs (importNamespaceExports), the row's sample-run",
+  "drafted_from": "tools/conversations/what-this-tool-does-and-how-to-run-it.json, read-data/chat-import.mjs (importNamespaceExports), the row's sample-run",
   "start_here": "Say to your AI: \"Keep every message of the chat export /exports/bread.json that is already in my files.\" It runs tool:import-conversation-exports-from-my-files and tells you how many conversations and messages were kept.",
   "lists": [
     {
@@ -197,7 +197,7 @@
           }
         }
       },
-      "given": "From the sample-run in tools/conversations/tool-rows.json: the account files hold /exports/bread.json, the conversation bread-sample titled Bread with two messages (\"More rye.\" and \"Use fresh flour.\"). The counts were worked out from read-data/chat-import.mjs (importNamespaceExports), not run here.",
+      "given": "From the sample-run in tools/conversations/what-this-tool-does-and-how-to-run-it.json: the account files hold /exports/bread.json, the conversation bread-sample titled Bread with two messages (\"More rye.\" and \"Use fresh flour.\"). The counts were worked out from read-data/chat-import.mjs (importNamespaceExports), not run here.",
       "hands_back": "{\"files\":[{\"name\":\"/exports/bread.json\",\"done\":true,\"skipped\":false}],\"messages_added\":2,\"messages_already_kept\":0,\"conversations_kept\":1,\"done\":true,\"more\":false}"
     }
   ],

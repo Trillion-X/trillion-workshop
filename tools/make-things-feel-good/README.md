@@ -6,8 +6,8 @@ The screens that make things feel good: old trillion's `tools/delight-moments/` 
 
 | File | Purpose |
 |------|---------|
-| `do-work/pick-a-moment.mjs` | `pickAMoment({ moments, event? \| typed?, memory? })` → `{ moment, remember }`: `read-data/choose-moment.mjs` (`chooseMoment` for an event, `typedMoment` for typed text) run once over the rows given (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:pick-a-small-good-moment`, with a sample run where the once-only moment has played and the rotating words move on |
+| `do-work/pick-a-moment.mjs` | `pickAMoment({ moments, event? \| typed?, memory? })` → `{ moment, remember }`: `read-data/choose-moment.mjs` (`chooseMoment` for an event, `typedMoment` for typed text) run once over the rows given (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:pick-a-small-good-moment`, with a sample run where the once-only moment has played and the rotating words move on |
 | `README.md` | This file |
 
 `read-data/choose-feel.mjs` now imports `rowAnswers` from `./choose-moment.mjs` beside it (the same bytes as old trillion's `tools/delight-moments/read-data/choose-moment.mjs`) instead of `../../delight-moments/read-data/choose-moment.mjs`, which is not in this folder.

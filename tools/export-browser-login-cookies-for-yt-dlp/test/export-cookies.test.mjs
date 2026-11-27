@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const crypto = spawnSync('python3', ['-I', '-c', 'import cryptography'], { encoding: 'utf8' });
 const skip = crypto.status === 0 ? false : 'needs python3 with the cryptography package; run the row\'s get_it commands';
 

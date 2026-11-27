@@ -12,7 +12,7 @@ import { spawnSync } from 'node:child_process';
 
 const root = new URL('../', import.meta.url).pathname;
 // The platform's own catalogue files (the tool row, the kit) name the platform that lists the tool; they are not the tool's source.
-const catalogue = new Set(['tool-rows.json', 'kits', 'node_modules', 'package-lock.json', 'sign-in.js', 'site-blind.test.mjs']);
+const catalogue = new Set(['what-this-tool-does-and-how-to-run-it.json', 'kits', 'node_modules', 'package-lock.json', 'sign-in.js', 'site-blind.test.mjs']);
 const product = new RegExp(['tril', 'lion'].join(''), 'i');
 const sources = (dir = root) => readdirSync(dir).filter(name => !catalogue.has(name)).flatMap(name => {
   const path = join(dir, name);

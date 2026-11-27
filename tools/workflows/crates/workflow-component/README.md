@@ -1,6 +1,6 @@
 # tools/workflows/crates/workflow-component/
 
-The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssembly component (`wasm32-wasip2`). The engine runs it as the tool `tool:run-a-workflow` (its row in `tools/workflows/tool-rows.json`) on any computer it runs on, with no network, no secret and no door. A run is one walk of a definition from its start with the answers held. Every ask it cannot answer is handed back.
+The workflow engine (`workflow-core`, through `workflow-engine`) as one WebAssembly component (`wasm32-wasip2`). The engine runs it as the tool `tool:run-a-workflow` (its row in `tools/workflows/what-this-tool-does-and-how-to-run-it.json`) on any computer it runs on, with no network, no secret and no door. A run is one walk of a definition from its start with the answers held. Every ask it cannot answer is handed back.
 
 ## How a run goes
 

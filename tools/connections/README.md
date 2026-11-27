@@ -35,7 +35,7 @@ other facts are left out as unknown, as old `list` answered from the facts until
 | `do-work/list-connections.json` | The connection id prefix. |
 | `read-data/held-connections-of-names.mjs`, `.json` | `heldConnectionsOfNames(names)`: the `held_connections` list both rows take, from the vault's held names alone (`secrets:names` at the account's door), so a page can hand it in; runs in a page and in node. |
 | `test/held-connections-of-names.test.mjs` | The names read over made-up names, and that what they write is what `tool:find-the-account-of-a-service` takes. |
-| `tool-rows.json` | The row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. |
 | `ports/list-connections.json` | The port contract (source: old `src/held-values.mjs` `list`). |
 | `test/list-connections.test.mjs` | The old held-values listing assertions over made-up records and held names, and the row's run. |
 

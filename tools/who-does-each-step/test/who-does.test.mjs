@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { covers, whoCanDo, whoDoesEachStep } from '../read-data/who-does.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const doers = [
   { id: 'my-ais', label: 'My AIs', does: ['write', 'make a qr code', 'make a waitlist'], hand_off: true, cost: { usd: 0 } },
   { id: 'store-finder', label: 'Nearest places', does: ['choose a store', 'find the nearest'], tool_id: 'tool:store-finder', cost: { usd: 0 } },

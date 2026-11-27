@@ -1,9 +1,9 @@
 // The two computations over records handed in, run as the container runs them (use-a-snippet and read-a-thread-summary),
-// and the five rows that only kept records being gone from tool-rows.json. Everything here is made up.
+// and the five rows that only kept records being gone from what-this-tool-does-and-how-to-run-it.json. Everything here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const row = id => rowOf(rows, `tool:${id}`);
 const snippetRecord = { id: 'snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5', type: 'snippet', value: { snippet_id: 'snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5', title: 'Thanks', text: 'Thanks {name}, see you {when}!', tags: ['replies'], set_at: '2026-10-01T09:00:00.000Z', uses: 0 } };

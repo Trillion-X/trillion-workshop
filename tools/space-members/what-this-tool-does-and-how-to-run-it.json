@@ -1,0 +1,4802 @@
+{
+ "kind": "tool-rows",
+ "record_set": "space-members-tool-rows",
+ "what_this_is": "The Workshop rows for tools/space-members: a person joins a shared space by a join row that holds for them now, leaves it, shows a name in it, and anyone asks whether a person is a member now. Whether a member still counts is worked out on every ask from the space's join rows and what the person holds, never stored.",
+ "records": [
+  {
+   "id": "package::space-members::tool::join-a-space",
+   "address": "package::space-members::tool::join-a-space",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/space-member-types",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:join-a-space",
+    "label": "Join a space",
+    "status": "active",
+    "job": "Work out whether a person joins a shared space by the way its join rows allow (free, or holding the access a row names) and answer their member row",
+    "description": "Reads the space's record:space row and the person's record:space-member row from `records`. A person already in is answered with their type and how they came in, and nothing is answered to keep. Otherwise the space's config.join rows decide, as data: a row {free:true} lets anyone in, a row {access:\"<ref>\"} lets in a person who holds that access now (worked out by the paid-access reader over your payment events, offers and grants), and a space with no join rows is joined only by invitation (a person gets in by accepting one). A person who left may join again; a person a host put out stays out. The new member gets the type the space's label starts joiners with (or config.joins_as) and may give the name they will show with name. Answers whether they joined, their type and which row let them in, with the new member row under `keep` for the caller to store; a refusal says how the space is joined, in the space's own words (config.words) or the standard ones.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "records"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "space": {
+       "type": "string",
+       "description": "The space's id, the last part of its record:space row id"
+      },
+      "subject": {
+       "type": "string",
+       "description": "The person, the way the space and your access rules name them"
+      },
+      "name": {
+       "type": "string",
+       "description": "The name other members read for this person in this space (at most 80 characters)"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and, when a join row asks for access, the payment-event, record:commercial-offer, access-grant, access-effect-rule and effect-lifecycle rows. The run keeps nothing; a row to store comes back as `keep`."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "joined",
+      "state"
+     ],
+     "properties": {
+      "space": {
+       "type": "string"
+      },
+      "subject": {
+       "type": "string"
+      },
+      "joined": {
+       "type": "boolean"
+      },
+      "state": {
+       "type": "string"
+      },
+      "member_type": {
+       "type": "string"
+      },
+      "how": {
+       "type": "string"
+      },
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The rows to store, each { id, type, value, expected } with the whole row as value and expected the record as it was handed in (null for a new row); absent when nothing changed"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "space-members",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/space-members"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "paid-access",
+        "paths": [
+         "read-data/who-holds-access.mjs",
+         "read-data/payment-effects.mjs",
+         "read-data/effect-lifecycle.mjs",
+         "read-data/read-granted-access-refs.ts",
+         "read-data/take-payments-events.json"
+        ],
+        "at": "/opt/paid-access"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "space-member-types",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/space-member-types"
+       }
+      ]
+     },
+     "workdir": "/opt/space-members",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/space-members/do-work/space-members-run.mjs",
+      "joinASpace"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:space-members",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "space": "sample-club",
+       "subject": "ana@example.com",
+       "records": [
+        {
+         "type": "record:space",
+         "id": "record:space:sample-club",
+         "value": {
+          "title": "Sample club",
+          "owner": "owner@example.com",
+          "config": {
+           "join": [
+            {
+             "free": true
+            }
+           ]
+          }
+         }
+        },
+        {
+         "type": "record:space-member",
+         "id": "record:space-member:sample-club:owner%40example.com",
+         "value": {
+          "space": "sample-club",
+          "subject": "owner@example.com",
+          "member_type": "owner",
+          "state": "member",
+          "how": "owner",
+          "joined_at": "2026-01-01T00:00:00.000Z"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.result.joined",
+      "contains": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::space-members::tool::create-a-space",
+   "address": "package::space-members::tool::create-a-space",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/space-member-types",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:create-a-space",
+    "label": "Start a space",
+    "status": "active",
+    "job": "Start a shared space with this person as its owner and first member, as its space row and the owner's member row, for the caller to store",
+    "description": "Answers the new record:space row and the owner's record:space-member row under `keep` for the caller to store. This person is the owner and first member. A space id already in the records is refused. A community is joined by its own rules and is not made here. It replaces the old create_membership.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "records",
+      "title"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "space": {
+       "type": "string",
+       "description": "The new space's id, the last part of its record:space row id"
+      },
+      "subject": {
+       "type": "string",
+       "description": "The person, the way the space and your access rules name them"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and, when a join row asks for access, the payment-event, record:commercial-offer, access-grant, access-effect-rule and effect-lifecycle rows. The run keeps nothing; a row to store comes back as `keep`."
+      },
+      "title": {
+       "type": "string",
+       "description": "What the space is, 120 characters at most"
+      },
+      "label": {
+       "type": "string",
+       "enum": [
+        "group",
+        "project",
+        "event",
+        "one-to-one",
+        "stay"
+       ],
+       "description": "The kind of space; group when left out"
+      },
+      "join": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The join rows as in tool:join-a-space; left out, the space is joined by invitation only"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "created",
+      "state"
+     ],
+     "properties": {
+      "space": {
+       "type": "string"
+      },
+      "subject": {
+       "type": "string"
+      },
+      "created": {
+       "type": "boolean"
+      },
+      "state": {
+       "type": "string"
+      },
+      "label": {
+       "type": "string"
+      },
+      "member_type": {
+       "type": "string"
+      },
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "space-members",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/space-members"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "paid-access",
+        "paths": [
+         "read-data/who-holds-access.mjs",
+         "read-data/payment-effects.mjs",
+         "read-data/effect-lifecycle.mjs",
+         "read-data/read-granted-access-refs.ts",
+         "read-data/take-payments-events.json"
+        ],
+        "at": "/opt/paid-access"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "space-member-types",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/space-member-types"
+       }
+      ]
+     },
+     "workdir": "/opt/space-members",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/space-members/do-work/space-members-run.mjs",
+      "createASpace"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 3,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:space-members",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "an older tag of the old worker tools, the create_membership tool (tools.mjs.held:306, workshop commit a476dd597): the answer that starts a shared space with its owner as first member, written as the space row and the owner member row over the records the caller hands in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "space": "sample-hike",
+       "subject": "owner@example.com",
+       "title": "Sample hike",
+       "label": "group",
+       "records": []
+      },
+      "output_selector": "$.result.created",
+      "contains": false
+     }
+    ]
+   }
+  },
+  {
+    "id": "package::space-members::tool::post-in-a-space",
+    "address": "package::space-members::tool::post-in-a-space",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/space-member-types",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:post-in-a-space",
+      "label": "Post in a space",
+      "status": "active",
+      "job": "Share one item into a shared space as a member who counts there now, as its space item row, for the caller to store",
+      "description": "Answers the new record:space-item row under `keep` for the caller to store. Only a person who counts as a member of the space now may post. Asking again with the same idempotency_ref answers the post already there and keeps nothing. The fields hold what the post says; author, space, time and revision are set by the run. It replaces the old create_group_post.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "records",
+          "idempotency_ref",
+          "fields"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "space": {
+            "type": "string",
+            "description": "The space's id, the last part of its record:space row id"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The person, the way the space and your access rules name them"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and the item rows (record:space-item) it shows. The run keeps nothing except a row to store, which comes back as `keep`."
+          },
+          "idempotency_ref": {
+            "type": "string",
+            "description": "A key that names this post, so asking again does not post it twice"
+          },
+          "fields": {
+            "type": "object",
+            "description": "What the post says, as the caller shows it (for an event: title, about, starts_at and ends_at)"
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "posted",
+          "item_id",
+          "replay"
+        ],
+        "properties": {
+          "space": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "posted": {
+            "type": "boolean"
+          },
+          "item_id": {
+            "type": "string"
+          },
+          "replay": {
+            "type": "boolean"
+          },
+          "keep": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "space-members",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/space-members"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            },
+            {
+              "package": "paid-access",
+              "paths": [
+                "read-data/who-holds-access.mjs",
+                "read-data/payment-effects.mjs",
+                "read-data/effect-lifecycle.mjs",
+                "read-data/read-granted-access-refs.ts",
+                "read-data/take-payments-events.json"
+              ],
+              "at": "/opt/paid-access"
+            },
+            {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes/formula-engine"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
+              "package": "space-member-types",
+              "paths": [
+                "src"
+              ],
+              "at": "/opt/space-member-types"
+            }
+          ]
+        },
+        "workdir": "/opt/space-members",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/space-members/do-work/space-members-run.mjs",
+          "postInASpace"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:space-members",
+      "result_selector": "$.result",
+      "provenance": {
+        "source": "the old create_group_post (tools/group-pages/do-work/create-group-post.ts at origin 12b3eee1d): a member's post shared into the group page as an item row; the same key answers the item already there"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "space": "sample-hike",
+            "subject": "owner@example.com",
+            "idempotency_ref": "sample-post-1",
+            "fields": {
+              "text": "Sample post"
+            },
+            "records": [
+              {
+                "id": "record:space:sample-hike",
+                "type": "record:space",
+                "value": {
+                  "title": "Sample hike",
+                  "owner": "owner@example.com",
+                  "label": "group",
+                  "config": {
+                    "join": []
+                  }
+                }
+              },
+              {
+                "id": "record:space-member:sample-hike:owner%40example.com",
+                "type": "record:space-member",
+                "value": {
+                  "space": "sample-hike",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          },
+          "output_selector": "$.result.posted",
+          "contains": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "package::space-members::tool::list-a-spaces-posts",
+    "address": "package::space-members::tool::list-a-spaces-posts",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/space-member-types",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:list-a-spaces-posts",
+      "label": "List a space's posts",
+      "status": "active",
+      "job": "Read the posts a member who counts there now sees in a shared space, newest first",
+      "description": "Answers the space's item rows (record:space-item) the caller handed in, newest first. Only a person who counts as a member of the space now may read them; anyone else is refused in words. It replaces the old read-items of create_group_post.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "records"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "space": {
+            "type": "string",
+            "description": "The space's id, the last part of its record:space row id"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The person, the way the space and your access rules name them"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and the item rows (record:space-item) it shows. The run keeps nothing except a row to store, which comes back as `keep`."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "items"
+        ],
+        "properties": {
+          "space": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "space-members",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/space-members"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            },
+            {
+              "package": "paid-access",
+              "paths": [
+                "read-data/who-holds-access.mjs",
+                "read-data/payment-effects.mjs",
+                "read-data/effect-lifecycle.mjs",
+                "read-data/read-granted-access-refs.ts",
+                "read-data/take-payments-events.json"
+              ],
+              "at": "/opt/paid-access"
+            },
+            {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes/formula-engine"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
+              "package": "space-member-types",
+              "paths": [
+                "src"
+              ],
+              "at": "/opt/space-member-types"
+            }
+          ]
+        },
+        "workdir": "/opt/space-members",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/space-members/do-work/space-members-run.mjs",
+          "listASpacesPosts"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:space-members",
+      "result_selector": "$.result",
+      "provenance": {
+        "source": "the old read-items of create_group_post (tools/group-pages/do-work/create-group-post.ts at origin 12b3eee1d): the items a member sees on the group page"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "space": "sample-hike",
+            "subject": "owner@example.com",
+            "records": [
+              {
+                "id": "record:space:sample-hike",
+                "type": "record:space",
+                "value": {
+                  "title": "Sample hike",
+                  "owner": "owner@example.com",
+                  "label": "group",
+                  "config": {
+                    "join": []
+                  }
+                }
+              },
+              {
+                "id": "record:space-member:sample-hike:owner%40example.com",
+                "type": "record:space-member",
+                "value": {
+                  "space": "sample-hike",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          },
+          "output_selector": "$.result.space",
+          "contains": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "package::space-members::tool::list-my-spaces-and-events",
+    "address": "package::space-members::tool::list-my-spaces-and-events",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/space-member-types",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:list-my-spaces-and-events",
+      "label": "List my spaces and events",
+      "status": "active",
+      "job": "Show a person the spaces they count in now, and the events in them between two times, soonest first",
+      "description": "Answers the spaces this person counts in now, with their type, and the events in those spaces: posts whose fields hold a starts_at, between from and to when given. Nothing is decided here: the member rows answer whether a person counts. It replaces the old community reader and my_events.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "subject",
+          "records"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "subject": {
+            "type": "string",
+            "description": "The person, the way the space and your access rules name them"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and the item rows (record:space-item) it shows. The run keeps nothing except a row to store, which comes back as `keep`."
+          },
+          "from": {
+            "type": "string",
+            "description": "Only events starting at or after this time (ISO 8601); left out, from the start"
+          },
+          "to": {
+            "type": "string",
+            "description": "Only events starting at or before this time (ISO 8601); left out, no end"
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "subject",
+          "spaces",
+          "events"
+        ],
+        "properties": {
+          "subject": {
+            "type": "string"
+          },
+          "spaces": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "space-members",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/space-members"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            },
+            {
+              "package": "paid-access",
+              "paths": [
+                "read-data/who-holds-access.mjs",
+                "read-data/payment-effects.mjs",
+                "read-data/effect-lifecycle.mjs",
+                "read-data/read-granted-access-refs.ts",
+                "read-data/take-payments-events.json"
+              ],
+              "at": "/opt/paid-access"
+            },
+            {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes/formula-engine"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
+              "package": "space-member-types",
+              "paths": [
+                "src"
+              ],
+              "at": "/opt/space-member-types"
+            }
+          ]
+        },
+        "workdir": "/opt/space-members",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/space-members/do-work/space-members-run.mjs",
+          "listMySpacesAndEvents"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:space-members",
+      "result_selector": "$.result",
+      "provenance": {
+        "source": "the old community reader (tools/show-the-communities-a-person-is-in-on-the-signed-in-page-and-le/src/work-community.mjs) and my_events (tools/run-a-community/src/community-tools.mjs): the spaces a person is in and the events in them"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "subject": "owner@example.com",
+            "records": [
+              {
+                "id": "record:space:sample-hike",
+                "type": "record:space",
+                "value": {
+                  "title": "Sample hike",
+                  "owner": "owner@example.com",
+                  "label": "group",
+                  "config": {
+                    "join": []
+                  }
+                }
+              },
+              {
+                "id": "record:space-member:sample-hike:owner%40example.com",
+                "type": "record:space-member",
+                "value": {
+                  "space": "sample-hike",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          },
+          "output_selector": "$.result.subject",
+          "contains": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "package::space-members::tool::hand-over-a-space",
+    "address": "package::space-members::tool::hand-over-a-space",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/space-member-types",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:hand-over-a-space",
+      "label": "Hand a space over",
+      "status": "active",
+      "job": "Make a one-time code that hands this space to whoever opens it signed in, good for 14 days",
+      "description": "Only the person who runs the space can make the code. The code is shown once; only its hash is kept, as a record:space-handover row the caller stores. It replaces the old hand_over_community.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "records"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "space": {
+            "type": "string",
+            "description": "The space's id, the last part of its record:space row id"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The person, the way the space names them"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }). The run keeps nothing except the rows it hands back under keep."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "code",
+          "expires_at"
+        ],
+        "properties": {
+          "space": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "expires_at": {
+            "type": "string"
+          },
+          "keep": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "space-members",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/space-members"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            },
+            {
+              "package": "paid-access",
+              "paths": [
+                "read-data/who-holds-access.mjs",
+                "read-data/payment-effects.mjs",
+                "read-data/effect-lifecycle.mjs",
+                "read-data/read-granted-access-refs.ts",
+                "read-data/take-payments-events.json"
+              ],
+              "at": "/opt/paid-access"
+            },
+            {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes/formula-engine"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
+              "package": "space-member-types",
+              "paths": [
+                "src"
+              ],
+              "at": "/opt/space-member-types"
+            }
+          ]
+        },
+        "workdir": "/opt/space-members",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/space-members/do-work/space-members-run.mjs",
+          "handOverASpace"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:space-members",
+      "result_selector": "$.result",
+      "provenance": {
+        "source": "the old hand_over_community (src/community.mjs:451-462 at the old commit of the old repository): a one-time code kept as its hash, 14 days"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "space": "sample-club",
+            "subject": "owner@example.com",
+            "records": [
+              {
+                "id": "record:space:sample-club",
+                "type": "record:space",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "label": "group",
+                  "config": {
+                    "join": []
+                  }
+                }
+              },
+              {
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "type": "record:space-member",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          },
+          "output_selector": "$.result.space",
+          "contains": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "package::space-members::tool::take-over-a-space",
+    "address": "package::space-members::tool::take-over-a-space",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/space-member-types",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:take-over-a-space",
+      "label": "Take over a space",
+      "status": "active",
+      "job": "Take over a space with a code someone handed you: you become its owner, and the owner before stays a member",
+      "description": "The code works once. The answer marks its record:space-handover row used, and a later use is refused in the words for a lapsed link. A code past its 14 days is refused the same way. It replaces the old take_over.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "code",
+          "records"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "space": {
+            "type": "string",
+            "description": "The space's id, the last part of its record:space row id"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The person, the way the space names them"
+          },
+          "code": {
+            "type": "string",
+            "description": "The code the owner handed you"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }). The run keeps nothing except the rows it hands back under keep."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "owner"
+        ],
+        "properties": {
+          "space": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "owner": {
+            "type": "boolean"
+          },
+          "previous_owner": {
+            "type": "string"
+          },
+          "keep": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "space-members",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/space-members"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            },
+            {
+              "package": "paid-access",
+              "paths": [
+                "read-data/who-holds-access.mjs",
+                "read-data/payment-effects.mjs",
+                "read-data/effect-lifecycle.mjs",
+                "read-data/read-granted-access-refs.ts",
+                "read-data/take-payments-events.json"
+              ],
+              "at": "/opt/paid-access"
+            },
+            {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes/formula-engine"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
+              "package": "space-member-types",
+              "paths": [
+                "src"
+              ],
+              "at": "/opt/space-member-types"
+            }
+          ]
+        },
+        "workdir": "/opt/space-members",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/space-members/do-work/space-members-run.mjs",
+          "takeOverASpace"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:space-members",
+      "result_selector": "$.result",
+      "provenance": {
+        "source": "the old take_over (src/community.mjs:464-475 at the old commit of the old repository): used once, then refused"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "space": "sample-club",
+            "subject": "ana@example.com",
+            "code": "sample-code-not-live",
+            "records": [
+              {
+                "id": "record:space:sample-club",
+                "type": "record:space",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "label": "group",
+                  "config": {
+                    "join": []
+                  }
+                }
+              },
+              {
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "type": "record:space-member",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          },
+          "output_selector": "$.result.owner",
+          "contains": false
+        }
+      ]
+    }
+  },
+  {
+    "id": "package::space-members::tool::move-static-items-into-a-space",
+    "address": "package::space-members::tool::move-static-items-into-a-space",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/space-member-types",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:move-static-items-into-a-space",
+      "label": "Move static items into a space",
+      "status": "active",
+      "job": "Move the static items a space held into its own posts, once: the owner moves them and asking again keeps nothing",
+      "description": "Each item of the static projection becomes a record:space-item row keyed by where it came from. Only the person who runs the space may move them. It replaces the one-time migrate-static-projection-items.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "source",
+          "projection",
+          "records"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "space": {
+            "type": "string",
+            "description": "The space's id, the last part of its record:space row id"
+          },
+          "subject": {
+            "type": "string",
+            "description": "The person, the way the space names them"
+          },
+          "source": {
+            "type": "string",
+            "description": "Where the static projection came from"
+          },
+          "projection": {
+            "type": "object",
+            "description": "The static projection the caller read: { items: [{ item_ref, created_at, fields }] }"
+          },
+          "records": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }). The run keeps nothing except the rows it hands back under keep."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "space",
+          "subject",
+          "moved"
+        ],
+        "properties": {
+          "space": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "moved": {
+            "type": "integer"
+          },
+          "item_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "keep": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "files": {
+          "package_files": [
+            {
+              "package": "space-members",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/space-members"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "packages": [
+                "node_modules/@noble/hashes"
+              ],
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            },
+            {
+              "package": "paid-access",
+              "paths": [
+                "read-data/who-holds-access.mjs",
+                "read-data/payment-effects.mjs",
+                "read-data/effect-lifecycle.mjs",
+                "read-data/read-granted-access-refs.ts",
+                "read-data/take-payments-events.json"
+              ],
+              "at": "/opt/paid-access"
+            },
+            {
+              "package": "formula-engine",
+              "paths": [
+                "rules",
+                "built-stored-bytes/formula-engine"
+              ],
+              "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+            },
+            {
+              "package": "space-member-types",
+              "paths": [
+                "src"
+              ],
+              "at": "/opt/space-member-types"
+            }
+          ]
+        },
+        "workdir": "/opt/space-members",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/space-members/do-work/space-members-run.mjs",
+          "moveStaticItemsIntoASpace"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        }
+      },
+      "needs": {
+        "expected_seconds": 3,
+        "network_egress": false
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:space-members",
+      "result_selector": "$.result",
+      "provenance": {
+        "source": "the old migrate-static-projection-items (tools/group-pages/do-work/migrate-static-projection-items.ts at origin 12b3eee1d): one-time, by the owner, into item rows"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "space": "sample-club",
+            "subject": "owner@example.com",
+            "source": "sample-static-projection",
+            "projection": {
+              "items": [
+                {
+                  "item_ref": "sample-page-1",
+                  "created_at": "2026-02-01T00:00:00.000Z",
+                  "fields": {
+                    "text": "Welcome"
+                  }
+                }
+              ]
+            },
+            "records": [
+              {
+                "id": "record:space:sample-club",
+                "type": "record:space",
+                "value": {
+                  "title": "Sample club",
+                  "owner": "owner@example.com",
+                  "label": "group",
+                  "config": {
+                    "join": []
+                  }
+                }
+              },
+              {
+                "id": "record:space-member:sample-club:owner%40example.com",
+                "type": "record:space-member",
+                "value": {
+                  "space": "sample-club",
+                  "subject": "owner@example.com",
+                  "member_type": "owner",
+                  "state": "member",
+                  "how": "owner",
+                  "joined_at": "2026-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          },
+          "output_selector": "$.result.moved",
+          "contains": false
+        }
+      ]
+    }
+  },
+  {
+   "id": "package::space-members::tool::leave-a-space",
+   "address": "package::space-members::tool::leave-a-space",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/space-member-types",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:leave-a-space",
+    "label": "Leave a space",
+    "status": "active",
+    "job": "Work out a member leaving a shared space and answer their member row marked left; what they put there stays",
+    "description": "Answers the person's record:space-member row marked left, stamped when, under `keep` for the caller to store. Leaving a space the person is not in answers nothing to keep. The person who runs the space cannot leave it: hand it over first. They may join again later by the space's join rows.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "records"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "space": {
+       "type": "string",
+       "description": "The space's id, the last part of its record:space row id"
+      },
+      "subject": {
+       "type": "string",
+       "description": "The person, the way the space and your access rules name them"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and, when a join row asks for access, the payment-event, record:commercial-offer, access-grant, access-effect-rule and effect-lifecycle rows. The run keeps nothing; a row to store comes back as `keep`."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "left",
+      "state"
+     ],
+     "properties": {
+      "space": {
+       "type": "string"
+      },
+      "subject": {
+       "type": "string"
+      },
+      "left": {
+       "type": "boolean"
+      },
+      "state": {
+       "type": "string"
+      },
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The rows to store, each { id, type, value, expected } with the whole row as value and expected the record as it was handed in (null for a new row); absent when nothing changed"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "space-members",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/space-members"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "paid-access",
+        "paths": [
+         "read-data/who-holds-access.mjs",
+         "read-data/payment-effects.mjs",
+         "read-data/effect-lifecycle.mjs",
+         "read-data/read-granted-access-refs.ts",
+         "read-data/take-payments-events.json"
+        ],
+        "at": "/opt/paid-access"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "space-member-types",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/space-member-types"
+       }
+      ]
+     },
+     "workdir": "/opt/space-members",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/space-members/do-work/space-members-run.mjs",
+      "leaveASpace"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 3,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:space-members",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "space": "sample-club",
+       "subject": "ana@example.com",
+       "records": [
+        {
+         "type": "record:space",
+         "id": "record:space:sample-club",
+         "value": {
+          "title": "Sample club",
+          "owner": "owner@example.com",
+          "config": {
+           "join": [
+            {
+             "free": true
+            }
+           ]
+          }
+         }
+        },
+        {
+         "type": "record:space-member",
+         "id": "record:space-member:sample-club:owner%40example.com",
+         "value": {
+          "space": "sample-club",
+          "subject": "owner@example.com",
+          "member_type": "owner",
+          "state": "member",
+          "how": "owner",
+          "joined_at": "2026-01-01T00:00:00.000Z"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.result.left",
+      "contains": false
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::space-members::tool::check-someone-is-in-a-space",
+   "address": "package::space-members::tool::check-someone-is-in-a-space",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/space-member-types",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-someone-is-in-a-space",
+    "label": "Check someone is in a space",
+    "status": "active",
+    "job": "Say whether a person is a member of a shared space right now, and why not when they are not",
+    "description": "The one answer to whether a person is a member now. It reads, from `records`, the space's join rows, the person's member row and what they hold now (paid-access), and answers member true or false with a state: member, lapsed (their access ended; they are members again the moment it holds), left, removed or none, plus the reason in words and their type and how they came in. A person who holds the access again after a refund is a member again with nothing written in between.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "records"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "space": {
+       "type": "string",
+       "description": "The space's id, the last part of its record:space row id"
+      },
+      "subject": {
+       "type": "string",
+       "description": "The person, the way the space and your access rules name them"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and, when a join row asks for access, the payment-event, record:commercial-offer, access-grant, access-effect-rule and effect-lifecycle rows. The run keeps nothing; a row to store comes back as `keep`."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "member",
+      "state"
+     ],
+     "properties": {
+      "space": {
+       "type": "string"
+      },
+      "subject": {
+       "type": "string"
+      },
+      "member": {
+       "type": "boolean"
+      },
+      "state": {
+       "type": "string"
+      },
+      "reason": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "member_type": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "how": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "space-members",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/space-members"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "paid-access",
+        "paths": [
+         "read-data/who-holds-access.mjs",
+         "read-data/payment-effects.mjs",
+         "read-data/effect-lifecycle.mjs",
+         "read-data/read-granted-access-refs.ts",
+         "read-data/take-payments-events.json"
+        ],
+        "at": "/opt/paid-access"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "space-member-types",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/space-member-types"
+       }
+      ]
+     },
+     "workdir": "/opt/space-members",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/space-members/do-work/space-members-run.mjs",
+      "checkSomeoneIsInASpace"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:space-members",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "space": "sample-club",
+       "subject": "owner@example.com",
+       "records": [
+        {
+         "type": "record:space",
+         "id": "record:space:sample-club",
+         "value": {
+          "title": "Sample club",
+          "owner": "owner@example.com",
+          "config": {
+           "join": [
+            {
+             "free": true
+            }
+           ]
+          }
+         }
+        },
+        {
+         "type": "record:space-member",
+         "id": "record:space-member:sample-club:owner%40example.com",
+         "value": {
+          "space": "sample-club",
+          "subject": "owner@example.com",
+          "member_type": "owner",
+          "state": "member",
+          "how": "owner",
+          "joined_at": "2026-01-01T00:00:00.000Z"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.result.state",
+      "contains": "member"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::space-members::tool::list-a-spaces-members",
+   "address": "package::space-members::tool::list-a-spaces-members",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/space-member-types",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-a-spaces-members",
+    "label": "List a space's members",
+    "status": "active",
+    "job": "List who is in a shared space, by the name each chose to show, with their type; only members may ask",
+    "description": "Lists the space's record:space-member rows handed in as `records`: each person's id, the name they chose to show (never a contact), their member type and its label, and whether they count now (the same reader as tool:check-someone-is-in-a-space, over one read of what people hold). Only a current member may ask; anyone else is refused in the space's words. include_ended true also lists people who left, were put out or lapsed.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "records"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "space": {
+       "type": "string",
+       "description": "The space's id, the last part of its record:space row id"
+      },
+      "subject": {
+       "type": "string",
+       "description": "The person, the way the space and your access rules name them"
+      },
+      "include_ended": {
+       "type": "boolean",
+       "description": "Also list people who left, were put out or lapsed"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and, when a join row asks for access, the payment-event, record:commercial-offer, access-grant, access-effect-rule and effect-lifecycle rows. The run keeps nothing; a row to store comes back as `keep`."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "members"
+     ],
+     "properties": {
+      "space": {
+       "type": "string"
+      },
+      "members": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "space-members",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/space-members"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "paid-access",
+        "paths": [
+         "read-data/who-holds-access.mjs",
+         "read-data/payment-effects.mjs",
+         "read-data/effect-lifecycle.mjs",
+         "read-data/read-granted-access-refs.ts",
+         "read-data/take-payments-events.json"
+        ],
+        "at": "/opt/paid-access"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "space-member-types",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/space-member-types"
+       }
+      ]
+     },
+     "workdir": "/opt/space-members",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/space-members/do-work/space-members-run.mjs",
+      "listASpacesMembers"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 8,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:space-members",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "space": "sample-club",
+       "subject": "owner@example.com",
+       "records": [
+        {
+         "type": "record:space",
+         "id": "record:space:sample-club",
+         "value": {
+          "title": "Sample club",
+          "owner": "owner@example.com",
+          "config": {
+           "join": [
+            {
+             "free": true
+            }
+           ]
+          }
+         }
+        },
+        {
+         "type": "record:space-member",
+         "id": "record:space-member:sample-club:owner%40example.com",
+         "value": {
+          "space": "sample-club",
+          "subject": "owner@example.com",
+          "member_type": "owner",
+          "state": "member",
+          "how": "owner",
+          "joined_at": "2026-01-01T00:00:00.000Z"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.result.members[0].member_type",
+      "contains": "owner"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::space-members::tool::choose-the-name-i-show-in-a-space",
+   "address": "package::space-members::tool::choose-the-name-i-show-in-a-space",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/space-member-types",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:choose-the-name-i-show-in-a-space",
+    "label": "Choose the name I show in a space",
+    "status": "active",
+    "job": "Check a member's chosen name for one shared space and answer their member row with it, for other members to read",
+    "description": "Answers the person's own member row with the name set, at most 80 characters, under `keep` for the caller to store. Only a current member may. Members read this name and nothing else about them; their contact is never shown.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "name",
+      "records"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "space": {
+       "type": "string",
+       "description": "The space's id, the last part of its record:space row id"
+      },
+      "subject": {
+       "type": "string",
+       "description": "The person, the way the space and your access rules name them"
+      },
+      "name": {
+       "type": "string",
+       "description": "The name to show, 1 to 80 characters"
+      },
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The records the ask reads, as the caller read them from a store ({ id, type, value }): the space's record:space row, the member rows of the space (record:space-member), and, when a join row asks for access, the payment-event, record:commercial-offer, access-grant, access-effect-rule and effect-lifecycle rows. The run keeps nothing; a row to store comes back as `keep`."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "space",
+      "subject",
+      "name"
+     ],
+     "properties": {
+      "space": {
+       "type": "string"
+      },
+      "subject": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      },
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The rows to store, each { id, type, value, expected } with the whole row as value and expected the record as it was handed in (null for a new row); absent when nothing changed"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "space-members",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/space-members"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "paid-access",
+        "paths": [
+         "read-data/who-holds-access.mjs",
+         "read-data/payment-effects.mjs",
+         "read-data/effect-lifecycle.mjs",
+         "read-data/read-granted-access-refs.ts",
+         "read-data/take-payments-events.json"
+        ],
+        "at": "/opt/paid-access"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "space-member-types",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/space-member-types"
+       }
+      ]
+     },
+     "workdir": "/opt/space-members",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/space-members/do-work/space-members-run.mjs",
+      "chooseTheNameIShowInASpace"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:space-members",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "old Trillion tag old-trillion-before-worker-retire src/community.mjs (mayJoin, activeMember, join, leave, member names), src/space-member-types.mjs, src/space-membership-kinds.mjs: Durable Object SQL replaced by record:space and record:space-member rows over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "space": "sample-club",
+       "subject": "owner@example.com",
+       "name": "Sample Owner",
+       "records": [
+        {
+         "type": "record:space",
+         "id": "record:space:sample-club",
+         "value": {
+          "title": "Sample club",
+          "owner": "owner@example.com",
+          "config": {
+           "join": [
+            {
+             "free": true
+            }
+           ]
+          }
+         }
+        },
+        {
+         "type": "record:space-member",
+         "id": "record:space-member:sample-club:owner%40example.com",
+         "value": {
+          "space": "sample-club",
+          "subject": "owner@example.com",
+          "member_type": "owner",
+          "state": "member",
+          "how": "owner",
+          "joined_at": "2026-01-01T00:00:00.000Z"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.result.name",
+      "contains": "Sample Owner"
+     }
+    ]
+   }
+  }
+ ]
+}

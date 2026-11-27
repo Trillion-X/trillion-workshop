@@ -17,7 +17,7 @@ Ported from trillion-apps `web/src/workspace/panel-settings.mjs` (`panelSettings
 | `read-data/menu-bar-settings.json` | The four settings rows (enabled, meetings_within, title_length, app_icon): the one source of their definitions. |
 | `do-work/read-the-menu-bar-settings.mjs` | `tool:read-the-menu-bar-settings`: one JSON input on standard input, `{ result }` or `{ error }` on the last line. |
 | `test/read-the-menu-bar-settings.test.mjs` | Tests for defaults, held answers, wrong-shape answers, accepted and refused changes, and the loaded rows. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `part.json` | The entry the row runs is public. |
 
 Not carried: the page's message that asks the host for the rows and sends one row's change (`askPanelSettings`, `setPanelSetting`) stays in the app, since it is the app's delivery to the Mac host.

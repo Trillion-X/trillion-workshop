@@ -60,7 +60,7 @@
    ]
   },
   "test_refs": [
-   "tools/record-my-screen/tool-rows.json sample run (tool:rebuild-a-screen-recording-from-its-chunks)"
+   "tools/record-my-screen/what-this-tool-does-and-how-to-run-it.json sample run (tool:rebuild-a-screen-recording-from-its-chunks)"
   ]
  }
 }

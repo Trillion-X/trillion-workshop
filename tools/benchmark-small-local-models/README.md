@@ -32,11 +32,11 @@ The person's paths, models, vocabulary and questions are their `list:settings` r
 | `do-work/rank_titles_with_decider.py` | Titles ranked by P(yes) to the person's question. |
 | `do-work/time_a_decider.py` | A decider's load time, time per answer and memory. |
 | `ports/*.json` | One port contract per script: the source it was copied from, what it keeps and what changed. |
-| `tool-rows.json` | Eight rows, all run on the person's computer. |
+| `what-this-tool-does-and-how-to-run-it.json` | Eight rows, all run on the person's computer. |
 | `test/test_benchmark.py`, `test/benchmark-small-local-models.test.mjs` | Every script on made-up inputs with stand-in models (`test/stubs`, `test/stand-in-decider`) and stand-in ffprobe and frame tool (`test/stand-in-programs`). |
 
 ## Dependencies
 
 **Depends on:** Python 3; `tools/settings` (the settings reader); `tools/fill-a-template-without-changing-its-words` (render); per step torch, Pillow, open_clip_torch, sentence-transformers, mlx, mlx-lm or mlx-vlm and the model in the Hugging Face cache; ffprobe, git and a frame tool for the sampling and pool steps.
 
-**Depended on by:** the rows in `tool-rows.json`.
+**Depended on by:** the rows in `what-this-tool-does-and-how-to-run-it.json`.

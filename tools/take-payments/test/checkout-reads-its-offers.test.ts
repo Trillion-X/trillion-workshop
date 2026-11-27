@@ -186,9 +186,9 @@ test('a database without a use is refused before any read or descriptor, and not
 });
 
 test('the row reads the database on 6 and its use ticket on 7, and the Stripe key mounts are as they were', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map((record: { payload: unknown }) => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map((record: { payload: unknown }) => record.payload);
   const row = rows.find((payload: { id: string }) => payload.id === 'tool:start-a-stripe-checkout');
-  const mounts = row.invoke.credential_mounts;
+  const mounts = row.invoke.key;
   assert.deepEqual(mounts.slice(0, 3), [
     { secret_name_from_input: 'secret_name', share_by_listing: true, fd: 4, only_when: { input: 'secret_name', present: true } },
     { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },

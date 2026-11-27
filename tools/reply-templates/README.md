@@ -19,7 +19,7 @@ Data sources: `provider_record`, `caller_request`, `data`, and each top-level en
 |------|---------|
 | `read-data/expand.mjs` | `expandReplyTemplate`: the rule above. Header lists the invariants. |
 | `do-work/expand-a-reply-template.mjs` | The row's command. |
-| `tool-rows.json` | The row, with a sample run. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row, with a sample run. |
 | `test/reply-templates.test.mjs` | The carried cases and the refusals. |
 
 ## Not carried
@@ -30,4 +30,4 @@ Data sources: `provider_record`, `caller_request`, `data`, and each top-level en
 
 **Depends on:** Node 24 only.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:transcribe-file (tools/audio-transcription/tool-rows.json) and transcribeAFile in read-data/transcribe-a-file.mjs; it replaces the account-action of keep-and-wake-ai-sessions records/workshop-account-tool-records.json:222",
+  "drafted_from": "tool:transcribe-file (tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json) and transcribeAFile in read-data/transcribe-a-file.mjs; it replaces the account-action of keep-and-wake-ai-sessions records/workshop-account-tool-records.json:222",
   "start_here": "Say to your AI: \"Transcribe the recording clip.m4a from my files, in English.\" It runs tool:transcribe-file on it and gives back the timed words.",
   "lists": [],
   "no_lists_because": "It keeps nothing: the recording comes from the person's files and the transcript comes back in the answer (tool:keep-transcript keeps it when asked).",

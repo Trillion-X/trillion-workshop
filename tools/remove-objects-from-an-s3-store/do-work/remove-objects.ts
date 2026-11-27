@@ -1,7 +1,7 @@
 // tools/remove-objects-from-an-s3-store/do-work/remove-objects.ts
 //
 // PURPOSE
-//   The container tool `tool:remove-objects-from-an-s3-store` (tool-rows.json): removes named objects from an S3-compatible store
+//   The container tool `tool:remove-objects-from-an-s3-store` (what-this-tool-does-and-how-to-run-it.json): removes named objects from an S3-compatible store
 //   the person keeps in their vault (Backblaze B2, Cloudflare R2, any store that speaks S3), and lists one page of a prefix so
 //   a removal is read before and after. It is the delete half of tools/put-an-object-in-an-s3-store, opened the same way: the
 //   input's `store` names the five vault values that name begins (`<store>-key-id`, `-secret`, `-endpoint`, `-bucket`,

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/generate-speech/tool-rows.json (tool:voices), read-data/speak.mjs and speak.json, test/speak.test.mjs",
+  "drafted_from": "tools/generate-speech/what-this-tool-does-and-how-to-run-it.json (tool:voices), read-data/speak.mjs and speak.json, test/speak.test.mjs",
   "start_here": "Say to your AI: \"Make my voice from the recording Voice/Me talking.wav.\" It runs tool:voices with {\"recording\":\"Voice/Me talking.wav\"}, which answers the voice row and its reference sound; your AI keeps that row in your Voices list.",
   "lists": [
     {

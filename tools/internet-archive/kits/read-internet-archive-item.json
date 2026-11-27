@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/internet-archive/records.json and tool-rows.json (tool:read-internet-archive-item: its url, input pattern and verify check); no test file exists, and no live call was made",
+  "drafted_from": "tools/internet-archive/records.json and what-this-tool-does-and-how-to-run-it.json (tool:read-internet-archive-item: its url, input pattern and verify check); no test file exists, and no live call was made",
   "start_here": "Say to your AI: \"Read the Internet Archive item with identifier example-tennis-film-1952 and tell me its creator, collection, license and rights before I decide to use it.\" It reads the item metadata without downloading any media.",
   "lists": [],
   "no_lists_because": "It looks up one public Archive item by identifier and keeps no list of yours.",

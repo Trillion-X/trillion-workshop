@@ -17,7 +17,7 @@ Not carried: a parser for diagram text (Mermaid, DOT and the like) since the too
 | `do-work/requests.mjs` | One function per row: checks the request, refuses with a sentence, calls the above |
 | `do-work/run-request.mjs` | `node do-work/run-request.mjs <function>`: the request on standard input, `{ result }` or `{ error }` out |
 | `part.json` | The one public module |
-| `tool-rows.json` | The two Workshop rows |
+| `what-this-tool-does-and-how-to-run-it.json` | The two Workshop rows |
 | `test/*.test.mjs` | Layout (cycles, layers, exact crossing counts against a count over every pair, lanes, ports, direction, determinism), the SVG (no script, escaping, variables, ids, style allowlist), the diff, and each row's sample run in the container with its refusals |
 
 ## The rows
@@ -41,4 +41,4 @@ The SVG's page variables are `--diagram-background`, `--diagram-ink`, `--diagram
 
 ## Dependencies
 
-None outside the folder: plain JavaScript run by Node, no packages. The boxes, arrows and settings arrive in the request or the settings file, so the tool holds no records access, no credential and no network (`internet: false` on both rows).
+None outside the folder: plain JavaScript run by Node, no packages. The boxes, arrows and settings arrive in the request or the settings file, so the tool holds no records access, no credential and no network (no `may_reach` on either row).

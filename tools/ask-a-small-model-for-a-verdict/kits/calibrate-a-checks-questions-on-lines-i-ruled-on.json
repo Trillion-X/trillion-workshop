@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:calibrate-a-checks-questions-on-lines-i-ruled-on row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs, its row's verify sample run and do-work/answer_with_a_downloaded_model.py; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:calibrate-a-checks-questions-on-lines-i-ruled-on row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs, its row's verify sample run and do-work/answer_with_a_downloaded_model.py; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Calibrate my sample-vague check on my sample-rulings lines: where should it pass and fail a line, and is it usable?\" It asks the model the check's question about every ruled line and fits the lines.",
   "lists": [
     {
@@ -321,7 +321,7 @@
           }
         }
       },
-      "given": "From the row's own verify sample run in tools/ask-a-small-model-for-a-verdict/tool-rows.json, answered by running do-work/answer_with_a_downloaded_model.py calibrate with the same stand-in: check row sample-vague asks \"Is this line vague?\" (fail on yes) and the stand-in says yes 0.9 for \"Things happen.\" and 0.8 for \"It works somehow.\" (both ruled bad for vague) and yes 0.05 for the two lines ruled good (\"Ten people came.\", \"The door is red.\"); the setting's bars are fail_good_share_at_most 0.05, pass_bad_share_at_most 0.1, usable_when auc 0.75, 2 bad lines, recall 0.25, good_failed_or_uncertain 0.35.",
+      "given": "From the row's own verify sample run in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, answered by running do-work/answer_with_a_downloaded_model.py calibrate with the same stand-in: check row sample-vague asks \"Is this line vague?\" (fail on yes) and the stand-in says yes 0.9 for \"Things happen.\" and 0.8 for \"It works somehow.\" (both ruled bad for vague) and yes 0.05 for the two lines ruled good (\"Ten people came.\", \"The door is red.\"); the setting's bars are fail_good_share_at_most 0.05, pass_bad_share_at_most 0.1, usable_when auc 0.75, 2 bad lines, recall 0.25, good_failed_or_uncertain 0.35.",
       "hands_back": "{\"sample-vague\": {\"status\": \"usable\", \"auc\": 1, \"n_bad\": 2, \"n_good\": 2, \"fail_good_share_at_most\": 0.05, \"t_pass\": 0.05, \"t_fail\": 0.05, \"recall\": 1, \"good_failed_held_out\": 0, \"good_failed_or_uncertain_held_out\": 0, \"fpr\": 0.05, \"lines\": \"sample-rulings split=real\", \"date\": \"2026-11-13\"}}"
     }
   ],

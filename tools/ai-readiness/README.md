@@ -7,7 +7,7 @@ Reads a page the way a search or answer engine does, from the HTML it is served 
 | File | Purpose |
 |------|---------|
 | `part.json` | What other parts and tools may use from this folder. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:check-a-page-for-search-and-answer-engines`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row Trillion reads for this folder: `tool:check-a-page-for-search-and-answer-engines`. |
 | `test/ai-readiness.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. Every page in them is made up. |
 | `do-work/audit-served-html.mjs` | The audit engine: a small HTML reader, the shapes a check row can take, and the score. Knows no check by name. |
 | `do-work/check_a_page.mjs` | The container tool: fetches one public page, its host's `robots.txt` and (up to the limit in the checks DATA) the pages it links to, runs the audit and answers the report as JSON on stdout. |
@@ -29,9 +29,9 @@ Reads a page the way a search or answer engine does, from the HTML it is served 
 
 ## Dependencies
 
-**Depends on:** nothing but the platform. The engine, the completion and the Markdown files use no file system and no network (the caller supplies the HTML, the robots.txt text and the link resolver). `check_a_page.mjs` uses Node's own `fetch`, which the engine routes through its public-only proxy because the tool row is `internet: true`.
+**Depends on:** nothing but the platform. The engine, the completion and the Markdown files use no file system and no network (the caller supplies the HTML, the robots.txt text and the link resolver). `check_a_page.mjs` uses Node's own `fetch`, which the engine routes through its public-only proxy because the tool row holds `may_reach`.
 
-**Depended on by:** `tool-rows.json` (ships `check_a_page.mjs`, `audit-served-html.mjs` and `ai-readiness-checks.json` into the container), `test/ai-readiness.test.mjs`, and the recipe `workflow-recipe:get-found-in-search-and-answer-engines` in `tools/workflows/recipes/`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (ships `check_a_page.mjs`, `audit-served-html.mjs` and `ai-readiness-checks.json` into the container), `test/ai-readiness.test.mjs`, and the recipe `workflow-recipe:get-found-in-search-and-answer-engines` in `tools/workflows/recipes/`.
 
 ## Invariants
 

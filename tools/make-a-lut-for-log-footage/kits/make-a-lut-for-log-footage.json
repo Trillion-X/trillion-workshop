@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:make-a-lut-for-log-footage row in tool-rows.json, do-work/make_lut.py and test/make-lut.test.mjs",
+  "drafted_from": "tool:make-a-lut-for-log-footage row in what-this-tool-does-and-how-to-run-it.json, do-work/make_lut.py and test/make-lut.test.mjs",
   "start_here": "Say to your AI: \"My flat log footage from the made-up Orchard camera looks grey; make me a LUT with its profile in orchard.profile.json, 33 points a side, saved as orchard.cube.\" It writes the .cube file on your computer and names the settings it used.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one profile JSON file you give it and writes one .cube file, keeping nothing else.",

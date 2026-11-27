@@ -20,7 +20,7 @@ The source lifecycle belongs to [ai-tool-catalog](../ai-tool-catalog/README.md),
 | `read-data/workshop-sample-rules.json` | The sample rule of each executor (moved from trillion-rust `product/workshop-sample-rules.json`) |
 | `read-data/renamed-tools.json` | Former tool, agent, configuration and placement ids and their current ids (moved from trillion-rust `product/renamed-tools.json`) |
 | `ports/*.json` | The port contracts of the two moved modules |
-| `tool-rows.json` | The row |
+| `what-this-tool-does-and-how-to-run-it.json` | The row |
 | `test/describe.test.mjs` | The engine resolver's cases and trillion's sample-rule case, over made-up rows |
 
 ## Screens moved from the web client

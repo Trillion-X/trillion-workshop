@@ -11,7 +11,7 @@ async function fixture(t) {
   t.after(() => rm(dir, { recursive: true, force: true }));
   const source = path.join(dir, 'src'); const receipts = path.join(dir, 'receipts');
   await mkdir(source); await mkdir(receipts);
-  const catalog = path.join(source, 'tool-rows.json');
+  const catalog = path.join(source, 'what-this-tool-does-and-how-to-run-it.json');
   const receipt = path.join(receipts, 'run.json');
   const catalogDoc = operations => ({ kind: 'tool-rows', records: operations.map(id => ({ payload: { kind: 'ai-tool-descriptor', id } })) });
   const writeCatalog = ops => writeFile(catalog, JSON.stringify(catalogDoc(ops)));

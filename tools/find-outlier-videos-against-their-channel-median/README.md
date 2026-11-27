@@ -6,7 +6,7 @@ A script a person's AI runs on the person's own computer. From a table of many c
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:find-outlier-videos-against-their-channel-median`: `on-your-computer`, with the command that runs it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:find-outlier-videos-against-their-channel-median`: `on-your-computer`, with the command that runs it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/find_outliers.py` | The command. Writes the outliers table; the last line printed is `{"result": ...}` or `{"error": ...}`. |
 | `test/test_find_outliers.py` | Runs the command on made-up channels: the rule, the thresholds, columns by name, refusals. |

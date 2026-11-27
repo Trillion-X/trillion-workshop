@@ -5,7 +5,7 @@ import { readCurrentWornLook } from '../do-work/read-current-worn-look.mjs';
 import * as engine from '../../run-work-later-or-on-a-repeat/do-work/timed-action.mjs';
 
 const timeZoneName = value => engine.timeZoneName({ value });
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const fixed = () => new Date('2026-10-31T12:00:00.000Z');
 const appData = {
@@ -124,7 +124,7 @@ test('screen-look zones use the timed-action engine\'s canonical spelling and re
 test('the shipped row run as the engine runs it reaches no database and returns its full device contract', async () => {
   const row = rowOf(rows, 'tool:read-current-worn-look');
   assert.equal(row.invoke.local_doors, undefined, 'no database door');
-  assert.equal(row.invoke.credential_mounts, undefined, 'no held connection');
+  assert.equal(row.invoke.key, undefined, 'no held connection');
   const answer = await answerOf(row, { time_zone: 'UTC', app_data: appData, ...saved(new Map([['screen-look', [{ name: 'dusk' }]]])) });
   assert.equal(answer.status, 0, answer.error);
   const { result } = answer;

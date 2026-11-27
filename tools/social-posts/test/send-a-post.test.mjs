@@ -5,7 +5,7 @@
 // leaves this computer.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import places from '../read-data/post-places.json' with { type: 'json' };
 import { createHmac } from 'node:crypto';
 import { heldFetch, publisherFor, sendAPost as sendAPostRun } from '../read-data/send-a-post.mjs';
@@ -247,11 +247,11 @@ test('a held value never goes to a host the place does not list, and a redirect 
 test('each place\'s run is handed the connection kind, the renewal and the held fields its place row declares, in the order the sender reads them, and no tool id names a vendor', () => {
   const send = rowOf(rows, 'tool:send-a-post');
   assert.deepEqual(Object.keys(send.invoke.by_input.variants).sort(), places.places.map(slugOf).sort(), 'every place has its variant, and only places');
-  assert.equal(send.invoke.internet, true);
+  assert.ok(Array.isArray(send.invoke.may_reach));
   for (const placed of places.places) {
     const invoke = resolvedInvoke(send, { place: slugOf(placed) });
     assert.deepEqual(invoke.connection, { vendor: placed.connection_vendor, from_input: 'account_id' }, slugOf(placed));
-    assert.deepEqual(invoke.credential_mounts, heldFields(placed.options).map((field, at) => ({ field_id: field, fd: 4 + at })), slugOf(placed));
+    assert.deepEqual(invoke.key, heldFields(placed.options).map((field, at) => ({ field_id: field, fd: 4 + at })), slugOf(placed));
     assert.deepEqual(invoke.refresh, placed.refresh, slugOf(placed));
   }
   for (const row of rows.records.map(record => record.payload).filter(payload => payload.invoke.by_input)) {
@@ -375,7 +375,7 @@ test('each newsletter place has its send variant, mounting the one key its reque
     assert.ok(placed.media_from, `${platform} says how a file reaches it`);
     assert.deepEqual(heldFields(placed.options), [field]);
     const invoke = resolvedInvoke(rowOf(rows, 'tool:send-a-post'), { place: slugOf(placed) });
-    assert.deepEqual(invoke.credential_mounts, [{ field_id: field, fd: 4 }]);
+    assert.deepEqual(invoke.key, [{ field_id: field, fd: 4 }]);
     assert.equal(invoke.connection.vendor, placed.connection_vendor);
   }
 });

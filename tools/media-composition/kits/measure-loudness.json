@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:measure-loudness's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/measure-loudness.mjs, and the script run on a synthetic 7 second tone clip",
+  "drafted_from": "tool:measure-loudness's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/measure-loudness.mjs, and the script run on a synthetic 7 second tone clip",
   "start_here": "Say to your AI: \"Is my video loud enough to publish? Measure its loudness against -14 LUFS.\" It runs tool:measure-loudness and says whether it passes and why not.",
   "lists": [],
   "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",

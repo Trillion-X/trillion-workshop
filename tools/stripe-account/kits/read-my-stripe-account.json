@@ -15,7 +15,7 @@
     {
       "title": "Read the Stripe account's business profile",
       "ask": "Read my Stripe account.",
-      "given": "Reads tools/stripe-account/tool-rows.json: a GET to https://api.stripe.com/v1/account with the vault entry named by key_name as a bearer header, bound to api.stripe.com. Reads only.",
+      "given": "Reads tools/stripe-account/what-this-tool-does-and-how-to-run-it.json: a GET to https://api.stripe.com/v1/account with the vault entry named by key_name as a bearer header, bound to api.stripe.com. Reads only.",
       "mcp": {
         "server": "{cli}",
         "tool": "do_one_thing_in_my_account",

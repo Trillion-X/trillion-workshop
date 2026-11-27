@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:turn-frames-into-slides's row in tools/turn-frames-into-slides/tool-rows.json, do-work/make-slides.mjs and test/make-slides.test.mjs; the answers were observed by running make-slides.mjs on the test's made-up board",
+  "drafted_from": "tool:turn-frames-into-slides's row in tools/turn-frames-into-slides/what-this-tool-does-and-how-to-run-it.json, do-work/make-slides.mjs and test/make-slides.test.mjs; the answers were observed by running make-slides.mjs on the test's made-up board",
   "start_here": "Say to your AI: \"Turn the presentation frames of my board in board.json into slides with my look, as Example deck, and put the pages in the folder out.\" It writes a request file and runs make-slides.mjs on your computer, then looks at every page.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a board file and a request file on the person's computer and writes slide files into a folder.",

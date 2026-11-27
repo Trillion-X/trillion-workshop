@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:list-sent-emails's own row (tools/email-sending-domains/tool-rows.json: its words, input schema and sample run) and test/list-sent-emails.test.mjs",
+  "drafted_from": "tool:list-sent-emails's own row (tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: its words, input schema and sample run) and test/list-sent-emails.test.mjs",
   "start_here": "Say to your AI: \"Which emails did my Resend account send in the last 5 days, and was each delivered?\", naming the held key, {\"key_name\": \"resend-api-key-of-my-shop\", \"days\": 5}. It runs tool:list-sent-emails and answers {\"emails\":[{\"id\":\"00000000-0000-4000-8000-000000000041\",\"to\":[\"delivered@example.org\"],\"subject\":\"Hello\",\"created_at\":\"2026-11-25 14:45:46.162+00\",\"last_event\":\"delivered\"}],\"count\":1,\"complete\":true}",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the emails your email-sending account sent and writes nothing.",

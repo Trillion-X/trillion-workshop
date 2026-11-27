@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:listen-to-music-windows-against-a-film-brief row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:listen-to-music-windows-against-a-film-brief row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Listen to the music excerpts in /work/music/out against the sections of my film brief and a reference stem.\" It runs the listener and reads each excerpt's mood match per section.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads BRIEF.json and the excerpts the window finder wrote on this computer and writes listen.json beside them.",

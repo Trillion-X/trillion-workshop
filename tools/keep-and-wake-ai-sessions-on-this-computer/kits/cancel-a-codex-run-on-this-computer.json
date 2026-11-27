@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:cancel-a-codex-run-on-this-computer), harness/codex-runs.mjs (cancelCodexRun and its command line), test/codex-runs.test.mjs",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/what-this-tool-does-and-how-to-run-it.json (tool:cancel-a-codex-run-on-this-computer), harness/codex-runs.mjs (cancelCodexRun and its command line), test/codex-runs.test.mjs",
   "start_here": "Say to your AI: \"Cancel my Codex run codex-<id>.\" It ends that run if it is still running and says whether it did.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it ends one running Codex process group on this computer and reads back the state.",

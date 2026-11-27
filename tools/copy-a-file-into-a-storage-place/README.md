@@ -27,7 +27,7 @@ not listed until a piece can carry its credential.
 |------|---------|
 | `do-work/copy-a-file-into-a-storage-place.mjs` | `copyAFileIntoAStoragePlace(input)`: check, open, send by piece; `makePlaceRequest`: one request as the account (bearer or Composio proxy) |
 | `read-data/storage-places.json` | DATA: each kind of place, its check, open and piece rules |
-| `tool-rows.json` | The row `tool:copy-a-file-into-a-storage-place` |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:copy-a-file-into-a-storage-place` |
 | `test/copy-a-file-into-a-storage-place.test.mjs` | A made-up place and source: a copy by pieces, a refused folder, a short source, a refused piece, both connection kinds |
 
 ## Proof so far
@@ -43,4 +43,4 @@ accounts; the person's Google accounts are connected in another one.
 
 **Depends on:** Node's `fetch`; `tools/workflows/do-work/run-a-function.mjs` (the command the row runs).
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

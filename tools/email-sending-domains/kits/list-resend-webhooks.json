@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:list-resend-webhooks's own row (tools/email-sending-domains/tool-rows.json: its words, input schema and sample run) and test/list-resend-webhooks.test.mjs",
+  "drafted_from": "tool:list-resend-webhooks's own row (tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: its words, input schema and sample run) and test/list-resend-webhooks.test.mjs",
   "start_here": "Say to your AI: \"Which addresses does my Resend account send its email events to, and is each one on?\", naming the held key, {\"key_name\": \"resend-api-key-of-my-shop\"}. It runs tool:list-resend-webhooks and answers {\"webhooks\":[{\"id\":\"00000000-0000-4000-8000-000000000011\",\"url\":\"https://example.com/webhooks/mail\",\"status\":\"enabled\",\"events\":[\"email.delivered\",\"email.bounced\",\"email.complained\"]}],\"count\":1}",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the webhooks your email-sending account has and writes nothing.",

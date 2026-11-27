@@ -2,7 +2,7 @@
   "name": "copy-rows-between-databases-tests",
   "private": true,
   "type": "module",
-  "description": "The tests of tool:copy-rows-between-databases; the tool itself runs on the pinned package rows of tool-rows.json.",
+  "description": "The tests of tool:copy-rows-between-databases; the tool itself runs on the pinned package rows of what-this-tool-does-and-how-to-run-it.json.",
   "dependencies": {
     "pg": "8.23.1"
   },

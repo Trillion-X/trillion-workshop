@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/assemble.py, cut.py, test/test_assemble.py",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/what-this-tool-does-and-how-to-run-it.json, do-work/assemble.py, cut.py, test/test_assemble.py",
   "start_here": "Say to your AI: \"Show me the timeline of my plan chain-fixture from request.json before I cut it, then build the cut.\" It reads the tool row, runs the cutter on your computer and reports each check.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the request file and the plan files in the folder you name and writes only those files or the cut.",

@@ -1,7 +1,7 @@
 // tools/introduce-two-people/do-work/record-introduction-state-run.mjs
 //
-// The container command of `tool:record-an-introduction-state` (tool-rows.json): one introduction state, recorded in the
-// person's own Postgres database named in the input (records only: it sends nothing and sets no route, wake or notice), through the mounted connection the run hands on descriptor 3 (the row's invoke.credential_mounts:
+// The container command of `tool:record-an-introduction-state` (what-this-tool-does-and-how-to-run-it.json): one introduction state, recorded in the
+// person's own Postgres database named in the input (records only: it sends nothing and sets no route, wake or notice), through the mounted connection the run hands on descriptor 3 (the row's invoke.key:
 // the vault name `<database>-connection`). The connection string is never in the request, argv, a file or an answer.
 // The state move is do-work/record-introduction-state.mjs; this file only opens the connection and answers { result } or { error }.
 import { readFileSync } from 'node:fs';

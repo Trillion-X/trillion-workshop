@@ -61,7 +61,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/keep-an-ai-loop-from-spinning/tool-rows.json",
+      "path": "tools/keep-an-ai-loop-from-spinning/what-this-tool-does-and-how-to-run-it.json",
       "why": "Documentation, public exports, synthetic tests and row DATA describe or exercise this entry; they are not another recorded-call sequence implementation."
     },
     {

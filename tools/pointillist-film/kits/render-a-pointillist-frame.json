@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/pointillist-film/tool-rows.json (tool:render-a-pointillist-frame), examples/encode_frame_request.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
+  "drafted_from": "tools/pointillist-film/what-this-tool-does-and-how-to-run-it.json (tool:render-a-pointillist-frame), examples/encode_frame_request.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
   "start_here": "Say to your AI: \"Render the frame at 0.5 seconds of my two-cell film from request.json into frame.pfcf.\" It runs encode_frame_request on your computer and tells you where the packed frame file is.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one request file and writes one packed frame file.",

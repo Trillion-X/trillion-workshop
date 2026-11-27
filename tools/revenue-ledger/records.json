@@ -166,7 +166,7 @@
      },
      "workdir": "/opt/parts/revenue-ledger",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/add-up-revenue.mjs",
       {

@@ -20,5 +20,5 @@ Puts Trillion's MCP server entry into other AI apps' own config files (Claude Co
 | `read-data/mcp-registration.json` | `mac_app` (path, payload, runtime) and `mcp_registration` (entry name, default address, one row per app: file, home variable, format, path, transport, entry, legacy fields to remove, signatures, sign-in). |
 | `test/mcp-registration.test.mjs` | The old harness test's cases: preview writes nothing, a reviewed plan refuses after a change, per-app results, backups, custom entries left, odd TOML blocked, the command end to end. |
 | `test/mcp-registration-loopback.test.mjs` | The old loopback test: loopback addresses kept, spoofed hosts refused, the local bridge adopted only for the app's current port. |
-| `tool-rows.json` | `tool:register-my-account-in-my-ai-apps` (`on-your-computer`). |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:register-my-account-in-my-ai-apps` (`on-your-computer`). |
 | `part.json` | Nothing here is imported by other code. |

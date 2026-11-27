@@ -43,20 +43,20 @@ test('a field the call does not declare is refused by name, with the fields it d
   });
 });
 
-// The installed run folder holds this tool's read-data and the sibling tools its code imports, and no tool-rows.json: the
+// The installed run folder holds this tool's read-data and the sibling tools its code imports, and no what-this-tool-does-and-how-to-run-it.json: the
 // installed copy must read its input schemas from read-data alone.
 const SIBLINGS = ['ask-a-small-model-for-a-verdict', 'content-identity', 'learn-from-everyones-results', 'records-door'];
-const SKIPPED = new Set(['test', 'tool-rows.json', 'README.md', 'node_modules']);
+const SKIPPED = new Set(['test', 'what-this-tool-does-and-how-to-run-it.json', 'README.md', 'node_modules']);
 const notSkipped = path => !SKIPPED.has(basename(path));
 
 test('the input schemas the code reads are the tool rows\' input schemas', async () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
   const shipped = settings.input_schemas;
   for (const row of rows.filter(row => row.input_schema)) assert.deepEqual(shipped[row.id], row.input_schema, `${row.id} matches its row`);
   assert.equal(Object.keys(shipped).length, rows.filter(row => row.input_schema).length);
 });
 
-test('the installed copy, without tool-rows.json, runs make-the-decision', async () => {
+test('the installed copy, without what-this-tool-does-and-how-to-run-it.json, runs make-the-decision', async () => {
   const installed = tempFolder(join(tmpdir(), 'dwam-installed-'));
   try {
     const tools = new URL('../../', import.meta.url);

@@ -1,4 +1,4 @@
-// Every tool folder's rows, checked the way Trillion reads them before it offers a tool: each tools/<name>/tool-rows.json
+// Every tool folder's rows, checked the way Trillion reads them before it offers a tool: each tools/<name>/what-this-tool-does-and-how-to-run-it.json
 // is { records: [{ payload }] }; a row's files (invoke.files.package_files) name a tool folder here and paths that are
 // in it; a tool-row-source's list.records names a records file (or a folder of them) here holding rows of its kind; every licence class a
 // row names is in licence-classes.json; no two rows share an id; and a folder with no row is a library some row
@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { existsSync, lstatSync, readdirSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { builtinModules } from 'node:module';
 import { join, posix, resolve } from 'node:path';
-import { folders, json, root, rows as readRows, tools } from '../test-helpers/tool-rows.mjs';
+import { CARD, folders, json, programOf, root, rows as readRows, tools } from '../test-helpers/tool-rows.mjs';
 
 const classes = new Set(json(resolve(root, 'licence-classes.json')).records.map(record => record.payload.id));
 const rows = readRows();
@@ -177,7 +177,7 @@ test('every import a row\'s run loads is packed by that row: its relative import
     const specs = [payload.invoke?.files?.package_files ?? []].flat();
     if (!specs.length) continue;
     const placed = packedFiles(specs);
-    // A run loads the packed files its argv names, then every file those import, and so on.
+    // A run loads the packed files its run names, then every file those import, and so on.
     const loaded = new Set();
     const load = there => {
       if (loaded.has(there) || !/\.(m?js|cjs)$/.test(there) || placed.get(there) === null) return;
@@ -200,20 +200,20 @@ test('every import a row\'s run loads is packed by that row: its relative import
         else missing.push(`${payload.id}: ${there} imports ${name}, and ${wanted} is not packed`);
       }
     };
-    for (const word of [payload.invoke?.argv ?? []].flat()) if (typeof word === 'string' && placed.has(word)) load(word);
+    for (const word of programOf(payload.invoke)) if (typeof word === 'string' && placed.has(word)) load(word);
   }
   assert.deepEqual(missing, [], `a run would stop at a missing module:\n${missing.join('\n')}`);
 });
 
-// The capability list (capabilities.json at the root) names each job's owner folder and its entry: the tool-rows.json
+// The capability list (capabilities.json at the root) names each job's owner folder and its entry: the what-this-tool-does-and-how-to-run-it.json
 // in that folder. An entry that names a code or data file, a folder with no row, or a retired place fails here, so the
-// list cannot drift from the tree it describes. A folder that is a part (a part.json and no tool-rows.json: screen code and
+// list cannot drift from the tree it describes. A folder that is a part (a part.json and no what-this-tool-does-and-how-to-run-it.json: screen code and
 // the files it needs) has no run to declare, so its part.json is its declaration: the entry may name that.
-test('every capability names a tool-rows.json that exists in its owner folder, or the part.json of a part with no row', () => {
+test('every capability names a what-this-tool-does-and-how-to-run-it.json that exists in its owner folder, or the part.json of a part with no row', () => {
   const { capabilities } = json(resolve(root, 'capabilities.json'));
   const broken = capabilities.flatMap(({ capability, owner, entry }) => {
     const [, folder, file] = entry.match(/^tools\/([^/]+)\/([^/]+)$/) ?? [];
-    const named = existsSync(join(root, entry)) && (file === 'tool-rows.json' || file === 'part.json' && !existsSync(join(root, 'tools', folder, 'tool-rows.json')));
+    const named = existsSync(join(root, entry)) && (file === CARD || file === 'part.json' && !existsSync(join(root, 'tools', folder, CARD)));
     const covered = [owner].flat().some(glob => entry === glob || entry.startsWith(glob.replace(/\/$/, '') + '/'));
     return named && covered ? [] : [`${capability}: ${entry} is not a tool row (or the part.json of a part with no row) in ${[owner].flat().join(', ')}`];
   });

@@ -9,7 +9,7 @@ export const quietSwitches = JSON.parse(readFileSync(new URL('./quiet-switches.j
 
 const quiet = (options = {}) => ({ ...options, args: [...quietSwitches, ...(options.args ?? [])] });
 
-// A run told a proxy (HTTPS_PROXY, as the engine tells every internet:true run) sends the browser's traffic through it,
+// A run told a proxy (HTTPS_PROXY, as the engine tells every run that holds may_reach) sends the browser's traffic through it,
 // loopback included: Chromium does not read that setting itself, and the engine's sandbox lets the run reach nothing
 // else, so without this every page fails with net::ERR_NAME_NOT_RESOLVED. The same rule devtools.mjs applies.
 export function proxied(options = {}, env = process.env) {

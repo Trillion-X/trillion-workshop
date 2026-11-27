@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf, rightsOf, said } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { makeConfigurations } from '../../query-and-change-list-rows/src/configurations.mjs';
 import { recordsInMemory } from '../do-work/answer-the-configurations-page.mjs';
 
@@ -127,7 +127,7 @@ test('the row reads and writes no store: it names no records operation and takes
   assert.equal(row.stored, undefined);
   assert.deepEqual(rightsOf(row), []);
   assert.ok(!/records:(read|write|list|search)\b/.test(JSON.stringify(row)));
-  assert.equal(row.invoke.internet, false);
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the workflows function runner, not the records door runner');
+  assert.equal(row.invoke.may_reach, undefined);
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the workflows function runner, not the records door runner');
   assert.ok(!JSON.stringify(row).includes('records-door'));
 });

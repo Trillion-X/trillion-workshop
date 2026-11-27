@@ -1,7 +1,7 @@
 // tools/research-a-creator-or-topic/do-work/fetch-text.mjs
 //
 // One public page as text. Where the request may go is not decided here: the engine runs the commands that use this as
-// internet:true, so Node's own fetch reaches only the engine's public-only proxy, which judges every address, every
+// may_reach, so Node's own fetch reaches only the engine's public-only proxy, which judges every address, every
 // redirect and every address a name resolves to. This only keeps to http and https, to a size and to a time.
 
 const MAX_BYTES = 2_000_000;

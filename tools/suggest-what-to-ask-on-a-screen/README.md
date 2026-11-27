@@ -8,9 +8,9 @@ The ideas every workspace screen shows at its top for what to ask an AI there, r
 |------|---------|
 | `work-examples.mjs` | `examplesFor(screen, deps)` and the old `/work/api/examples` handler, unchanged from the old tree |
 | `workspace/examples.json` | The written ideas, keyed by screen, and the strip's words (from old trillion `src/workspace/examples.json`) |
-| `ideas-for-a-screen.mjs` | `ideasForAScreen({ screen })`: one screen's written ideas as one run, with no stories, no account and no handoff (what `tool-rows.json` runs) |
+| `ideas-for-a-screen.mjs` | `ideasForAScreen({ screen })`: one screen's written ideas as one run, with no stories, no account and no handoff (what `what-this-tool-does-and-how-to-run-it.json` runs) |
 | `moved-from.json` | Where `workspace/examples.json` came from, and both identities |
-| `tool-rows.json` | The row `tool:list-ideas-for-what-to-ask-on-a-screen`, with a sample run that reads the calendar screen's ideas |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:list-ideas-for-what-to-ask-on-a-screen`, with a sample run that reads the calendar screen's ideas |
 | `README.md` | This file |
 
 ## The row

@@ -23,7 +23,7 @@ as `settings` (the awareness rows). Nothing here imports `src/awareness.json`.
 | `src/found-pursuits.mjs` | `foundPursuits`: the pursuits a reading adds, the areas it adds to recorded ones, the ends of pursuits it found earlier. | `src/awareness.mjs:285-322` |
 | `src/awareness-sections.mjs` | `awarenessSections`: the computed state-to-sections shape for Progress. | `src/awareness.mjs:656-766` |
 | `do-work/read-awareness.mjs` | `readAwareness`: the tool's container function (action `read` or `next_due`) over the state the caller hands in. | none (new) |
-| `tool-rows.json` | The Workshop row `tool:keep-a-continuous-awareness-reading` with its container invoke and package-files keys for `src`, `do-work` and the map's `src`. | none (new) |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:keep-a-continuous-awareness-reading` with its container invoke and package-files keys for `src`, `do-work` and the map's `src`. | none (new) |
 
 ## Placement and map
 

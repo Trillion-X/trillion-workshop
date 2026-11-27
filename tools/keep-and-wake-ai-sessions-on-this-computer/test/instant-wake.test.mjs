@@ -214,7 +214,7 @@ test('a run handed to the caller\'s computer is announced, and its answer is che
   const payloads = [
     { kind: 'tool-placement', id: 'placement:caller-sandbox', label: 'Your computer', executor: 'caller', reachable_from: ['hosted'] },
     { kind: 'tool-licence-class', id: 'licence:mine', label: 'Mine', licences: ['NONE'], allowed_placements: ['placement:caller-sandbox'] },
-    { kind: 'ai-tool-descriptor', id: 'tool:here', label: 'Here', job: 'Count moved files on this computer', input_schema: { type: 'object', required: ['moves'], properties: { moves: { type: 'array' } } }, output_schema: { type: 'object', required: ['changed'], properties: { changed: { type: 'number' } } }, invoke: { kind: 'container', argv: ['node', 'x.mjs', { from: 'moves' }], stdout: 'json' }, result_selector: '$.result', licence_class: 'licence:mine', placements: ['placement:caller-sandbox'] },
+    { kind: 'ai-tool-descriptor', id: 'tool:here', label: 'Here', job: 'Count moved files on this computer', input_schema: { type: 'object', required: ['moves'], properties: { moves: { type: 'array' } } }, output_schema: { type: 'object', required: ['changed'], properties: { changed: { type: 'number' } } }, invoke: { kind: 'container', run: ['node', 'x.mjs', { from: 'moves' }], stdout: 'json' }, result_selector: '$.result', licence_class: 'licence:mine', placements: ['placement:caller-sandbox'] },
   ];
   const workshop = makeWorkshop({
     host: 'hosted', handedToCaller: task => handed.push(task),

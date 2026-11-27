@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { listDomains } from '../do-work/list-email-sending-domains.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 const canary = 'held-key-canary-0123456789';
 const answering = (status, body) => async (address, request) => {
   assert.equal(address, 'https://api.resend.com/domains');
@@ -13,13 +13,13 @@ const answering = (status, body) => async (address, request) => {
 
 test('the row hands the held key on a private pipe and runs on the person\'s computer', () => {
   assert.equal(row.id, 'tool:list-email-sending-domains');
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'key_name', fd: 3 }]);
-  assert.equal(row.invoke.internet, true);
+  assert.deepEqual(row.invoke.key, [{ secret_name_from_input: 'key_name', fd: 3 }]);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.deepEqual(row.placements, ['placement:your-computer']);
 });
 
 test('every Resend row takes the vault name of its key from the input, never a fixed name', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   for (const each of rows) {
     assert.ok(each.input_schema.required.includes('key_name'), `${each.id} requires key_name`);
     assert.ok(!JSON.stringify(each).includes('resend-api-key'), `${each.id} names no fixed key`);
@@ -41,13 +41,11 @@ test('a refused or missing key says what to do, without the key', async () => {
 });
 
 // The existing credential contract is independent of the new host metadata. Give its unchanged
-// assertions a copy omitting only hosts; raw rows are checked separately and never modified.
-const withoutHostMetadata = row => ({ ...row, invoke: { ...row.invoke,
-  credential_injections: row.invoke.credential_injections.map(({ hosts, ...injection }) => injection),
-} });
+// assertions a copy omitting only may_reach; raw rows are checked separately and never modified.
+const withoutHostMetadata = ({ invoke: { may_reach, ...invoke }, ...row }) => ({ ...row, invoke });
 const assertResendHosts = row => {
-  assert.deepEqual(row.invoke.credential_injections.map(injection => injection.hosts), [['api.resend.com']], row.id);
-  assert.equal(new URL(row.invoke.url).hostname, row.invoke.credential_injections[0].hosts[0], row.id);
+  assert.deepEqual(row.invoke.may_reach, ['api.resend.com'], row.id);
+  assert.equal(new URL(row.invoke.url).hostname, row.invoke.may_reach[0], row.id);
 };
 
 function assertSendingKeyContract(maker) {
@@ -93,14 +91,14 @@ function assertKeyRowsContract(list, remove) {
 }
 
 test('the sending-key row asks for a sending-only key and keeps the reply\'s token in the vault, never in the answer', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const maker = rows.find(one => one.id === 'tool:make-a-sending-key');
   assertSendingKeyContract(withoutHostMetadata(maker));
   assertResendHosts(maker);
 });
 
 test('the domain rows add, read and check a domain with the held key in the header, and change no DNS', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const add = rows.find(one => one.id === 'tool:add-an-email-sending-domain');
   const read = rows.find(one => one.id === 'tool:read-an-email-sending-domain');
   const check = rows.find(one => one.id === 'tool:check-an-email-sending-domain');
@@ -109,7 +107,7 @@ test('the domain rows add, read and check a domain with the held key in the head
 });
 
 test('the sending-key rows list the keys and remove one by its id with the held key in the header, never sending a key', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const list = rows.find(one => one.id === 'tool:list-sending-keys');
   const remove = rows.find(one => one.id === 'tool:remove-a-sending-key');
   assertKeyRowsContract(...[list, remove].map(withoutHostMetadata));
@@ -117,7 +115,7 @@ test('the sending-key rows list the keys and remove one by its id with the held 
 });
 
 test('host and non-host credential constraints reject independent changes without modifying the rows', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const find = id => rows.find(row => row.id === id);
   const maker = find('tool:make-a-sending-key');
   const add = find('tool:add-an-email-sending-domain'), read = find('tool:read-an-email-sending-domain'), check = find('tool:check-an-email-sending-domain');
@@ -125,7 +123,7 @@ test('host and non-host credential constraints reject independent changes withou
   const before = structuredClone(rows);
   for (const row of [maker, add, read, check, list, remove]) {
     const wrongHost = structuredClone(row);
-    wrongHost.invoke.credential_injections[0].hosts = ['other.example'];
+    wrongHost.invoke.may_reach = ['other.example'];
     assert.throws(() => assertResendHosts(wrongHost), assert.AssertionError);
   }
   const wrongPrefix = row => {

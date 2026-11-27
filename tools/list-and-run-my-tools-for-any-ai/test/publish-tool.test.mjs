@@ -6,7 +6,7 @@ import { publishTool, unpublishTool, publishOutcome, PublishToolError } from '..
 const descriptor = {
   kind: 'ai-tool-descriptor', id: 'tool:echo-test', job: 'Echo the input text back',
   input_schema: { type: 'object', properties: { text: { type: 'string' } } },
-  invoke: { kind: 'container', argv: ['python3', 'main.py'], workdir: '/work' },
+  invoke: { kind: 'container', run: ['python3', 'main.py'], workdir: '/work' },
   can_do: ['Echo the text back'], cannot_do: ['Send messages'],
   verify: [{ kind: 'sample-run', input: { text: 'hi' } }],
   licence_class: 'licence:maker-own', placements: ['placement:this-account'],

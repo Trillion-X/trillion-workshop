@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:fulfill-setup-access's row in tools/app-release-access/tool-rows.json (verify: needs-a-machine), read-data/setup-access.mjs and test/setup-access.test.mjs",
+  "drafted_from": "tool:fulfill-setup-access's row in tools/app-release-access/what-this-tool-does-and-how-to-run-it.json (verify: needs-a-machine), read-data/setup-access.mjs and test/setup-access.test.mjs",
   "start_here": "Say to your AI: \"Arrange TestFlight beta access for setup request request-one of account account-one on release source native-ios, app ai.fixture.ios, group Founding members.\" It runs tool:fulfill-setup-access, which never takes an email address; today it refuses before any Apple call until the engine serves the release owner's claim, checkpoint and finish operations.",
   "lists": [],
   "no_lists_because": "It keeps and reads no list of yours: the person's request, consent and verified email live in the release owner's server-side claim, not in a list the tool is given.",

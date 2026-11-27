@@ -168,18 +168,18 @@ test('save moves the recording and its pointer note only under the allow-list, n
 });
 
 test('through the tool a person\'s AI uses: the tool row runs the capture export, and status with nothing recorded is idle', async () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
   const row = rows.find(one => one.id === 'tool:record-the-screen');
-  assert.deepEqual(row.invoke.argv.slice(-2), ['/opt/record-the-screen/do-work/capture-session.mjs', 'capture']);
+  assert.deepEqual(row.invoke.run.slice(-2), ['/opt/record-the-screen/do-work/capture-session.mjs', 'capture']);
   assert.equal(typeof captureTools.capture, 'function');
   assert.deepEqual(await capture({ action: 'status' }), { state: 'idle' });
 });
 
 test('both tool rows run the workflows function runner and mount no records door', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
   assert.equal(rows.length, 2);
   for (const row of rows) {
-    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', row.id);
+    assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs', row.id);
     assert.equal(JSON.stringify(row).includes('records-door'), false, row.id);
   }
 });

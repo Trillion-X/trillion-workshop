@@ -11,7 +11,7 @@
 // Output (stdout JSON): { sent, reason, rows }
 //
 // Non-negotiable invariants
-//   1. The proxy key is read from the descriptor the run hands on fd 4 (the row's credential_mounts), never from argv or a file.
+//   1. The proxy key is read from the descriptor the run hands on fd 4 (the row's key), never from argv or a file.
 //   2. Writes go through tool:run-sql-in-my-database on the records door the run was handed; the store is named by the input.
 //   3. A row is written only from a response's own headers. A failed call writes nothing.
 //   4. At most one probe per quiet window: a probe is skipped when a row of this provider was read inside it.

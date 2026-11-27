@@ -86,7 +86,7 @@
      },
      "workdir": "/opt/parts/ask-questions-sort-answers-follow-up",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/generate-questions.mjs",
       {
@@ -239,7 +239,7 @@
      },
      "workdir": "/opt/parts/ask-questions-sort-answers-follow-up",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/check-answers.mjs",
       {
@@ -474,7 +474,7 @@
      },
      "workdir": "/opt/parts/ask-questions-sort-answers-follow-up",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/score-answers-and-pick-a-segment.mjs",
       {

@@ -20,7 +20,7 @@ came, the Node version that ran it, and whether that Node strips types itself.
 
 | File | What |
 |---|---|
-| `tool-rows.json` | the card: a container run of `node do-work/echo.ts`, no network |
+| `what-this-tool-does-and-how-to-run-it.json` | the card: a container run of `node do-work/echo.ts`, no network |
 | `do-work/echo.ts` | the program |
 | `tests/echo.test.ts` | starts the program as the row does and checks its answer |
 

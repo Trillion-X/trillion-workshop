@@ -1,13 +1,13 @@
 import { realpathSync } from 'node:fs';
 // tools/keep-journey-steps-from-kept-rows/do-work/keep-steps.mjs
 //
-// The container tool `tool:keep-journey-steps-from-kept-rows` (tool-rows.json): reads the kept rows that stand for a visitor's
+// The container tool `tool:keep-journey-steps-from-kept-rows` (what-this-tool-does-and-how-to-run-it.json): reads the kept rows that stand for a visitor's
 // steps (read-data/journey-kept-rows.json: bookings, site-form leads and site visits from the statements table, sales from
 // payment_events) and keeps each one in
 // the pursuit's journey_steps table through keepStep (do-work/journey.mjs). A row is read from the newest kept step of its kind
 // (or from `since` when given), and a step with a ref already kept is left as it is, so running it again adds nothing.
 //
-// The connection string is a held value on descriptor 3 (the row's credential_mounts), as show-where-each-phrase-came-from holds
+// The connection string is a held value on descriptor 3 (the row's key), as show-where-each-phrase-came-from holds
 // it; the database is reached through the run's proxy (through-the-run-proxy.mjs). Every email is made into its key in JavaScript
 // and never written raw. The mapping's SQL is DATA written by the pursuit's owner; the one input value (since) is a bound parameter.
 import { readFileSync } from 'node:fs';

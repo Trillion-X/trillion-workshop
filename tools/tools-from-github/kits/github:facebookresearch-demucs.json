@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:facebookresearch-demucs's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs demucs.",
+  "drafted_from": "tool:github:facebookresearch-demucs's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs demucs.",
   "start_here": "Say to your AI: \"Use demucs on my computer to separate vocals from music: the file is song.mp3.\" It reads the row, installs demucs if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: demucs is a program that runs on the person's own computer and works on the one file or address it is handed.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:facebookresearch-demucs runs on your computer, so after tools:list the AI runs, in the folder it got demucs in, the command line: demucs --two-stems=vocals song.mp3  (synthetic input: a 3 minute song file).",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:facebookresearch-demucs runs on your computer, so after tools:list the AI runs, in the folder it got demucs in, the command line: demucs --two-stems=vocals song.mp3  (synthetic input: a 3 minute song file).",
       "hands_back": "demucs separates the song into two stems and writes them under separated/htdemucs/song/: vocals.wav (the singing) and no_vocals.wav (everything else)."
     }
   ]

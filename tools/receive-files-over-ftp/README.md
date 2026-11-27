@@ -24,7 +24,7 @@ Optional: `advertised_host` (the address told to a sender in the passive reply; 
 | File | Purpose |
 |------|---------|
 | `do-work/receive-pushed-files.mjs` | The receiver and its command. Streams each pushed file into the folder, takes the identity of the flushed bytes, writes the completion note LAST, and acknowledges the sender only after the note is on disk. |
-| `tool-rows.json` | `tool:receive-files-over-ftp`: starts the receiver on the person's computer (a long-running command, so it runs there, not in a container). |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:receive-files-over-ftp`: starts the receiver on the person's computer (a long-running command, so it runs there, not in a container). |
 | `test/receive-pushed-files.test.mjs` | A real listener on a loopback port and a hand-rolled sender over raw sockets, so no client library's forgiveness hides a defect. |
 
 ## Key Functions (`do-work/receive-pushed-files.mjs`)

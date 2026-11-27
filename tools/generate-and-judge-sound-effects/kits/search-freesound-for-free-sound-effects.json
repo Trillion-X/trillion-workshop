@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:search-freesound-for-free-sound-effects row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:search-freesound-for-free-sound-effects row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Search Freesound for CC0 and CC BY soft tick sounds under one second and write /work/sfx/fs-candidates.json.\" It runs the Freesound search and tells you how many it found per category.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a queries.json on this computer, reads Freesound's public search pages and writes a candidates.json file.",

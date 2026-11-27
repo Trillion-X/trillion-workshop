@@ -51,7 +51,7 @@
    ]
   },
   "test_refs": [
-   "tools/see-what-my-ais-did/tool-rows.json sample run (tool:list-what-my-ais-did)"
+   "tools/see-what-my-ais-did/what-this-tool-does-and-how-to-run-it.json sample run (tool:list-what-my-ais-did)"
   ]
  }
 }

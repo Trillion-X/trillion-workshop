@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/plans.py, test/test_assemble.py",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/what-this-tool-does-and-how-to-run-it.json, do-work/plans.py, test/test_assemble.py",
   "start_here": "Say to your AI: \"Show me the numbered segments of plan p1, then regroup it as one new lead line followed by segments 1 and 0.\" It runs outline, then regroup.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads and rewrites the plan files in the folder you name.",

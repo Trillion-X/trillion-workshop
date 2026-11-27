@@ -26,7 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { lineDiff, registerMcp, tomlTable } from '../harness/mcp-registration.mjs';
 import { settings as setupRules } from '../harness/setup.mjs';
 import aiClients from '../../set-up-my-account/read-data/ai-clients.json' with { type: 'json' };
-import toolRows from '../tool-rows.json' with { type: 'json' };
+import toolRows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { clearWorkspaceTools, eventsOfLine, lineSplitter, progressKeeper, runArgv, setWorkspaceTools, workspaceTools } from '../harness/session-runs.mjs';
 import { loadHandlers, makeHelper, registerSession, settings as wakeRules } from '../harness/wake-sessions.mjs';
 import progressRules from '../../run-on-a-persons-computer/report-progress.json' with { type: 'json' };
@@ -41,7 +41,7 @@ const URL_ = 'https://app.example.com/mcp';
 test('every registration row is an AI app the connect catalogue knows, and the setup answer offers the four commands', () => {
   const ids = aiClients.clients.map(row => row.id);
   for (const row of setupRules.mcp_registration.clients) assert.ok(ids.includes(row.id), `${row.id} is a src/ai-clients.json client`);
-  // The setup answer is this tool's row now (tool-rows.json, tool:connect-an-ai-app-on-this-computer-to-my-account): its
+  // The setup answer is this tool's row now (what-this-tool-does-and-how-to-run-it.json, tool:connect-an-ai-app-on-this-computer-to-my-account): its
   // action is one of the four commands, run through harness/setup.mjs with no --mcp-url.
   const row = toolRows.records.map(record => record.payload).find(payload => payload.id === 'tool:connect-an-ai-app-on-this-computer-to-my-account');
   assert.deepEqual(row.input_schema.properties.action.enum.map(action => action.replace(/^mcp-/, '')), ['inspect', 'preview', 'register', 'unregister']);

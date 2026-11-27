@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-app-distribution's row in tools/app-release-access/tool-rows.json, read-data/app-distribution.mjs and distribution.mjs, and test/app-distribution.test.mjs",
+  "drafted_from": "tool:read-app-distribution's row in tools/app-release-access/what-this-tool-does-and-how-to-run-it.json, read-data/app-distribution.mjs and distribution.mjs, and test/app-distribution.test.mjs",
   "start_here": "Say to your AI: \"Read which TestFlight routes the app com.example.sample can be installed from right now on release source native-ios, counting only my TestFlight group Members.\" It reads App Store Connect with the release owner's held key and hands back the short-lived public observation.",
   "lists": [],
   "no_lists_because": "It keeps and reads no list of yours: it takes the app and groups as input and answers one observation without saving it.",

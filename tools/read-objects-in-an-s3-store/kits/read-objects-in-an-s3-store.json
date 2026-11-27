@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-objects-in-an-s3-store row in tool-rows.json, do-work/read-objects.mjs and test/read-objects.test.mjs",
+  "drafted_from": "tool:read-objects-in-an-s3-store row in what-this-tool-does-and-how-to-run-it.json, do-work/read-objects.mjs and test/read-objects.test.mjs",
   "start_here": "Say to your AI: \"List the files under site/ in my connected R2 store, then read site/index.html.\" It runs tool:read-objects-in-an-s3-store with your store connection, lists one page of objects and reads the one file.",
   "lists": [],
   "no_lists_because": "It names no list: it reads a bucket through your connected store and answers object names, sizes and bytes, writing and deleting nothing.",

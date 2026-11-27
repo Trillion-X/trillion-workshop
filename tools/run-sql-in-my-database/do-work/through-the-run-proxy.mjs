@@ -1,6 +1,6 @@
 // tools/run-sql-in-my-database/do-work/through-the-run-proxy.mjs
 //
-// A database reached by its address from a sandboxed run. The engine starts this tool's process with internet:true, and the
+// A database reached by its address from a sandboxed run. The engine starts this tool's process with may_reach, and the
 // process reaches the network only through the run's own loopback proxy, which the engine names in HTTPS_PROXY. Each database
 // connection is one CONNECT tunnel through that proxy to the host and port the connection string names. The engine opens it only
 // to a host every value the run holds may go to (the vault entry's `hosts`), so a login never reaches another host. The

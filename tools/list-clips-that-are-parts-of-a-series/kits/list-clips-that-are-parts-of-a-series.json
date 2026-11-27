@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:list-clips-that-are-parts-of-a-series row in tool-rows.json, do-work/series_parts.py and test/test_series_parts.py",
+  "drafted_from": "tool:list-clips-that-are-parts-of-a-series row in what-this-tool-does-and-how-to-run-it.json, do-work/series_parts.py and test/test_series_parts.py",
   "start_here": "Say to your AI: \"Find my clips that say they are part one, part two or part three of a series: read the moments files a.jsonl and b.jsonl and list them in order.\" It runs series_parts.py on your computer and shows the clips grouped by series.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the moments files it is given and prints tab-separated lines and one result line.",

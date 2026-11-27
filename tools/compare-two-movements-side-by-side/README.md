@@ -10,7 +10,7 @@ Two movements played next to each other, each from its own start second, with a 
 | `show/SideBySide.tsx` | The screen: `View(props)` is pure (no fetch, no window while it renders). Its props are the answer of the read; `filesBase` is put in front of a video that is a storage key. |
 | `show/video-address.ts` | Turns a stored video value (an address or a storage key) into the address a player opens. Also used by `show-published-clips`. |
 | `tests/` | The row to pair rules, the read's statement, and the screen drawn to markup with `tests/render-a-view.ts` (esbuild bundle, run once, no browser). |
-| `tool-rows.json` | The card. `screen` is `{ kind: module, entry: show/SideBySide.tsx, export: View }`; the read runs in a container on the pursuit's own database, opened with the login its vault holds. |
+| `what-this-tool-does-and-how-to-run-it.json` | The card. `screen` is `{ kind: module, entry: show/SideBySide.tsx, export: View }`; the read runs in a container on the pursuit's own database, opened with the login its vault holds. |
 
 ## How a page and an AI app get the same screen
 

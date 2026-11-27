@@ -2,12 +2,12 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/social-posts/do-work/approve-a-post-in-database.mjs
 //
-// tool:approve-a-post, one container process (tool-rows.json): approves a drafted post exactly as reviewed, reading the post and
+// tool:approve-a-post, one container process (what-this-tool-does-and-how-to-run-it.json): approves a drafted post exactly as reviewed, reading the post and
 // the person's approval setting from the pursuit database the request names (`database`), never from records the caller hands in.
 // So a caller can never carry an `auto` setting in: any `records`, `by_person` or `approval-setting` the request holds is ignored.
 // Each answer, approved or refused, is kept in the same database: the post's new state and one approval-decision row.
 //
-// The connection string is a held value the engine hands this process on descriptor 3 (the row's invoke.credential_mounts), named
+// The connection string is a held value the engine hands this process on descriptor 3 (the row's invoke.key), named
 // by the request's `database`; it is never in the request, argv, a file or the environment. The gate is approveAPost (read-data/posts.mjs),
 // unchanged: this file only reads the records it judges and writes back what it keeps.
 import { readFileSync } from 'node:fs';

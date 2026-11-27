@@ -6,7 +6,7 @@ A script a person's AI runs by hand on the person's own computer. It writes a `.
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:make-a-lut-for-log-footage`: `on-your-computer`, with the commands that fetch it and run it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:make-a-lut-for-log-footage`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/make_lut.py` | The command. Reads the profile, builds the table and writes it; the last line printed is `{"result": ...}` or `{"error": ...}`. |
 | `test/make-lut.test.mjs` | Runs the command with two profiles (a published-curve example and a made-up camera written in the test) and checks the file's shape, its grey ramp, each setting, the profile's own settings and refusals. Skips, saying why, when python3 or numpy is missing. |

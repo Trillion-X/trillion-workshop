@@ -28,7 +28,7 @@ Traffic measurement under a funnel: tracked links with UTM fields, visitors, lea
 | `do-work/measure-ad-return.mjs` | The ad return tool's command: `{ project, visits, conversions?, paying_outcome, signup_outcome?, break_down_by?, spend?, spend_answers?, revenue_months?, gross_margin?, monthly_churn?, customer_lifetime_months?, target_ltv_to_cac? }`. |
 | `do-work/prepare-ad-conversions.mjs` | The conversion tool's command: `{ project, destinations?, visits, conversions, now? }` → `{ sends: [{ destination, tool_id, input, events }], skipped, said }`. |
 | `records.json` | The four tool rows. The ad return row also carries the two `tools/unit-economics` files it imports, placed beside this folder at `/opt/parts/`, so that import resolves the same way inside the container and in this repository. The link row also carries `do-work/journey.mjs`, its two DATA files and `tools/content-identity` (the email key's identity), placed the same way. |
-| `tool-rows.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
+| `what-this-tool-does-and-how-to-run-it.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
 | `test/ad-return.test.mjs` | Runs each tool's command the way its row runs it. |
 | `test/journey.test.mjs` | The journey kit: cookie, source, `/go/`, checkout limits, booking and sale joins, and the SQL run in PGlite twice. |
 | `part.json` | No public files: only the tool runs this code. |
@@ -98,4 +98,4 @@ Invariants:
 
 **Depends on:** `tools/unit-economics` (`computeUnitEconomics`), Node 24. The spend and conversion tools it names live on Trillion's Meta Ads and Google Ads connections (`tool:meta-ads-read-campaign-spend`, `tool:meta-ads-send-conversion-events`, `tool:google-ads-read-campaign-spend`, `tool:google-ads-read-keyword-spend`, `tool:google-ads-send-conversions`).
 
-**Depended on by:** Trillion's tool runner, which reads `tool-rows.json`; Trillion's ad connection tests, which read `read-data/ad-conversions.json`, `read-data/ad-return.json` and `prepareAdConversions`.
+**Depended on by:** Trillion's tool runner, which reads `what-this-tool-does-and-how-to-run-it.json`; Trillion's ad connection tests, which read `read-data/ad-conversions.json`, `read-data/ad-return.json` and `prepareAdConversions`.

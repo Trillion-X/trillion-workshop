@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/generate-speech/tool-rows.json (tool:generate-speech), do-work/generate_speech.py, read-data/speech_records.py, test/generate-speech.test.mjs",
+  "drafted_from": "tools/generate-speech/what-this-tool-does-and-how-to-run-it.json (tool:generate-speech), do-work/generate_speech.py, read-data/speech_records.py, test/generate-speech.test.mjs",
   "start_here": "Say to your AI: \"Make speech of 'Fresh bread at seven.' with the voice program on this computer and keep the audio in a new folder.\" It writes the request file, runs generate_speech.py on your computer and tells you where the WAV file is.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one request file you write, runs the voice program you name and keeps the audio files in a folder you give.",

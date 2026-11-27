@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:fetch-free-sound-effects-with-their-licences row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:fetch-free-sound-effects-with-their-licences row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Download the sound effects I chose in /work/sfx/selection.json, reading each licence first, into /work/sfx/sfx with a manifest.\" It runs the fetcher and tells you how many were kept, blocked and unavailable.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads selection.json and the two candidates files on this computer, downloads files into a folder and writes a manifest.json.",

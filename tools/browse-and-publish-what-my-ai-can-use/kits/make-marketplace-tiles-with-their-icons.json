@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/browse-and-publish-what-my-ai-can-use/tool-rows.json, code in do-work/make-shelf-tiles.mjs, test/make-shelf-tiles.test.mjs, marketplace-kinds.json",
+  "drafted_from": "tool row in tools/browse-and-publish-what-my-ai-can-use/what-this-tool-does-and-how-to-run-it.json, code in do-work/make-shelf-tiles.mjs, test/make-shelf-tiles.test.mjs, marketplace-kinds.json",
   "start_here": "Say to your AI: \"Make Marketplace tiles with their icons from tools.json and workflows.json using my lucide-react icons folder, and write tiles.js for my page.\" It runs make-shelf-tiles.mjs on your computer and tells you how many tiles it made and how many have their own icon.",
   "lists": [],
   "no_lists_because": "It reads two JSON files of shelf items and an icons folder and writes a page file, so it keeps no list of its own.",

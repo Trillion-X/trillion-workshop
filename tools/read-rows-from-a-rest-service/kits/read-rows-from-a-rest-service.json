@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-rows-from-a-rest-service row in tool-rows.json, do-work/read-rows.mjs, read-data/hosts.json and test/read-rows.test.mjs",
+  "drafted_from": "tool:read-rows-from-a-rest-service row in what-this-tool-does-and-how-to-run-it.json, do-work/read-rows.mjs, read-data/hosts.json and test/read-rows.test.mjs",
   "start_here": "Say to your AI: \"Read the first 5 active rows of the members table in my Supabase project https://example-project.supabase.co, columns id and name, ordered by id.\" It runs tool:read-rows-from-a-rest-service with your connection and shows the rows and the total.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one table of your connected database service and answers rows, a count and a total, writing nothing.",

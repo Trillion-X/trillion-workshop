@@ -11,7 +11,7 @@ import * as mail from '../read-data/mail.mjs';
 const here = path => new URL(path, import.meta.url);
 const file = path => JSON.parse(readFileSync(here(path), 'utf8'));
 const providers = file('../read-data/mail-providers.json');
-const rows = file('../tool-rows.json').records.map(record => record.payload);
+const rows = file('../what-this-tool-does-and-how-to-run-it.json').records.map(record => record.payload);
 const camel = operation => operation.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
 
 test('one row per operation of the provider file, named for its job, with no vendor in its id or label', () => {
@@ -27,14 +27,14 @@ test('each row\'s by_input variants are exactly the provider rows\' connection k
   // A provider whose key is held in the vault under its secret_name (Composio, AgentMail) takes that key, not the person's own
   // connection (as the calendar row does); every other provider takes the connection's key and renews it.
   const expected = Object.fromEntries(providers.providers.map(row => [row.id, row.secret_name
-    ? { connection: null, credential_mounts: [{ secret_name: row.secret_name, fd: 4 }] }
+    ? { connection: null, key: [{ secret_name: row.secret_name, fd: 4 }] }
     : { connection: { vendor: row.connection_vendor, from_input: 'connection' }, refresh: row.refresh }]));
   for (const row of rows) {
     assert.equal(row.invoke.by_input.input, 'provider', row.id);
     assert.deepEqual(row.invoke.by_input.variants, expected, row.id);
     assert.equal(row.invoke.connection, undefined, `${row.id} fixes no connection kind of its own`);
     assert.equal(row.invoke.refresh, undefined, `${row.id} fixes no key renewal of its own`);
-    assert.deepEqual(row.invoke.credential_mounts, [{ field_id: 'access_token', fd: 4 }], row.id);
+    assert.deepEqual(row.invoke.key, [{ field_id: 'access_token', fd: 4 }], row.id);
     assert.ok(row.input_schema.required.includes('provider') && row.input_schema.required.includes('connection'), row.id);
   }
 });
@@ -42,7 +42,7 @@ test('each row\'s by_input variants are exactly the provider rows\' connection k
 test('each row runs the export of its operation, and every provider offers only operations it has an adapter function for', async () => {
   for (const row of rows) {
     const operation = row.id.replace(/^tool:/, '');
-    assert.equal(row.invoke.argv[3], camel(operation), row.id);
+    assert.equal(row.invoke.run[3], camel(operation), row.id);
     assert.equal(typeof mail[camel(operation)], 'function', `${operation} has an export`);
     assert.equal(row.read_only, ['find-my-mailbox', 'list-new-mail', 'find-mail', 'read-mail-headers', 'read-a-mail', 'read-a-conversation', 'list-mail-drafts', 'read-a-mail-draft', 'list-send-as-addresses', 'keep-a-mail-attachment'].includes(operation), row.id);
   }

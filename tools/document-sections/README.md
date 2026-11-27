@@ -10,7 +10,7 @@ Puts one named section into a markdown document without repeating it, and writes
 | `do-work/build-entries-section.mjs` | The writing: `entriesOf`, `renderEntry`, `renderSection` (pure), and `run` (files in, file out). Carried unchanged from the package. |
 | `do-work/place-a-section.mjs` | The command of the placing tool: `{ document_text, section_text }` on standard input, `{ result: { text, placement, heading } }` on the last line. |
 | `do-work/build-a-section.mjs` | The command of the writing tool: `{ heading, preamble?, sources, entries_at?, text_field?, label_field?, stamp_field?, group_field? }` in, `{ result: { text, entries, sources } }` out. |
-| `tool-rows.json` | The two tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two tool rows. |
 | `part.json` | The two pure modules other tools may import. |
 | `test/place-named-section.test.mjs` | The package's placing tests (append, replace, nested subsections, fenced headings, idempotence, missing heading, prefix collision). |
 | `test/build-entries-section.test.mjs` | The package's writing tests (every line survives, markdown stays quoted, refusals, order across sources, field names as inputs). |
@@ -36,4 +36,4 @@ Puts one named section into a markdown document without repeating it, and writes
 
 **Depends on:** Node 24 in the tool container (`node:stream/consumers`); `append-section.mjs` and `build-entries-section.mjs` also use `node:fs/promises` and `node:path` for their file-based `run`.
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.

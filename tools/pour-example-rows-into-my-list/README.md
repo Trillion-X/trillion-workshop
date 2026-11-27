@@ -7,7 +7,7 @@ The pour part of every Workshop item's kit (`tools/workflows/kit-template.json`,
 | File | Purpose |
 |------|---------|
 | `do-work/pour.mjs` | The tool: one JSON object on standard input, one JSON answer as the last line (exit 2 with `{ error }` on a refusal). `pour(input)` is exported for tests. |
-| `tool-rows.json` | `tool:pour-example-rows-into-my-list`, its sample run. `kits/pour-example-rows-into-my-list.json` is its own kit. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:pour-example-rows-into-my-list`, its sample run. `kits/pour-example-rows-into-my-list.json` is its own kit. |
 | `part.json` | The public file the engine may run. |
 | `test/pour.test.mjs` | The sample pour, a list under 80%, the map, label and choice rules, a second pour that changes nothing, refusals, and the tool's own kit. |
 

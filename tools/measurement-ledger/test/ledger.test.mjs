@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { importAttemptRows, importUsageEvents, prepareAuditImport } from '../read-data/import-audit.mjs';
 import { run as runLedgerTool } from '../do-work/ledger-tool.mjs';
 import schema from '../DATA.json' with { type: 'json' };
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const base = (changes = {}) => ({ event_id: 'event-1', provider: 'host-a', operation: 'inference', metric: 'duration', metric_kind: 'duration_distribution', aggregation: 'duration_distribution', unit: 'ms', currency: 'none', scenario_id: 'production', source_revision: 'rev-a', run_id: 'run-a', window_start: '2026-10-31T10:00:00-06:00', window_end: '2026-10-31T10:01:00-06:00', observed_at: '2026-10-31T10:00:30-06:00', scope: 'measured', value: 25, ...changes });
 const rec = (o) => ({ id: `record:cost-measurement-observation:${encodeURIComponent(o.event_id)}`, type: 'record:cost-measurement-observation', value: { schema: 2, ...o } });
@@ -76,7 +76,7 @@ function answerOf(row, input) {
       cpSync(new URL(`../../${spec.package}/${path}`, import.meta.url), join(there, spec.at, path), { recursive: true });
     }
   }
-  const argv = row.invoke.argv.map(word => (word.startsWith('/opt/') ? join(there, word) : word));
+  const argv = row.invoke.run.map(word => (word.startsWith('/opt/') ? join(there, word) : word));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: there, input: JSON.stringify(input), env: { PATH: process.env.PATH, HOME: there }, encoding: 'utf8' });
   const last = JSON.parse(ran.stdout.trim().split('\n').at(-1));
   return { status: ran.status, result: last.result, error: last.error };
@@ -85,7 +85,7 @@ function answerOf(row, input) {
 test('the row declares no records door and packs only the workflows entry for a function and this folder, so the program imports nothing else', () => {
   assert.equal(ledgerRow().invoke.records, undefined);
   assert.deepEqual(ledgerRow().invoke.files.package_files.map(spec => spec.package), ['workflows', 'measurement-ledger']);
-  assert.deepEqual(ledgerRow().invoke.argv.slice(1, 4), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/measurement-ledger/do-work/ledger-tool.mjs', 'run']);
+  assert.deepEqual(ledgerRow().invoke.run.slice(1, 4), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/measurement-ledger/do-work/ledger-tool.mjs', 'run']);
 });
 
 test('check_observations answers the rows to keep', () => {

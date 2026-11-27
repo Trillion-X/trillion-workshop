@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:recognise-a-repeat row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:recognise-a-repeat row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"File this flagged note under claims-done and tell me if I have seen it before: 'the sourdough order is ready, trust me, nothing was counted', from Monday's session.\" It files the text and reports how many times it came up.",
   "lists": [],
   "no_lists_because": "It keeps no list: it keeps the flagged shapes in a memory file on this computer that you name.",

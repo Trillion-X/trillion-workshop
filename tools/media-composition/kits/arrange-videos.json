@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:arrange-videos's own row in tools/media-composition/tool-rows.json (its argv builds a split edit for tools/media-composition/do-work/render-an-edit.mjs), and that script run on two synthetic clips",
+  "drafted_from": "tool:arrange-videos's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json (its argv builds a split edit for tools/media-composition/do-work/render-an-edit.mjs), and that script run on two synthetic clips",
   "start_here": "Say to your AI: \"Put my swing video next to the pro's video, side by side, for 4 seconds.\" It runs tool:arrange-videos and saves the combined video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

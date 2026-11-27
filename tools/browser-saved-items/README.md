@@ -10,7 +10,7 @@ It reads only the browser's sidebar file (the Arc layout: spaces, pinned folders
 |------|---------|
 | `do-work/organize-saved-browser-items.py` | `tool:organize-saved-browser-tabs`: the granted folder in argv, `{ file, rules, apply? }` or `{ file, restore_from }` on standard input, `{ result }` or `{ error }` on the last line. Changed from the package: the folder tree, the sites, the words and the choice of category are the person's `rules`; the catalog files the package read from a design-library folder are gone (`relevant_hosts` is the list a person gives); the report is the answer, not a file; every request is a report until `apply: true`; before a write the tool checks that the same tabs are reachable and no item appeared or went, and refuses a root folder holding anything that is not a folder, tab or split view; a tab that only moves with its split view is reported as that; tabs keep their order instead of set order; the restore keeps the file it replaces. The package's second script, which added a person's sites to a design-component catalog, was glue to that catalog and is not carried. |
 | `part.json` | Nothing in this folder is imported by another tool. |
-| `tool-rows.json` | The row. It runs on the person's computer with the `change-a-folder` grant and no internet. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. It runs on the person's computer with the `change-a-folder` grant and no internet. |
 | `test/organize-saved-browser-items.test.mjs` | The command run as the engine runs it on a made-up sidebar file for a bakery's saved tabs: a report that writes nothing, an apply that keeps every tab and the split view with its backup equal to the old file, a restore, refusals that change nothing (folder count, unknown space, a destination that does not exist, a rule that covers every tab, an item that could not be kept, file names that leave the folder or are links). |
 
 ## Key Types / Functions
@@ -26,4 +26,4 @@ It reads only the browser's sidebar file (the Arc layout: spaces, pinned folders
 
 **Depends on:** nothing (Python 3 standard library).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.change-a-folder`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.change-a-folder`.

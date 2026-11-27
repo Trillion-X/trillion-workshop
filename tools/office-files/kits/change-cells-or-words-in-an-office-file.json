@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/rewrite-office-open-xml-cells.py and test/decode-office-open-xml.test.py (run on its fixture)",
+  "drafted_from": "tool row in tools/office-files/what-this-tool-does-and-how-to-run-it.json, do-work/rewrite-office-open-xml-cells.py and test/decode-office-open-xml.test.py (run on its fixture)",
   "start_here": "Say to your AI: \"In /work/budget.xlsx change the price text from $2,499 per seat to $100/month bundle, and make the 999 in the formula say n/a, writing /work/budget-new.xlsx.\" It writes a rules file, runs rewrite-office-open-xml-cells.py on your computer and reads the new file back.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",

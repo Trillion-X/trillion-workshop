@@ -31,5 +31,5 @@
       "hands_back": "project-frame-manifest exit 0: {\"output\": \".../clip/projection.json\", \"frame_count\": 5, \"source_identity\": {\"algorithm\": \"blake3\", \"bytes\": 19, ...}, \"manifest_identity\": {\"algorithm\": \"blake3\", ...}}; projection.json has schema \"frames-blake3/v1\" and 5 frames each with index, pts, seconds, path, bytes and identity. frame-pages exit 0: {\"frame_count\": 5, \"page_count\": 3, \"review_status\": \"generated_not_reviewed\"} and clip/pages holds index.json, page-001.jpg, page-002.jpg, page-003.jpg. With --candidate-pairs --pairs-per-page 2 it answers {\"pair_count\": 3, \"page_count\": 2, ...} and writes pair-page-001.jpg and pair-page-002.jpg."
     }
   ],
-  "drafted_from": "tool:pin-video-frames-as-evidence-pages's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
+  "drafted_from": "tool:pin-video-frames-as-evidence-pages's row in tools/keep-a-record-library-valid/what-this-tool-does-and-how-to-run-it.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

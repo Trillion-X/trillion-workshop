@@ -32,9 +32,9 @@
           }
         }
       },
-      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/catalog/search?q=backlinks summary for a domain&limit=3 with no token and returns treg's reply unchanged (result_selector \"$\"). Endpoint id taken from tools/treg/test/treg-rows.test.mjs.",
+      "given": "Read from tools/treg/what-this-tool-does-and-how-to-run-it.json: the row sends GET https://treg.to/catalog/search?q=backlinks summary for a domain&limit=3 with no token and returns treg's reply unchanged (result_selector \"$\"). Endpoint id taken from tools/treg/test/treg-rows.test.mjs.",
       "hands_back": "{\"query\":\"backlinks summary for a domain\",\"count\":1,\"total\":1,\"results\":[{\"id\":\"dataforseo.web.backlinks.summary\",\"method\":\"POST\",\"cost\":{\"usd\":0.02,\"unit\":\"call\"}}]}"
     }
   ],
-  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs; the reply values are a worked sample of the shape its output_schema names"
+  "drafted_from": "tools/treg/what-this-tool-does-and-how-to-run-it.json (its row), its README and test/treg-rows.test.mjs; the reply values are a worked sample of the shape its output_schema names"
 }

@@ -1,5 +1,5 @@
 {
- "drafted_from": "tool:tell-the-makers-of-a-product (this folder's tool-rows.json) and the caller's own insert-only makers login",
+ "drafted_from": "tool:tell-the-makers-of-a-product (this folder's what-this-tool-does-and-how-to-run-it.json) and the caller's own insert-only makers login",
  "start_here": "Say to your AI: \"Tell the makers of this product about this: a bug, friction, feedback or an idea, with your own words\", and give it kind, note and your login's name. It writes one row to the makers' calendar_tasks; the owner's feedback workflow takes it from there. A second send of the same note is refused as already taken.",
  "lists": [],
  "no_lists_because": "It keeps no list of yours: it writes one row to the makers' calendar_tasks through the login you name.",

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { collectAndRefresh } from '../read-data/collect.mjs';
 
@@ -13,7 +13,7 @@ test('direct wake consumer answers its rows through the actual shared process ro
   t.after(() => rm(root, { recursive: true, force: true }));
   const source = path.join(root, 'source'), receipts = path.join(root, 'receipts');
   await mkdir(source); await mkdir(receipts);
-  await writeFile(path.join(source, 'tool-rows.json'), JSON.stringify({ kind: 'tool-rows', records: [{ payload: { kind: 'ai-tool-descriptor', id: 'tool:sample' } }] }));
+  await writeFile(path.join(source, 'what-this-tool-does-and-how-to-run-it.json'), JSON.stringify({ kind: 'tool-rows', records: [{ payload: { kind: 'ai-tool-descriptor', id: 'tool:sample' } }] }));
   const sourceRoots = [{ id: 'system', path: source }];
   const pin = await collectAndRefresh({ source_roots: sourceRoots, receipt_roots: [], meters: [], prices: [] });
   await writeFile(path.join(receipts, 'run.json'), JSON.stringify({ schema: 'execution-observation/1', id: 'physical-1', operation: 'tool:sample', source: 'system', source_revision: pin.discovery.source_roots[0].revision, provider: 'fixture', at: '2026-10-31T12:00:00-06:00', useful_work: { status: 'succeeded' }, measurements: [{ meter: 'requests', unit: 'request', value: 3 }] }));
@@ -24,7 +24,7 @@ test('direct wake consumer answers its rows through the actual shared process ro
   const row = structuredClone(rows.records.find(r => r.payload.id === 'tool:refresh-measurement-history').payload);
   assert.equal(row.invoke.records, undefined);
   // The real native computer runner supplies this task grant; the shared test process receives its fixture grant.
-  row.invoke.argv[2] = root;
+  row.invoke.run[2] = root;
   const first = await answerOf(row, { config: config.value });
   assert.equal(first.status, 0, JSON.stringify(first));
   assert.ok(first.result.observations.length > 0);

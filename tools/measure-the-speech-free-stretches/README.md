@@ -8,7 +8,7 @@ Speech comes from the whisper transcript's segments with words in them (a blank 
 |------|---------|
 | `do-work/measure_speech_free.py` | The measure. Prints `{"result": {...}}` or `{"error": ...}`. |
 | `test/test_measure_speech_free.py` | Made-up transcripts and audio: a silence the transcript runs across, a music-only tail, a blank segment, and the refusals. |
-| `tool-rows.json` | The one Workshop row, `tool:measure-the-speech-free-stretches`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The one Workshop row, `tool:measure-the-speech-free-stretches`. |
 | `kits/measure-the-speech-free-stretches.json` | The kit (L082). |
 | `part.json` | Nothing here is imported by other code. |
 

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/browse-public-page/tool-rows.json, test/list-the-videos-a-site-plays.test.mjs",
+  "drafted_from": "tools/browse-public-page/what-this-tool-does-and-how-to-run-it.json, test/list-the-videos-a-site-plays.test.mjs",
   "start_here": "Say to your AI: \"List every video that https://site.example plays, across its pages.\" It runs tool:list-the-videos-a-site-plays and hands back the video files, streams and player frames it found and the pages it opened.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one public site and answers the addresses it found, writing nothing.",

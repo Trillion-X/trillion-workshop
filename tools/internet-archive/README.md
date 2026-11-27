@@ -11,5 +11,5 @@ Archive availability and collection membership do not establish permission to re
 | File | Purpose |
 |---|---|
 | `records.json` | Shared Workshop descriptors for Archive search and metadata lookup. |
-| `tool-rows.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
+| `what-this-tool-does-and-how-to-run-it.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
 | `part.json` | No public files. |

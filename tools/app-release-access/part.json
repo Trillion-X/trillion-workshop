@@ -3,7 +3,7 @@
     "app-store-connect": "read-data/app-store-connect.mjs",
     "setup-access": "read-data/setup-access.mjs",
     "testflight-readiness": "read-data/testflight-readiness.mjs",
-    "tool-rows.json": "tool-rows.json"
+    "what-this-tool-does-and-how-to-run-it.json": "what-this-tool-does-and-how-to-run-it.json"
   },
   "public": []
 }

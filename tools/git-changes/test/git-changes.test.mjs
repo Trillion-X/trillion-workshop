@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import * as tools from '../read-data/git-changes.mjs';
 
 const { renderArgv, parseBranchHeader, parsePorcelain } = tools;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map((record) => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map((record) => record.payload);
 
 // The tests make their own repositories, so no repository, work tree or index the caller's environment names may reach git.
 const commands = JSON.parse(readFileSync(new URL('../read-data/git-commands.json', import.meta.url), 'utf8'));
@@ -124,7 +124,7 @@ test('each row names a function this module has, runs it on the person\'s comput
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, ['use-git-in-a-folder']);
     assert.deepEqual(row.placements, ['placement:your-computer']);
-    assert.equal(typeof tools[row.invoke.argv.at(-1)], 'function', `${row.id} runs ${row.invoke.argv.at(-1)}`);
+    assert.equal(typeof tools[row.invoke.run.at(-1)], 'function', `${row.id} runs ${row.invoke.run.at(-1)}`);
     assert.ok(row.input_schema.required.includes('folder'));
   }
 });

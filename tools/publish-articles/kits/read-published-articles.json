@@ -33,5 +33,5 @@
       "hands_back": "{\"articles\":[{\"slug\":\"first\",\"title\":\"First\",\"description\":\"About it\",\"category\":\"Basics\",\"published_at\":\"2026-11-01\"}]}"
     }
   ],
-  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/articles.ts"
+  "drafted_from": "tool row in tools/publish-articles/what-this-tool-does-and-how-to-run-it.json and tools/publish-articles/do-work/articles.ts"
 }

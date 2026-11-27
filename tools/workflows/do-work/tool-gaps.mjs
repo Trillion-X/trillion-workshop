@@ -7,7 +7,7 @@
 //   node tools/workflows/do-work/tool-gaps.mjs TOOLS_FOLDER
 //     -> { missing: { "tool:x": ["workflow:a", ...] }, by_recipe: { "workflow:a": ["tool:x"] } }
 //
-// TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/tool-rows.json).
+// TOOLS_FOLDER is the Workshop's tools folder (the one holding every tools/<name>/what-this-tool-does-and-how-to-run-it.json).
 
 import { readFileSync, realpathSync } from 'node:fs';
 import { recipeToolGaps } from '../read-data/recipe-problems.mjs';

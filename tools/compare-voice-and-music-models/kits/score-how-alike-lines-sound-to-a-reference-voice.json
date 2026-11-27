@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/speaker_similarity.py and tools/compare-voice-and-music-models/test/test_compare_models.py",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/what-this-tool-does-and-how-to-run-it.json, do-work/speaker_similarity.py and tools/compare-voice-and-music-models/test/test_compare_models.py",
   "start_here": "Say to your AI: \"Score which of my folders ./current and ./candidate sounds most like the real speaker in ref.wav.\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it takes a reference recording and folders of line recordings and prints scores.",

@@ -38,5 +38,5 @@
       "hands_back": "{\"xml\":\"<?xml version=\\\"1.0\\\"?><rss version=\\\"2.0\\\">\"}"
     }
   ],
-  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/rss.ts"
+  "drafted_from": "tool row in tools/publish-articles/what-this-tool-does-and-how-to-run-it.json and tools/publish-articles/do-work/rss.ts"
 }

@@ -111,7 +111,7 @@
           },
           "workdir": "/opt/close-a-list-row-when-i-say",
           "stdout": "json",
-          "argv": [
+          "run": [
             "node",
             "do-work/name-the-open-rows.mjs",
             {
@@ -281,7 +281,7 @@
           },
           "workdir": "/opt/close-a-list-row-when-i-say",
           "stdout": "json",
-          "argv": [
+          "run": [
             "node",
             "do-work/decide-said-done.mjs",
             {

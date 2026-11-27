@@ -1,11 +1,11 @@
 import { realpathSync } from 'node:fs';
 // tools/read-rows-from-a-rest-service/do-work/read-rows.mjs
 //
-// The container tool `tool:read-rows-from-a-rest-service` (tool-rows.json): reads rows of one table of any PostgREST
+// The container tool `tool:read-rows-from-a-rest-service` (what-this-tool-does-and-how-to-run-it.json): reads rows of one table of any PostgREST
 // service the person connected (a service connection whose descriptor names a project URL and a service key), such as
 // a Supabase project. It only reads: GET requests, no writes and no stored procedures.
 //
-// The connection's service key reaches this one process on a private pipe (the row's invoke.credential_mounts):
+// The connection's service key reaches this one process on a private pipe (the row's invoke.key):
 // descriptor 3. The project URL is a request field (it is not a secret), and the key goes only to a project under a
 // domain read-data/hosts.json names, at that project's /rest/v1 path, as the apikey and Bearer headers PostgREST
 // expects. The answer carries rows, never a key or the provider's raw reply.

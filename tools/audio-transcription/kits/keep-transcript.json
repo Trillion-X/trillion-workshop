@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:keep-transcript (tools/audio-transcription/tool-rows.json) and keepTranscript in read-data/keep-transcript.mjs",
+  "drafted_from": "tool:keep-transcript (tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json) and keepTranscript in read-data/keep-transcript.mjs",
   "start_here": "Say to your AI: \"Keep the transcript of clip.m4a in my database.\" It runs tool:keep-transcript with the transcript tool:transcribe-file answered for that recording.",
   "lists": [],
   "no_lists_because": "It writes the transcript as one row of the table file_transcripts in the database named in its input, and nothing else.",

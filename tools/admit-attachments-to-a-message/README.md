@@ -23,6 +23,6 @@ file's source and both identities). The old copy stays until its caller, Trillio
 | `src/attachment-admission.mjs` | `admitAttachments`: the one admission rule. |
 | `src/attachment-admission.json` | The limits and the words for each binding limit, as data. |
 | `test/attachment-admission.test.mjs` | The original test: nothing binds, the per-turn cap, the daily quota with its reset, oversize files and a null limit. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `moved-from.json` | Where each file came from and its identities. |
 | `part.json` | Public files. |

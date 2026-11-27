@@ -235,7 +235,7 @@ test('a run of a tool that lives on this computer is run from its own files and 
     const archive = tarGz([{name: 'do-work/move.mjs', bytes: new TextEncoder().encode(script)}]);
     const fingerprint = fingerprintOf(archive);
     const descriptor = {id: 'tool:here', needs: {expected_seconds: 5}, invoke: {kind: 'container', files: fingerprint,
-      stdout: 'json', argv: [process.execPath, 'do-work/move.mjs', '--moves', {from: 'moves'}, '--projects', {from: 'projects', optional: true}]}};
+      stdout: 'json', run: [process.execPath, 'do-work/move.mjs', '--moves', {from: 'moves'}, '--projects', {from: 'projects', optional: true}]}};
     w.answers['/tasks/task_1/claim'] = () => ({claimed: true, state: 'for_you_to_run', descriptor, made_by: 'shared', bytes_base64: Buffer.from(archive).toString('base64')});
     w.answers['/tasks/task_1/answer'] = body => ({ state: 'completed', contract: { passed: true }, got: body });
     w.answers['/tasks/task_1'] = () => ({ task_id: 'task_1', tool_id: 'tool:here', state: 'for_you_to_run', placement: 'placement:caller-sandbox', input: { moves: [{ from: '/a', to: '/b' }] } });

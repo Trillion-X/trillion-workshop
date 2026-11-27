@@ -24,7 +24,7 @@ One JSON line on stdout: `outcome` (`nothing-to-do`, `landed`, `origin-moved` or
 |------|---------|
 | `do-work/keep-package-files-current.mjs` | `classify` (the rule), `keepPackageFilesCurrent({ root, seams })` (one pass) and `realSeams` (git and the generator). |
 | `test/keep-package-files-current.test.mjs` | The pass with fake seams: adds land on top of origin's file; a missing origin item is kept and is a finding; nothing to add lands nothing and still records findings; origin moving mid-run lands nothing; a row origin has and the generator lacks is a finding, never removed; an unwired landing lands nothing. |
-| `tool-rows.json` | `tool:keep-package-files-current`, a `computer` run with `change-a-folder` and `start-a-program`, and its wake `every-five-minutes` (every 5 minutes, UTC). |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:keep-package-files-current`, a `computer` run with `change-a-folder` and `start-a-program`, and its wake `every-five-minutes` (every 5 minutes, UTC). |
 | `part.json` | The pass is public. |
 
 ## Run the tests

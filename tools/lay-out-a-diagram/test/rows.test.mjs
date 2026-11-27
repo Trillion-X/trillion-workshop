@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { promisify } from 'node:util';
 
 const folder = new URL('..', import.meta.url).pathname;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const run = (argv, input) => new Promise(resolve => {
   const child = promisify(execFile)(argv[0], argv.slice(1), { cwd: folder, maxBuffer: 64 * 1024 * 1024 });
   child.child.stdin.end(typeof input === 'string' ? input : JSON.stringify(input));
@@ -21,7 +21,7 @@ test('the two rows run their own sample and the output holds the words the row s
   assert.equal(rows.length, 2);
   for (const row of rows) {
     for (const check of row.verify) {
-      const { code, last } = await run(row.invoke.argv, check.input);
+      const { code, last } = await run(row.invoke.run, check.input);
       assert.equal(code, 0, `${row.id}: ${JSON.stringify(last)}`);
       assert.ok(String(select(select(last, row.result_selector), check.output_selector)).includes(check.contains), row.id);
     }
@@ -30,7 +30,7 @@ test('the two rows run their own sample and the output holds the words the row s
 
 test('every row names its folder, is offline, and says its job in plain words', () => {
   for (const row of rows) {
-    assert.deepEqual([row.invoke.files.package_files.package, row.invoke.internet, row.maker, row.status], ['lay-out-a-diagram', false, 'maker:lay-out-a-diagram', 'active']);
+    assert.deepEqual([row.invoke.files.package_files.package, row.invoke.may_reach, row.maker, row.status], ['lay-out-a-diagram', undefined, 'maker:lay-out-a-diagram', 'active']);
     assert.ok(row.job.length > 20 && Array.isArray(row.input_schema.required), row.id);
   }
 });

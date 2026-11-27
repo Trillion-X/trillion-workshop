@@ -2,9 +2,9 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/list-and-run-my-tools-for-any-ai/do-work/save-tool-in-database.mjs
 //
-// tool:save-tool, one container process (tool-rows.json): saves one tool as a row of the `saved_tools` table in the database the
+// tool:save-tool, one container process (what-this-tool-does-and-how-to-run-it.json): saves one tool as a row of the `saved_tools` table in the database the
 // request names (`database`). The request is one JSON object on stdin ({ descriptor, files } or { descriptor, bytes_base64 }); the
-// connection string is a held value the engine hands this process on descriptor 3 (the row's invoke.credential_mounts), so it is never
+// connection string is a held value the engine hands this process on descriptor 3 (the row's invoke.key), so it is never
 // in the request, argv, a file or the environment. The saving rules are saveTool's (save-tool.mjs).
 import { readFileSync } from 'node:fs';
 import { saveTool } from './save-tool.mjs';

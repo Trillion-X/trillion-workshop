@@ -11,7 +11,7 @@ Status: a draft, not landed. Not committed, not pushed, not applied to any serve
 | `do-work/coach.mjs` | The three operations and the admission. Pure: each reads through `{ query(text, params) → rows }` handed in, inside a read-only transaction on each held connection. Also `HELD_CONNECTIONS` (the descriptor and the held name of each connection) and `settingsOf` (reads the school's settings row). |
 | `do-work/run.mjs` | The container process the rows run: `node run.mjs <operation>`, the request on stdin. Opens the three held connections on their fixed descriptors, reads the school's settings, applies its statement time limit, prints the answer as JSON on stdout. A refusal or failure goes to stderr as plain words, exit 1. Connection strings and passwords are taken out of every message. |
 | `kits/*.json` | One kit per tool, as the Workshop's kit check requires. |
-| `tool-rows.json` | The three Workshop rows: `tool:list-the-lessons-i-hold`, `tool:read-a-lesson-i-hold`, `tool:search-what-my-coach-teaches`. Each `invoke.kind` is `container`, with the pinned `pg` tarballs and their blake3 fetches, `stdin.fill.from: input`, `stdout: json` and `internet: true`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three Workshop rows: `tool:list-the-lessons-i-hold`, `tool:read-a-lesson-i-hold`, `tool:search-what-my-coach-teaches`. Each `invoke.kind` is `container`, with the pinned `pg` tarballs and their blake3 fetches, `stdin.fill.from: input`, `stdout: json` and `may_reach`. |
 | `test/coach.test.mjs` | 15 tests on PGlite with made-up rows, shaped like real tables. |
 | `part.json` | Nothing here is imported by other code. |
 

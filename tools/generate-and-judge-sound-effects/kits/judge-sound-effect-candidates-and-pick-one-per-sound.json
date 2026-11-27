@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:judge-sound-effect-candidates-and-pick-one-per-sound row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:judge-sound-effect-candidates-and-pick-one-per-sound row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Judge the hit candidates in /work/sfx against my palette and pick one per sound.\" It builds REQUEST.json for sound hit (query \"a low hit\"), runs the judge with the Python that has earshot and tells you which candidate won.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads sound files and a REQUEST.json on this computer and writes its own score and selection files.",

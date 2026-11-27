@@ -11,7 +11,7 @@ Learning from everyone's results without any one person's result being readable,
 | `read-data/pooled-results.json` | DATA: the two lists the pool account keeps (results and shared situations) and their row types, the longest embedding taken, removals per batch, the words of every refusal, and the bounds of a shared entry |
 | `read-data/plain-privacy-pass.mjs` | The plain privacy pass, ported from the plain half of the old app's `src/private-rewrite.mjs`: `findings` (what words for strangers still carry: an address, a handle, a long number, a phone number, an amount of money, a key, the removed mark, a private term, a name inside a sentence), `privateTerms` (a person's own terms from their never-publish phrases, what they gave and the proper names in their texts), `redact`, `redactAll`, `namesIn`. |
 | `read-data/plain-privacy-pass.json` | DATA: the patterns with why, the removed mark, the ordinary capitalised words, and the generic dictionaries every shared text is checked against (legal entity words, place names). A person's own words are their records, never here. |
-| `tool-rows.json` | The Workshop rows: `tool:randomize-a-result`, `tool:add-a-shared-situation`, `tool:how-similar-results-turned-out`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows: `tool:randomize-a-result`, `tool:add-a-shared-situation`, `tool:how-similar-results-turned-out`. |
 | `part.json` | `pooled-learning.mjs`, `pooled-results.mjs` and `plain-privacy-pass.mjs` are public, for the decision tools that share a decision and send a result. |
 | `test/pooled-learning.test.mjs` | The old app's tests of the math, ported. |
 | `test/plain-privacy-pass.test.mjs` | The plain pass on synthetic words: each kind of identifying detail found, general words left alone, names only inside a sentence, a person's own terms. |
@@ -40,4 +40,4 @@ Learning from everyone's results without any one person's result being readable,
 
 **Depends on:** `tools/records-door` (the runner `run-an-export.mjs` that every tool row here is run by), `tools/content-identity` (BLAKE3, for shards, noise seeds and the question's identity; it loads `@noble/hashes`, which the rows pack too), Node 24 in the tool container.
 
-**Depended on by:** `tool-rows.json`, the tests here, and the decision tools that share a decision (the plain privacy pass) and send a result about it.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`, the tests here, and the decision tools that share a decision (the plain privacy pass) and send a result about it.

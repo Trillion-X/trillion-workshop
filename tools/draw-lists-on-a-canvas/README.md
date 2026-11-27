@@ -6,8 +6,8 @@ The screens that lay a list out on a zoomable canvas as cards joined by links an
 
 | File | Purpose |
 |------|---------|
-| `do-work/fade-ink.mjs` | `fadeInk({ now, fade: { hold_ms, fade_ms }, marks: [{ ref, created_at? }] })` → `{ marks: [{ ref, opacity, shown, gone_at }], shown, gone }`: `read-data/ink-fade.ts` run for a list of marks at one instant (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:fade-live-ink-marks`, with a sample run where one mark is fading and one is gone |
+| `do-work/fade-ink.mjs` | `fadeInk({ now, fade: { hold_ms, fade_ms }, marks: [{ ref, created_at? }] })` → `{ marks: [{ ref, opacity, shown, gone_at }], shown, gone }`: `read-data/ink-fade.ts` run for a list of marks at one instant (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:fade-live-ink-marks`, with a sample run where one mark is fading and one is gone |
 | `README.md` | This file |
 
 ## The row

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:search-everything-with-one-question row in tools/search-everything-with-one-question/tool-rows.json, do-work/search-everything.mjs, test/search-everything.test.mjs and the sample run of the container row that calls the same searchEverything function",
+  "drafted_from": "tool:search-everything-with-one-question row in tools/search-everything-with-one-question/what-this-tool-does-and-how-to-run-it.json, do-work/search-everything.mjs, test/search-everything.test.mjs and the sample run of the container row that calls the same searchEverything function",
   "start_here": "Say to your AI: \"Search everything I keep for merlinfalcon: every list, record and file, by what was said, seen, named or written, best match first, and tell me where each hit is.\" It runs tool:search-everything-with-one-question at @tools and answers from each hit's said and address.",
   "lists": [],
   "no_lists_because": "It names no list: it asks every kind of record and the file names the same question from the records and files you hand in and answers one merged ranking. The caller reads them from your own store and hands them in as `records` and `files`; the run reads no store.",

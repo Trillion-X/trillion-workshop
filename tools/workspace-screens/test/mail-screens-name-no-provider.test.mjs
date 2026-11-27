@@ -24,7 +24,7 @@ test('no mail screen names a provider, its connection kind, its host or its wire
 });
 
 test('the mail screens call the mail tools by job name, and every tool they call is a tool of the mail tools folder', () => {
-  const rows = JSON.parse(read('../../read-and-write-mail/tool-rows.json')).records.map(record => record.payload.id);
+  const rows = JSON.parse(read('../../read-and-write-mail/what-this-tool-does-and-how-to-run-it.json')).records.map(record => record.payload.id);
   const called = new Set();
   for (const path of screens.filter(path => path.endsWith('.tsx'))) for (const [, id] of read(path).matchAll(/'(tool:[a-z-]+)'/g)) called.add(id);
   assert.ok(called.size >= 10);

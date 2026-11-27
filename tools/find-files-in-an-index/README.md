@@ -7,7 +7,7 @@ Find a person's files by words, name, place, kind or spoken words, in a file ind
 | File | Purpose |
 |------|---------|
 | `read-data/find-files-in-an-index.mjs` | `findFilesInAnIndex(request)`, run by `tools/records-door`'s `run-an-export.mjs`; also `readIndex`, `searchIndex` and `fuse`, and a command line (one JSON request in `argv[2]`, one JSON line out). Carried unchanged from the old package except the header comment and the default name of the identity field; `namesInIndex` and the `names` request key were added when a film's drive-lookup script moved here. |
-| `tool-rows.json` | `tool:find-files-in-an-index`, a `computer` row with `capabilities: ["read-a-folder"]`, running `findFilesInAnIndexForARun`. It holds no records right: the person's `list:settings` row (`record:setting:find-files-in-an-index~...`) arrives as `settings_record`, the record itself. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:find-files-in-an-index`, a `computer` row with `capabilities: ["read-a-folder"]`, running `findFilesInAnIndexForARun`. It holds no records right: the person's `list:settings` row (`record:setting:find-files-in-an-index~...`) arrives as `settings_record`, the record itself. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/find-files-in-an-index.test.mjs` | The package's five tests (type gate and spoken words, a query of only type words, index and field names as request data, lane fusion, a missing index and the command line) five for `names` (exact and prefix, case, type and root, one path once, a bad list, the command line) and two for settings (a run's settings fill missing keys and lose to the request's; a settings row read through the stand-in records door, an absent or another tool's row refused), with synthetic rows, plus the row check. |
 
@@ -26,7 +26,7 @@ Find a person's files by words, name, place, kind or spoken words, in a file ind
 
 **Depends on:** `tools/settings` (`read-data/settings.mjs`), and `tools/records-door` (`run-an-export.mjs`) and Node's standard library.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Invariants
 

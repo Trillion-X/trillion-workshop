@@ -21,7 +21,7 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 | `src/kept-work.json` | How a line is normalized and which fields are tracked. |
 | `test/kept-work.test.mjs` | Ported from the old tree, the `keptWork` case as written; the change-log and person-store cases stay there. |
 | `test/credit-kept-lines-to-their-writer.test.mjs` | The run over made-up input, and each row run as the container runner runs it, on its own sample. |
-| `tool-rows.json` | The Workshop rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows. |
 | `moved-from.json` | Where each moved file came from, and both identities. |
 | `part.json` | The public files. |
 
@@ -29,4 +29,4 @@ Moved from Trillion-X/trillion (commit b92aa549f2) byte for byte by `tools/move-
 
 **Depends on:** `tools/workflows` (the run command), Node, `@noble/hashes` (BLAKE3).
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

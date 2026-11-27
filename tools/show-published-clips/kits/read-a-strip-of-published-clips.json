@@ -34,5 +34,5 @@
       "hands_back": "{\"clips\":[{\"id\":\"c1\",\"position\":0,\"title\":\"Serve\",\"still\":\"c1.jpg\",\"video\":\"c1.mp4\"}]}"
     }
   ],
-  "drafted_from": "tool row in tools/show-published-clips/tool-rows.json and tools/show-published-clips/do-work/clips.ts"
+  "drafted_from": "tool row in tools/show-published-clips/what-this-tool-does-and-how-to-run-it.json and tools/show-published-clips/do-work/clips.ts"
 }

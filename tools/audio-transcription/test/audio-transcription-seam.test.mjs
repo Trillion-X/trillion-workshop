@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'audio_transcription.py');
 const fake = join(folder, 'test', 'fake_whisper_cli.py');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const run = (command, argv, env = {}) => spawnSync(command, argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, env: { ...process.env, ...env } });
 const have = tool => run(tool, ['-version']).status === 0;
 const skip = have('ffmpeg') && have('ffprobe') && run('python3', ['--version']).status === 0 ? false : 'needs python3, ffmpeg and ffprobe on the computer';

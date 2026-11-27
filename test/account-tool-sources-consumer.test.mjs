@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../test-helpers/run-a-row.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tools/describe-the-workshop/tool-rows.json', import.meta.url)));
+const rows = JSON.parse(readFileSync(new URL('../tools/describe-the-workshop/what-this-tool-does-and-how-to-run-it.json', import.meta.url)));
 const actual = rowOf(rows, 'tool:manage-my-api-descriptions');
 const source = { id: 'sample', kind: 'openapi', url: 'https://sample.example.com/spec.json' };
 
@@ -60,7 +60,7 @@ test('the shipped static row reads the native task snapshot, not a request field
 test('a synthetic bound consumer changes original-preserving records through its actual fd', async () => {
   const row = structuredClone(actual);
   row.invoke.files.package_files[0].paths.push('test/source-consumer.mjs');
-  row.invoke.argv = ['node', '/opt/records-door/do-work/run-an-export.mjs', '/opt/describe-the-workshop/test/source-consumer.mjs', 'boundSource'];
+  row.invoke.run = ['node', '/opt/records-door/do-work/run-an-export.mjs', '/opt/describe-the-workshop/test/source-consumer.mjs', 'boundSource'];
   row.invoke.stdin = { fill: { from: 'input' } };
   const result = await answerOf(row, { add: source, request_key: 'fd-consumer' });
   assert.equal(result.status, 0);
@@ -71,7 +71,7 @@ test('a synthetic bound consumer changes original-preserving records through its
 
 test('the real export runner given a records fd without native source configuration changes nothing', async () => {
   const row = structuredClone(actual);
-  row.invoke.argv = ['node', '/opt/records-door/do-work/run-an-export.mjs', '/opt/describe-the-workshop/do-work/sources.mjs', 'accountToolSourcesFromDoor'];
+  row.invoke.run = ['node', '/opt/records-door/do-work/run-an-export.mjs', '/opt/describe-the-workshop/do-work/sources.mjs', 'accountToolSourcesFromDoor'];
   row.invoke.stdin = { fill: { from: 'input' } };
   const result = await answerOf(row, { add: source, request_key: 'unbound' });
   assert.equal(result.status, 1);

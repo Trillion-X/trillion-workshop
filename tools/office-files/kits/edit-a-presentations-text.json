@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/apply-declared-presentation-text-edits.mjs and test/apply-presentation-edits.test.mjs (run on its stand-in runtime)",
+  "drafted_from": "tool row in tools/office-files/what-this-tool-does-and-how-to-run-it.json, do-work/apply-declared-presentation-text-edits.mjs and test/apply-presentation-edits.test.mjs (run on its stand-in runtime)",
   "start_here": "Say to your AI: \"In /work/in.pptx change 'harbour tour' to 'Welcome to the lighthouse tour' on slide 1, set its notes to 'Greet everyone', change 'ten coins' on slide 2 to 'Pricing starts at twelve coins', delete slide 3, and put slide 2 first; write /work/out.pptx.\" It writes a request file and runs apply-declared-presentation-text-edits.mjs on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",

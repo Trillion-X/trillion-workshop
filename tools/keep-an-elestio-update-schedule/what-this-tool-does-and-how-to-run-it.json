@@ -1,0 +1,351 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "id": "tool:keep-an-elestio-update-schedule",
+        "label": "Make an Elestio service's update schedules equal the ones kept for it",
+        "job": "Keep the two update schedules of one Elestio service (its OS updates and its software updates) equal to what its owner keeps as DATA (a computer's row), and say what it changed. With apply false it only reads and says the difference.",
+        "description": "Give the account email, the project and the service (vm_id), and the schedules to keep: system {enabled, security_only, day, hour, minute} for Elestio's OS updates (its weekly unattended-upgrades run) and app {enabled, day, hour, minute} for its software updates (its weekly watchtower run). Hours are UTC. It signs in with the held elestio-api-key, reads servers/getServerDetails, and sends systemAutoUpdateEnable or systemAutoUpdateDisable, appAutoUpdateEnable or appAutoUpdateDisable for each schedule that differs, then reads back until both are equal (wait_seconds, 120). A schedule not given is only read. Elestio names the system schedule's time RebootDayOfWeek and RebootHour, but it is when updates run: whether that run reboots is the computer's own apt setting (Unattended-Upgrade::Automatic-Reboot), which the computer's row keeps. A container that must keep its pinned image is labelled com.centurylinklabs.watchtower.enable=false itself, so the software schedule can stay on for Elestio's own containers.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "email",
+            "project_id",
+            "vm_id"
+          ],
+          "properties": {
+            "email": {
+              "type": "string",
+              "description": "The Elestio account's email."
+            },
+            "project_id": {
+              "type": "string"
+            },
+            "vm_id": {
+              "type": "string",
+              "description": "The service's vmID."
+            },
+            "system": {
+              "type": "object",
+              "description": "system schedule",
+              "required": [
+                "enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "security_only": {
+                  "type": "boolean",
+                  "description": "Security patches only (true unless false)."
+                },
+                "day": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6,
+                  "description": "0 Sunday to 6 Saturday"
+                },
+                "hour": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 23,
+                  "description": "UTC"
+                },
+                "minute": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 59
+                }
+              }
+            },
+            "app": {
+              "type": "object",
+              "description": "app schedule",
+              "required": [
+                "enabled"
+              ],
+              "properties": {
+                "enabled": {
+                  "type": "boolean"
+                },
+                "day": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 6,
+                  "description": "0 Sunday to 6 Saturday"
+                },
+                "hour": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 23,
+                  "description": "UTC"
+                },
+                "minute": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 59
+                }
+              }
+            },
+            "apply": {
+              "type": "boolean",
+              "description": "false: only read and say the difference."
+            },
+            "wait_seconds": {
+              "type": "integer",
+              "minimum": 5,
+              "maximum": 900
+            },
+            "poll_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "ok",
+            "vm_id",
+            "sent",
+            "before",
+            "after"
+          ],
+          "properties": {
+            "ok": {
+              "type": "boolean"
+            },
+            "vm_id": {
+              "type": "string"
+            },
+            "sent": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "before": {
+              "type": "object",
+              "properties": {
+                "system": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "security_only": {
+                      "type": "boolean"
+                    },
+                    "day": {
+                      "type": "integer"
+                    },
+                    "hour": {
+                      "type": "integer"
+                    },
+                    "minute": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "app": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "security_only": {
+                      "type": "boolean"
+                    },
+                    "day": {
+                      "type": "integer"
+                    },
+                    "hour": {
+                      "type": "integer"
+                    },
+                    "minute": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "after": {
+              "type": "object",
+              "properties": {
+                "system": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "security_only": {
+                      "type": "boolean"
+                    },
+                    "day": {
+                      "type": "integer"
+                    },
+                    "hour": {
+                      "type": "integer"
+                    },
+                    "minute": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "app": {
+                  "type": "object",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean"
+                    },
+                    "security_only": {
+                      "type": "boolean"
+                    },
+                    "day": {
+                      "type": "integer"
+                    },
+                    "hour": {
+                      "type": "integer"
+                    },
+                    "minute": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "still_differs": {
+              "type": "object"
+            },
+            "asked_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "reads": {
+              "type": "integer"
+            },
+            "reason": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/keep-an-elestio-update-schedule",
+          "stdout": "json",
+          "run": [
+            "/usr/local/bin/node",
+            "/opt/keep-an-elestio-update-schedule/do-work/keep-an-elestio-update-schedule.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "key": [
+            {
+              "secret_name": "elestio-api-key",
+              "fd": 4
+            }
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-an-elestio-update-schedule",
+                "paths": [
+                  "do-work/keep-an-elestio-update-schedule.mjs"
+                ],
+                "at": "/opt/keep-an-elestio-update-schedule"
+              },
+              {
+                "package": "keep-an-elestio-firewall",
+                "paths": [
+                  "do-work/keep-an-elestio-firewall.mjs"
+                ],
+                "at": "/opt/keep-an-elestio-firewall"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-an-elestio-update-schedule",
+        "provenance": {
+          "source": "Nov 25 2026: Elestio's panel still kept both Elestio computers' OS and software update schedules by hand (system Sunday 05:00 UTC, software Sunday 01:00 UTC) after their rows took over the reboot; the schedules become each computer's DATA, with the API calls of Elestio's own API documentation (servers/DoActionOnServer systemAutoUpdateEnable/Disable, appAutoUpdateEnable/Disable)."
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "email": "owner@example.test",
+              "project_id": "90000",
+              "vm_id": "170000000",
+              "apply": false,
+              "app": {
+                "enabled": false
+              }
+            },
+            "held": {
+              "elestio-api-key": "made-up-elestio-token"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.elest.io/api/auth/checkAPIToken"
+                },
+                "status": 200,
+                "body": {
+                  "status": "OK",
+                  "jwt": "made-up-session"
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.elest.io/api/servers/getServerDetails"
+                },
+                "status": 200,
+                "body": {
+                  "status": "OK",
+                  "serviceInfos": [
+                    {
+                      "vmID": "170000000",
+                      "system_AutoUpdate_Enabled": 1,
+                      "system_AutoUpdate_SecurityPatchesOnly": 1,
+                      "system_AutoUpdate_RebootDayOfWeek": 0,
+                      "system_AutoUpdate_RebootHour": 5,
+                      "system_AutoUpdate_RebootMinute": 0,
+                      "app_AutoUpdate_Enabled": 1,
+                      "app_AutoUpdate_DayOfWeek": 0,
+                      "app_AutoUpdate_Hour": 1,
+                      "app_AutoUpdate_Minute": 0
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25",
+            "output_selector": "$.reason",
+            "contains": "apply was false"
+          }
+        ]
+      }
+    }
+  ]
+}

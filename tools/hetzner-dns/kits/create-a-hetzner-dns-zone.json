@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Reads tools/hetzner-dns/tool-rows.json: POST https://api.hetzner.cloud/v1/zones with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
+      "given": "Reads tools/hetzner-dns/what-this-tool-does-and-how-to-run-it.json: POST https://api.hetzner.cloud/v1/zones with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
       "hands_back": "It answers the new zone's id and its Hetzner nameservers, for example id 42, with two nameserver names to set at the registrar."
     }
   ]

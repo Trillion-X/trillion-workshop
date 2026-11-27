@@ -1,6 +1,6 @@
 import { realpathSync } from 'node:fs';
 // Read one public page. What the page says (title, text, links and its own card) is read by the one page reader,
-// ./page-facts.mjs. Where the request may go is not decided here: the engine runs this tool as internet:true, so
+// ./page-facts.mjs. Where the request may go is not decided here: the engine runs this tool with may_reach, so
 // Node's own fetch reaches only the engine's public-only proxy (NODE_USE_ENV_PROXY), which judges every address, every
 // redirect and every address a name resolves to.
 import { readFileSync } from 'node:fs';

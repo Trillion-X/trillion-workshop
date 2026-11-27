@@ -8,7 +8,7 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. The AgentMail key is read only from the descriptor the row mounts (fd 4, the vault's agentmail-api-key by name, as
-//      invoke.credential_mounts names it). It is never in argv, the environment, a file, a log or an answer.
+//      invoke.key names it). It is never in argv, the environment, a file, a log or an answer.
 //   2. The code is a secret of the run: it is never in a refusal's words, an answer, a log or a file. A refusal names only
 //      its status and the step that failed.
 //   3. Only a code sent to this address is accepted: a thread counts when its subject is the site's sign-in code and it is

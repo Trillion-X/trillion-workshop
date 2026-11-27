@@ -129,7 +129,7 @@
      },
      "workdir": "/opt/parts/unit-economics",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/work-out-unit-economics.mjs",
       {

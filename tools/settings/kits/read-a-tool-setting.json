@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-a-tool-setting row in tools/settings/tool-rows.json, do-work/read_setting.py, read-data/settings.py and test/test_settings.py; the settings table read from the person's own store",
+  "drafted_from": "tool:read-a-tool-setting row in tools/settings/what-this-tool-does-and-how-to-run-it.json, do-work/read_setting.py, read-data/settings.py and test/test_settings.py; the settings table read from the person's own store",
   "start_here": "Say to your AI: \"Read the settings I keep for the make-a-sample tool: try piece p1 first, then film f1, then my account, and tell me which row it used.\" It takes the rows from your the settings table and answers the settings of the most specific scope that has an active row.",
   "lists": [
     {

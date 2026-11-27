@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-const rows = JSON.parse(readFileSync(new URL("../tool-rows.json", import.meta.url), "utf8"));
+const rows = JSON.parse(readFileSync(new URL("../what-this-tool-does-and-how-to-run-it.json", import.meta.url), "utf8"));
 
 test("every Hetzner DNS row holds only the hetzner-api-token, sent to api.hetzner.cloud as a bearer header", () => {
   assert.ok(rows.records.length > 0);
@@ -12,9 +12,9 @@ test("every Hetzner DNS row holds only the hetzner-api-token, sent to api.hetzne
     assert.equal(invoke.kind, "http");
     assert.ok(invoke.url.startsWith("https://api.hetzner.cloud/v1/zones"), record.payload.id);
     assert.equal(invoke.credential_injections.length, 1, record.payload.id);
+    assert.deepEqual(invoke.may_reach, ["api.hetzner.cloud"], record.payload.id);
     for (const injection of invoke.credential_injections) {
       assert.equal(injection.secret_name, "hetzner-api-token");
-      assert.deepEqual(injection.hosts, ["api.hetzner.cloud"]);
       assert.equal(injection.placement.name, "Authorization");
       assert.equal(injection.placement.prefix, "Bearer ");
     }

@@ -1,7 +1,7 @@
 // tools/workflows/read-data/workshop-tool-ids.mjs
 //
 // The id of every tool the Workshop offers, read the way test/every-tool-row.test.mjs reads the rows: each
-// tools/<folder>/tool-rows.json, plus the rows a tool-row-source there lists from a records file or a folder of them.
+// tools/<folder>/what-this-tool-does-and-how-to-run-it.json, plus the rows a tool-row-source there lists from a records file or a folder of them.
 // `recipeToolGaps` (recipe-problems.mjs) checks a recipe's tool ids against this list and the host's own tools.
 
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
@@ -17,12 +17,12 @@ function listedRows(tools, source, reader) {
   return files.flatMap(one => { const kept = reader.json(one); return kept.things ?? kept.records ?? []; }).map(thing => thing.payload).filter(payload => payload?.kind === kind);
 }
 
-// Every row the tool folders hold, as { folder, payload }: each tools/<folder>/tool-rows.json, and the rows a tool-row-source
+// Every row the tool folders hold, as { folder, payload }: each tools/<folder>/what-this-tool-does-and-how-to-run-it.json, and the rows a tool-row-source
 // there lists (the listed rows belong to the folder that lists them).
 export function workshopRows(tools, reader = disk) {
   const rows = [];
   for (const folder of reader.entries(tools).filter(entry => entry.isDirectory()).map(entry => entry.name)) {
-    const file = join(tools, folder, 'tool-rows.json');
+    const file = join(tools, folder, 'what-this-tool-does-and-how-to-run-it.json');
     if (!reader.exists(file)) continue;
     for (const { payload } of reader.json(file).records) {
       if (payload.kind === 'tool-row-source' && payload.list?.records) for (const listed of listedRows(tools, payload, reader)) rows.push({ folder, payload: listed });

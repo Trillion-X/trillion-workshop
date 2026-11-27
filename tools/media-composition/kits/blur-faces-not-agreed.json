@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:blur-faces-not-agreed's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/blur-faces-not-agreed.py (its docstring and the line it prints), and its re-encode run here on a synthetic 3 second test pattern with no faces and no sound; the face and voice models are not on this computer so the detector itself was not run",
+  "drafted_from": "tool:blur-faces-not-agreed's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/blur-faces-not-agreed.py (its docstring and the line it prints), and its re-encode run here on a synthetic 3 second test pattern with no faces and no sound; the face and voice models are not on this computer so the detector itself was not run",
   "start_here": "Say to your AI: \"Make a copy of my practice video with everyone blurred and silenced except the people who agreed to be filmed.\" It runs tool:blur-faces-not-agreed and keeps the copy in your files.",
   "lists": [],
   "no_lists_because": "It reads the video and the agreed pictures and voices you name and keeps one copy of the video, so it keeps no list of its own.",

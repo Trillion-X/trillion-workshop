@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:route-to-the-owner-that-answers row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:route-to-the-owner-that-answers row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Who holds the answer to 'who sells flour near the shop': the oven log or the supplier book? Ask my local model.\" It runs the router and tells you which place to look first and how.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one request file naming your owners and the question, and answers which owner to look in.",

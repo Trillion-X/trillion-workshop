@@ -35,7 +35,7 @@ test('no former tool, agent, prefix or configuration id remains in records, src 
   }
   for (const { folder, payload } of activeRows) {
     const text = JSON.stringify(payload);
-    for (const former of formerNames) if (text.includes(former)) hits.push(`${folder}/tool-rows.json: ${former}`);
+    for (const former of formerNames) if (text.includes(former)) hits.push(`${folder}/what-this-tool-does-and-how-to-run-it.json: ${former}`);
   }
   assert.deepEqual(hits, []);
 });
@@ -51,14 +51,14 @@ test('every current tool id is the payload id of a workshop tool record or a too
   const tools = fileURLToPath(new URL('./tools/', import.meta.resolve('trillion-workshop/package.json')));
   for (const folder of readdirSync(tools)) {
     let file;
-    try { file = JSON.parse(readFileSync(join(tools, folder, 'tool-rows.json'), 'utf8')); } catch { continue; }
+    try { file = JSON.parse(readFileSync(join(tools, folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')); } catch { continue; }
     for (const row of file.records ?? []) if (row?.payload?.id) ids.add(row.payload.id);
   }
   // The tools this computer keeps (listening, enrolling, carrying connections) are run by the computer program from
   // run-on-a-persons-computer/mac-tools.json, which names each by its Workshop tool id.
   for (const id of Object.keys(JSON.parse(readFileSync(join(tools, 'run-on-a-persons-computer', 'mac-tools.json'), 'utf8')).tools)) ids.add(id);
   for (const current of new Set(Object.values(renamed.tools))) {
-    assert.ok(ids.has(current), `${current} is not a payload.id in records/workshop-*-tool-records.json, a Workshop tool folder's tool-rows.json or run-on-a-persons-computer/mac-tools.json`);
+    assert.ok(ids.has(current), `${current} is not a payload.id in records/workshop-*-tool-records.json, a Workshop tool folder's what-this-tool-does-and-how-to-run-it.json or run-on-a-persons-computer/mac-tools.json`);
   }
 });
 

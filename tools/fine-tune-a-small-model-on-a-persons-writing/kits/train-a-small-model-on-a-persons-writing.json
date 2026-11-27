@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-writing/tool-rows.json and test/test_writing_fine_tune.py, run here Nov 21 2026",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-writing/what-this-tool-does-and-how-to-run-it.json and test/test_writing_fine_tune.py, run here Nov 21 2026",
   "start_here": "Say to your AI: \"Train my texting adapter on /work/texting with Qwen3.5-4B 8-bit, rank 16, 300 steps, saved to /work/texting-adapter.\" It writes a request file and runs train_a_writing_adapter.py on your Mac.",
   "tools": [
     "tool:build-writing-pairs-from-a-persons-messages",

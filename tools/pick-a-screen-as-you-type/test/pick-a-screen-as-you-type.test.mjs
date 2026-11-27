@@ -5,7 +5,7 @@ import test from 'node:test';
 import { answerOf, rowOf, select } from '../../../test-helpers/run-a-row.mjs';
 import { pickAScreenForWords, fillInputsFromWords } from '../do-work/pick-a-screen-as-you-type.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 
 const rowsHere = [{ id: 'tool:focus-timer', label: 'Focus timer', description: 'Counts down a focus session' }, { id: 'sample.calendar', label: 'Calendar', description: 'Days and events' }];
 

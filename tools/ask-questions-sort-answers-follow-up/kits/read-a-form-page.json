@@ -34,5 +34,5 @@
       "hands_back": "{\"page\":\"assessment\",\"title\":\"Assessment\",\"words\":{\"start\":\"Begin\"},\"questions\":3,\"keep_on\":null}"
     }
   ],
-  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and reads/read-a-form-page.ts"
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/what-this-tool-does-and-how-to-run-it.json and reads/read-a-form-page.ts"
 }

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:pull-a-page-in-arc's row in tools/read-a-page-in-arc/tool-rows.json, pull-a-page-in-arc.mjs, arc-tab.mjs, page-scripts.mjs, pull-settings.json and test/pull-a-page-in-arc.test.mjs",
+  "drafted_from": "tool:pull-a-page-in-arc's row in tools/read-a-page-in-arc/what-this-tool-does-and-how-to-run-it.json, pull-a-page-in-arc.mjs, arc-tab.mjs, page-scripts.mjs, pull-settings.json and test/pull-a-page-in-arc.test.mjs",
   "start_here": "Say to your AI: \"Pull https://example.com/ from Arc with its links.\" It opens the page in the browser you are signed in to, scrolls it to its end, and answers its whole text and its links.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: each run answers one page, and a saved file goes to a folder the settings name.",

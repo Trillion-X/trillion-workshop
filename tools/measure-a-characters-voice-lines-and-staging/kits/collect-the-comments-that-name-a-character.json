@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:collect-the-comments-that-name-a-character's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "drafted_from": "tool:collect-the-comments-that-name-a-character's row in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
   "start_here": "Say to your AI: \"Collect the comments that name the parrot from the downloaded comments of my videos.\" It runs tool:collect-the-comments-that-name-a-character with my mention pattern.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
@@ -36,7 +36,7 @@
           }
         }
       },
-      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and test_mentions_are_collected_and_coded in tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py: vid-a has three top-level comments, c1 \"The parrot is so funny\" (9 likes), c2 \"Nice fog shots\" (20 likes) and c3 \"I missed the parrot\" (3 likes).",
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json and test_mentions_are_collected_and_coded in tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py: vid-a has three top-level comments, c1 \"The parrot is so funny\" (9 likes), c2 \"Nice fog shots\" (20 likes) and c3 \"I missed the parrot\" (3 likes).",
       "hands_back": "{\"result\": {\"mentions\": \"{grant:change-a-folder}/show/comments-character.tsv\", \"videos\": 1, \"comments_read\": 3, \"mentioning\": 2}}; comments-character.tsv lists c1 then c3 (most liked first), and comments-summary.tsv has vid-a with mention_share 0.667, mention_like_share 0.375 and mentions_in_top20 2."
     }
   ]

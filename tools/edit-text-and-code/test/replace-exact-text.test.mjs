@@ -10,7 +10,7 @@ import { join, resolve } from 'node:path';
 import { replaceExactlyOnce, Refusal } from '../do-work/replace-exact-text.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
 function run(granted, input) {
   const ran = spawnSync(process.execPath, [resolve(folder, 'do-work', 'replace-exact-text.mjs'), granted], { input: JSON.stringify(input), encoding: 'utf8' });
@@ -40,8 +40,8 @@ test('the rows run on the person\'s computer with the change-a-folder grant, wit
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, ['change-a-folder']);
-    assert.notEqual(row.invoke.internet, true);
-    assert.deepEqual(row.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.change-a-folder.folder' } });
+    assert.equal(row.invoke.may_reach, undefined);
+    assert.deepEqual(row.invoke.run.at(-1), { fill: { from: 'task', field: 'grants.change-a-folder.folder' } });
   }
   assert.deepEqual(rows[1].input_schema.properties.edits.items, rows[0].input_schema, 'each edit is the one-piece request');
 });

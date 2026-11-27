@@ -8,7 +8,7 @@ import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { seeAPursuitThroughTheLens } from '../do-work/see-a-pursuit-through-the-lens.mjs';
 import { JOINING_INTERVIEW_FILE, lens, lensForSetup, lensParagraph, useLens } from '../src/pursuit-lens.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const around = { opening: 'Look at what the gardener tends.', parts: [{ id: 'soil', name: 'Soil', about: 'what feeds the plant' }, { id: 'weather', name: 'Weather', about: 'what comes from outside' }], closing: 'Then pick one bed to work.' };
 const lensRows = [
   { id: 'roots', part: 'soil', look_for: 'what they water every day', ask_or_do: 'ask which bed they would save first', joining_interview: true },
@@ -44,7 +44,7 @@ test('refusals say what to hand in', () => {
 test('the row runs with no records door and its answer holds the result', async () => {
   const row = rowOf(rows, 'tool:see-a-pursuit-through-the-lens');
   assert.equal(row.invoke.records, undefined);
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.deepEqual(row.invoke.files.package_files.map(files => files.package), ['see-a-pursuit-through-the-lens', 'workflows']);
   assert.equal(row.uses_tools.includes('trillion-workshop/records-door'), false);
   const made = await answerOf(row, { answer: 'setup', lens: madeUp() });

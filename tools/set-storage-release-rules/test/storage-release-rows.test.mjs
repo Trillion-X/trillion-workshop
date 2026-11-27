@@ -9,7 +9,7 @@ import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const old = read('../records/old-storage-release-tool-descriptors.json').records.map(row => row.payload.id);
-const rows = read('../tool-rows.json').records.map(row => row.payload);
+const rows = read('../what-this-tool-does-and-how-to-run-it.json').records.map(row => row.payload);
 const byId = Object.fromEntries(rows.map(row => [row.id, row]));
 const setRow = byId['tool:set-release-rules'];
 const planRow = byId['tool:plan-storage-release'];

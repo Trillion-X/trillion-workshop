@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:fit-pass-and-fail-lines row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/fit-lines-and-fresh-fetch.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:fit-pass-and-fail-lines row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/fit-lines-and-fresh-fetch.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Fit the pass and fail lines from these model scores: 7 lines I ruled bad and 10 I ruled good, with my bars.\" It runs the fitter and tells you the two lines and whether the question is usable.",
   "lists": [],
   "no_lists_because": "It keeps no list: it takes the scores and your bars in the request and prints the fitted lines.",

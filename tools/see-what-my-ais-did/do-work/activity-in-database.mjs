@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/see-what-my-ais-did/do-work/activity-in-database.mjs
 //
-// tool:keep-an-ai-activity-row and tool:read-ai-activity, one container process each (tool-rows.json): a person's AI activity
+// tool:keep-an-ai-activity-row and tool:read-ai-activity, one container process each (what-this-tool-does-and-how-to-run-it.json): a person's AI activity
 // kept in the pursuit database the request names (`database`), in the tables this tool makes there: activity_g<n>,
 // activity_links_g<n> and activity_counts_g<n>, with the views activity and activity_links over the newest two generations
 // (the layout of tools/shared-code/src/activity.mjs). The tables are made by this tool the first time it runs in that database

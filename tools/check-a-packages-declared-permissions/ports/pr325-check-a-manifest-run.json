@@ -69,7 +69,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/check-a-packages-declared-permissions/tool-rows.json",
+      "path": "tools/check-a-packages-declared-permissions/what-this-tool-does-and-how-to-run-it.json",
       "why": "Documentation, public exports, synthetic tests and descriptor DATA declare or exercise the row; they do not implement another validator or this row seam."
     },
     {

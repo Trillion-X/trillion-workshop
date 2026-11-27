@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 
-const file = new URL('../tool-rows.json', import.meta.url);
+const file = new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url);
 const text = readFileSync(file, 'utf8');
 const rows = new Map(JSON.parse(text).records.map(({ payload }) => [payload.id, payload]));
 const row = id => { assert.ok(rows.has(id), `${id} is a row`); return rows.get(id); };
@@ -42,7 +42,8 @@ test('a row that holds the token reads the treg vault key the descriptor seals, 
     assert.equal(payload.invoke.connection, undefined, `${payload.id} takes no connection`);
     assert.equal(payload.invoke.connection_id, undefined, `${payload.id} fixes no connection`);
     assert.deepEqual(payload.invoke.credential_injections,
-      [{ secret_name: vaultKey, hosts: ['treg.to'], placement: { kind: 'header', name: 'X-Treg-Token' } }], payload.id);
+      [{ secret_name: vaultKey, placement: { kind: 'header', name: 'X-Treg-Token' } }], payload.id);
+    assert.deepEqual(payload.invoke.may_reach, ['treg.to'], `${payload.id} may reach only treg.to`);
     assert.equal(new URL(payload.invoke.url).hostname, 'treg.to', `${payload.id} names the declared host`);
     assert.equal(payload.input_schema.properties.account, undefined, `${payload.id} takes no account input`);
   }

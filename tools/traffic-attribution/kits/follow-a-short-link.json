@@ -35,5 +35,5 @@
       "hands_back": "{\"status\":302,\"location\":\"https://site.example.com/offer?utm_source=instagram&t=abc123\",\"set_cookie\":null}"
     }
   ],
-  "drafted_from": "tool row in tools/traffic-attribution/tool-rows.json and routes/follow-a-short-link.ts"
+  "drafted_from": "tool row in tools/traffic-attribution/what-this-tool-does-and-how-to-run-it.json and routes/follow-a-short-link.ts"
 }

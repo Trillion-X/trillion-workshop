@@ -49,7 +49,7 @@ test('real JSON CLI returns result and nonzero JSON error', () => {
   for (const input of ['{','{}']) {const bad = run(input); assert.equal(bad.status,2); assert.ok(JSON.parse(bad.stdout).error);}
 });
 test('descriptor package mounts run without checkout imports', async () => {
-  const descriptor = JSON.parse(await readFile(path.join(tool,'tool-rows.json'),'utf8')).records[0].payload;
+  const descriptor = JSON.parse(await readFile(path.join(tool,'what-this-tool-does-and-how-to-run-it.json'),'utf8')).records[0].payload;
   const root = await mkdtemp(path.join(tmpdir(),'blake3-package-'));
   const workshop = path.resolve(tool,'../..');
   for (const mount of descriptor.invoke.files.package_files) {
@@ -61,7 +61,7 @@ test('descriptor package mounts run without checkout imports', async () => {
     }
   }
   const folder = path.join(root,'files'); await mkdir(folder); await writeFile(path.join(folder,'input'),'abc');
-  const cli = path.join(root,descriptor.invoke.argv[1]);
+  const cli = path.join(root,descriptor.invoke.run[1]);
   const result = spawnSync(process.execPath,[cli,folder],{input:'{"path":"input"}',encoding:'utf8'});
   assert.equal(result.status,0,result.stderr); assert.equal(JSON.parse(result.stdout).result.blake3,abc);
 });

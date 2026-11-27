@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-events-against-a-running-baseline's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-events.mjs, tools/media-composition/test/stream-core.test.mjs (its real-clip test uses the same 26 second clip), and the script run on that clip",
+  "drafted_from": "tool:find-events-against-a-running-baseline's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/detect-events.mjs, tools/media-composition/test/stream-core.test.mjs (its real-clip test uses the same 26 second clip), and the script run on that clip",
   "start_here": "Say to your AI: \"Find every stroke in my rally video, judged against how loud and busy the video already is.\" It runs tool:find-events-against-a-running-baseline and hands back each event's time and confidence.",
   "lists": [],
   "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",

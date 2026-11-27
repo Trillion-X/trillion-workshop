@@ -1,7 +1,7 @@
 // Ported from old trillion test/own-ais-local.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. One of its eighteen tests has a running owner: whether a computer row connects
 // (src/own-ais.mjs deviceRowConnected here); it is the old test, with the shipped local tool's descriptor read from where it
-// is shipped now, tools/models-on-this-computer/tool-rows.json, where the old one read records/workshop-listening-tool-records.json.
+// is shipped now, tools/models-on-this-computer/what-this-tool-does-and-how-to-run-it.json, where the old one read records/workshop-listening-tool-records.json.
 // That row's invoke.kind is "computer" (the old row's kind, "computer-tool", is gone), and deviceRowConnected asks for "computer".
 // The other seventeen ran a waiting job through old src/own-ais-routing.mjs ownAisRouting (its bounded scans, durable cursors,
 // the local tool loop, walls, retries and releases); no repository keeps that routing (searched ownAisRouting,
@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { deviceRowConnected } from '../src/own-ais.mjs';
 import settings from '../src/own-ais.json' with { type: 'json' };
-import rows from '../../models-on-this-computer/tool-rows.json' with { type: 'json' };
+import rows from '../../models-on-this-computer/what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const local = settings.legacy.providers.local;
 const descriptor = rows.records.map(row => row.payload ?? row).find(row => row.id === local.tool_id);

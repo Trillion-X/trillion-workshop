@@ -50,7 +50,7 @@ or `not-known`. The send row answers it as `keep`; the person's AI keeps it and 
 | `read-data/reply-rules.mjs` | Pure: `normalise`, `ruleMatches`, `pick`, `fill`, `windowOpen`, `itemsOf`, `chooseReplies`, `checkSend`. |
 | `do-work/decide-the-replies.mjs` | `decideTheReplies`, the decide row's export (reads nothing: its request holds everything). |
 | `do-work/send-a-reply.mjs` | `sendAReply`, every send row's export. |
-| `tool-rows.json` | The three rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three rows. |
 | `test/reply-rules.test.mjs` | The rules, the windows, the template and a place made up in the test, against made-up messages. |
 | `test/decide-and-send.test.mjs` | Decide and send with no records door and a fake answer; a closed window sends nothing; a key among the kept rows is sent once; an unknown outcome is not retried; a place the code has never heard of is one row; no code file names a place. |
 

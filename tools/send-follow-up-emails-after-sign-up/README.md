@@ -8,7 +8,7 @@ The host supplies `settings` from its current content rows, `readOfferRecords()`
 
 This is an imported policy module with explicit host interfaces. It has no automatic scheduler, account-creation hook or runnable mail row, and does not claim live delivery. The source baseline and `ports/follow-up-emails.json` record the move. Tests cover all four days, changing prices, stop tokens, purchases, late wakes, missing email and competing claims without contacting a mail provider.
 
-`src/follow-up-emails.json` was moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/older-repository-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. It is not a tool yet (no `tool-rows.json`): its files are imported by path.
+`src/follow-up-emails.json` was moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/older-repository-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. It is not a tool yet (no `what-this-tool-does-and-how-to-run-it.json`): its files are imported by path.
 
 ## Files
 

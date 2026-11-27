@@ -51,7 +51,7 @@ test('the row runs the command with the input as its argument, and its sample ru
   const row = JSON.parse(readFileSync(resolve(folder, 'records.json'), 'utf8')).things.map(thing => thing.payload)
     .find(payload => payload.id === 'tool:assess-wikimedia-commons-file-reuse');
   const sample = row.verify.find(item => item.kind === 'sample-run');
-  const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(sample.input)));
+  const argv = row.invoke.run.map(item => (typeof item === 'string' ? item : JSON.stringify(sample.input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   assert.equal(ran.status, 0, ran.stderr);
   const answer = JSON.parse(ran.stdout.trim().split('\n').at(-1));

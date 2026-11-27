@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:run-workflow-definition's own row (tool-rows.json: its words, input schema and sample runs) and what test/run-a-workflow.test.mjs got back from the workflow engine for a made-up bakery recipe",
+  "drafted_from": "tool:run-workflow-definition's own row (what-this-tool-does-and-how-to-run-it.json: its words, input schema and sample runs) and what test/run-a-workflow.test.mjs got back from the workflow engine for a made-up bakery recipe",
   "start_here": "Say to your AI: \"Run my workflow:made-up-bake with allowed flours rye and wheat, and tell me which step waits for an answer.\" It runs tool:run-workflow-definition and answers status \"paused\", waiting at step \"pick\".",
   "lists": [],
   "no_lists_because": "It names no list of yours: the recipe (or your recipe row and its step rows), the input and the answers come in the request, the run comes back in the answer, and nothing is kept in your records.",

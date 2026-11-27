@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const runner = join(folder, 'test', 'stand-in', 'forum_archive.py');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload)
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:keep-forum-posts-from-a-public-archive');
 const API = 'https://arctic-shift.photon-reddit.com/api/posts/search';
 const at = (forum, before) => `${API}?subreddit=${forum}&limit=100&sort=desc${before ? `&before=${before}` : ''}`;
@@ -70,9 +70,9 @@ test('a request it cannot read is refused with what to send', () => {
 });
 
 test('the row runs this file from its own folder and keeps the file it writes', () => {
-  assert.deepEqual(row.invoke.argv, ['python3', '/opt/research-a-creator-or-topic/do-work/fetch_forum_posts.py']);
+  assert.deepEqual(row.invoke.run, ['python3', '/opt/research-a-creator-or-topic/do-work/fetch_forum_posts.py']);
   assert.equal(row.invoke.workdir, '/opt/research-a-creator-or-topic');
   assert.equal(row.invoke.outputs[0].path, '/opt/research-a-creator-or-topic/out/forum-posts.jsonl');
-  assert.equal(row.invoke.internet, true);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.equal(row.verify[0].replies[0].request.url, at('baking'));
 });

@@ -34,5 +34,5 @@
       "hands_back": "{\"call\":{\"call_ref\":\"0123456789abcdef0123456789abcdef\",\"status_code\":202,\"cost_charged_micro\":420000},\"async_task\":{\"status\":\"settled\",\"reserved_micro\":500000,\"settled_micro\":420000,\"result_url\":\"https://media.example.test/made-up.mp4\"},\"ledger\":[],\"charged_micro\":420000}. It charged 0.42 dollars of the 0.50 held."
     }
   ],
-  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs (the settled read)"
+  "drafted_from": "tools/treg/what-this-tool-does-and-how-to-run-it.json (its row), its README and test/treg-rows.test.mjs (the settled read)"
 }

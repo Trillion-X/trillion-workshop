@@ -1,5 +1,5 @@
 // The rows run the way the engine runs them: one JSON request on standard input, the answer on the last line. Every
-// sample in tool-rows.json gives what its verify item says; the evaluate row reads its endpoint and model from a
+// sample in what-this-tool-does-and-how-to-run-it.json gives what its verify item says; the evaluate row reads its endpoint and model from a
 // made-up list:settings row and plays recorded replies in place of the classifier.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { answer, playRecordedReplies } from '../do-work/evaluate-voice.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const pick = (value, path) => path.replace(/^\$\.?/, '').split(/[.[\]]+/).filter(Boolean).reduce((at, key) => at?.[key], value);
 const binary = JSON.parse(readFileSync(new URL('./fixtures/binary-challenge.json', import.meta.url), 'utf8'));
 const recorded = JSON.parse(readFileSync(new URL('./fixtures/binary-results.json', import.meta.url), 'utf8'));
@@ -17,14 +17,14 @@ const evaluateRow = rows.find(row => row.id === 'tool:evaluate-a-writing-voice-c
 const sample = evaluateRow.verify[0].input;
 
 function run(row, input) {
-  const [program, script] = row.invoke.argv;
+  const [program, script] = row.invoke.run;
   const result = spawnSync(program === 'node' ? process.execPath : program, [script.replace(`/opt/${'train-and-evaluate-a-writing-voice-classifier'}/`, '')], { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
   return JSON.parse(result.stdout.trim().split('\n').at(-1));
 }
 
 test('no row declares a door: the setting row comes in the request and nothing is kept', () => {
   for (const row of rows) assert.equal(row.invoke.records, undefined, row.id);
-  assert.doesNotMatch(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'), /records:(read|write|list)|records-door/);
+  assert.doesNotMatch(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'), /records:(read|write|list)|records-door/);
   assert.ok(evaluateRow.input_schema.properties.settings_record);
 });
 

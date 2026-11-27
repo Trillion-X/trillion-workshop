@@ -8,7 +8,7 @@ The formats, their lines and budgets, the capabilities' words, the page layout a
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:generate-fill-scripts-for-formats`, a `small-container` run: the request on standard input, the answer as the last line. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:generate-fill-scripts-for-formats`, a `small-container` run: the request on standard input, the answer as the last line. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/generate_fills.py` | The command. `--request FILE` (or standard input), or `--records FILE ... --batch ID` for exported list rows; `--out DIR` also writes every page under DIR; `--rows-out FILE --batch NAME` writes the rows that hold the request; `--settings-record FILE` reads the person's settings row from a file. |
 | `read-data/fill_text.py` | Pure: the template language, the two word counts, holes, one filled page, the index page, and the check that says what a request lacks. |

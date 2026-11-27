@@ -10,7 +10,7 @@ import showRules from '../../set-up-my-account/read-data/show-rules.json' with {
 import { foldWalkthroughProgress } from '../read-data/walkthrough-eeaf.ts';
 import { TOUR_SUBJECT } from '../do-work/tours.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const row = slug => rowOf(ROWS, `tool:${slug}`);
 const NOW = '2026-01-10T12:00:00.000Z';
 const step = id => ({ id, content: { content_kind: 'text', payload: { title: `Sample ${id}`, body: 'A sample step.' } } });

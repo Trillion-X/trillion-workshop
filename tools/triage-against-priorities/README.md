@@ -12,7 +12,7 @@ The tool asks no model. `tool:brief-a-triage` gives the AI that called it everyt
 | `do-work/brief-a-triage.mjs` | `tool:brief-a-triage`: the item, priorities, dispositions, rules and answer shape. Writes nothing. |
 | `do-work/settle-a-triage.mjs` | `tool:settle-a-triage`: the decision record (kept as `triage-decision:<ref>:<version>`). |
 | `part.json` | The rules file is public. |
-| `tool-rows.json` | The Workshop rows for both tools, each with a sample run. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows for both tools, each with a sample run. |
 | `test/triage-against-priorities.test.mjs` | Tests with made-up items, priorities and dispositions. |
 
 ## Input the person gives
@@ -45,4 +45,4 @@ The old package's record queries, its trigger rules that fired on every admitted
 
 **Depends on:** Node 24 only.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

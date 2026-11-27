@@ -16,4 +16,4 @@ The zones are jiff's bundled tz database, compiled into both files, so no host z
 
 **Depends on:** `../crates/timed-action`, `../do-work/quiet-hours.json` (read into the build).
 
-**Depended on by:** `../do-work/timed-action.mjs` (Node), `../do-work/timed-action-in-a-page.mjs` (pages, Workers), and the tool rows in `../tool-rows.json` (the component).
+**Depended on by:** `../do-work/timed-action.mjs` (Node), `../do-work/timed-action-in-a-page.mjs` (pages, Workers), and the tool rows in `../what-this-tool-does-and-how-to-run-it.json` (the component).

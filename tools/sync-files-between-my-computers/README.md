@@ -12,7 +12,7 @@ Keeps a person's files in step between their computers. It says where one comput
 | `do-work/keep-a-local-file.mjs` | `keepALocalFile(input, { door })`: keeps one file (`path`, `name`, `media_type`) or a list (`files`, at most `most_files` in `keep-a-local-file.json`) from the computer into the person's Files, each through records-door's `keepLocalFile`: small files in pieces, large ones in raw pieces of up to 32 MiB (writeLargeFile, read-data/raw-pieces.mjs in tools/records-door). Refuses a link, a folder, a relative path or a bad name with its reason, and keeps the others in a list. Run by `tool:keep-a-local-file-in-my-files`. |
 | `do-work/sync-files.json` | The `sync_status`, `peers` and `folder_bindings` DATA blocks, moved from `computer/trillion-drive.json` without the old Drive's listen addresses. |
 | `ports/*.json` | One SOURCE_FIRST_PORT contract per moved module, naming its old trillion source and the byte-copy commit. |
-| `tool-rows.json` | `tool:say-where-file-sync-stands`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:say-where-file-sync-stands`. |
 | `part.json` | The library modules and their DATA, public to a keeper that mounts them. |
 | `test/` | The old tests, moved with their assertions: `drive-sync-status.test.mjs`, `lan-peers.test.mjs`, `folder-bindings.test.mjs`. |
 
@@ -28,4 +28,4 @@ Keeps a person's files in step between their computers. It says where one comput
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`, `whole-file.mjs`), `tools/browse-and-upload-my-files` (the chunked sender for large files, with its wasm), `tools/content-identity`, `@noble/hashes` (BLAKE3), and Node's standard library.
 
-**Depended on by:** `tool-rows.json`. The library modules are public in `part.json` for whoever keeps the person's files on a computer and mounts them.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The library modules are public in `part.json` for whoever keeps the person's files on a computer and mounts them.

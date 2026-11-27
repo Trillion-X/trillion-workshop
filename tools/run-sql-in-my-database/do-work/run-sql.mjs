@@ -1,12 +1,12 @@
 import { realpathSync } from 'node:fs';
 // tools/run-sql-in-my-database/do-work/run-sql.mjs
 //
-// The container tool `tool:run-sql-in-my-database` (tool-rows.json): one SQL statement, as written, in the person's own
+// The container tool `tool:run-sql-in-my-database` (what-this-tool-does-and-how-to-run-it.json): one SQL statement, as written, in the person's own
 // Postgres-wire database, answered as { columns, rows, row_count } or the database's own error text: the caller's `sql`
 // (with `params`). It makes no table of its own: a list is a table the person's AI makes in the database's own language.
 //
 // The connection string is a held value the engine hands this one process on a private pipe, descriptor 3 (the row's
-// invoke.credential_mounts); it is never in the request, argv, a file or the environment, and no answer or error holds it.
+// invoke.key); it is never in the request, argv, a file or the environment, and no answer or error holds it.
 // This file reads no vault and names no vendor or host: any server that speaks the Postgres wire protocol answers it.
 // One statement per call is the protocol's rule, not ours: every statement goes through the extended query protocol (a named
 // prepared statement), which the server refuses when the text holds more than one command. What a login may do is that
@@ -61,7 +61,7 @@ const MIN_PASSWORD_LENGTH = 43;
 const VERIFIER = /^SCRAM-SHA-256\$(\d+):[A-Za-z0-9+/]+={0,2}\$[A-Za-z0-9+/]{43}=:[A-Za-z0-9+/]{43}=$/;
 const RECIPES = JSON.parse(readFileSync(new URL('../read-data/role-recipes.json', import.meta.url), 'utf8')).recipes;
 const TIME_LIMITS = JSON.parse(readFileSync(new URL('../read-data/time-limits.json', import.meta.url), 'utf8'));
-const ROW = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records
+const ROW = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records
   .map(record => record.payload).find(payload => payload?.id === 'tool:run-sql-in-my-database');
 
 const rowAddingRecipes = Object.keys(RECIPES).filter(name => RECIPES[name].adds_rows === true);

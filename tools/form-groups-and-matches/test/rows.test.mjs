@@ -1,10 +1,10 @@
-// Every row runs as the container runs it (test-helpers/run-a-row.mjs): its own argv, the files it packs laid at their
+// Every row runs as the container runs it (test-helpers/run-a-row.mjs): its own run, the files it packs laid at their
 // places, its standard input filled from its own stdin template with its sample (and a task no page started) and, for
 // a row that reads records, the stand-in door with exactly the row's rights.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const descriptors = rows.records.map(record => record.payload);
 // "$.a.b[0]" read from an object.
@@ -28,7 +28,7 @@ const COMMUNITY = /community/;
 
 test('every row packs its own files and the records door runner, offers no network, and names its maker', () => {
   for (const row of descriptors) {
-    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.invoke.may_reach, undefined, row.id);
     const packed = row.invoke.files.package_files.map(spec => spec.package ?? spec.module ?? spec.packages?.[0]?.replace(/^node_modules\//, ""));
     assert.deepEqual(packed, ['form-groups-and-matches', 'records-door', 'content-identity', '@noble/hashes', 'browse-and-upload-my-files'], row.id);
     assert.equal(row.maker, 'maker:form-groups-and-matches');

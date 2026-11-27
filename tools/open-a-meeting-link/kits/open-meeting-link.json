@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:open-meeting-link row in tools/open-a-meeting-link/tool-rows.json, read-data/meeting-links.mjs, read-data/meeting-links.json and test/meeting-links.test.mjs",
+  "drafted_from": "tool:open-meeting-link row in tools/open-a-meeting-link/what-this-tool-does-and-how-to-run-it.json, read-data/meeting-links.mjs, read-data/meeting-links.json and test/meeting-links.test.mjs",
   "start_here": "Say to your AI: \"Open this meeting link for my 10 am call: zoommtg://zoom.us/join?confno=123456789&pwd=hunter2.\" It reads the link first and, only if its host and parameters are allowed, opens it in the meeting app on your computer.",
   "lists": [],
   "no_lists_because": "It names no list: it takes one link, reads it through the declared meeting routes and hands an allowed link to the system to open.",

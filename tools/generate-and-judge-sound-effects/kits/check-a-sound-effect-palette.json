@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-a-sound-effect-palette row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:check-a-sound-effect-palette row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Check my palette folder /work/sfx/palette against PALETTE.json and the licence manifest, and check the music bed is at least 2 seconds.\" It runs the checker and reads which sounds failed.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads PALETTE.json, the fetcher's manifest.json and the rendered WAV files on this computer and prints a pass or fail.",

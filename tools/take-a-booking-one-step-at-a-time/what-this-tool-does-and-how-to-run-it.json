@@ -1,0 +1,3528 @@
+{
+ "kind": "tool-rows",
+ "record_set": "take-a-booking-one-step-at-a-time-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/take-a-booking-one-step-at-a-time: the booking page a person is taken through one step at a time.",
+ "records": [
+  {
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-booking-page",
+    "label": "Read a booking page",
+    "job": "Read one live booking page: its title, time zone, session length, windows and the questions its form asks",
+    "description": "Answers the booking page named by page from the pursuit database (booking_pages and the form it names in form_rows): its title, time zone, minutes per session, the windows it offers, how many days ahead and the minimum notice, and its questions in the form's order. A page that is not live, has no windows or has no questions is refused by name. The open times are not read here: the booking routes answer them. The answer is the props of show/BookingPage.tsx.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "page"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database to read, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use, set by the workflow engine over any use the step's input carried). Given with database, the computer opens the database with its reader login (one that cannot get round the row rules, change a table or read the use binding) instead of the owner's, and hands the run a ticket of this use that it signed; the statement's transaction claims it first, so the database's row rules read this use and the statement cannot change it. A use with credential_name, which has no ticket, is refused. Absent: the owner's own work, read under the database's own purpose_when_unstated.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish or coach/review."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as social/instagram; empty for any surface."
+        }
+       }
+      },
+      "page": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 200,
+       "description": "The booking page's slug."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "page",
+      "title",
+      "timezone",
+      "duration_minutes",
+      "questions"
+     ],
+     "properties": {
+      "page": {
+       "type": "string"
+      },
+      "title": {
+       "type": "string"
+      },
+      "timezone": {
+       "type": "string"
+      },
+      "duration_minutes": {
+       "type": "integer"
+      },
+      "horizon_days": {
+       "type": "integer"
+      },
+      "min_notice_minutes": {
+       "type": "integer"
+      },
+      "windows": {
+       "type": "array"
+      },
+      "questions": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/reads/read-a-booking-page.ts",
+      "readBookingPage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "reads/read-a-booking-page.ts"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-reader-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 12000
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/do-work from the behaviour of the pages it replaces, made generic; read through run-sql-in-my-database/do-work/serve-a-read.ts"
+    },
+    "screen": {
+     "kind": "module",
+     "asked": [
+      "open the booking page",
+      "book a call"
+     ],
+     "entry": "show/BookingPage.tsx",
+     "export": "View"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::start-a-booking",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::start-a-booking",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:start-a-booking",
+    "label": "Start a booking",
+    "job": "Open one person's booking with their email, one step at a time",
+    "description": "Opens a sitting of the live booking page named by page with the booker's email, and answers its id (attemptId) and the first step to draw (the first question, or the time). A page that is not live, has no times or no questions is refused by name; a bad email is refused by naming the rule, never the value.",
+    "status": "active",
+    "read_only": false,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "page",
+      "email"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "page": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The booking page's slug."
+      },
+      "email": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The booker's email address, as they typed it."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "attemptId",
+      "next"
+     ],
+     "properties": {
+      "attemptId": {
+       "type": "string"
+      },
+      "next": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "start"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::answer-a-booking-question",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::answer-a-booking-question",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:answer-a-booking-question",
+    "label": "Answer a booking question",
+    "job": "Keep one answer of a booking and say the next step",
+    "description": "Checks the value as the booking's waiting question asks it, keeps it as that question's answer (answering the same question again replaces it) and answers the next step to draw. A value that fails the question's rule is refused by naming the rule, never the value. A booking already made is refused.",
+    "status": "active",
+    "read_only": false,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "attemptId",
+      "value"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "attemptId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sitting's id, as the start step answered it."
+      },
+      "value": {
+       "description": "The answer as the question's type takes it: text, a number or { picked, other? }."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "next"
+     ],
+     "properties": {
+      "next": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "answer"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::work-out-a-bookings-window",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::work-out-a-bookings-window",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-a-bookings-window",
+    "label": "Work out a booking's window",
+    "job": "Say the span a booking's open times are read over, so the calendar's busy times are asked for that span",
+    "description": "Answers from (now) and to (now plus the booking page's horizon in days), each an instant in whole seconds like 2026-08-10T00:00:00Z: the input of tool:check-when-i-am-busy for the sitting's open times. It reads the sitting and its page with the booking's own login, so the caller (a site's row) needs no read of the sittings or the pages. A sitting whose page is not open, has no times or no questions is refused. Changes nothing.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "attemptId"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "attemptId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sitting's id, as the start step answered it."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "from",
+      "to"
+     ],
+     "properties": {
+      "from": {
+       "type": "string"
+      },
+      "to": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "window"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::read-a-bookings-open-times",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::read-a-bookings-open-times",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-bookings-open-times",
+    "label": "Read a booking's open times",
+    "job": "List the times a booking can be made at, from the page's windows and the calendar's busy times",
+    "description": "Answers the open start times of the booking's page over its horizon: its weekly windows, less the busy times given, less the minimum notice. Needs busy_read (the whole answer of tool:check-when-i-am-busy) and works only when its status is read; without it nothing is answered, so an unread calendar is never taken for a free one. Changes nothing.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "attemptId",
+      "busy_read"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "attemptId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sitting's id, as the start step answered it."
+      },
+      "busy_read": {
+       "type": "object",
+       "description": "The whole answer of tool:check-when-i-am-busy: { status, busy }. Works only when status is read (busy is then the list of { start, end } instants, empty for a free calendar); any other answer is refused, so a calendar that was not read is never taken for a free one.",
+       "required": [
+        "status"
+       ],
+       "properties": {
+        "status": {
+         "type": "string"
+        },
+        "busy": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "slots"
+     ],
+     "properties": {
+      "slots": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "times"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::choose-a-bookings-time",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::choose-a-bookings-time",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:choose-a-bookings-time",
+    "label": "Choose a booking's time",
+    "job": "Keep the time a person chose for their booking, if it is open",
+    "description": "Keeps the chosen start as the booking's time only when it is one of the open starts worked out now from the page's windows and the busy times given; a made-up or taken time is refused and nothing is kept. Answers the next step and the time's start and end.",
+    "status": "active",
+    "read_only": false,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "attemptId",
+      "value",
+      "busy_read"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "attemptId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sitting's id, as the start step answered it."
+      },
+      "value": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The chosen start, as an instant such as 2026-11-23T16:00:00.000Z."
+      },
+      "busy_read": {
+       "type": "object",
+       "description": "The whole answer of tool:check-when-i-am-busy: { status, busy }. Works only when status is read (busy is then the list of { start, end } instants, empty for a free calendar); any other answer is refused, so a calendar that was not read is never taken for a free one.",
+       "required": [
+        "status"
+       ],
+       "properties": {
+        "status": {
+         "type": "string"
+        },
+        "busy": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "next",
+      "slot"
+     ],
+     "properties": {
+      "next": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "slot": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "choose"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::check-a-booking-is-ready",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::check-a-booking-is-ready",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-booking-is-ready",
+    "label": "Check a booking is ready",
+    "job": "Say the calendar event a booking is ready to make, once its time is still open",
+    "description": "Checks the booking is at its confirm step and its chosen time is still open (from the calendar read given), then answers the input of tool:put-a-booking-on-my-calendar: the title, the start and end in the page's own clock, the zone, the booker as attendee and a video call request. Makes no event and writes nothing; tool:keep-a-made-booking keeps the booking once the event is made.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "attemptId",
+      "busy_read"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "attemptId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sitting's id, as the start step answered it."
+      },
+      "busy_read": {
+       "type": "object",
+       "description": "The whole answer of tool:check-when-i-am-busy: { status, busy }. Works only when status is read (busy is then the list of { start, end } instants, empty for a free calendar); any other answer is refused, so a calendar that was not read is never taken for a free one.",
+       "required": [
+        "status"
+       ],
+       "properties": {
+        "status": {
+         "type": "string"
+        },
+        "busy": {
+         "type": "array",
+         "items": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "startIso",
+      "endIso",
+      "event"
+     ],
+     "properties": {
+      "startIso": {
+       "type": "string"
+      },
+      "endIso": {
+       "type": "string"
+      },
+      "event": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "ready"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  },
+  {
+   "id": "package::take-a-booking-one-step-at-a-time::tool::keep-a-made-booking",
+   "address": "package::take-a-booking-one-step-at-a-time::tool::keep-a-made-booking",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-a-made-booking",
+    "label": "Keep a made booking",
+    "job": "Keep the booking row of an event that was made, and end the booking",
+    "description": "Writes the booking row (naming its sitting, its time, its booker and the event) and ends the sitting together, once; a sitting already ended is refused, so one event is kept once. event is the answer of tool:put-a-booking-on-my-calendar (its external_event_id, and video_link when there is one). When this is refused, cancel the event with tool:cancel-a-booking-on-my-calendar.",
+    "status": "active",
+    "read_only": false,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "attemptId",
+      "event"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database that holds the sittings, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "attemptId": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The sitting's id, as the start step answered it."
+      },
+      "event": {
+       "type": "object",
+       "description": "The answer of the tool that made the event: { external_event_id, video_link? }."
+      },
+      "source": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Where the booking came from; booking-page when left out."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this step runs for (a site's declared pages use, or a recipe step's config.context.use). Given with database, the computer opens the database with its writer login (one that may add or change only the columns the writer recipe may-write-named-columns-under-a-use named, and never change a table) instead of the owner's, and hands the run a ticket of this use that it signed; the step's one transaction claims it first. A share act's run must give it. Absent: the owner's own work, with the owner's login.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as site/example.com; empty for any surface."
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "bookingId",
+      "startIso"
+     ],
+     "properties": {
+      "bookingId": {
+       "type": "string"
+      },
+      "meetingLink": {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      "startIso": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/take-a-booking-one-step-at-a-time",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/take-a-booking-one-step-at-a-time/steps/serve-booking.ts",
+      "keep"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-writer-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 20000,
+     "files": {
+      "package_files": [
+       {
+        "package": "ask-questions-sort-answers-follow-up",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data",
+         "steps"
+        ],
+        "at": "/opt/ask-questions-sort-answers-follow-up"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/list-aggregates.mjs",
+         "src/formula-engine.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/lists.json"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules",
+         "built-stored-bytes/formula-engine"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/formula-engine"
+       },
+       {
+        "package": "take-a-booking-one-step-at-a-time",
+        "paths": [
+         "steps",
+         "read-data"
+        ],
+        "at": "/opt/take-a-booking-one-step-at-a-time"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "book-time",
+        "paths": [
+         "read-data/derive-open-slots.ts"
+        ],
+        "at": "/opt/book-time"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:take-a-booking-one-step-at-a-time",
+    "provenance": {
+     "source": "Written in tools/take-a-booking-one-step-at-a-time/steps from the steps of the pages it replaces, made generic; each step reads and writes the pursuit's form_rows through steps/store.ts"
+    }
+   }
+  }
+ ]
+}

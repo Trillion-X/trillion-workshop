@@ -1,5 +1,5 @@
 {
- "drafted_from": "tools/check-every-screen-at-every-width/proof-session-mint.mjs, held-session.mjs, proof-accounts.json and tool-rows.json (group 9, Nov 21 2026); run for real on the Mac 3:01 PM CST Nov 21 2026",
+ "drafted_from": "tools/check-every-screen-at-every-width/proof-session-mint.mjs, held-session.mjs, proof-accounts.json and what-this-tool-does-and-how-to-run-it.json (group 9, Nov 21 2026); run for real on the Mac 3:01 PM CST Nov 21 2026",
  "start_here": "Say to your AI: \"Sign my proof accounts in with the codes you kept.\" It runs tool:sign-the-proof-accounts-in-with-their-kept-codes.",
  "lists": [],
  "no_lists_because": "Its only state is vault values (proof-sessions, proof-sign-in-code), never rows; the proof accounts are the Workshop DATA proof-accounts.json.",

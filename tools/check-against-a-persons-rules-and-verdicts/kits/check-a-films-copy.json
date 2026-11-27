@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-a-films-copy's row in tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (its verify sample run), do-work/check-a-films-copy.mjs and test/check-a-films-copy.test.mjs; the answer was observed by running checkAFilmsCopy on the sample's rows on the records handed in",
+  "drafted_from": "tool:check-a-films-copy's row in tools/check-against-a-persons-rules-and-verdicts/what-this-tool-does-and-how-to-run-it.json (its verify sample run), do-work/check-a-films-copy.mjs and test/check-a-films-copy.test.mjs; the answer was observed by running checkAFilmsCopy on the sample's rows on the records handed in",
   "start_here": "Say to your AI: \"Check every line of my film's SCRIPT.md against my made-up-base rules, using my made-up film readers setting.\" It reads your settings row and rules, reads each line of the script, and says pass, fail or uncertain for each with the rule it broke.",
   "lists": [
     {
@@ -308,7 +308,7 @@
           }
         }
       },
-      "given": "From tools/check-against-a-persons-rules-and-verdicts/tool-rows.json (the verify sample run of tool:check-a-films-copy), run through checkAFilmsCopy on the records handed in: list:checks holds the branch made-up-base and the rule no-sparkle part_of it, and the settings row record:setting:check-against-a-persons-rules-and-verdicts~person~made-up holds the made-up film readers (table whose first header is #, every file read as voiceover lines).",
+      "given": "From tools/check-against-a-persons-rules-and-verdicts/what-this-tool-does-and-how-to-run-it.json (the verify sample run of tool:check-a-films-copy), run through checkAFilmsCopy on the records handed in: list:checks holds the branch made-up-base and the rule no-sparkle part_of it, and the settings row record:setting:check-against-a-persons-rules-and-verdicts~person~made-up holds the made-up film readers (table whose first header is #, every file read as voiceover lines).",
       "hands_back": "{\"schema\": \"copy-check-report-v1\", \"branch\": \"made-up-base\", \"lineage\": [\"made-up-base\"], \"status\": \"failed\", \"passed\": false, \"coverage\": {\"extracted_units\": 2, \"unique_units\": 2, \"evaluated_units\": 2, \"files\": [{\"path\": \"SCRIPT.md\", \"reader\": \"film\", \"recognized_units\": 2, \"status\": \"extracted\"}]}, \"results\": [{\"text\": \"A sparkle line.\", \"kind\": \"voiceover\", \"where\": \"SCRIPT.md:3\", \"verdict\": \"fail\", \"breaks\": [{\"rule\": \"no-sparkle\", \"found\": \"sparkle\", \"says\": \"No sparkle.\"}]}, {\"text\": \"A plain line.\", \"kind\": \"voiceover\", \"where\": \"SCRIPT.md:4\", \"verdict\": \"pass\", \"breaks\": []}], \"lines\": [\"copy check (Workshop judge-words, the person's rules): 2 lines: 1 fail, 0 uncertain, 1 pass\", \"branch made-up-base (made-up-base)\", \"\", \"FAIL [voiceover] SCRIPT.md:3\", \"  \\\"A sparkle line.\\\"\", \"  no-sparkle: \\\"sparkle\\\". No sparkle.\"], \"exit_code\": 1} (the full report also carries the BLAKE3 identities of the file, reader settings, rules and checker, rows_used, read_by_a_model, questions and escalated, all empty or counts here)"
     }
   ],

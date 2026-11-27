@@ -118,7 +118,7 @@ export function planMove(row, source, destination) {
     // group whose row says joins_tool (with why) brings that tool code it does not have yet; its files still land under
     // their own source path inside the tool folder, and any path the tool already holds is still refused at apply.
     const joins = typeof group.joins_tool === 'string' && group.joins_tool.trim();
-    if (destination.exists(posix.join(group.to, 'tool-rows.json')) && !joins) held.push(`${group.to} is already a tool in the destination; delete the source's copy where that tool replaces it, instead of moving a second copy, or say in joins_tool what this group brings that the tool does not have`);
+    if (destination.exists(posix.join(group.to, 'what-this-tool-does-and-how-to-run-it.json')) && !joins) held.push(`${group.to} is already a tool in the destination; delete the source's copy where that tool replaces it, instead of moving a second copy, or say in joins_tool what this group brings that the tool does not have`);
     // A row may hold its own group in words (held_until): what must be true before the group can move.
     if (typeof group.held_until === 'string' && group.held_until.trim()) held.push(`its row holds it: ${group.held_until.trim()}`);
     for (const path of closure) {

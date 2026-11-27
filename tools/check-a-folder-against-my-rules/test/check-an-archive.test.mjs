@@ -87,8 +87,8 @@ const RETIRED = {
 };
 const ROWS = (...ids) => JSON.stringify(ids.map((id) => ({ id })));
 const archives = {
-  'https://example.test/was.tar.gz': tar([{ name: 'top/tools/a/tool-rows.json', text: ROWS('tool:kept', 'tool:gone', 'tool:renamed') }]),
-  'https://example.test/now.tar.gz': tar([{ name: 'top/tools/a/tool-rows.json', text: `${ROWS('tool:kept', 'tool:new-name')}\n{"replaces": "tool:renamed", "id": "tool:new-name"}` }]),
+  'https://example.test/was.tar.gz': tar([{ name: 'top/tools/a/what-this-tool-does-and-how-to-run-it.json', text: ROWS('tool:kept', 'tool:gone', 'tool:renamed') }]),
+  'https://example.test/now.tar.gz': tar([{ name: 'top/tools/a/what-this-tool-does-and-how-to-run-it.json', text: `${ROWS('tool:kept', 'tool:new-name')}\n{"replaces": "tool:renamed", "id": "tool:new-name"}` }]),
   'https://example.test/apps.tar.gz': tar([
     { name: 'top/App/Calls.swift', text: 'call("tool:kept")\ncall("tool:gone")\ncall("tool:renamed")\ncall("tool:gone-too-far")\n' },
   ]),
@@ -96,7 +96,7 @@ const archives = {
 const SUBJECTS = {
   retired_tool_ids: {
     was: 'https://example.test/was.tar.gz', now: 'https://example.test/now.tar.gz',
-    path_matches: '^tools/[^/]+/tool-rows\\.json$', pattern: '"id":\\s*"(tool:[^"]+)"', capture: 1,
+    path_matches: '^tools/[^/]+/what-this-tool-does-and-how-to-run-it\\.json$', pattern: '"id":\\s*"(tool:[^"]+)"', capture: 1,
     moved: '"replaces":\\s*"(?<from>tool:[^"]+)",\\s*"id":\\s*"(?<to>tool:[^"]+)"',
   },
 };

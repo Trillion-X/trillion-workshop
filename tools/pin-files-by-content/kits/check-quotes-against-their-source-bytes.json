@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/pin-files-by-content/tool-rows.json (tool:check-quotes-against-their-source-bytes), do-work/verify-source-spans.mjs, test/verify-source-spans.test.mjs; the example was run on synthetic files",
+  "drafted_from": "tools/pin-files-by-content/what-this-tool-does-and-how-to-run-it.json (tool:check-quotes-against-their-source-bytes), do-work/verify-source-spans.mjs, test/verify-source-spans.test.mjs; the example was run on synthetic files",
   "start_here": "Say to your AI: \"Check that each quote in my bindings.json is still the exact text at its byte range in menu.txt, and write the report to a new file.\" It runs verify-source-spans.mjs and names every quote position that failed.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one bindings manifest and the source files it names, and writes one new report file.",

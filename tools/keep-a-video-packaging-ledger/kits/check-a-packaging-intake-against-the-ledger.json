@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/readback_packaging_intake.py and the fixture of test/test_channel_intake_append_new.py (run to observe)",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/what-this-tool-does-and-how-to-run-it.json, do-work/readback_packaging_intake.py and the fixture of test/test_channel_intake_append_new.py (run to observe)",
   "start_here": "Say to your AI: \"Check that the two videos I just added under ch-example-videos are in my packaging ledger with the right titles, thumbnails and caption evidence, against the copy I kept as BEFORE.jsonl.\" It reads the tool's row and runs readback_packaging_intake.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",

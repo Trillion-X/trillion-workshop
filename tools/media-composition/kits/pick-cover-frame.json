@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:pick-cover-frame's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/save-cover-frame.mjs, tools/media-composition/test/cover-frame-unknown-duration.test.mjs (same script), and the script run on a synthetic 26 second test-pattern clip",
+  "drafted_from": "tool:pick-cover-frame's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/save-cover-frame.mjs, tools/media-composition/test/cover-frame-unknown-duration.test.mjs (same script), and the script run on a synthetic 26 second test-pattern clip",
   "start_here": "Say to your AI: \"Pick the best cover frame from my video and save it as a picture 160 pixels wide.\" It runs tool:pick-cover-frame and saves a JPEG in your files.",
   "lists": [],
   "no_lists_because": "It reads one video you name and saves one picture from it, so it keeps no list of its own.",

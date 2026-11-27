@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:judge-one-shot-sounds-as-whole-sounds row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:judge-one-shot-sounds-as-whole-sounds row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Judge /work/sfx/hits/b.wav as a whole sound against the description a high blip, with a door and a knock as alternatives.\" It runs the whole-sound listener and reads back the trim and the match.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads sound files named on the command line and merges its readings into an OUT.json file on this computer.",

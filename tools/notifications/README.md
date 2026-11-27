@@ -67,7 +67,7 @@ The old action fixed an event's `kind` to one name and its `privacy_class` to on
 |------|---------|
 | `read-data/notifications.mjs` | `myNotificationChoice`, `chooseMyNotificationChoice`, `recordANotification`, `myNotificationEvents`, run by `tools/workflows/do-work/run-a-function.mjs`. |
 | `read-data/given-rows.mjs` | Reads the given rows of one type and id, and makes the `keep` rows a run answers (value null removes). |
-| `tool-rows.json` | The notification choice, event, device, delivery and Live Activity rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The notification choice, event, device, delivery and Live Activity rows. |
 | `part.json` | The folder's public files. |
 | `test/notifications.test.mjs` | The rows run with the rows they are given: options and defaults, invalid and empty settings, choosing, refusals, recording, repeats, clashes and reads. |
 | `test/device-notifications.test.mjs` | Device registration, private addresses, the senders' answers (per device, gone, uncertain, partial) with no records door, and the Live Activity lifecycle. |

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:systran-faster-whisper's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs faster-whisper.",
+  "drafted_from": "tool:github:systran-faster-whisper's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs faster-whisper.",
   "start_here": "Say to your AI: \"Use faster-whisper on my computer to transcribe speech to text in Python with Whisper models: the file is memo.mp3.\" It reads the row, installs faster-whisper if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: faster-whisper is a program that runs on the person's own computer and works on the one file or address it is handed.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:systran-faster-whisper runs on your computer, so after tools:list the AI runs, in the folder it got faster-whisper in, the command line: python -c \"from faster_whisper import WhisperModel; m = WhisperModel('small', device='cpu', compute_type='int8'); print(' '.join(s.text for s in m.transcribe('memo.mp3')[0]))\"  (synthetic input: a 40 second voice memo from Sam, a baker, about this week's orders).",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:systran-faster-whisper runs on your computer, so after tools:list the AI runs, in the folder it got faster-whisper in, the command line: python -c \"from faster_whisper import WhisperModel; m = WhisperModel('small', device='cpu', compute_type='int8'); print(' '.join(s.text for s in m.transcribe('memo.mp3')[0]))\"  (synthetic input: a 40 second voice memo from Sam, a baker, about this week's orders).",
       "hands_back": "The one-line Python program prints the whole transcript as one line of text, for example \"Hi, this is Sam. We need forty loaves for Friday and two dozen cinnamon rolls for the school fair.\" Nothing is written to a file."
     }
   ]

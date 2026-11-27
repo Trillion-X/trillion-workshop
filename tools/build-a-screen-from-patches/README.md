@@ -12,7 +12,7 @@ A screen sees changes as JSON patches, not whole answers. Two kinds of patch are
 | `read-data/screen-spec.json` | The limits on one screen, one line and one stream, every word said, and the words an AI reads about making a parts screen. Moved byte for byte. |
 | `read-data/declared-props.json` | The props, events and children each shared part declares. Copied byte for byte from Trillion-X/trillion `tools/ui/declared-props.json`. |
 | `read-data/screen-patch-tools.mjs` | The three rows' functions over the moved code. |
-| `tool-rows.json` | `tool:make-a-view-patch`, `tool:apply-a-view-patch`, `tool:build-a-screen-spec-from-a-patch-stream`. These are container rows run by `tools/records-door`'s `run-an-export.mjs`, with no records door. `@noble/hashes` is packed for BLAKE3. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:make-a-view-patch`, `tool:apply-a-view-patch`, `tool:build-a-screen-spec-from-a-patch-stream`. These are container rows run by `tools/records-door`'s `run-an-export.mjs`, with no records door. `@noble/hashes` is packed for BLAKE3. |
 | `part.json` | `read-data/screen-spec.mjs`, `read-data/view-patch.mjs` and `read-data/declared-props.json` are public: Trillion-X/trillion imports them from this package, the one copy. |
 | `test/view-patch.test.mjs` | Trillion's `test/view-patch.test.mjs`, with its assertions unchanged. |
 | `test/screen-spec.test.mjs` | Trillion's `test/screen-spec.test.mjs` tests of screen-spec itself, with their assertions unchanged. |
@@ -49,6 +49,6 @@ Two other files of the same job were not moved. `src/screen-view.mjs` imports wo
 - `tools/records-door` (`run-an-export.mjs`)
 - Node's standard library
 
-**Depended on by:** `tool-rows.json`. In Trillion-X/trillion, these files still import their own copies:
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. In Trillion-X/trillion, these files still import their own copies:
 - `src/screen-view.mjs`, `src/worker.mjs`, `src/workshop.mjs`
 - `src/workspace/screen-view.tsx`, `src/workspace/parts-screen.tsx`, `src/workspace/declared-parts.ts`

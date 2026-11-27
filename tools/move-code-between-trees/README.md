@@ -90,4 +90,4 @@ runs the proof above against that tree, where a file changed after its copy is p
 
 **Depends on:** `tools/content-identity` (BLAKE3 identities), git, Node.
 
-**Depended on by:** `tool-rows.json`; the lanes that move the old app's features here.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the lanes that move the old app's features here.

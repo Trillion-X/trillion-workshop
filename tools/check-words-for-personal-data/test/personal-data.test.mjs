@@ -34,7 +34,7 @@ test('the model on this Mac adds kinds at or above the threshold; clean words of
 
 test('the row declares no records door and the answer holds the result', async () => {
   const { readFileSync } = await import('node:fs');
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
   assert.equal(row.invoke.records, undefined);
   const answer = await checkPersonalData({ text: 'Write to jo@example.org.' }, { ask: noModel });
   assert.equal(answer.contains, true);

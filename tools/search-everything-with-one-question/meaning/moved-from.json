@@ -267,7 +267,7 @@
     {
       "from": "tools/meaning-search/tool-rows.json",
       "commit": "cbdfe07d60fa212685e9988f7a8094e09faaa616",
-      "to": "tools/search-everything-with-one-question/meaning/tool-rows.json",
+      "to": "tools/search-everything-with-one-question/meaning/what-this-tool-does-and-how-to-run-it.json",
       "source_identity": "1f:60461b071b6365ae337c4879e3f67f214379f7191a6de4a864e3fdfbe560ccbd",
       "identity": "1f:e0f89c2a399add6db8f2cec025dc56475de8b598ff4f4bd368e0e5b5899b3019",
       "adaptations": [

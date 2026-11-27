@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "drafted_from": "tool row in tools/connected-drives/what-this-tool-does-and-how-to-run-it.json, read-data/drives.mjs and test/drives.test.mjs",
   "start_here": "Say to your AI: \"What is on my SAMPLE DRIVE, by kind of file, and which files are the biggest?\" It runs tool:see-what-is-on-a-drive with mount /Volumes/SAMPLE DRIVE and hands back counts and bytes per kind.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",

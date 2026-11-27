@@ -127,7 +127,7 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
     // account/sign_in/ways.rs adds these delivery fields to the account's fixed provider input.
     const input = { provider: 'twilio-sms', from: '+15550199', account_sid: 'AC0000example', to: '+15550100',
       kind: 'sign-in-code', subject: 'Your sign-in code', text: 'Your code is 123456', idempotencyKey: 'sign-in:synthetic-code' };
-    const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records
+    const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records
       .map(record => record.payload).find(item => item.id === 'tool:send-a-text');
     assert.equal(row.input_schema.additionalProperties, false);
     // The row is provider-generic (its vendor-named twin was removed Nov 14 2026, commit 169ecdb26), so the Twilio
@@ -352,7 +352,7 @@ describe('Messages on this Mac (carried from the Messages sender)', () => {
 });
 
 describe('the keys and the rows', () => {
-  const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
   it('the tool of a provider\'s channel mounts exactly the secrets the provider\'s DATA names, one descriptor each, only when it is named', () => {
     const toolOf = { email: 'tool:send-an-email', text: 'tool:send-a-text' };
@@ -363,9 +363,9 @@ describe('the keys and the rows', () => {
         continue;
       }
       const row = rows.find(item => item.id === toolOf[provider.channel]);
-      const mounted = row.invoke.credential_mounts.filter(mount => mount.only_when.equals === provider.id);
+      const mounted = row.invoke.key.filter(mount => mount.only_when.equals === provider.id);
       assert.deepEqual(mounted, provider.credentials.map(mountOf(provider)), provider.id);
-      assert.equal(row.invoke.internet, true);
+      assert.ok(Array.isArray(row.invoke.may_reach));
     }
   });
 
@@ -420,7 +420,7 @@ describe('the keys and the rows', () => {
 });
 
 describe('the tools are named for their job and reach a provider by the request, not by a vendor-named row', () => {
-  const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
   const rowFor = id => rows.find(item => item.id === id);
 
   it('no tool id names a vendor the provider rows hold', () => {
@@ -433,7 +433,7 @@ describe('the tools are named for their job and reach a provider by the request,
     assert.deepEqual(mountsOf(rowFor('tool:send-a-text')), mountsFor('text'));
     for (const id of ['tool:send-an-email', 'tool:send-a-text']) {
       const row = rowFor(id);
-      assert.equal(row.invoke.argv.length, row.invoke.argv.findIndex(item => item.endsWith('.mjs')) + 1, `${id}: the provider is not in argv`);
+      assert.equal(row.invoke.run.length, row.invoke.run.findIndex(item => item.endsWith('.mjs')) + 1, `${id}: the provider is not in argv`);
       assert.deepEqual(row.input_schema.required, ['provider'], id);
       assert.deepEqual(row.input_schema.properties.provider, { type: 'string' }, id);
     }

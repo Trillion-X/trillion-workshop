@@ -8,7 +8,7 @@ The program is small Rust code a person's AI builds and runs on the person's own
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Three rows, all `on-your-computer`: `tool:render-a-pointillist-frame`, `tool:render-pointillist-frames-over-time`, `tool:render-a-pointillist-target-animation`. |
+| `what-this-tool-does-and-how-to-run-it.json` | Three rows, all `on-your-computer`: `tool:render-a-pointillist-frame`, `tool:render-pointillist-frames-over-time`, `tool:render-a-pointillist-target-animation`. |
 | `part.json` | Nothing here is imported by other code. |
 | `Cargo.toml`, `Cargo.lock` | The crate: serde and thiserror, nothing else (serde_json for the tests). |
 | `src/lib.rs` | The public pieces. |
@@ -60,4 +60,4 @@ cargo run --release --manifest-path Cargo.toml --example encode_target_animation
 
 **Depends on:** Rust (cargo) to build, serde and thiserror from the crates registry the first time.
 
-**Depended on by:** `tool-rows.json`, run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`, run on the person's computer by their AI.

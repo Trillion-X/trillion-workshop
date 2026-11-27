@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const reserve = rowOf(rows, 'tool:reserve-a-spend-within-budget');
 const goAhead = rowOf(rows, 'tool:may-this-spend-go-ahead');
@@ -118,7 +118,7 @@ test('the shipped x402 rail is listed disabled; a person\'s rail that pays aroun
 
 test('no row may set a limit or turn a budget on, and none reaches the internet', () => {
   for (const row of rows.records.map(item => item.payload)) {
-    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.invoke.may_reach, undefined, row.id);
     for (const right of rightsOf(row)) {
       assert.ok(!right.operations.includes('records:write'), `${row.id} holds no write right`);
     }

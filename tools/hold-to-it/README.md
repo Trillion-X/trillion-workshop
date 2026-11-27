@@ -16,7 +16,7 @@ Nothing is sent or booked. The answer says the times to arm (the reminder and th
 |------|---------|
 | `read-data/hold-to-it.mjs` | `holdToIt` and the pure core: `occurrences`, `aroundNow`, `armAt`, `presentAmong`, `marksFor`, `tally`. Its header lists the invariants. |
 | `read-data/hold-to-it.json` | The record types, the default policy id and every sentence. |
-| `tool-rows.json` | The row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/hold-to-it.test.mjs` | A made-up group, no records door handed to the run: keep with and without a time, retime, check from evidence, unclear voices, once-only marks, the scorecard and a correction, streaks, the missing policy, the pure parts and the row. |
 
@@ -24,4 +24,4 @@ Nothing is sent or booked. The answer says the times to arm (the reminder and th
 
 **Depends on:** `tools/run-work-later-or-on-a-repeat` (the timed-action engine: zones and clock changes), `tools/records-door` (only its `run-an-export.mjs` runner).
 
-**Depended on by:** `tool-rows.json`; the workflows that name `tool:hold-to-it`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the workflows that name `tool:hold-to-it`.

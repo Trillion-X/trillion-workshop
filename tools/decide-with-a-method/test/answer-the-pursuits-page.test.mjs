@@ -13,7 +13,7 @@ import { heldOf, run } from './fixtures.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { answerThePursuitsPage, pursuitsOf } from '../do-work/answer-the-pursuits-page.mjs';
 
 // The pursuit tools as their caller plays them: each read takes the records the store holds now, and each write keeps what

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:generate-a-checklist-from-my-text row (tools/workflows/tool-rows.json), tools/workflows/do-work/checklist_gate.py, and tools/workflows/test/test_checklist_gate.py (test_check_passes_until_the_text_changes), run on its made-up bakery library",
+  "drafted_from": "tool:generate-a-checklist-from-my-text row (tools/workflows/what-this-tool-does-and-how-to-run-it.json), tools/workflows/do-work/checklist_gate.py, and tools/workflows/test/test_checklist_gate.py (test_check_passes_until_the_text_changes), run on its made-up bakery library",
   "start_here": "Say to your AI: \"I changed one row of my written checklist in ./bakery-library/checklist-source.md. Run tool:generate-a-checklist-from-my-text with --check against ./bakery-library/schema.json, and if the file differs, write it and check it for problems.\"",
   "lists": [],
   "no_lists_because": "It reads a checklist you wrote as a text file and writes one generated checklist file beside it, so it reads and writes no list.",

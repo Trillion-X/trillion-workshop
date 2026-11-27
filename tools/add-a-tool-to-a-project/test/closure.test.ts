@@ -16,10 +16,8 @@ const committed = (paths: string[]): Record<string, string> => Object.fromEntrie
     .map(([name, bytes]: [string, Buffer]) => [name, bytes.toString('utf8')]));
 
 test('a tool\'s needs come with it and its sibling imports resolve', async () => {
-  // Made-up copies of the two folders under the test's own temp folder, their card under the new name (the add tool reads
-  // only what-this-tool-does-and-how-to-run-it.json).
-  const files = Object.fromEntries(Object.entries(committed(['tools/hash-content-with-blake3', 'tools/content-identity']))
-    .map(([path, text]) => [path.replace(/\/tool-rows\.json$/, '/what-this-tool-does-and-how-to-run-it.json'), text]));
+  // Made-up copies of the two committed folders under the test's own temp folder, each with its card.
+  const files = committed(['tools/hash-content-with-blake3', 'tools/content-identity']);
   const { repo, commit } = makeRepo(files);
   const registry = makeRegistry(repo, commit, { 'hash-content-with-blake3': ['content-identity'], 'content-identity': [] });
   const project = emptyProject();

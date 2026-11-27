@@ -4,7 +4,7 @@ import { dirname, resolve } from 'node:path';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, '..');
-const descriptorFile = JSON.parse(await readFile(resolve(root, 'tool-rows.json'), 'utf8'));
+const descriptorFile = JSON.parse(await readFile(resolve(root, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
 const descriptor = descriptorFile.records[0].payload;
 const data = JSON.parse(await readFile(resolve(root, 'DATA.json'), 'utf8'));
 const screen = await readFile(resolve(root, descriptor.screen.module.file), 'utf8');

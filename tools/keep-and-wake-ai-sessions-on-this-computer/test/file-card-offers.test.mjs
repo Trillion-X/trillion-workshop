@@ -1,7 +1,7 @@
 // Ported from old trillion test/file-card-offers.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. thingActions and takes-file are this tool's (src/work-workshop.mjs,
 // tools/ui/show/file-field/takes-file.mjs). The old records/workshop-*.json held every Workshop row; this tool keeps two
-// of them, and the rest live in each tool folder's tool-rows.json now, so the cards are read from both. Every assertion
+// of them, and the rest live in each tool folder's what-this-tool-does-and-how-to-run-it.json now, so the cards are read from both. Every assertion
 // is the old one. Two fail today: tool:check-a-post (now tools/social-posts' row, which takes a post_id and no file) is
 // not offered on a video's card, in the first test and in the for-thing route test; no commit or README says that was
 // meant, so the old expectation stands.
@@ -15,11 +15,11 @@ import { thingActions, handleWorkWorkshop } from '../src/work-workshop.mjs';
 import { takesFile, takesOf } from '../parts/ui/show/file-field/takes-file.mjs';
 
 // Every Workshop row as /tools/list answers it: its screen, schema, and a run call only when it has something to run.
-// The rows are this tool's records/workshop-*.json and every tool folder's tool-rows.json, where the Workshop's rows live now.
+// The rows are this tool's records/workshop-*.json and every tool folder's what-this-tool-does-and-how-to-run-it.json, where the Workshop's rows live now.
 const toolsDir = new URL('../../', import.meta.url);
 const rowFiles = [
   ...readdirSync(new URL('../records/', import.meta.url)).filter(name => name.startsWith('workshop-') && name.endsWith('.json')).map(name => new URL(`../records/${name}`, import.meta.url)),
-  ...readdirSync(toolsDir).map(folder => new URL(`${folder}/tool-rows.json`, toolsDir)).filter(file => existsSync(file)),
+  ...readdirSync(toolsDir).map(folder => new URL(`${folder}/what-this-tool-does-and-how-to-run-it.json`, toolsDir)).filter(file => existsSync(file)),
 ];
 const cards = rowFiles.flatMap(file => {
   const set = JSON.parse(readFileSync(file, 'utf8'));

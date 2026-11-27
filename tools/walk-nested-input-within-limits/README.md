@@ -9,7 +9,7 @@ The one guard for walking untrusted nested input: an imported document, pasted r
 | `read-data/bounded-walk-core.mjs` | The canonical iterative walker, unchanged from the exact archived source. |
 | `read-data/bounded-walk.mjs` | Forwards the library exports and keeps `checkNested(input)` plus the container JSON command. |
 | `read-data/bounded-walk.json` | The limits (`max_depth` 100, `max_nodes` 100,000) and the words for each reason. |
-| `tool-rows.json` | `tool:check-nested-input`, a `container` row with no internet. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:check-nested-input`, a `container` row with no internet. |
 | `part.json` | The code and its limits are public. |
 | `test/bounded-walk.test.mjs` | The original tests (iterative depth refusal, node limit, cycle, visitor refusal, shared object, custom children) and the row's sample run. |
 
@@ -32,4 +32,4 @@ Both this package's public entry and the historical root `tools/bounded-walk.mjs
 
 **Depends on:** Node's standard library only.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

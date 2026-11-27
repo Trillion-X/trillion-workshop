@@ -8,7 +8,7 @@ import { readAMethod } from '../method-rows/view.mjs';
 import { recordMethodAnswers } from '../method-rows/answers.mjs';
 import { memoryDoor, run } from './fixtures.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const settings = JSON.parse(readFileSync(new URL('../method-rows/settings.json', import.meta.url), 'utf8'));
 const VIEW = 'list-view:sample-methods:sample-method';
 const ROW = name => `record:method-row:sample-methods~${name}`;

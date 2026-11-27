@@ -10,7 +10,7 @@ import { addPooledSituation, howSimilarResultsTurnedOut, randomizeAResult } from
 import { truthProbability } from '../read-data/pooled-learning.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/pooled-results.json', import.meta.url), 'utf8'));
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const rules = { epsilon: 1.0986, min_people: 10, shards: 16, query_epsilon: 1, people_bucket: 5, share_step: 0.05, min_similarity: 0.55 };
 const situationType = `record:${settings.situations.row_type}`;
 const resultType = `record:${settings.results.row_type}`;

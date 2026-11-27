@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:run-an-installed-apps-command-line row in tool-rows.json, do-work/run-installed-cli and test/run-installed-cli.test.mjs",
+  "drafted_from": "tool:run-an-installed-apps-command-line row in what-this-tool-does-and-how-to-run-it.json, do-work/run-installed-cli and test/run-installed-cli.test.mjs",
   "start_here": "Say to your AI: \"Run the command line inside my installed Zorblet app with render --out clip.mp4; the entry is Contents/Resources/app.asar.unpacked/node_modules/zorblet/bin/zorblet.mjs.\" It runs the app's own program on your computer and reports what it printed and its exit code.",
   "lists": [],
   "no_lists_because": "It names no list: it launches the command-line entry an installed app keeps inside itself and passes the app's own output and exit code back.",

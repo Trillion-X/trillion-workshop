@@ -5,7 +5,7 @@ import test from 'node:test';
 import { answerOf, rowOf, select } from '../../../test-helpers/run-a-row.mjs';
 import { creditKeptLines } from '../do-work/credit-kept-lines-to-their-writer.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 
 test('kept lines are credited to their first writer and versions that are not a list are refused', () => {
   assert.deepEqual(creditKeptLines({ versions: [{ by: 'ai', text: 'Intro\nBody' }, { by: 'person', text: 'Intro\nBody rewritten' }] }), { by: { ai: 1, person: 1 }, kept: 2, versions: 2 });

@@ -25,7 +25,7 @@ The address is never answered (a share's key is in it); the answer names its hos
 | `do-work/measure-first-frame.mjs` | `measureFirstFrame(input, { launch? })`, `checkInput`, `findBrowser`, and the command (stdin JSON in, `{ result }` out) |
 | `do-work/shape-the-result.mjs` | `median`, `deliveredBytes`, `mediansOf`, `againstBar`, `shapeResult`: pure, no browser |
 | `read-data/measure-first-frame.json` | DATA: defaults, bounds, browser places, the bar and where each number comes from |
-| `tool-rows.json` | The row `tool:measure-first-frame`, run on the person's own computer |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:measure-first-frame`, run on the person's own computer |
 | `test/measure-first-frame.test.mjs` | The shaping on made-up numbers; the input checks; a real Chromium measuring a generated video served by Range from a loopback server (skipped, with its reason, where Chromium or ffmpeg is missing) |
 
 ## Dependencies

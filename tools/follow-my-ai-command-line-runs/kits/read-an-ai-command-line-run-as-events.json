@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/follow-my-ai-command-line-runs/tool-rows.json (tool:read-an-ai-command-line-run-as-events), do-work/follow-runs.mjs, read-data/ai-command-lines.json and test/session-runs.test.mjs",
+  "drafted_from": "tools/follow-my-ai-command-line-runs/what-this-tool-does-and-how-to-run-it.json (tool:read-an-ai-command-line-run-as-events), do-work/follow-runs.mjs, read-data/ai-command-lines.json and test/session-runs.test.mjs",
   "start_here": "Say to your AI: \"Read the Claude Code run I saved in run.jsonl as events and tell me which tools it started and what it replied.\" It runs the reader on your computer and lists one event per line.",
   "lists": [],
   "no_lists_because": "It only reads a saved run stream from a file and prints events; it keeps no list of yours.",

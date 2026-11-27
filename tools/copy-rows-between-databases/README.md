@@ -9,7 +9,7 @@ Why: a workflow that carries whole rows through step answers and parameters make
 | File | Purpose |
 |------|---------|
 | `do-work/copy-rows.mjs` | The process `tool:copy-rows-between-databases` runs: reads the request on stdin, the source's connection string on descriptor 3 and the destination's on descriptor 4, copies each key's row whole as JSON in one destination transaction, prints `{ copied, updated, kept, missing, keys }`. `on_conflict` `do_nothing` keeps a key the destination has; `update_when_newer` replaces it when `version_column` is smaller there. A row's version is the md5 of the whole row as JSON. |
-| `tool-rows.json` | The Workshop row: input and output schemas, `credential_mounts` (descriptor 3 and 4 from `source_credential_name` and `destination_credential_name`), `internet: true` (the run's proxy only) and the pinned `pg` tarballs. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row: input and output schemas, `key` (descriptor 3 and 4 from `source_credential_name` and `destination_credential_name`), `may_reach` (the run's proxy only) and the pinned `pg` tarballs. |
 | `kits/copy-rows-between-databases.json` | Start here and a worked example. |
 | `package.json` | The tests' own packages: `pg` and `embedded-postgres` (a real PostgreSQL started in a temp folder). |
 | `part.json` | Nothing here is imported by other code. |

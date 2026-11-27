@@ -14,7 +14,7 @@ const LARGEST_BYTES = 341_851_041;
 const READ_BYTES_PER_SECOND = 1_300_000;
 const READ_MS = Math.ceil((LARGEST_BYTES / READ_BYTES_PER_SECOND) * 1000);
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'))
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'))
   .records.map(record => record.payload).find(payload => payload.id === 'tool:hear-a-recording');
 
 test('hear-a-recording declares its own run limit as a whole number of milliseconds within the engine ceiling', () => {

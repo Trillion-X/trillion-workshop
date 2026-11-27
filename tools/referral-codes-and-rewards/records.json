@@ -162,9 +162,8 @@
       ]
      },
      "workdir": "/opt/referral-codes-and-rewards",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/referral-codes-and-rewards/do-work/referral-rewards.mjs",
@@ -432,9 +431,8 @@
       ]
      },
      "workdir": "/opt/referral-codes-and-rewards",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/referral-codes-and-rewards/do-work/referral-rewards.mjs",
@@ -664,9 +662,8 @@
       ]
      },
      "workdir": "/opt/referral-codes-and-rewards",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "/opt/workflows/do-work/run-a-function.mjs",
       "/opt/referral-codes-and-rewards/do-work/referral-rewards.mjs",
@@ -797,7 +794,7 @@
      },
      "workdir": "/opt/parts/referral-codes-and-rewards",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/withdraw-a-referral-code.mjs",
       {

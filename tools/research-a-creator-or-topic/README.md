@@ -29,7 +29,7 @@ What a run keeps is chosen by the request, not by this folder. A seed is words o
 | `do-work/harvest-posts.mjs` | `tool:keep-public-posts-by-link` (`keepPublicPostsByLink`, run by `tools/workflows/do-work/run-a-function.mjs`): public posts through a public mirror. |
 | `do-work/fetch_forum_posts.py` | `tool:keep-forum-posts-from-a-public-archive`: forum posts through a public archive, one JSON request on standard input, `{result}` on the last line. |
 | `do-work/harvest-settings.json` | Every setting of that queue: where yt-dlp is looked for, the arguments of each request, the wait range, the refusal words and the pause after one, the requests and seconds of one run, the bounds of the input and of each file, the record type the answered rows carry, and the fields a caption line and a comment keep. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder. |
 | `test/sources.test.mjs` | The readers on made-up feeds, listings, results, lists and sidebars. |
 | `test/commands.test.mjs` | The commands, with the network and yt-dlp stood in for. |
 | `test/harvest-channels.test.mjs` | The queue on a made-up site: newest and skipped videos, waits, the run's budget and request bound, refusals and their doubling pause, file bounds, comments, rows over held rows, refused input, and that the row and the settings agree. |
@@ -64,5 +64,5 @@ A prospect (a company or a business to sell to) is researched the way a creator 
 
 **Depends on:** Node 22 or later; `yt-dlp` on the person's computer for the channel and captions steps; `tools/workflows` (`do-work/run-a-function.mjs`), packed by the keep rows.
 
-**Depended on by:** `tool-rows.json` and Trillion's deploy (it bundles the files a row names).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` and Trillion's deploy (it bundles the files a row names).
 - The library script this came from also downloaded each post's photos next to the post. `tool:keep-public-posts-by-link` keeps the photos' addresses in the post (`media`) and downloads none: the engine's outputs are a fixed list of files, and a file per photo is not one.

@@ -9,7 +9,7 @@ Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the ol
 | File | Purpose |
 |------|---------|
 | `do-work/pull_window.py` | The command: the request on standard input (or `--request FILE`); `--base FOLDER` is where a relative `out` is written. Modes `window` and `frame`. Prints a sentence, then `{"result": {...}}` as its last line, or `{"error": ...}`. |
-| `tool-rows.json` | `tool:pull-a-time-window-from-a-stored-camera-file`, a `computer` row with `start-a-program` (the reader, ffmpeg, ffprobe) and `change-a-folder` (where `out` goes). Its sample runs stand in for the reader, ffprobe and ffmpeg; one takes its settings row as the record handed in. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:pull-a-time-window-from-a-stored-camera-file`, a `computer` row with `start-a-program` (the reader, ffmpeg, ffprobe) and `change-a-folder` (where `out` goes). Its sample runs stand in for the reader, ffprobe and ffmpeg; one takes its settings row as the record handed in. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/test_pull_window.py` | A made-up camera file drawn by ffmpeg and served by a stand-in reader: window length and lead silence, which bytes are read, frame mode reads one video packet, retry and refusal, credentials; storage from settings, a top-level key winning, out in the granted folder. |
 | `test/fake_reader.py` | The stand-in reader: serves a byte range of a local file and logs every range it served. |
@@ -43,7 +43,7 @@ Moved from a film's tools folder (`b2_audio_window.py`). The algorithm is the ol
 
 **Depends on:** Python 3.10 or later, ffmpeg and ffprobe, the person's reader command, and `tools/settings` (the settings reader its row packs).
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Invariants
 

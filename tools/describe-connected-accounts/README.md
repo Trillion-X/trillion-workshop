@@ -21,7 +21,7 @@ Moved byte for byte from Trillion-X/trillion (commit b92aa549f2) by `tools/move-
 | `do-work/describe-connected-accounts.mjs` | The row's run. |
 | `test/connected-accounts.test.mjs` | The original module assertions. |
 | `test/describe-connected-accounts.test.mjs` | The row's run. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `moved-from.json` | Where each moved file came from and its identities. |
 | `part.json` | Public files. |
 | `web/src/connector-screen.mjs` | The Find a connector section of Connections as guide DATA: a search box, then each connector the public catalogs answered with (name, what it does, where it was found) and Use, which adds it through the add-a-tool-server tool. Moved byte for byte from the web client (`moved-from.json`); it imports `src/connection-card-words.mjs` of this folder. |

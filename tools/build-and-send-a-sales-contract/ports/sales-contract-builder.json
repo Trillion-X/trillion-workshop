@@ -53,7 +53,7 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "tools/build-and-send-a-sales-contract/tool-rows.json sample run (tool:plan-what-a-sent-deal-sets-up)"
+   "tools/build-and-send-a-sales-contract/what-this-tool-does-and-how-to-run-it.json sample run (tool:plan-what-a-sent-deal-sets-up)"
   ]
  }
 }

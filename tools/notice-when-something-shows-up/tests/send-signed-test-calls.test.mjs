@@ -78,11 +78,11 @@ test('a request that cannot be sent is refused by what to fix, and no secret is 
 });
 
 test('the row mounts the held secret on a private pipe, reaches the internet, and its sample signs a made-up call', () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map((record) => record.payload)
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map((record) => record.payload)
     .find((payload) => payload.id === 'tool:send-signed-test-calls');
   assert.ok(row);
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'secret_name', fd: 3 }]);
-  assert.equal(row.invoke.internet, true);
+  assert.deepEqual(row.invoke.key, [{ secret_name_from_input: 'secret_name', fd: 3 }]);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.ok(row.input_schema.required.includes('secret_name'));
   assert.equal(row.verify[0].kind, 'sample-run');
   assert.ok(row.verify[0].held, 'the sample names a made-up held secret');

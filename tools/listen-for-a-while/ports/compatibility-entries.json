@@ -39,7 +39,7 @@
     {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/live-audio-stream.ts", "why": "This is the existing browser connection/replay helper, not either voice-loop/session facade."},
     {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/show/live-audio-stream.json", "why": "This is stream codec and retry settings DATA."},
     {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/test/", "why": "These are the actual helper behavior and facade-binding tests, not an independently runnable implementation of the forwarding job."},
-    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/tool-rows.json", "why": "This declares listening tool invocations and verification DATA."},
+    {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/what-this-tool-does-and-how-to-run-it.json", "why": "This declares listening tool invocations and verification DATA."},
     {"repository": "trillion-workshop", "path": "tools/listen-for-a-while/source-baselines/", "why": "These exact committed source snapshots are inactive proof artifacts for the individually named source-first contracts; they are not imported or executed as facades."},
     {"repository": "trillion-workshop", "path": "tools/record-voice-and-meetings/", "why": "This is the existing browser recording/stream implementation owner. Its algorithms are reused separately rather than classified as these compatibility seams."},
     {"repository": "trillion-workshop", "path": "tools/type-what-i-say/", "why": "This owns dictation and its hands-free key-mode settings, not forwarding of these module exports."},

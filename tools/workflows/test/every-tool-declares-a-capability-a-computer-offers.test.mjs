@@ -22,7 +22,7 @@ test('every capability a tool row declares is one the engine reports', { skip: L
   const offered = new Set(JSON.parse(readFileSync(LIST, 'utf8')).capabilities.map(capability => capability.id));
   const refused = [];
   for (const folder of readdirSync(TOOLS, { withFileTypes: true }).filter(entry => entry.isDirectory())) {
-    const file = new URL(`${folder.name}/tool-rows.json`, TOOLS);
+    const file = new URL(`${folder.name}/what-this-tool-does-and-how-to-run-it.json`, TOOLS);
     if (!existsSync(file)) continue;
     for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
       for (const capability of payload?.invoke?.capabilities ?? []) {

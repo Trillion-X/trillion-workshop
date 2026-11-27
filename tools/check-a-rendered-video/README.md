@@ -21,7 +21,7 @@ The limits live as one row of the person's generic `list:settings` (type `record
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:check-a-rendered-video`: `on-your-computer`, with the commands that fetch it and run it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:check-a-rendered-video`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/check_a_rendered_video.py` | The command: `check <video>` or `batch <videos-dir>`; and `review-pack`, `variety`, `declare`, `map-add` (below). |
 | `do-work/rendercheck/cli.py` | Reads the options, runs each check, prints the report and the last-line JSON. |
@@ -143,7 +143,7 @@ The overlay is `--overlay` or the spec's `overlay_file`, with its timeline (the 
 
 The landmark helper's optional text mode also needs the AppKit and Quartz bindings. Like its source reference, it decodes through AppKit and passes that CGImage to the same `faces()` detector, using that image's pixel dimensions. It takes the first observation and averages both eye ratios. A missing contour, a contour of at most two points, or zero contour width contributes `-1`, including in that mean. No face or a first face without landmarks prints `no face`; an unreadable image prints `unreadable`. The JSON mode keeps its URL input, all observations and normalized bottom-left boxes; missing contours are `null` rather than a crash. Its source-derived formatting, input and coordinate checks are part of the existing `test/test_held_face.py` runner.
 
-**Depended on by:** `tool-rows.json` (`tool:check-a-rendered-video`), run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:check-a-rendered-video`), run on the person's computer by their AI.
 
 ## Limits
 

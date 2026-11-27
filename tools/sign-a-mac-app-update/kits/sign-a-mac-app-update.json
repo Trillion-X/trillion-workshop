@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:sign-a-mac-app-update row in tool-rows.json, do-work/sign-a-mac-app-update.mjs and test/sign-a-mac-app-update.test.mjs",
+  "drafted_from": "tool:sign-a-mac-app-update row in what-this-tool-does-and-how-to-run-it.json, do-work/sign-a-mac-app-update.mjs and test/sign-a-mac-app-update.test.mjs",
   "start_here": "Say to your AI: \"Sign this Mac app update record with my release key so installed apps accept the update\", and give it the record's signed lines joined by newlines. It runs tool:sign-a-mac-app-update and hands you the signature in base64, without the key ever leaving your vault.",
   "lists": [],
   "no_lists_because": "It names no list: it signs the text it is given with the release key held in your vault and answers a name and a signature.",

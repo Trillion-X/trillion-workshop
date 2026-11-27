@@ -10,7 +10,7 @@
 //                  files it names (`invoke.outputs`, one path or a whole folder) in the caller's own namespace, and
 //                  returns stdout, stderr, the exit code and those files. A SHARED row may also reach the network,
 //                  keep files under their BLAKE3 identity with an address, and read a connection's values as files
-//                  (`invoke.credential_mounts`), placed by the host when the container starts and never returned: no
+//                  (`invoke.key`), placed by the host when the container starts and never returned: no
 //                  file it leaves behind may be one of them.
 // repo explorer    downloads one commit of a public repository, asks the planner model how to make it do the job on
 //                  the sample input (the model only reads text and only proposes commands, which run inside the
@@ -366,11 +366,11 @@ export function keptName({ tool = null, task = {}, input = null, output }) {
   return `${folder}/${started || plain(task.task_id) || 'A run'}/${inside}`;
 }
 
-// A container tool's row may reach the network (`invoke.internet: true`) and read a connection's values as files
-// (`invoke.credential_mounts`, handed over by the runner's `mount`); both are honoured only for a SHARED row, so a tool
+// A container tool's row may reach the network (`invoke.may_reach`) and read a connection's values as files
+// (`invoke.key`, handed over by the runner's `mount`); both are honoured only for a SHARED row, so a tool
 // someone saved or published runs sealed: it reads the person's files it was given as local files (placements) and
 // leaves the files it names (`invoke.outputs`) in the caller's own namespace, and nothing leaves the container.
-export const runsSealed = (invoke, fromSharedRow) => invoke?.kind === 'container' && !(fromSharedRow && invoke.internet === true);
+export const runsSealed = (invoke, fromSharedRow) => invoke?.kind === 'container' && !(fromSharedRow && Array.isArray(invoke.may_reach));
 const within = (path, root) => path === root || path.startsWith(`${root.replace(/\/+$/, '')}/`);
 // An output marked `keep_in: "files"` goes into the person's own namespace (`files.keep`, streamed when the sandbox can)
 // under keptName's plain name; any other output is kept by its identity in the tool files store.
@@ -384,7 +384,7 @@ export function containerTool({ sandboxFor, readBytes, putBytes, addressOf }) {
     const open = shared ? null : outputs.find(output => output.keep_in !== 'files');
     if (open) throw new Error(`This tool would keep its ${open.name} where others could read it; a tool someone saved keeps its files only in the files of the person running it (keep_in "files").`);
     // A run relayed through a gateway gets the relay's key instead of the person's own connection values.
-    const wanted = relayMounts.length ? [] : invocation.credential_mounts ?? [];
+    const wanted = relayMounts.length ? [] : invocation.key ?? [];
     if (wanted.length && !mount) throw new Error('This tool reads a connection\'s value inside its container, and none can be given to it here.');
     const kept = outputs.find(output => [...wanted, ...relayMounts].some(item => within(String(output.path ?? output.folder), String(item.mount_path)) || within(String(item.mount_path), String(output.path ?? output.folder))));
     if (kept) throw new Error(`This tool would leave ${kept.name} at ${kept.path ?? kept.folder}, where a connection's value is placed, so it is not run.`);
@@ -409,7 +409,7 @@ export function containerTool({ sandboxFor, readBytes, putBytes, addressOf }) {
       if (!staged.ready) throw new InputStagingPending(staged.state);
     }
     return runFrozen({
-      sandbox, bytes, workdir: invocation.workdir, argv: invocation.argv,
+      sandbox, bytes, workdir: invocation.workdir, argv: invocation.run,
       // `invoke.stdin`: what the command reads on standard input (text as written, anything else as JSON), for input
       // larger than a command line holds.
       stdin: invocation.stdin === undefined ? null : new TextEncoder().encode(typeof invocation.stdin === 'string' ? invocation.stdin : JSON.stringify(invocation.stdin)),
@@ -795,7 +795,7 @@ export function repoExplorer({ sandboxFor, licenceClasses, plan, putBytes, fetch
       input_schema: { type: 'object', required: inputFields, additionalProperties: false, properties: Object.fromEntries(inputFields.map(field => [field, schemaFor(field)])) },
       output_schema: { type: 'object', required: ['stdout'], properties: { stdout: { type: 'string', minLength: 1 }, ...(outputs.length ? { files: { type: 'object' } } : {}) } },
       verify: [{ kind: 'sample-run', input: sample, output_selector: '$.stdout', contains: request.expect_contains }],
-      invoke: { kind: 'container', files: fingerprint, workdir: '/work', argv, stdin: { fill: { from: 'input' } }, ...(outputs.length ? { outputs } : {}) },
+      invoke: { kind: 'container', files: fingerprint, workdir: '/work', run: argv, stdin: { fill: { from: 'input' } }, ...(outputs.length ? { outputs } : {}) },
       needs: { network_egress: false, expected_seconds: 30 },
       bytes_fingerprint: fingerprint,
       licence_class: licenceClass,

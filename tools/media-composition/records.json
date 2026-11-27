@@ -188,9 +188,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/find-action-moments.mjs",
       {
@@ -393,9 +393,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/detect-events.mjs",
       {
@@ -603,9 +603,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/detect-scenes.mjs",
       {
@@ -808,9 +808,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/detect-silence.mjs",
       {
@@ -1009,9 +1009,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/detect-beats.mjs",
       {
@@ -1237,7 +1237,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -1295,7 +1295,7 @@
        ]
       }
      },
-     "argv": [
+     "run": [
       "node",
       "do-work/reframe-to-a-size.mjs",
       "--video",
@@ -1620,9 +1620,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/change-speed-over-a-range.mjs",
       "--video",
@@ -2043,7 +2043,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -2101,7 +2101,7 @@
        ]
       }
      },
-     "argv": [
+     "run": [
       "node",
       "do-work/cut-and-caption.mjs",
       "--video",
@@ -2537,7 +2537,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -2595,7 +2595,7 @@
        ]
       }
      },
-     "argv": [
+     "run": [
       "node",
       "do-work/cut-and-caption.mjs",
       "--video",
@@ -2921,9 +2921,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/render-an-edit.mjs",
       "--output",
@@ -3196,7 +3196,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
      "programs": {
       "ffmpeg": {
@@ -3254,7 +3254,7 @@
        ]
       }
      },
-     "argv": [
+     "run": [
       "node",
       "do-work/render-an-edit.mjs",
       "--edl",
@@ -3474,9 +3474,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/measure-loudness.mjs",
       {
@@ -3700,9 +3700,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/save-cover-frame.mjs",
       "--video",
@@ -3897,9 +3897,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "may_reach": [],
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/export-editor-timeline.mjs",
       "--edl",
@@ -4075,7 +4075,7 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "programs": {
       "ffmpeg": {
        "fetch": {
@@ -4105,7 +4105,7 @@
        ]
       }
      },
-     "argv": [
+     "run": [
       "ffmpeg",
       "-v",
       "error",
@@ -4307,9 +4307,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "python3",
       "do-work/find-recurring-voices.py"
      ],
@@ -4630,7 +4630,7 @@
      },
      "workdir": "/opt/media-composition",
      "stdout": "json",
-     "argv": [
+     "run": [
       "python3",
       "do-work/blur-faces-not-agreed.py",
       "--picture"
@@ -4963,7 +4963,7 @@
      },
      "workdir": "/opt/media-composition",
      "stdout": "json",
-     "argv": [
+     "run": [
       "python3",
       "do-work/blur-faces-not-agreed.py"
      ],
@@ -5195,9 +5195,8 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "python3",
       "do-work/name-a-voice.py"
      ],
@@ -5519,9 +5518,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/layer-over-video.mjs",
       "--video",
@@ -5870,9 +5869,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/layer-over-video.mjs",
       "--video",
@@ -6030,9 +6029,8 @@
       }
      },
      "workdir": "/opt/media-composition",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/relink-editor-projects.mjs",
       "--moves",
@@ -6186,9 +6184,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true,
+     "may_reach": [],
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/use-an-app-here.mjs",
       "--app",
@@ -6548,9 +6546,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/grade-a-video.mjs",
       "--video",
@@ -6972,9 +6970,9 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": true, "public_read": true,
+     "may_reach": [], "public_read": true,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/grade-a-video.mjs",
       "--video",
@@ -7134,9 +7132,8 @@
       ]
      },
      "workdir": "/opt/media-composition",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/suggest-media-cuts.mjs"
      ],

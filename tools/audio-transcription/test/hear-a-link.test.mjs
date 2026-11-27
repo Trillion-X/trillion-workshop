@@ -149,7 +149,7 @@ test('tool:hear-a-link answers the words with no door and declares no records or
   });
   assert.equal(answer.text, 'spoken words');
   assert.equal(answer.source, 'heard');
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
   const row = rows.map(r => r.payload).find(p => p.id === 'tool:hear-a-link');
   assert.equal(row.invoke.records, undefined);
   assert.equal('keep_sound' in row.input_schema.properties, false);

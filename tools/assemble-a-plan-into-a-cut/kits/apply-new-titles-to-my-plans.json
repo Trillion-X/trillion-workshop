@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/plans.py, test/test_assemble.py",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/what-this-tool-does-and-how-to-run-it.json, do-work/plans.py, test/test_assemble.py",
   "start_here": "Say to your AI: \"Put the new titles from my titles file into the plans in plans/ and fix every card that names an old title.\" It runs retitle, or titles-table to show the table first.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: you hand it a titles list in the request file and it rewrites the plan files in the folder you name.",

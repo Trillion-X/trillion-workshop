@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:media-analysis row in tool-rows.json, do-work/meaning_index.py and test/test_meaning_index.py",
+  "drafted_from": "tool:media-analysis row in what-this-tool-does-and-how-to-run-it.json, do-work/meaning_index.py and test/test_meaning_index.py",
   "start_here": "Say to your AI: \"Index my bakery clips red.png and blue.png and the two talk transcripts, then find which talk is about baking bread in the morning.\" It writes a requests file, runs the index on your computer and tells you which recording matched and where.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it reads a requests file, answers one line per request, and your AI keeps the vectors it returns under each recording's identity.",

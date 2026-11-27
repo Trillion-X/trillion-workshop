@@ -25,7 +25,7 @@ A tool takes `settings_record` in its request: the record as the person's store 
 | `read-data/settings-table.json` | The table's statements (create, select, insert, update) with `{table}` where the role's `schema.table` goes, and the timeout. |
 | `read-data/settings.mjs` | The same for JavaScript tools: `settingId`, `parseId`, `makeRecord`, `chosen`, `settingsOf`, `setting`, `handedRecord`, `settingsFor`, `layOver`, `isSettingId`. |
 | `do-work/read_setting.py` | `tool:read-a-tool-setting`: one JSON request in (read or make), one JSON line out. A make answers `keep`: each row with `expected`, the row as handed in `stored.records` (`{type, value}`) or `null` when it was not there, so the store refuses a write made from a stale read. |
-| `tool-rows.json` | The row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. |
 | `test/test_settings.py`, `test/settings.test.mjs` | Ids, scope choice, the default, every refusal, the command, `keep` with `expected`, and the two readers agreeing. Made-up rows only. |
 | `test/settings-store.test.mjs` | The settings table's role, the read and create statements, compare-and-set writes against a stand-in run that keeps rows in memory (a stale write refused by id), the carry, and `statement_timeout_ms` on every statement. |
 | `test/handed-rows.test.mjs` | A named row read from the rows handed in, the merge, and the refusals when it was not handed, in JavaScript and Python. |

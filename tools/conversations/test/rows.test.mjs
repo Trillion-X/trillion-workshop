@@ -10,13 +10,13 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const row = id => rows.find(item => item.id === id);
 const skip = spawnSync('python3', ['--version']).status === 0 ? false : 'needs python3';
 
 // The command a row runs: its argv with /opt/conversations laid on this folder and the folder grant filled.
 function run(item, granted, input) {
-  const argv = item.invoke.argv.map(part => (typeof part === 'string' ? part.replace('/opt/conversations', folder) : granted));
+  const argv = item.invoke.run.map(part => (typeof part === 'string' ? part.replace('/opt/conversations', folder) : granted));
   const ran = spawnSync(argv[0], ['-B', ...argv.slice(1)], { input: input === undefined ? '' : JSON.stringify(input), encoding: 'utf8' });
   return { status: ran.status, answer: JSON.parse(ran.stdout.trim().split('\n').at(-1)) };
 }
@@ -39,10 +39,10 @@ test('the read row runs on the person\'s computer over a granted folder, reaches
   const item = row('tool:read-an-export-of-my-conversations');
   assert.equal(item.invoke.kind, 'computer');
   assert.deepEqual(item.invoke.capabilities, ['read-a-folder']);
-  assert.notEqual(item.invoke.internet, true);
+  assert.equal(item.invoke.may_reach, undefined);
   assert.deepEqual(item.placements, ['placement:your-computer']);
   assert.equal(item.result_selector, '$.result');
-  assert.deepEqual(item.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
+  assert.deepEqual(item.invoke.run.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
   // read-data is packed whole, so chat-import.mjs travels with the reader; its relative imports (checked by
   // test/every-tool-row-imports.test.mjs) are packed beside it, from the packages that own them.
   const [own, ...imported] = item.invoke.files.package_files;
@@ -72,7 +72,7 @@ test('the read row\'s command refuses a file outside the folder and says what to
 test('the list row runs in a container with no folder and its sample run is the line the engine checks', { skip }, () => {
   const item = row('tool:list-the-kinds-of-conversation-export-i-can-read');
   assert.equal(item.invoke.kind, 'container');
-  assert.notEqual(item.invoke.internet, true);
+  assert.equal(item.invoke.may_reach, undefined);
   const { status, answer } = run(item, null, undefined);
   assert.equal(status, 0);
   const [check] = item.verify;

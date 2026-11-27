@@ -21,7 +21,7 @@ import { engineCarrier, flagOf, keptFolderOf, wakeOf } from '../do-work/tell-the
 import { runResidentEmitter, THIS_TOOL } from '../do-work/emit-arrival-fact.mjs';
 import { folderPlaces, keptKeyOf, placesFor, PLACES_TABLE } from '../do-work/kept-places.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
 const ROW = ROWS[0].payload;
 /** The row's own row-changes waiter, reading its source's change table (`table`) again every second. */
 const waiterOver = table => {
@@ -126,10 +126,10 @@ test('the kept key names the wake that started the run, and the row gives the ru
   assert.deepEqual(keptKeyOf({ wake: null, waiterRef: 'waiter:row-changes', addressLabel: 'where::something-changed' }),
     { as: 'waiter:row-changes@where::something-changed', carriedFrom: null }, 'a run no wake started keeps under the key without one');
   assert.deepEqual(keptKeyOf({ wake: 'keep-noticing', addressLabel: 'clock::due' }), { as: 'keep-noticing|clock::due', carriedFrom: 'clock::due' });
-  const programs = ROWS.filter(row => row.payload.invoke?.argv?.includes('do-work/tell-the-engine.mjs'));
+  const programs = ROWS.filter(row => Array.isArray(row.payload.invoke?.run) && row.payload.invoke.run.includes('do-work/tell-the-engine.mjs'));
   assert.ok(programs.length >= 2);
   for (const record of programs) {
-    const { argv } = record.payload.invoke;
+    const { run: argv } = record.payload.invoke;
     assert.deepEqual(argv.slice(argv.indexOf('--wake')), ['--wake', { fill: { from: 'task', field: 'cause.wake' } }], record.id);
   }
   assert.equal(wakeOf(['--keep', '/k', '--wake', NOTES_COPY]), NOTES_COPY);

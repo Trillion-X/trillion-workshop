@@ -3,7 +3,7 @@
 // would. A post is kept once: asking again with the same key keeps nothing. Every value here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { listASpacesPosts, listMySpacesAndEvents, postInASpace } from '../do-work/space-members.mjs';
 import { KINDS, rowId } from '../read-data/space-rows.mjs';
 
@@ -70,6 +70,6 @@ test('the three tool rows sit beside the membership rows and run their functions
   for (const [id, fn] of Object.entries(expect)) {
     const row = rows.records.find(record => record.payload.id === id);
     assert.ok(row, `${id} exists`);
-    assert.equal(row.payload.invoke.argv.at(-1), fn);
+    assert.equal(row.payload.invoke.run.at(-1), fn);
   }
 });

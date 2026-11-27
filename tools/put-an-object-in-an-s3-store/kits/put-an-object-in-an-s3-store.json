@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:put-an-object-in-an-s3-store row in tool-rows.json, do-work/put-object.mjs and test/put-object.test.mjs",
+  "drafted_from": "tool:put-an-object-in-an-s3-store row in what-this-tool-does-and-how-to-run-it.json, do-work/put-object.mjs and test/put-object.test.mjs",
   "start_here": "Say to your AI: \"Put App.dmg from my release folder into my downloads store as App-202611241617.dmg.\" It runs tool:put-an-object-in-an-s3-store with that folder granted and answers the size, SHA-256 and address of the object.",
   "lists": [],
   "no_lists_because": "It names no list: it writes one file into one key of a bucket whose key the person keeps in their vault.",

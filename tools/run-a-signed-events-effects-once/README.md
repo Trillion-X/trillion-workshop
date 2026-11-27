@@ -9,8 +9,8 @@ Admits signed events as effects and lists a subject's effects, through descripto
 | `part.json` | Which files other code may import (`do-work/signed-event-effects-targets.js`) |
 | `records.json` | The installed descriptors: admission descriptors (owner actions, payment provider events), dispatch policies, the by-subject list descriptor and the two target descriptors |
 | `do-work/signed-event-effects-targets.js` | `admitSignedEventEffects(input)` and `listSignedEventEffects(input)`, each calling `input.send` |
-| `do-work/run-with-given-replies.mjs` | `runSignedEventEffectsWithGivenReplies({ op, descriptor_ref, events, subject, replies })`: one run of either target whose `send` answers from `replies` given in the input and writes every call down in `sent` (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:turn-signed-events-into-effects-once`, with a sample that admits one made-up payment event from a made-up verifier answer |
+| `do-work/run-with-given-replies.mjs` | `runSignedEventEffectsWithGivenReplies({ op, descriptor_ref, events, subject, replies })`: one run of either target whose `send` answers from `replies` given in the input and writes every call down in `sent` (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:turn-signed-events-into-effects-once`, with a sample that admits one made-up payment event from a made-up verifier answer |
 | `README.md` | This file |
 
 ## The row

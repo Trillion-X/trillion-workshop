@@ -1,7 +1,7 @@
 import { realpathSync } from 'node:fs';
 // The container tool: reads one public page the way a crawler does (its served HTML, no script run), the robots.txt of
 // its host and, up to the limit in the checks DATA, the pages it links to, and answers what auditServedHtml finds.
-// Where a request may go is not decided here: the engine runs this tool as internet:true, so Node's own fetch reaches
+// Where a request may go is not decided here: the engine runs this tool with may_reach, so Node's own fetch reaches
 // only the engine's public-only proxy, which judges every address, every redirect and every address a name resolves to.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';

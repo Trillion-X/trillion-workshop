@@ -12,7 +12,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const standIn = join(folder, 'test', 'stand-in');
 let root, log;
 const run = (script, ...argv) => spawnSync('python3', [join(folder, 'do-work', script), ...argv], {

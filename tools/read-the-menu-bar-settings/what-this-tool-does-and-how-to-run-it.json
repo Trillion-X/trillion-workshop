@@ -1,0 +1,118 @@
+{
+ "kind": "tool-rows",
+ "record_set": "read-the-menu-bar-settings-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/read-the-menu-bar-settings: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::read-the-menu-bar-settings::tool::read-the-menu-bar-settings",
+   "address": "package::read-the-menu-bar-settings::tool::read-the-menu-bar-settings",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-the-menu-bar-settings",
+    "label": "Read the Mac menu bar's own settings",
+    "status": "active",
+    "job": "Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
+    "description": "Give the Mac menu bar item's settings (enabled, how far ahead meetings count, the title's length, the app icon) from this tool's own row definitions: each setting with its value (the held answer's when the answer has the right shape, else its default), whether an answer was held, and the change when one is given and the setting allows it; a change it does not allow is refused. Reads nothing and writes nothing: the definitions are this tool's DATA.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "answer": {
+       "type": "object",
+       "description": "The Mac app's answer: { rows: [{ id, kind, value }] }"
+      },
+      "set": {
+       "type": "object",
+       "required": [
+        "id",
+        "value"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "rows",
+        "held"
+       ]
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "read-the-menu-bar-settings",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/read-the-menu-bar-settings"
+       }
+      ]
+     },
+     "workdir": "/opt/read-the-menu-bar-settings",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/read-the-menu-bar-settings/do-work/read-the-menu-bar-settings.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:read-the-menu-bar-settings",
+    "provenance": {
+     "source": "trillion-apps web/src/workspace/panel-settings.mjs (panelSettingsState, KINDS, setPanelSetting) and macos/App/menu-bar-panel.json settings.rows, at commit 21a2de08; the range rule checks limits only, as the app's did"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "answer": {
+        "rows": [
+         {
+          "id": "enabled",
+          "kind": "switch",
+          "value": false
+         }
+        ]
+       }
+      },
+      "output_selector": "$.result.held",
+      "contains": "true"
+     }
+    ]
+   }
+  }
+ ]
+}

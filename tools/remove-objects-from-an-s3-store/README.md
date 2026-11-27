@@ -35,7 +35,7 @@ Whether anyone may read the objects is the bucket's own setting. This tool never
 | File | Purpose |
 |------|---------|
 | `do-work/remove-objects.ts` | `removeObjects(input, { store })`: list, or check the keys, read and remove each; `exactKeys`, the key rule |
-| `tool-rows.json` | The row `tool:remove-objects-from-an-s3-store` (kind `container`, the store's five values on descriptors 3 to 7) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:remove-objects-from-an-s3-store` (kind `container`, the store's five values on descriptors 3 to 7) |
 | `kits/remove-objects-from-an-s3-store.json` | How a person's AI uses the tool, with a worked example |
 | `test/remove-objects.test.ts` | A made-up store held in memory that answers signed HEAD, DELETE and listing: each key's answer, the requests and their signed region, every refusal (nothing sent), one failed key among others, a refused key, a listing |
 
@@ -54,4 +54,4 @@ engine.
 `parseListing`); `tools/put-an-object-in-an-s3-store/do-work/put-object.mjs` (`checkedKey`, the one object key rule); Node's
 `fetch` and `fs`.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

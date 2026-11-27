@@ -40,5 +40,5 @@
       "hands_back": "{\"bookingId\":\"bk1\",\"meetingLink\":\"https://meet.example.com/x\",\"startIso\":\"2026-11-23T16:00:00.000Z\"}"
     }
   ],
-  "drafted_from": "tool row in tools/take-a-booking-one-step-at-a-time/tool-rows.json and steps/serve-booking.ts"
+  "drafted_from": "tool row in tools/take-a-booking-one-step-at-a-time/what-this-tool-does-and-how-to-run-it.json and steps/serve-booking.ts"
 }

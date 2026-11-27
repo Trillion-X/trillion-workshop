@@ -7,7 +7,7 @@ const read = relative => JSON.parse(readFileSync(new URL(relative, import.meta.u
 const id = 'tool:manage-claude-cloud-sessions';
 
 test('Claude Cloud operations are published exactly once with a bounded input schema', () => {
-  const rows = read('../tool-rows.json').records.map(row => row.payload);
+  const rows = read('../what-this-tool-does-and-how-to-run-it.json').records.map(row => row.payload);
   const found = rows.filter(row => row.id === id);
   assert.equal(found.length, 1);
   const tool = found[0];

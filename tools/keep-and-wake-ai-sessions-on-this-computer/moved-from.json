@@ -3143,7 +3143,7 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
       "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
       "identity": "1f:e570c52f5c7e66c81976cd1c23a04f8466a4b3bd9dda2bc8225ce8dd5e3a8b4c",
-      "adapted": "the cards are read from this tool's records/workshop-*.json and every tool folder's tool-rows.json, where the Workshop's rows live now; every assertion is the old one"
+      "adapted": "the cards are read from this tool's records/workshop-*.json and every tool folder's what-this-tool-does-and-how-to-run-it.json, where the Workshop's rows live now; every assertion is the old one"
     },
     {
       "from": "test/kept-range-frontier-recovery.test.mjs",

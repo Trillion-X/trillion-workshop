@@ -96,7 +96,7 @@ test('a long recording answers every row, each under its own id', () => {
 });
 
 test('the row declares no records door and asks for the consent words and earlier rows in the request', () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:keep-who-appeared');
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:keep-who-appeared');
   assert.equal(row.invoke.records, undefined);
   assert.ok(row.input_schema.properties.consents && row.input_schema.properties.earlier);
   assert.ok(row.output_schema.required.includes('rows'));

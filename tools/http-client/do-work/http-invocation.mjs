@@ -66,13 +66,13 @@ function pendingInputFields(problems, schema) {
 // `query` ({ name: leaf }) is read the same way and added to the address as its query string, a list as repeated
 // names; a name whose leaf is left out is not sent.
 // (`body_template` is the notes' own name for the body and is read the same way.)
-// and `credential_injections` and `credential_mounts` become the names the locked box holds: `secret_name` (or
+// and `credential_injections` and `key` become the names the locked box holds: `secret_name` (or
 // `vault_key`) as written, else the service-connections name for `connection_id` + `field_id`.
 // `connection: { vendor, from_input }` (the form the container rows use) takes the connection the caller names in input
 // (`connection_id`: service_connection:<vendor> or service_connection:<vendor>:<account>) in place of a fixed `connection_id`.
-// `argv` (a container tool's command) reads the same `{ from }` leaves, but its text is passed as written: a braced
+// `run` (a container tool's command) reads the same `{ from }` leaves, but its text is passed as written: a braced
 // word in a command is the command's, never a hole.
-const REQUEST_FIELDS = { url: 'address', headers: 'text', body: 'text', body_template: 'text', query: 'text', argv: 'as-written' };
+const REQUEST_FIELDS = { url: 'address', headers: 'text', body: 'text', body_template: 'text', query: 'text', run: 'as-written' };
 const OMIT = Symbol('left out');
 const TIME_STEPS = { days: 86_400_000, hours: 3_600_000, minutes: 60_000 };
 function timeFrom(started, { as, ...moves }) {
@@ -115,10 +115,10 @@ const heldItems = (invoke, field) => (invoke?.before_you_have_a_secret === true 
 export function credentialInjections(invoke) {
   return heldItems(invoke, 'credential_injections').map(item => ({ secret_name: heldName(invoke, item), placement: item.placement }));
 }
-// Values a container tool reads as files (`invoke.credential_mounts: [{ field_id | secret_name, mount_path }]`, the
+// Values a container tool reads as files (`invoke.key: [{ field_id | secret_name, mount_path }]`, the
 // credentials vault's `resolve-one-credential-mount` input shape), named the same way.
 export function credentialMounts(invoke) {
-  return heldItems(invoke, 'credential_mounts').map(item => ({ secret_name: heldName(invoke, item), mount_path: item.mount_path }));
+  return heldItems(invoke, 'key').map(item => ({ secret_name: heldName(invoke, item), mount_path: item.mount_path }));
 }
 const FETCHES = {
   base64: bytes => {
@@ -186,7 +186,7 @@ export async function buildInvocation(template, { input, task, extra = {}, needs
     ...built,
     ...(named === undefined ? {} : { connection_id: named }),
     ...(connected.credential_injections === undefined ? {} : { credential_injections: credentialInjections(connected) }),
-    ...(connected.credential_mounts === undefined ? {} : { credential_mounts: credentialMounts(connected) }),
+    ...(connected.key === undefined ? {} : { key: credentialMounts(connected) }),
   };
 }
 const formPairs = (node, prefix = '') => {

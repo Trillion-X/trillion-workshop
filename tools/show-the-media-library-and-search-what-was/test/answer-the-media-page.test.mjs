@@ -8,7 +8,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:answer-the-media-page');
 const route = (path, method = 'GET', body = {}, query = {}) => ({ path, method, query, body, browser: { user_agent: 'sample', origin: 'https://app.example', visitor: 'visitor-sample' } });
@@ -60,8 +60,8 @@ test('what needs a shared project, a Workshop run or the Namespace\'s owners ans
 
 test('the row opens no door: the file uses it answers are the caller\'s to record', async () => {
   assert.equal(row.invoke.records, undefined);
-  assert.equal(row.invoke.internet, false);
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(row.invoke.may_reach, undefined);
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.ok(!row.invoke.files.package_files.some(spec => spec.package === 'records-door'));
   const kept = await answerOf(row, route('/recent-files', 'POST', { file: FILE, kind: 'viewed' }));
   assert.deepEqual(kept.result, { status: 200, body: { file: FILE, answered_for_the_caller: true }, file_uses: [{ file: FILE, kind: 'viewed' }] });

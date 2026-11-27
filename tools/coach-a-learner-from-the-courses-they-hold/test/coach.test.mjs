@@ -13,7 +13,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { answer, CoachRefusal, HELD_CONNECTIONS, issuerTag, settingsOf } from '../do-work/coach.mjs';
 
 const folder = new URL('../', import.meta.url);
-const rows = JSON.parse(readFileSync(new URL('tool-rows.json', folder), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('what-this-tool-does-and-how-to-run-it.json', folder), 'utf8'));
 
 // The table and column names a school's settings give (made-up names here).
 const names = {
@@ -267,10 +267,10 @@ test('each row mounts the three held connections under the names the code fixes,
   const tools = rows.records.map(record => record.payload);
   assert.equal(tools.length, 3);
   for (const tool of tools) {
-    const mounts = Object.fromEntries(tool.invoke.credential_mounts.map(mount => [mount.fd, mount.secret_name]));
+    const mounts = Object.fromEntries(tool.invoke.key.map(mount => [mount.fd, mount.secret_name]));
     assert.deepEqual(mounts, expected, `${tool.id} mounts the connections the code names`);
-    assert.ok(tool.invoke.argv.at(-1).match(/^(listTheLessonsIHold|readALessonIHold|searchWhatMyCoachTeaches)$/), `${tool.id} names its operation`);
-    assert.ok(!tool.invoke.argv.some(part => part.endsWith('.json')), `${tool.id} reads no settings file: the settings are the school's row`);
+    assert.ok(tool.invoke.run.at(-1).match(/^(listTheLessonsIHold|readALessonIHold|searchWhatMyCoachTeaches)$/), `${tool.id} names its operation`);
+    assert.ok(!tool.invoke.run.some(part => part.endsWith('.json')), `${tool.id} reads no settings file: the settings are the school's row`);
     assert.ok(Object.hasOwn(tool.invoke.packages ?? {}, 'pg'), `${tool.id} ships pg with its pinned tarball`);
   }
   assert.deepEqual(readdirSync(new URL('do-work/', folder)).sort(), ['coach.mjs', 'run.mjs']);

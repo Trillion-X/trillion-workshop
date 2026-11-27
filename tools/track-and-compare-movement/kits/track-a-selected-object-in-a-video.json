@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/track_selected_object.py and test/test_track_selected_object.py (the refusal was run; the model run is read from the code and test)",
+  "drafted_from": "tool row in tools/track-and-compare-movement/what-this-tool-does-and-how-to-run-it.json, do-work/track_selected_object.py and test/test_track_selected_object.py (the refusal was run; the model run is read from the code and test)",
   "start_here": "Say to your AI: \"In /work/square.mp4 follow the white square I pointed at one second in (a point at 34% across and 50% down), for seconds 0 to 3, and write the outline for every frame to /work/square-mask.\" It reads the tool's row and runs track_selected_object.py on your computer with a SAM 2 video model.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",

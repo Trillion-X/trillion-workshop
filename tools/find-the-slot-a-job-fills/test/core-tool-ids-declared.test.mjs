@@ -15,7 +15,7 @@ function toolRowFiles(dir, found = []) {
     if (name === 'from-an-older-version' || name === 'node_modules') continue;
     const path = join(dir, name);
     if (statSync(path).isDirectory()) toolRowFiles(path, found);
-    else if (name === 'tool-rows.json') found.push(path);
+    else if (name === 'what-this-tool-does-and-how-to-run-it.json') found.push(path);
   }
   return found;
 }

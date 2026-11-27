@@ -15,7 +15,7 @@ A thing that is not waiting now, or whose link leads outside `own_origins` or to
 | `read-data/take-me-there.mjs` | `takeMeThere`: finds the card or batch, resolves its link to a screen, and builds the arrangement, walkthrough and notice. Its header lists the invariants. |
 | `read-data/take-me-there.json` | The link parameter names, notice kind, category, sizes, fallback selector, walkthrough trigger and the words of every answer. |
 | `do-work/take-me-there.mjs` | The command of the tool. |
-| `tool-rows.json` | The row, with a sample run. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row, with a sample run. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/take-me-there.test.mjs` | Made-up cards, screens and origins: one pane and its route input, the split, the refusals (not waiting, outside, no screen), prefix choice, the control a step points at, the trigger, a batch, the notice and its link, refused requests, the command and the row. |
 
@@ -32,4 +32,4 @@ A thing that is not waiting now, or whose link leads outside `own_origins` or to
 
 **Depends on:** Node 24 only.
 
-**Depended on by:** `tool-rows.json`; the workflows that name `tool:take-me-there` (`file-what-needs-the-person`, `lead-me-to-it`).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the workflows that name `tool:take-me-there` (`file-what-needs-the-person`, `lead-me-to-it`).

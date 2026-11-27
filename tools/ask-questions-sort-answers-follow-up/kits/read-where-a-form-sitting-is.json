@@ -34,5 +34,5 @@
       "hands_back": "{\"kept\":false,\"next\":{\"key\":\"result\",\"kind\":\"result\"}}"
     }
   ],
-  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and steps/serve-form-page.ts"
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/what-this-tool-does-and-how-to-run-it.json and steps/serve-form-page.ts"
 }

@@ -8,7 +8,7 @@ Turns words into the vector a CLIP picture model gives pictures that show them, 
 |------|---------|
 | `do-work/words-as-picture-vector.py` | The tool's command: one JSON request on standard input (`texts`, optional `model_folder`), one JSON answer out (`model`, `dims`, `vectors`, each unit length). |
 | `part.json` | No public files: only the container runs this code. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:words-as-picture-vector`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row Trillion reads for this folder: `tool:words-as-picture-vector`. |
 
 ## Key Types / Functions
 

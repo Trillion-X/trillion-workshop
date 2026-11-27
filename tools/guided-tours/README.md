@@ -10,7 +10,7 @@ A first-run tour, a feature spotlight, a replay and a quiz that routes by answer
 |------|---------|
 | `do-work/tour.mjs` | The mechanism, pure: `resolveBranch`, `startTour`, `advance`, `retreat`, `jump`, `restart`, `canAdvance` and `createAdvanceOps`, `selectTrigger`, `startEventForTour`, `foldTours`, `selectTourForEvent`. |
 | `do-work/tours.mjs` | The command of all four tools: the verb (`step`, `may-advance`, `find`, `start-event`) is the first argument, one JSON request is on standard input, `{ result }` or `{ error }` is the last line. |
-| `tool-rows.json` | The four tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The four tool rows. |
 | `part.json` | The pure module other tools may import. |
 | `test/tour.test.mjs` | The package's engine and record-fold tests, over made-up bakery tours. |
 | `test/tours-command.test.mjs` | The four commands run as the container runs them. |
@@ -38,4 +38,4 @@ The overlay itself (spotlight, scrim, step cards, placement and target finding o
 
 **Depends on:** Node 24 in the tool container (`node:stream/consumers`).
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.

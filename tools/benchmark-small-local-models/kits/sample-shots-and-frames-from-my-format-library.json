@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/sample_shots_across_groups.py and test/test_benchmark.py (Library)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/sample_shots_across_groups.py and test/test_benchmark.py (Library)",
   "start_here": "Say to your AI: \"Sample up to 5 videos from my format library at formats-library, spread over creators, with 10 evenly spaced shots each, and cut a frame for every shot.\"",
   "lists": [
     {

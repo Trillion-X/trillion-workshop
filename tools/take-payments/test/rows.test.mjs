@@ -26,21 +26,23 @@ function runWithDoor(command, args, input) {
     child.stdin.end(JSON.stringify(input));
   });
 }
-const rows = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const onThisComputer = word => (word.startsWith('/opt/') ? join(tools, word.slice('/opt/'.length)) : word);
 
-const pointsAtRunner = row => row.invoke.argv[1] === '/opt/workflows/do-work/run-a-function.mjs';
+// Whether the row may reach the network at all: it holds may_reach (an empty list: only the hosts its keys are bound to).
+const reaches = row => Array.isArray(row.invoke.may_reach);
+const pointsAtRunner = row => row.invoke.run[1] === '/opt/workflows/do-work/run-a-function.mjs';
 
 test('every row runs the one function runner on a function this folder exports, and mounts no records door', async () => {
   for (const row of rows) {
     // take-payments.mjs, or for the checkout that reads its own offers the file that wraps its function.
-    const module = await import(onThisComputer(row.invoke.argv[2]));
+    const module = await import(onThisComputer(row.invoke.run[2]));
     assert.ok(pointsAtRunner(row), `${row.id} runs through the workflows function runner`);
     assert.ok(!(row.invoke.files?.package_files ?? []).some(spec => spec.package === 'records-door'), `${row.id} mounts no records door`);
-    const name = row.invoke.argv.at(-1);
-    assert.equal(typeof module[name], 'function', `${row.id} names ${name}, which ${row.invoke.argv[2]} exports`);
+    const name = row.invoke.run.at(-1);
+    assert.equal(typeof module[name], 'function', `${row.id} names ${name}, which ${row.invoke.run[2]} exports`);
   }
-  assert.equal(new Set(rows.map(row => row.invoke.argv.at(-1))).size, rows.length, 'one function per row');
+  assert.equal(new Set(rows.map(row => row.invoke.run.at(-1))).size, rows.length, 'one function per row');
 });
 
 test('a row can reach the internet only to talk to Stripe with the person\'s own key, and no row holds a key', () => {
@@ -48,7 +50,7 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     // A row that reads its own offers (start-a-stripe-checkout given a database) also mounts that database's connection, read
     // only under a declared use with the reader login; the row that keeps a Stripe event mounts it with the writer login under a
     // use. Neither is a key, and neither reaches Stripe.
-    const reads = (row.invoke.credential_mounts ?? []).filter(mount => mount.secret_name_from_input === 'database');
+    const reads = (row.invoke.key ?? []).filter(mount => mount.secret_name_from_input === 'database');
     const login = row.id === 'tool:keep-a-stripe-event' ? '-writer-connection' : '-reader-connection';
     for (const mount of reads) {
       assert.deepEqual(mount, { secret_name_from_input: 'database', held_suffix: login, fd: 6, only_when: { input: 'database', present: true },
@@ -56,12 +58,12 @@ test('a row can reach the internet only to talk to Stripe with the person\'s own
     }
     // The webhook signing secret (descriptor 5) checks a call's signature; it never reaches Stripe. Only the rows that check a
     // Stripe call mount it.
-    const signing = (row.invoke.credential_mounts ?? []).filter(mount => mount.fd === 5);
+    const signing = (row.invoke.key ?? []).filter(mount => mount.fd === 5);
     if (signing.length) assert.ok(['tool:check-a-stripe-event', 'tool:keep-a-stripe-event'].includes(row.id), `${row.id} mounts a webhook secret only to check a call`);
     for (const mount of signing) assert.ok(mount.field_id === 'webhook_secret' || (mount.secret_name_from_input === 'webhook_secret_name' && mount.share_by_listing === true && mount.held_suffix === undefined), `${row.id} mounts the webhook secret by its name or the connection's field`);
-    const mounts = (row.invoke.credential_mounts ?? []).filter(mount => !reads.includes(mount) && !(row.invoke.internet && signing.includes(mount)));
-    if (row.invoke.internet) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);
-    if (mounts.length) assert.ok(row.invoke.internet || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
+    const mounts = (row.invoke.key ?? []).filter(mount => !reads.includes(mount) && !(reaches(row) && signing.includes(mount)));
+    if (reaches(row)) assert.equal(new Set(mounts.map(mount => mount.fd)).size, 1, `${row.id} reaches Stripe on one descriptor`);
+    if (mounts.length) assert.ok(reaches(row) || row.id === 'tool:check-a-stripe-event', `${row.id} mounts a secret only to use it`);
     // The key is the seller's own: the run's input names it, by its vault name, by the account it is held for, or as a field
     // of the seller's Stripe connection. The row never names a key.
     for (const mount of mounts) {
@@ -112,7 +114,7 @@ test('each sample run answers what the row says it should', async () => {
     // A sample with an output_selector says what it should answer; one without proves only the selector, run with
     // its seeded records and recorded replies by test/every-process-row-selector.test.mjs.
     for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run' && 'output_selector' in item)) {
-      const [command, ...rest] = row.invoke.argv.map(onThisComputer);
+      const [command, ...rest] = row.invoke.run.map(onThisComputer);
       const stdout = await runWithDoor(command === 'node' ? process.execPath : command, rest, sample.input);
       const answer = JSON.parse(stdout.trim().split('\n').at(-1));
       assert.ok(!answer.error, `${row.id}: ${answer.error}`);
@@ -132,17 +134,17 @@ test('each sample run answers what the row says it should', async () => {
 // items that apply on one descriptor refuse the run before it starts.
 const applies = (mount, input) => !mount.only_when || (typeof input[mount.only_when.input] === 'string' && input[mount.only_when.input] !== '') === mount.only_when.present;
 const mountsFor = (row, input) => {
-  const mounted = row.invoke.credential_mounts.filter(mount => applies(mount, input));
+  const mounted = row.invoke.key.filter(mount => applies(mount, input));
   if (new Set(mounted.map(mount => mount.fd)).size !== mounted.length) return 'refused: two keys on one descriptor';
   return mounted;
 };
 
 test('a seller key is named by exactly one of secret_name, account and seller_connection; two together are refused', () => {
-  const seller = rows.filter(row => row.invoke.connection?.from_input === 'seller_connection' && row.invoke.credential_mounts?.some(mount => mount.field_id === 'secret_key'));
+  const seller = rows.filter(row => row.invoke.connection?.from_input === 'seller_connection' && row.invoke.key?.some(mount => mount.field_id === 'secret_key'));
   assert.equal(seller.length, 22);
   const named = 'a-sellers-stripe-key';
   for (const row of seller) {
-    assert.deepEqual(row.invoke.credential_mounts.filter(mount => mount.secret_name_from_input !== 'database' && mount.fd !== 5), [
+    assert.deepEqual(row.invoke.key.filter(mount => mount.secret_name_from_input !== 'database' && mount.fd !== 5), [
       { secret_name_from_input: 'secret_name', share_by_listing: true, fd: 4, only_when: { input: 'secret_name', present: true } },
       { secret_name_from_input: 'account', held_suffix: '-stripe-secret-key', fd: 4, only_when: { input: 'account', present: true } },
       { fd: 4, field_id: 'secret_key', only_when: { input: 'seller_connection', present: true } },

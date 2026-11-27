@@ -11,7 +11,7 @@ import { profileRules, ruleProblem } from '../../set-up-my-account/read-data/sho
 import { blake3 } from '@noble/hashes/blake3.js';
 import { bytesToHex } from '@noble/hashes/utils.js';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const row = slug => rowOf(ROWS, `tool:${slug}`);
 const NOW = '2026-01-10T12:00:00.000Z';
 // A subject, an effect and a starting rule a person may keep or switch, found by the moved rule check, never named.

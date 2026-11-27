@@ -1,7 +1,7 @@
 import { realpathSync } from 'node:fs';
 // tools/send-a-report-or-a-note-to-the-people-who-make/do-work/tell-the-makers.mjs
 //
-// The container tool `tool:tell-the-makers-of-a-product` (tool-rows.json): one feedback note written as one row of the makers'
+// The container tool `tool:tell-the-makers-of-a-product` (what-this-tool-does-and-how-to-run-it.json): one feedback note written as one row of the makers'
 // calendar_tasks. The login is the caller's own: input.credential_name names the held connection the caller's rows give (mounted on
 // descriptor 3). That login may INSERT id, title and description only. The server sets the rest (labels, status, pursuit and
 // sent_by), so this file never names them. Nothing here names a product, host or account.

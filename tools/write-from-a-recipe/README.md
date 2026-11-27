@@ -29,7 +29,7 @@ Ported from bitfield-packages `packages/content-generation` (its recipe composer
 | `do-work/check-writing-file.mjs` | Reads a request JSON file under the explicit folder grant, then calls the same `checkWritingAgainstItsRecipe` function. |
 | `read-data/write-file-limits.json` | The maximum request file size, in bytes. |
 | `do-work/list-writing-recipes.mjs` | The list tool's command. |
-| `tool-rows.json` | The three rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three rows. |
 | `part.json` | The composer and the gate are public, so another tool may build or check writing the same way. |
 | `test/compose-a-writing-instruction.test.mjs` | Segments, blocks, input references, defaults and refusals. |
 | `test/check-writing-against-its-recipe.test.mjs` | Citations, judge-words rows, fail-closed check kinds, required verdicts, the handoff and the derived body. |

@@ -6,7 +6,7 @@ What anyone on the internet can see of one computer, compared with what its row 
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | `tool:check-a-computer-from-outside`: input {name, address, declared_ports, names, also_try}, answer the ports, certificates, SSH version line, domains' registration expiry, connection times and findings. A container run with `internet: true`, no package and no held value. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:check-a-computer-from-outside`: input {name, address, declared_ports, names, also_try}, answer the ports, certificates, SSH version line, domains' registration expiry, connection times and findings. A container run with `may_reach`, no package and no held value. |
 | `do-work/check-from-outside.mjs` | The check: every port of `settings.json` ports_to_try and every declared port through the run's own proxy (a CONNECT tunnel each), each name's certificate over TLS, the SSH version line, each name's registration expiry from RDAP (rdap.org: the name, then each parent, until its registry says one is registered), and the findings. |
 | `settings.json` | What it tries and when a difference is a finding: the ports, the time to wait, the certificate and domain warning days. |
 | `test/check-from-outside.test.mjs` | An undeclared open port and a declared closed port are one finding each (local ports), the domain of a name, and the row's packing. |

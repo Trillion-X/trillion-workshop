@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-every-claim-against-its-facts-and-sources's row in tools/check-every-claim-against-its-facts-and-sources/tool-rows.json, README.md, do-work/check_claims.py, read-data/claim_gate.py and test/fixture_world.py and test/test_claim_check.py; the answer was observed by building the fixture's made-up world and running check_claims.py on three of its shots",
+  "drafted_from": "tool:check-every-claim-against-its-facts-and-sources's row in tools/check-every-claim-against-its-facts-and-sources/what-this-tool-does-and-how-to-run-it.json, README.md, do-work/check_claims.py, read-data/claim_gate.py and test/fixture_world.py and test/test_claim_check.py; the answer was observed by building the fixture's made-up world and running check_claims.py on three of its shots",
   "start_here": "Say to your AI: \"Check every claim in the shots own-claim-plain, unsupported and attributed-hedge against my world facts and sources before they are voiced.\" It runs the claim check on your computer and tells you which shots fail and why.",
   "lists": [
     {

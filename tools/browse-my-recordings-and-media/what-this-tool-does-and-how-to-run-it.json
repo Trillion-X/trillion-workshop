@@ -1,0 +1,591 @@
+{
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:browse-my-recordings-and-media",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:list-my-recordings-and-media",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "label": "List my recordings and media",
+        "job": "List a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, each with what is known about it, as the Media screen shows a page",
+        "description": "Give files ([{ name, identity, byte_length?, modified_at_ms? }], names starting with /), results kept about them ([{ identity, kind, value }]: kind library-entry makes a recording row from its value { name?, path?, media_kind? }; title, summary, organization, facts, transcript and the other kinds media-library.json joins add to a row), optionally set_aside (files or folders to delete first, as Recently Deleted does) and page ({ limit? (1 to 60), origin? (recording, made or file), unused? }). The files are named in the namespace (namespace-store.mjs, from tools/recently-deleted-and-storage) and the results laid in a namespace_results table as old trillion's namespace-results.mjs made it, in an in-memory SQLite database; then media-library.mjs's own mediaLibraryPage reads the page. Answers rows (identity, origin, name, path, media_kind, media_type, stored, captured_ms, title, duration, facts, edits, words), next_after, origin_labels and revision. A file that is not video, sound or a picture is no row, and a file set aside with no name left is none either. No bytes are held, so every row says stored: false; nothing is kept after the run, no file is written and nothing is sent. Refuses no files, a result without identity, kind and value, and what the page refuses. The screen also plays a row, suggests the next edit and searches for a spoken or seen moment; this run does none of that.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "files"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "identity"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "pattern": "^/"
+                  },
+                  "identity": {
+                    "type": "string",
+                    "pattern": "^(1f|12):[0-9a-f]{64}$"
+                  },
+                  "byte_length": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "modified_at_ms": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity",
+                  "kind",
+                  "value"
+                ],
+                "properties": {
+                  "identity": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string"
+                  },
+                  "value": {}
+                }
+              }
+            },
+            "set_aside": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "page": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 60
+                },
+                "origin": {
+                  "type": "string",
+                  "enum": [
+                    "recording",
+                    "made",
+                    "file"
+                  ]
+                },
+                "unused": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "rows",
+            "origin_labels",
+            "revision"
+          ],
+          "properties": {
+            "rows": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "identity",
+                  "origin",
+                  "name",
+                  "media_kind",
+                  "stored"
+                ],
+                "properties": {
+                  "identity": {
+                    "type": "string"
+                  },
+                  "origin": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "media_kind": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "media_type": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "stored": {
+                    "type": "boolean"
+                  },
+                  "captured_ms": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "duration": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "edits": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "words": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "next_after": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "origin_labels": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "revision": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/src",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/src/do-work/list-my-media.mjs",
+            "listMyMedia"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "browse-my-recordings-and-media",
+                "paths": [
+                  "media-library.mjs",
+                  "media-library.json",
+                  "media-name-index.mjs",
+                  "media-recording-index.mjs",
+                  "do-work"
+                ],
+                "at": "/opt/src"
+              },
+              {
+                "package": "recently-deleted-and-storage",
+                "paths": [
+                  "namespace-set-aside.mjs",
+                  "namespace-set-aside.json",
+                  "carry-tables-into-records.mjs",
+                  "namespace-view.mjs",
+                  "namespace-view.json",
+                  "namespace-store.mjs",
+                  "time-cursor.mjs",
+                  "file-versions.mjs",
+                  "file-versions.json",
+                  "box-name.mjs",
+                  "file-type.mjs",
+                  "namespace-name-counts.mjs",
+                  "workspace"
+                ],
+                "at": "/opt/recently-deleted-and-storage"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/table-generation.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-records.mjs",
+                  "read-data/decide-with-a-method.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/branch.mjs"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "learn-from-everyones-results",
+                "paths": [
+                  "read-data/plain-privacy-pass.mjs"
+                ],
+                "at": "/opt/learn-from-everyones-results"
+              },
+              {
+                "package": "ask-a-small-model-for-a-verdict",
+                "paths": [
+                  "do-work/ask-a-hosted-classifier.mjs",
+                  "do-work/ask-a-locally-served-model.mjs",
+                  "do-work/ask-for-a-verdict.mjs",
+                  "do-work/fresh-local-classifier-fetch.mjs",
+                  "do-work/judge-content.mjs",
+                  "do-work/who-can-be-asked.mjs"
+                ],
+                "at": "/opt/ask-a-small-model-for-a-verdict"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/media-library.mjs at 7fd88384^, moved byte for byte in a9ee258 (#76); its DATA src/media-library.json and its imports src/media-name-index.mjs and src/media-recording-index.mjs brought in byte for byte from b6ae0ebf815f (4ffa1dc4a2^) (moved-from.json); its other imports packed from tools/recently-deleted-and-storage (namespace-set-aside.mjs, file-type.mjs, workspace/file-previews.json and the namespace store) and tools/keep-and-wake-ai-sessions-on-this-computer/src/table-generation.mjs; the namespace_results table laid as src/namespace-results.mjs:200 made it; old capability row capabilities.json:214 at 4ffa1dc4a2^ (browse my recordings and the media my tools made with the facts kept about each); do-work/list-my-media.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "files": [
+                {
+                  "name": "/Recordings/standup.webm",
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "modified_at_ms": 1762000000000
+                },
+                {
+                  "name": "/made by tools/cut.mp4",
+                  "identity": "1f:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+                  "modified_at_ms": 1762100000000
+                },
+                {
+                  "name": "/Notes/plan.md",
+                  "identity": "1f:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+                  "modified_at_ms": 1762200000000
+                },
+                {
+                  "name": "/Photos/old.jpg",
+                  "identity": "1f:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+                  "modified_at_ms": 1762300000000
+                }
+              ],
+              "results": [
+                {
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "kind": "library-entry",
+                  "value": {
+                    "name": "Standup",
+                    "media_kind": "video"
+                  }
+                },
+                {
+                  "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "kind": "title",
+                  "value": {
+                    "title": "Monday standup"
+                  }
+                }
+              ],
+              "set_aside": [
+                {
+                  "name": "/Photos/old.jpg"
+                }
+              ]
+            },
+            "output_selector": "$.rows[1].title",
+            "equals": "Monday standup"
+          }
+        ]
+      }
+    }
+  ]
+}

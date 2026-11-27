@@ -52,7 +52,7 @@
 //   tally: { currencies: [{ currency, money_in, fees, refunded, net }], payments, more, at_most }
 import { readFileSync } from 'node:fs';
 import moneyReads from '../../money-reads/src/money-reads.json' with { type: 'json' };
-import toolRows from '../tool-rows.json' with { type: 'json' };
+import toolRows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 // The service-connection descriptors (one per service a person can connect) the old connect rows were made from
 // (tool-row-source source:service-connection-descriptors: id_prefix tool:connect-service-, label from `name`, provider

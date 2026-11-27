@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerTheMessageRoute } from '../src/message-route.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const FILE = '1f:' + 'a'.repeat(64);
 
@@ -190,5 +190,5 @@ test('the route is a function of its input: nothing is written by it, and the ro
   assert.ok(answered.keep.some(one => one.type === 'message'), 'the message comes back to be kept');
   const text = JSON.stringify(row);
   assert.doesNotMatch(text, /records:(read|write|list)|records-door|records door/);
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
 });

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:keep-a-continuous-awareness-reading row in tools/keep-a-continuous-awareness-reading/tool-rows.json, its code in tools/keep-a-continuous-awareness-reading/do-work/read-awareness.mjs and tools/keep-a-continuous-awareness-reading/test/read-awareness.test.mjs",
+  "drafted_from": "tool:keep-a-continuous-awareness-reading row in tools/keep-a-continuous-awareness-reading/what-this-tool-does-and-how-to-run-it.json, its code in tools/keep-a-continuous-awareness-reading/do-work/read-awareness.mjs and tools/keep-a-continuous-awareness-reading/test/read-awareness.test.mjs",
   "start_here": "Say to your AI: \"What has the reading figured out about me, and when does it read next?\" It reads your picture, your reading state and your map rows, and gives back what the reading has found and when it reads again.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: the picture, the reading state and the questions are rows of the reading's own tables, and the map is the person's own map list, which the caller reads and hands in.",

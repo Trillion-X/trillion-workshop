@@ -8,7 +8,7 @@ treg (https://treg.to) puts several thousand external endpoints from many provid
 
 | File | Purpose |
 |---|---|
-| `tool-rows.json` | Six `http` rows the engine runs (no code of their own): `tool:search-the-treg-catalog` and `tool:read-a-treg-endpoint-and-its-price` read the public catalog with no token; `tool:call-a-treg-endpoint` calls one endpoint by id; `tool:read-a-treg-call` reads one call back by its id (its cost, and an asynchronous task's progress and result); `tool:read-my-treg-team` and `tool:read-my-treg-balance` read the team's number, its balance and its recent charges. |
+| `what-this-tool-does-and-how-to-run-it.json` | Six `http` rows the engine runs (no code of their own): `tool:search-the-treg-catalog` and `tool:read-a-treg-endpoint-and-its-price` read the public catalog with no token; `tool:call-a-treg-endpoint` calls one endpoint by id; `tool:read-a-treg-call` reads one call back by its id (its cost, and an asynchronous task's progress and result); `tool:read-my-treg-team` and `tool:read-my-treg-balance` read the team's number, its balance and its recent charges. |
 | `test/treg-rows.test.mjs` | Checks the rows' promises: the catalog reads carry no credential, every row that holds the token reads only the vault key the treg descriptor seals (`treg-api-key`) and places it only in the `X-Treg-Token` header, a paid call cannot be asked without a cost ceiling, the endpoint id stays inside treg's call path, and no row names a person, account or token value. And against a stand-in treg on this computer, answering as treg does: a call's cost and id are read from its answer's headers, and its asynchronous task is followed by reading the call until it settles, the call sent once. |
 | `part.json` | No public files. |
 
@@ -24,7 +24,7 @@ Failed calls (an error relayed from the provider) are not billed. An empty resul
 
 ## The connection
 
-The four rows that hold the token carry one credential injection `{ secret_name: "treg-api-key", hosts: ["treg.to"], placement: header X-Treg-Token }`. `treg-api-key` is the vault key the treg service connection (its descriptor in `tools/connect-a-service-and-seal-its-key/records.json`) seals the person's key under, the same way the AgentMail and AgentPhone descriptors name theirs. The engine reads that held value, places it as the request leaves over https, and replaces it wherever it appears in the reply. A row takes no account input: one person has one treg key. The value is never in the row, the input, the receipt or the answer.
+The four rows that hold the token carry one credential injection `{ secret_name: "treg-api-key", placement: header X-Treg-Token }` and `may_reach: ["treg.to"]`. `treg-api-key` is the vault key the treg service connection (its descriptor in `tools/connect-a-service-and-seal-its-key/records.json`) seals the person's key under, the same way the AgentMail and AgentPhone descriptors name theirs. The engine reads that held value, places it as the request leaves over https, and replaces it wherever it appears in the reply. A row takes no account input: one person has one treg key. The value is never in the row, the input, the receipt or the answer.
 
 A treg team key needs no team header. A person's sign-in token does: give `team` (the team slug), sent as `X-Treg-Org`.
 

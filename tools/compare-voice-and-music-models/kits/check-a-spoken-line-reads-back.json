@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/read_back_check.py and test/test_read_back_check.py",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/what-this-tool-does-and-how-to-run-it.json, do-work/read_back_check.py and test/test_read_back_check.py",
   "start_here": "Say to your AI: \"Check that the words heard back from line.wav read back every word of my script in line.txt.\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it takes one script line and the words a Whisper model heard from its clip, and prints whether every word reads back in order.",

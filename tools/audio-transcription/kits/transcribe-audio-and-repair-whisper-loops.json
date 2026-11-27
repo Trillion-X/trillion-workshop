@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/audio_transcription.py, read-data/whisper_loops.py, test/test_whisper_loops.py (observed find-loops run)",
+  "drafted_from": "tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json, do-work/audio_transcription.py, read-data/whisper_loops.py, test/test_whisper_loops.py (observed find-loops run)",
   "start_here": "Say to your AI: \"Transcribe /Recordings/walk.m4a with word times using my ggml model, then find and repair any Whisper loops.\" It runs audio_transcription.py transcribe, find-loops and repair on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads recordings and writes transcript JSON files on the person's computer.",

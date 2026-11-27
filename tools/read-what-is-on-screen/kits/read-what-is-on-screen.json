@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-what-is-on-screen row in tool-rows.json, do-work/read-what-is-on-screen.mjs, do-work/read.swift, read-data/rules.json and test/read-what-is-on-screen.test.mjs",
+  "drafted_from": "tool:read-what-is-on-screen row in what-this-tool-does-and-how-to-run-it.json, do-work/read-what-is-on-screen.mjs, do-work/read.swift, read-data/rules.json and test/read-what-is-on-screen.test.mjs",
   "start_here": "Say to your AI: \"Watch what I am doing on my Mac for 20 seconds, re-reading the same window every 30 seconds, and tell me which apps and windows I used.\" It runs tool:read-what-is-on-screen on your Mac and answers one capture per read, as text, never a screenshot.",
   "lists": [],
   "no_lists_because": "It names no list: it reads the front window's accessibility text for a short watch and answers captures, keeping nothing.",

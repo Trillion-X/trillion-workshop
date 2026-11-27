@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:bring-an-effects-layer-to-a-reference-loudness row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:bring-an-effects-layer-to-a-reference-loudness row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Scale my variant palette /work/sfx/b by one gain so its effects track is as loud as the reference layer /work/sfx/a-layer.wav.\" It runs the leveler and reports the common gain.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads CUES.json, a variant palette folder and a reference layer on this computer and changes the palette's WAV files in place.",

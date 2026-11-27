@@ -135,7 +135,7 @@
         "export a markdown manuscript to word and verify it against its source",
         "project an authorized public document collection into consistent routes, rendered pages, Markdown, structured data and discovery feeds, and serve those projections against current source visibility"
       ],
-      "capability_search_scope": "Actual local capabilities.json and relevant tool-rows.json searches. Native @tools tools:list for tool:find-tool-for-job returned 'The resource operation was refused'; no live Marketplace search result is asserted.",
+      "capability_search_scope": "Actual local capabilities.json and relevant what-this-tool-does-and-how-to-run-it.json searches. Native @tools tools:list for tool:find-tool-for-job returned 'The resource operation was refused'; no live Marketplace search result is asserted.",
       "code_patterns": ["ParsedBook", "projectDocumentReadback", "project_source_snapshot", "documents-structured-file-projection-v1"],
       "repositories": [
         { "repository": "trillion", "commit": "ed5e8d0389729321ca4263294b6a377235829e5e" },

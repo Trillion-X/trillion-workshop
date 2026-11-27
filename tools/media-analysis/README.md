@@ -12,7 +12,7 @@ The words-to-picture-vector tool (`words-as-picture-vector`) turns words into a 
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:media-analysis`: `on-your-computer`, with how to get it and what to tell the person. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:media-analysis`: `on-your-computer`, with how to get it and what to tell the person. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/meaning_index.py` | The command. One JSON request per line on standard input, one reply per line on standard output, a last line `{"result": {"answered", "failed"}}`. Holds the CLIP loader (`load_clip`, `embed_text`), the two lanes (`Lane`), the query encoders (`QueryEncoders`) and the operations. |
 | `test/test_meaning_index.py` | The lanes, `add`, the sampling and the line protocol on synthetic vectors (numpy only), then the real CLIP and sentence models from the local cache: saved query encoders answer without the full models, a picture and a transcript are found by a phrase. The model tests are skipped, saying why, when the models are not cached. |

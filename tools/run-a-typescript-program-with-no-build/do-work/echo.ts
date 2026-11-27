@@ -1,6 +1,6 @@
 // tools/run-a-typescript-program-with-no-build/do-work/echo.ts
 //
-// The container tool `tool:run-a-typescript-program-with-no-build` (tool-rows.json): proves that a tool's program can be
+// The container tool `tool:run-a-typescript-program-with-no-build` (what-this-tool-does-and-how-to-run-it.json): proves that a tool's program can be
 // TypeScript that the engine's pinned Node runs as it is, with nothing built and nothing committed. Node strips the types
 // (erasable syntax only: no enum, no namespace, no parameter properties), so this file is the program the run starts.
 //

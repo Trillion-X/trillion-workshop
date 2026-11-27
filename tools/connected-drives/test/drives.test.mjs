@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { enumerateDevices, getADriveIcon, hiddenIn, listConnectedDrives, listDriveFolder, nameWhatHoldsADrive, seeWhatIsOnADrive, walkDrive } from '../read-data/drives.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 
 // A pretend /Volumes: one external drive with a folder in it, and one hidden (nobrowse) volume.
 function pretendMac() {
@@ -35,7 +35,7 @@ test('every row runs on the person\'s computer with only the drive capability, a
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, ['see-connected-drives']);
     assert.equal(row.invoke.records, undefined, 'no door: these read only the Mac');
-    assert.notEqual(row.invoke.internet, true);
+    assert.equal(row.invoke.may_reach, undefined);
     assert.equal(row.result_selector, '$.result');
   }
 });

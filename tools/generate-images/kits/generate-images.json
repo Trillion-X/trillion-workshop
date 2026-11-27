@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:generate-images's row in tool-rows.json, do-work/generate_images.py, do-work/placeholder_image_provider.py, read-data/image_records.py and test/generate-images.test.mjs",
+  "drafted_from": "tool:generate-images's row in what-this-tool-does-and-how-to-run-it.json, do-work/generate_images.py, do-work/placeholder_image_provider.py, read-data/image_records.py and test/generate-images.test.mjs",
   "start_here": "Say to your AI: \"Make a picture of a red door with generate-images, using the placeholder provider first to check the chain, and keep it in a new folder called images.\" It writes the request file, runs the script on your computer and tells you where the picture is.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one request file and writes the images it gets back into a folder.",

@@ -8,7 +8,7 @@ Articles and a double opt-in newsletter signup for one pursuit's site, drawn at 
 |------|---------|
 | `do-work/pursuit-site.mjs` | `createSite({ db, mail, origin, brand, secret, signupText, signupTags, sourceTags, layout, stylesheets, themeAttributes, tokens, author, now, draw })`: `handle(request)` answers `GET`/`HEAD` on `/articles`, `/articles/<slug>`, `/articles/rss.xml`, and `POST /subscribe`, `GET /subscribe/confirm`, `GET|POST /unsubscribe`; it returns null for any other path. Drafts answer only with `previewToken(slug)`. |
 | `do-work/subscriber-audience.mjs` | The shared subscriber tag normalization and one-click link signer; `newsletterAudience` filters a page by confirmed state and tag selectors. |
-| `do-work/prepare-audience.mjs`, `tool-rows.json` | `tool:prepare-a-newsletter-audience`: the link key is mounted on descriptor 3 by its vault name; no database is opened and nothing is sent. |
+| `do-work/prepare-audience.mjs`, `what-this-tool-does-and-how-to-run-it.json` | `tool:prepare-a-newsletter-audience`: the link key is mounted on descriptor 3 by its vault name; no database is opened and nothing is sent. |
 | `test/` | Article rendering and routes; signup tags and consent; suppression races; confirmation; plain and one-click unsubscribe, replays and bad tokens; audience filtering and isolated site keys. |
 
 ## How a page is drawn

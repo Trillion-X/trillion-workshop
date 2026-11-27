@@ -119,7 +119,7 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 | `read-data/conversation-sources-on-this-computer.json` | Where each app's conversations are, and the import's pacing (`write_rows`, `write_bytes`, `most_text`, `time_box_seconds`). |
 | `read-data/acquire-and-import-ai-chat-history.json` | Moved from trillion `docs/notes/chat-history-marketplace-workflow.json`: the workflow `workflow:acquire-and-import-ai-chat-history` these tools serve (inventory, acquire, reconcile). |
 | `moved-from.json`, `ports/` | Each moved file's source and identities; the port contracts of `chat-archives.mjs` and `chat-import.mjs`. |
-| `tool-rows.json` | The nine rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The nine rows. |
 | `test/python/` | The Python tests, with made-up exports (a bakery's orders); `test/python.test.mjs` runs each as a node test. |
 | `test/rows.test.mjs` | Each row's command run the way the engine runs it. |
 | `test/import-conversations.test.mjs` | The import over the held store (`test/support/held-store.mjs`), with a synthetic export or session folder for each source: what each keeps, a second run adding nothing, a grown session read on, a run not handed what it needs writing nothing and answering `needs`. |

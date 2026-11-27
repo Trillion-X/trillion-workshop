@@ -1,6 +1,6 @@
 // tools/challenges/do-work/requests.mjs
 //
-// The functions the rows in tool-rows.json run (one per row, through run-request.mjs). Each takes the request a
+// The functions the rows in what-this-tool-does-and-how-to-run-it.json run (one per row, through run-request.mjs). Each takes the request a
 // person's AI gives and answers with plain JSON; a request that cannot be run throws a sentence saying what to fix.
 import { decideEnrollments, validateChallengeDefinition } from '../read-data/challenges.mjs';
 

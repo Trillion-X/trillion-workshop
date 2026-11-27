@@ -7,7 +7,7 @@ import { runResidentEmitter } from '../do-work/emit-arrival-fact.mjs';
 import { engineCarrier } from '../do-work/tell-the-engine.mjs';
 import * as repository from '../do-work/mechanisms/repository-main-line.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const tool = rows.records.find(row => row.payload?.id === 'tool:notice-when-something-shows-up').payload;
 const mainLine = tool.wakes.find(wake => wake.id === 'keep-noticing-main-line').input.waiters;
 const replays = tool.wakes.find(wake => wake.id === 'replay-main-line-edge-cases').input.waiters;

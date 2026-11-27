@@ -6,7 +6,7 @@ Checks every claim a narrator makes, spoken or on screen, against the person's o
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Two rows, both `on-your-computer`: `tool:check-every-claim-against-its-facts-and-sources` and `tool:make-plain-text-extracts-of-claim-sources`. |
+| `what-this-tool-does-and-how-to-run-it.json` | Two rows, both `on-your-computer`: `tool:check-every-claim-against-its-facts-and-sources` and `tool:make-plain-text-extracts-of-claim-sources`. |
 | `do-work/check_claims.py` | The check: one JSON request on stdin, one JSON answer as the last line (Request below). |
 | `do-work/make_source_extracts.py` | `{"sources": file}` on stdin: writes each source's plain-text extract from its raw file (html, fdc-json, new-order, copy). |
 | `read-data/claim_gate.py` | `Config`, `Gate` (every rule below) and `check(config, shot id)`. |

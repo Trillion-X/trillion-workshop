@@ -16,7 +16,7 @@ There is one judge for every check. `tool:judge-against-rules` is that judge wit
 | `do-work/plain-work-title.mjs` | A short plain title from a job's own words (`workTitle`, `titleOf`): the first sentence a person reads, links, addresses, paths, ids and markdown taken out, first letter in capitals, at most 80 UTF-16 units. Moved from the Trillion engine's `src/work_title.rs`; the fallback words are the caller's. |
 | `do-work/make-a-plain-work-title.mjs` | `tool:make-a-plain-work-title`: `{ job, said?, fallback? }` on standard input, `{ result: { title, from } }` on the last line; a request without job text is refused with `{ error }`. |
 | `part.json` | `do-work/judge-words.mjs` and `do-work/plain-work-title.mjs` are public, so a check may import the same judge and a caller the same titles. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:judge-against-rules`, `tool:make-a-plain-work-title`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder: `tool:judge-against-rules`, `tool:make-a-plain-work-title`. |
 | `test/plain-work-title.test.mjs` | The engine's work-title tests carried with their assertions, the row's command and its refusals. |
 | `test/judge-words.test.mjs` | Kinds, path rows, every test, capped findings, owner paths, `allow_exact` against `allow`. |
 | `test/judge-against-rules-row.test.mjs` | The row's samples, run as the container runs them; refusals; evidence missing fails closed. |
@@ -49,4 +49,4 @@ There is one judge for every check. `tool:judge-against-rules` is that judge wit
 
 **Depends on:** nothing (Node 24 in the tool container runs the scripts).
 
-**Depended on by:** `tool-rows.json`; `tools/check-against-a-persons-rules-and-verdicts` (`makeJudge`, `ruleApplies`, `valuesAt`); a content check that imports `do-work/judge-words.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; `tools/check-against-a-persons-rules-and-verdicts` (`makeJudge`, `ruleApplies`, `valuesAt`); a content check that imports `do-work/judge-words.mjs`.

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
-const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const declaration = { file: 'public-files.json', entries_at: 'things', kind_at: 'payload.kind', kind: 'public-source', path_at: 'payload.source_path' };
 
 function command(granted, input) {
@@ -35,10 +35,10 @@ function made(t, imports) {
 test('the row runs on the person\'s computer with only the folder capability and reaches no internet', () => {
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
-  assert.notEqual(row.invoke.internet, true);
+  assert.equal(row.invoke.may_reach, undefined);
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.equal(row.result_selector, '$.result');
-  assert.deepEqual(row.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
+  assert.deepEqual(row.invoke.run.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
   assert.deepEqual(row.input_schema.required, ['metafile_file', 'packages_root', 'declaration']);
   assert.deepEqual(row.input_schema.properties.declaration.required, ['file', 'entries_at', 'path_at']);
 });

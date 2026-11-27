@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { whatIsWaitingOnMe } from '../read-data/waiting.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:what-is-waiting-on-me');
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:what-is-waiting-on-me');
 const sources = [
   { id: 'drafts', label: 'Drafts to approve', where: [{ field: 'state', equals: 'ready' }], title: '{headline}', detail: 'for {place}', opens: 'draft/{slug}', at: 'ready_at' },
   { id: 'asks', label: 'Questions', where: [{ field: 'answered', absent: true }, { field: 'kind', in: ['choose', 'confirm'] }], title: '{question.text}', at: 'asked_at', most: 2 },

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/gather-words-from-people/tool-rows.json, do-work/gather-words.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
+  "drafted_from": "tool row in tools/gather-words-from-people/what-this-tool-does-and-how-to-run-it.json, do-work/gather-words.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
   "start_here": "Say to your AI: \"Sam Example replied to my ask on list:praise: keep the words 'The cake was the best part of the day.' with consent first-name, because Sam wrote 'Replied: yes, first name is fine'.\" It runs tool:keep-the-words-a-person-gave on Sam's asked row and marks it received.",
   "lists": [
     {

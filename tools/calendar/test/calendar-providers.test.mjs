@@ -8,7 +8,7 @@ import { readCalendarEvents, makeCall, Refused } from '../read-data/calendar-eve
 
 const folder = resolve(import.meta.dirname, '..');
 const providers = JSON.parse(readFileSync(resolve(folder, 'read-data/calendar-providers.json'), 'utf8'));
-const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:read-calendar-events');
+const row = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:read-calendar-events');
 const range = { range_start: '2026-11-20T00:00:00Z', range_end: '2026-11-21T00:00:00Z' };
 const KEY = 'held-access-key';
 
@@ -25,11 +25,11 @@ const stand = replies => {
 test('the row offers exactly the providers the rows name, each with its own connection and key renewal', () => {
   // A Composio connection kind holds no vendor connection: it mounts its key from the vault and reads no refresh.
   const variantOf = p => (p.connection?.kind === 'composio'
-    ? { connection: null, credential_mounts: [{ secret_name: p.connection.secret, fd: 4 }] }
+    ? { connection: null, key: [{ secret_name: p.connection.secret, fd: 4 }] }
     : { connection: { vendor: p.connection_vendor, from_input: 'connection' }, refresh: p.refresh });
   const expected = Object.fromEntries(providers.providers.map(p => [p.id, variantOf(p)]));
   assert.deepEqual(row.invoke.by_input, { input: 'provider', variants: expected });
-  assert.deepEqual(row.invoke.credential_mounts, [{ field_id: 'access_token', fd: 4 }]);
+  assert.deepEqual(row.invoke.key, [{ field_id: 'access_token', fd: 4 }]);
   assert.deepEqual(row.input_schema.required, ['provider', 'range_start', 'range_end'], 'one of connection or connections is required at run time');
 });
 

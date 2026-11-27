@@ -51,7 +51,7 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "tools/browse-and-publish-what-my-ai-can-use/tool-rows.json sample run (tool:read-rows-as-marketplace-shelf-items)"
+   "tools/browse-and-publish-what-my-ai-can-use/what-this-tool-does-and-how-to-run-it.json sample run (tool:read-rows-as-marketplace-shelf-items)"
   ]
  }
 }

@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'run-installed-cli');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const skip = process.platform === 'win32' ? 'needs a POSIX sh' : false;
 
 // A made-up app: Zorblet.app with its command line deep inside, as an installed app keeps it.

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/follow-my-ai-command-line-runs/tool-rows.json (tool:allow-my-ai-command-line-tools-in-a-folder), do-work/follow-runs.mjs, do-work/session-runs.mjs and test/session-runs.test.mjs",
+  "drafted_from": "tools/follow-my-ai-command-line-runs/what-this-tool-does-and-how-to-run-it.json (tool:allow-my-ai-command-line-tools-in-a-folder), do-work/follow-runs.mjs, do-work/session-runs.mjs and test/session-runs.test.mjs",
   "start_here": "Say to your AI: \"In my folder /srv/bakery-site allow my AI command line only Read and Edit, then read the list back to me.\" It keeps the list in this computer's settings file and reads it back.",
   "lists": [],
   "no_lists_because": "The allowed tools are kept per folder in this computer's own settings file, not in a list of your account.",

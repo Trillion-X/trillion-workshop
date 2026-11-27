@@ -71,12 +71,12 @@ test('a word change counts once per draft, and only one in enough different draf
 });
 
 test('each shaper runs as the container runs it: the sample gives the text it promises', async () => {
-  const rows = JSON.parse(await readFile(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(await readFile(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
   const voice = rows.filter(row => /voice|repeated/.test(row.id));
   assert.deepEqual(voice.map(row => row.id).sort(), ['tool:find-repeated-voice-edits', 'tool:keep-a-voice-edit', 'tool:save-voice']);
   for (const row of voice) {
     const [sample] = row.verify;
-    const { code, out } = await run(row.invoke.argv[1].replace('do-work/', ''), sample.input);
+    const { code, out } = await run(row.invoke.run[1].replace('do-work/', ''), sample.input);
     assert.equal(code, 0, row.id);
     const value = sample.output_selector.replace('$.', '').split('.').reduce((from, key) => from[key], out.result);
     assert.ok(JSON.stringify(value).includes(sample.contains), row.id);
@@ -84,7 +84,7 @@ test('each shaper runs as the container runs it: the sample gives the text it pr
 });
 
 test('the voice rows reach no records door and name no store operation: the store is the recipe’s', async () => {
-  const body = await readFile(join(folder, 'tool-rows.json'), 'utf8');
+  const body = await readFile(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8');
   assert.doesNotMatch(body, /records-door|records:(read|list|write)/);
   assert.doesNotMatch(body, /"tool:read-voice"|"tool:forget-voice"/);
   const voice = await readFile(join(folder, 'read-data', 'voice.mjs'), 'utf8');

@@ -56,7 +56,7 @@ the evidence a verdict points to.
 
 | File | Purpose |
 |---|---|
-| `tool-rows.json` | The Workshop row `tool:measure-graphics-on-the-person`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:measure-graphics-on-the-person`. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/measure_graphics_on_the_person.py` | The command line: `analyze`, `measure`, `free-regions`, `rows`, `identity`. |
 | `do-work/measure_graphics/layers.py` | Reads an alpha or mask video as per-frame boolean masks; refuses size mismatch. |

@@ -1,0 +1,532 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files-tool-rows",
+  "what_this_is": "The Workshop row for tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files: the page's calendar routes, answered by the moved calendar owner over the person's own records.",
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-a-dated-plan",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-the-calendar-page-route",
+        "label": "Answer the calendar page routes",
+        "status": "active",
+        "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from the calendar rows handed in",
+        "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body, browser, records } in, { status, body, keep } out. Each read is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request) over the calendar rows the caller hands in as `records` ([{id, type, value}]); this run reads no store of its own. A read may answer in `keep` the starting calendar list definitions it finds missing, rows for the caller to keep where the person keeps them, conditional on the rows it read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. A POST to the task, proposal or date-shift routes answers 405: keeping those is workflow:keep-my-calendar-tasks-and-proposals. /calendar/actions and /calendar/availability are not answered here (404).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The route after /work/api (/calendar, /calendar/tasks, ...)"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST"
+              ]
+            },
+            "query": {
+              "type": "object"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            },
+            "records": {
+              "type": "array",
+              "maxItems": 5000,
+              "description": "The calendar rows this run reads, read by the caller from the person's own store and handed in: [{id, type, value}] of the kinds the lists keep for the calendar (list:calendar-tasks and its record:calendar-task rows, the calendar task lists and their day hours and working hours, the lists' entity, open-mark, trash, tombstone, proposal, heat, view, filter and snapshot rows named by their ids, and workspace-preference:calendar-selections). What is not given is not there."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {},
+            "keep": {
+              "type": "array",
+              "description": "Rows the run would write for the caller to keep where the person keeps them: {id, type, value} (value null removes). A read answers here only the starting list definitions it found missing."
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "read-data/calendar-connection-options.ts"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "documents-as-list-rows",
+                "paths": [
+                  "document-properties.mjs",
+                  "read-data/document-properties.json",
+                  "read-data/document-properties.mjs"
+                ],
+                "at": "/opt/documents-as-list-rows"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules/rule-operators.json"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "src/entity-mentions.json",
+                  "src/entity-mentions.mjs",
+                  "src/lists.json",
+                  "src/live-keys.json",
+                  "src/live-keys.mjs",
+                  "src/renamed-tools.json",
+                  "src/sold-copies.json",
+                  "src/work-progress.mjs",
+                  "src/renamed-tools.mjs",
+                  "src/sold-copies.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts",
+                  "lists.mjs",
+                  "read-data/configuration-aspects.json",
+                  "read-data/configuration-values.mjs",
+                  "read-data/saved-view-engine.mjs",
+                  "record-at.mjs"
+                ],
+                "at": "/opt/keep-lists-of-rows"
+              },
+              {
+                "package": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+                "paths": [
+                  "src/calendar-actions.mjs",
+                  "src/calendar-connections.mjs",
+                  "src/calendar-route.mjs",
+                  "src/calendar.json",
+                  "src/calendar.mjs",
+                  "src/native-calendar-owner.mjs",
+                  "src/task-proposals.mjs"
+                ],
+                "at": "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files"
+              },
+              {
+                "package": "move-a-dated-plan",
+                "paths": [
+                  "src/date-shift.json",
+                  "src/date-shift.mjs"
+                ],
+                "at": "/opt/move-a-dated-plan"
+              },
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "calendar-task-messages.mjs",
+                  "calendar-tasks.json",
+                  "calendar-tasks.mjs",
+                  "parts/ui/show/schedule-calendar/schedule-placement.mjs",
+                  "parts/ui/show/schedule-calendar/schedule-planner.json",
+                  "parts/ui/show/schedule-calendar/schedule-planner.mjs"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "query-and-change-list-rows",
+                "paths": [
+                  "src/choice-kinds.json",
+                  "src/choice-mapping.mjs",
+                  "src/configurations.mjs",
+                  "src/document-properties.json",
+                  "src/list-aggregates.mjs",
+                  "src/list-filters.mjs",
+                  "src/list-identity.mjs",
+                  "src/list-input-grammar.mjs",
+                  "src/list-keys.mjs",
+                  "src/list-pairs.mjs",
+                  "src/list-paths.mjs",
+                  "src/list-plain-files.mjs",
+                  "src/list-proposals.mjs",
+                  "src/list-refusals.mjs",
+                  "src/list-relationships.json",
+                  "src/list-relationships.mjs",
+                  "src/list-rollups.mjs",
+                  "src/list-row-operations.mjs",
+                  "src/list-row-transfer.mjs",
+                  "src/list-snapshots.mjs",
+                  "src/list-stamps.mjs",
+                  "src/list-view-parameters.mjs"
+                ],
+                "at": "/opt/query-and-change-list-rows"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/log-position.mjs",
+                  "do-work/record-model.mjs",
+                  "do-work/record-time.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "record-voice-and-meetings",
+                "paths": [
+                  "do-work/meeting-join-recording.ts"
+                ],
+                "at": "/opt/record-voice-and-meetings"
+              },
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "read-data/list-refusals.mjs",
+                  "read-data/list-review.mjs",
+                  "read-data/lists.json"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "run-work-later-or-on-a-repeat",
+                "paths": [
+                  "do-work/quiet-hours.json",
+                  "do-work/timed-action.mjs",
+                  "built-stored-bytes/timed-action"
+                ],
+                "at": "/opt/run-work-later-or-on-a-repeat"
+              },
+              {
+                "package": "settle-amounts-and-reconcile",
+                "paths": [
+                  "read-data/list-settlements.json",
+                  "read-data/list-settlements.mjs"
+                ],
+                "at": "/opt/settle-amounts-and-reconcile"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/effect-outcomes.json",
+                  "src/failure-codes.json",
+                  "src/failure.mjs",
+                  "src/platform-failures.json",
+                  "src/repo-explorer.mjs",
+                  "src/task-proposals.json",
+                  "src/typed-operation-contract.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "turn-a-list-column-that-holds-names-into",
+                "paths": [
+                  "src/naming-fields.mjs"
+                ],
+                "at": "/opt/turn-a-list-column-that-holds-names-into"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "show/record-picker/record-value.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "walk-nested-input-within-limits",
+                "paths": [
+                  "read-data/bounded-walk-core.mjs",
+                  "read-data/bounded-walk.json",
+                  "read-data/bounded-walk.mjs"
+                ],
+                "at": "/opt/walk-nested-input-within-limits"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "blake2.js",
+                  "blake3.js",
+                  "package.json",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-route.mjs",
+            "answerTheCalendarRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion old-trillion-before-worker-retire src/worker.mjs:1203-1207 (the page's /work/api/calendar routes), src/standalone-resource-behavior.mjs:1139 (nativeCalendarOwner bound over the account's records and lists) and src/native-calendar-owner.mjs calendar:request, moved to this folder's src/"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/calendar/tasks",
+              "method": "GET",
+              "query": {},
+              "body": {},
+              "browser": {},
+              "records": []
+            },
+            "output_selector": "$.status",
+            "contains": "200"
+          }
+        ]
+      }
+    }
+  ]
+}

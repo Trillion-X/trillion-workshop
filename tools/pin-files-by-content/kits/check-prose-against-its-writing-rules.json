@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/pin-files-by-content/tool-rows.json (tool:check-prose-against-its-writing-rules), do-work/verify-writing-profile.mjs, test/verify-writing-profile.test.mjs; the example was run on synthetic files",
+  "drafted_from": "tools/pin-files-by-content/what-this-tool-does-and-how-to-run-it.json (tool:check-prose-against-its-writing-rules), do-work/verify-writing-profile.mjs, test/verify-writing-profile.test.mjs; the example was run on synthetic files",
   "start_here": "Say to your AI: \"Check post.md against my writing profile and my review file, and tell me each finding by kind and position.\" It runs verify-writing-profile.mjs and reports checks_satisfied, review_required or known_failure.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one prose file, your writing profile and an optional review file, and writes one new report file.",

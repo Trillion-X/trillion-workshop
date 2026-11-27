@@ -39,5 +39,5 @@
       "hands_back": "{\"mode\":\"read\",\"read\":true,\"rebooted\":false,\"before\":{\"asks\":false,\"packages\":[],\"uptime_seconds\":59478,\"system\":\"degraded\",\"failed\":[\"run-example.service\"],\"containers\":[\"front-door\",\"engine-1\",\"site-1\"],\"busy\":[]}}"
     }
   ],
-  "drafted_from": "tools/reboot-a-computer-when-it-asks/tool-rows.json and its read script run on two computers on Nov 25 2026"
+  "drafted_from": "tools/reboot-a-computer-when-it-asks/what-this-tool-does-and-how-to-run-it.json and its read script run on two computers on Nov 25 2026"
 }

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:sum-a-characters-time-per-video's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "drafted_from": "tool:sum-a-characters-time-per-video's row in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
   "start_here": "Say to your AI: \"Sum the parrot's time in each episode against how the videos did, with the first 20 seconds and the last 10 counted on their own.\" It runs tool:sum-a-characters-time-per-video and writes character-per-video.tsv.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
@@ -42,7 +42,7 @@
           }
         }
       },
-      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and PerVideoTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: the catalog holds vid-a (1000 views, x_baseline 1.5) and vid-c (stripped); only vid-a has a turns file, with three turns [10,12], [15,17] and [40,42] in 100.0 s.",
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json and PerVideoTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: the catalog holds vid-a (1000 views, x_baseline 1.5) and vid-c (stripped); only vid-a has a turns file, with three turns [10,12], [15,17] and [40,42] in 100.0 s.",
       "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/character-per-video.tsv\", \"scored\": 1, \"episodes\": 1, \"stripped_median\": null, \"full_median\": 1.5}}; the vid-a row is turns 3, character_s 6.0, share 0.06, open_s 4.0, outro_s 0, body_exchanges 1, ex_per_10min 8.57, stripped False; with no year holding six videos the thirds print low 0 | mid 0 | high 0."
     }
   ]

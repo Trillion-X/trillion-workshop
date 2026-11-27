@@ -7,7 +7,7 @@ Reads public web pages: the one reader of a page's bytes (its title, words, link
 | File | Purpose |
 |------|---------|
 | `part.json` | The part's manifest: `do-work/page-facts.mjs` is public, since the old app's `src/read-link.mjs` imports it. |
-| `tool-rows.json` | The Workshop rows for this folder: `tool:read-public-web-page` and `tool:read-a-link`, both internet:true container rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows for this folder: `tool:read-public-web-page` and `tool:read-a-link`, both container rows with may_reach. |
 | `test/browse-public-page.test.mjs` | The page reader and the page tool: address checks, extraction, redirects and the size bound. |
 | `test/archive-walk.test.mjs` | The walk on a made-up bakery newsletter: listing pages, a sitemap, robots.txt, eras, windows and pacing. |
 | `test/read-a-link.test.mjs` | The link card: every picture, video and piece of structured data a page declares, a link that is itself a picture or video, the byte cap and the deadline, and the container tool's refusals. |
@@ -34,11 +34,11 @@ Reads public web pages: the one reader of a page's bytes (its title, words, link
 
 **Depends on:** nothing but the platform (`page-facts.mjs` uses no Node-only module; the two tools use Node's own `fetch`).
 
-**Depended on by:** `tool-rows.json` (each row ships its tool, `page-facts.mjs` and `page-conventions.json` into the container), the old app's `src/read-link.mjs` (its link card), `test/browse-public-page.test.mjs`, `test/read-a-link.test.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (each row ships its tool, `page-facts.mjs` and `page-conventions.json` into the container), the old app's `src/read-link.mjs` (its link card), `test/browse-public-page.test.mjs`, `test/read-a-link.test.mjs`.
 
 ## Invariants
 
-- No address rule lives here beyond the shape of a web address. Both tools run as internet:true rows, so Node's fetch reaches only the engine's public-only proxy, which judges every address, every redirect and every address a name resolves to; a refused hop reads as a page that did not answer.
+- No address rule lives here beyond the shape of a web address. Both tools run as rows with may_reach, so Node's fetch reaches only the engine's public-only proxy, which judges every address, every redirect and every address a name resolves to; a refused hop reads as a page that did not answer.
 - Bounded: at most 2 MB of a page, 30,000 characters of text and 100 links; the link card waits at most 6 seconds.
 - The walk is polite and bounded: robots.txt first and obeyed (its crawl delay too), one request at a time, at least 2 seconds apart, only the start address's own site, at most 50 listing pages and 200 entry pages; a day it cannot read is null and an entry without a day is never in a window or an era.
 

@@ -1,4 +1,4 @@
-// The web page recorder (tools/record-a-web-page, tool:record-a-web-demo in tool-rows.json): every flag the row passes
+// The web page recorder (tools/record-a-web-page, tool:record-a-web-demo in what-this-tool-does-and-how-to-run-it.json): every flag the row passes
 // is one the script reads, and the script, run from its folder as the container runs it from /opt/record-a-web-page, on a small page served from this folder. Checks the
 // video's size and length, that a click ripple in the accent colour is drawn where the pointer clicked, that every
 // output the row names exists, and that a step whose target is missing stops the run with a message naming it.
@@ -16,7 +16,7 @@ import { chromium } from 'playwright';
 import { launchChromium } from '../../../test-helpers/chromium.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const [tool] = JSON.parse(readFileSync(resolve(root, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const [tool] = JSON.parse(readFileSync(resolve(root, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const page = readFileSync(resolve(root, 'test/menu-page.html'));
 
 async function withPage(run) {
@@ -47,7 +47,7 @@ function pixelAt(video, seconds, x, y) {
 
 test('every flag the row passes is one the script reads', () => {
   const script = readFileSync(resolve(root, 'do-work/record-a-web-demo.mjs'), 'utf8');
-  for (const flag of tool.invoke.argv.filter(part => typeof part === 'string' && part.startsWith('--'))) {
+  for (const flag of tool.invoke.run.filter(part => typeof part === 'string' && part.startsWith('--'))) {
     assert.ok(script.includes(`args['${flag.slice(2)}']`) || script.includes(`args.${flag.slice(2)}`), `the script reads ${flag}`);
   }
 });

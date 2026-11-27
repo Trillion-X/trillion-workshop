@@ -138,7 +138,7 @@ function receiptFolder(to, plan, row) {
 // A destination folder that had no tool row and no part.json becomes a part another tree imports.
 function describeFolder(destinationFolder, folder, row, plan) {
   const part = join(destinationFolder, folder, 'part.json');
-  if (existsSync(join(destinationFolder, folder, 'tool-rows.json')) || existsSync(part)) return;
+  if (existsSync(join(destinationFolder, folder, 'what-this-tool-does-and-how-to-run-it.json')) || existsSync(part)) return;
   writeJson(part, { imported_by: [row.source?.name ?? 'the source tree'] });
   const readme = join(destinationFolder, folder, 'README.md');
   if (existsSync(readme)) return;

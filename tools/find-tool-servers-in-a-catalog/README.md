@@ -26,4 +26,4 @@ the servers holding every word are kept. A one-word search pages with the catalo
 | `do-work/find-tool-servers.mjs` | The program the tool row runs: reads the input on standard input and prints the answer. |
 | `read-data/catalogs.json` | The default catalog, the remote kinds an address may be, and the page sizes. |
 | `test/find-tool-servers.test.mjs` | Tests with recorded catalog replies. |
-| `tool-rows.json` | The tool's row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The tool's row. |

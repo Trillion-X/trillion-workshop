@@ -155,11 +155,11 @@ test('a link whose server refuses HEAD is asked again with GET', async () => {
 });
 
 test('the tool row takes a page address, runs in the network-enabled container and carries a verify run', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
   const row = rows.find(record => record.payload.id === 'tool:check-a-page-for-search-and-answer-engines').payload;
   assert.deepEqual(row.input_schema.required, ['url']);
   assert.equal(row.invoke.kind, 'container');
-  assert.equal(row.invoke.internet, true);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.ok(row.verify.length > 0);
   assert.ok(Array.isArray(row.invoke.files.package_files), 'the native container runner reads an array of packages');
   assert.equal(row.result_selector, '$', 'the CLI returns the audit itself, with no result envelope');

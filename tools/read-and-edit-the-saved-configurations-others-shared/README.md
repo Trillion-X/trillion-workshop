@@ -6,7 +6,7 @@ Moved here byte for byte from Trillion-X/trillion by `tools/move-code-between-tr
 
 ## The route tool
 
-`tool:answer-the-configurations-page` (`do-work/answer-the-configurations-page.mjs`, `tool-rows.json`) answers the
+`tool:answer-the-configurations-page` (`do-work/answer-the-configurations-page.mjs`, `what-this-tool-does-and-how-to-run-it.json`) answers the
 saved-configurations routes, `/configurations` and `/configurations/...`, the way the old account owner did. It uses the
 old owner itself, `makeConfigurations` and `handleConfigurationsRequest` from `tools/query-and-change-list-rows/src/configurations.mjs`,
 over the person's `record:configuration` records and their `list:` records, which the caller hands in as `records` (the run

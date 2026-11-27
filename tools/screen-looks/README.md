@@ -17,7 +17,7 @@ A look is tokens; this resolves them into concrete colours and fonts and one sty
 | `read-data/tint-look.ts` (+ `tint-rules.json`) | Any-tint looks in OKLCH: the picked colour keeps only its hue; each role's lightness is pinned and its chroma clamped to the sRGB gamut, so contrast holds whatever is picked. |
 | `read-data/type-register.ts` (+ `type-registers.json`, `look-tuning.json`) | `wearRegister(theme, id)`: one choice swaps every type role between the compact sans and the editorial serif register. |
 | `read-data/theme-from-inputs.ts` (+ `theme-inputs.json`) | `themeFromInputs({ base, accent, contrast })`: a whole look derived in OKLCH from three picks and held to contrast floors; a floor it cannot hold is named in `unmet`. |
-| `tool-rows.json` | `tool:resolve-a-look`, an `on-your-computer` row. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:resolve-a-look`, an `on-your-computer` row. |
 | `part.json` | Public palette, stylesheet and look DATA for other tools to import. |
 | `test/resolve-a-look.test.mjs` | A made-up look and made-up face bytes: concrete values, only the named faces, unsafe values refused. |
 | `test/read-current-worn-look.test.mjs` | Record identities, native token payload, absent-versus-unavailable behavior, matching rules and scheduled blends. |

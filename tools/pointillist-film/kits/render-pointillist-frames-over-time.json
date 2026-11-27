@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/pointillist-film/tool-rows.json (tool:render-pointillist-frames-over-time), examples/encode_frame_sequence.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
+  "drafted_from": "tools/pointillist-film/what-this-tool-does-and-how-to-run-it.json (tool:render-pointillist-frames-over-time), examples/encode_frame_sequence.rs, test/pointillist-film.test.mjs; the example was run here with cargo",
   "start_here": "Say to your AI: \"Render my two-cell film at 0, 1 and 1.5 seconds into a folder of frames.\" It runs encode_frame_sequence on your computer and tells you where the three frame files are.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one sequence file and writes numbered frame files into a folder.",

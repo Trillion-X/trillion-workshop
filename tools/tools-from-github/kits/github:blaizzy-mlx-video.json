@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:blaizzy-mlx-video's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs mlx-video.",
+  "drafted_from": "tool:github:blaizzy-mlx-video's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs mlx-video.",
   "start_here": "Say to your AI: \"Use mlx-video on my computer: make a short video from a text prompt or an image on your own Mac with Apple silicon, with \"A paper boat drifting down a rainy street\".\" It reads the row, installs mlx-video if it is missing, runs it and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: mlx-video is a program that runs on the person's own computer and works on what it is handed there.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:blaizzy-mlx-video runs on your computer, so after tools:list the AI runs, in the folder it got mlx-video in, the command line: python -m mlx_video.wan_2.generate --model-dir wan21_mlx --prompt \"A paper boat drifting down a rainy street\"",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:blaizzy-mlx-video runs on your computer, so after tools:list the AI runs, in the folder it got mlx-video in, the command line: python -m mlx_video.wan_2.generate --model-dir wan21_mlx --prompt \"A paper boat drifting down a rainy street\"",
       "hands_back": "mlx-video prints its steps as it generates and writes the video file (an .mp4) in the folder it ran in; the first run also downloads the model weights it names."
     }
   ]

@@ -87,7 +87,7 @@
      },
      "workdir": "/opt/parts/run-experiments",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/choose-what-a-visitor-sees.mjs",
       {
@@ -262,7 +262,7 @@
      },
      "workdir": "/opt/parts/run-experiments",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/read-experiment-results.mjs",
       {
@@ -444,7 +444,7 @@
      },
      "workdir": "/opt/parts/run-experiments",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/credit-outcomes-to-candidates.mjs",
       {

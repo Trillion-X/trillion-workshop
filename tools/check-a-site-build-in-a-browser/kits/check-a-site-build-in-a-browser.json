@@ -35,5 +35,5 @@
       "hands_back": "{\"result\":{\"refused\":1,\"pages\":[{\"kind\":\"/courses/*\",\"refused\":true,\"why\":[\"the built page is 900 px tall, 0.258 of the live page's 3490 px (refused under 0.5)\",\"the built page threw 1 error(s) the live page did not: [\\\"TypeError: Cannot read properties of undefined (reading 'toUpperCase')\\\"]\"]}]}}"
     }
   ],
-  "drafted_from": "tools/check-a-site-build-in-a-browser/tool-rows.json and its tests"
+  "drafted_from": "tools/check-a-site-build-in-a-browser/what-this-tool-does-and-how-to-run-it.json and its tests"
 }

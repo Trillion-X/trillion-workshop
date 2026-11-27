@@ -76,7 +76,7 @@
           "owner": [
             "tools/pin-files-by-content/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/pin-files-by-content/ (entry tools/pin-files-by-content/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/pin-files-by-content/ (entry tools/pin-files-by-content/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.212,
           "near": false
         },
@@ -96,7 +96,7 @@
           "owner": [
             "tools/import-markdown-to-editable-document/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/import-markdown-to-editable-document/ (entry tools/import-markdown-to-editable-document/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/import-markdown-to-editable-document/ (entry tools/import-markdown-to-editable-document/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.167,
           "near": false
         },
@@ -128,7 +128,7 @@
           "owner": [
             "tools/keep-measurements-current/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/keep-measurements-current/ (entry tools/keep-measurements-current/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/keep-measurements-current/ (entry tools/keep-measurements-current/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.117,
           "near": false
         },
@@ -159,7 +159,7 @@
           "owner": [
             "tools/put-picked-options-into-a-filmcraft-project/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/put-picked-options-into-a-filmcraft-project/ (entry tools/put-picked-options-into-a-filmcraft-project/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/put-picked-options-into-a-filmcraft-project/ (entry tools/put-picked-options-into-a-filmcraft-project/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.113,
           "near": false
         },
@@ -190,7 +190,7 @@
           "owner": [
             "tools/plan-my-time/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/plan-my-time/ (entry tools/plan-my-time/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/plan-my-time/ (entry tools/plan-my-time/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.171,
           "near": false
         },
@@ -200,7 +200,7 @@
           "owner": [
             "tools/listen-for-a-while/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/listen-for-a-while/ (entry tools/listen-for-a-while/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/listen-for-a-while/ (entry tools/listen-for-a-while/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.169,
           "near": false
         },
@@ -220,7 +220,7 @@
           "owner": [
             "tools/record-cameras-and-microphones-all-day/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/record-cameras-and-microphones-all-day/ (entry tools/record-cameras-and-microphones-all-day/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/record-cameras-and-microphones-all-day/ (entry tools/record-cameras-and-microphones-all-day/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.166,
           "near": false
         },
@@ -261,7 +261,7 @@
           "owner": [
             "tools/tell-a-repeated-capture-from-a-new-one/"
           ],
-          "where": "/Users/example/dev/trillion-workshop/tools/tell-a-repeated-capture-from-a-new-one/ (entry tools/tell-a-repeated-capture-from-a-new-one/tool-rows.json)",
+          "where": "/Users/example/dev/trillion-workshop/tools/tell-a-repeated-capture-from-a-new-one/ (entry tools/tell-a-repeated-capture-from-a-new-one/what-this-tool-does-and-how-to-run-it.json)",
           "words": 0.155,
           "near": false
         }

@@ -91,7 +91,7 @@ try here is skipped (no preview, no pane, the host name for the computer's name)
 | `test/inputs-are-rows.test.mjs` | The list is made once, a removed row stays removed, a paused row is unread, an unreachable account keeps the last rows, and a made-up service added as one row arrives once each. |
 | `computer/computer-sources.mjs` | Finds which places are on this computer and which need a switch (`look`), `placesOf` for a store with wildcards, `accessPaneAddress`, and `programRun` / `openAddress` (the `programs` rows). |
 | `do-work/look-at-this-computer.mjs` | The run of `tool:look-for-the-places-on-this-computer`: one look confined to the granted folder. |
-| `tool-rows.json` | That row. |
+| `what-this-tool-does-and-how-to-run-it.json` | That row. |
 | `computer/own-writes.mjs`, `own-writes.json` | Paths Trillion's own work just wrote, so a folder read does not send them back as new. |
 | `computer/connections/` | The carried conversations (`imessage.mjs`, `whatsapp.mjs`) and the journal they keep what arrives in (`incoming-items.mjs`). WhatsApp loads `@whiskeysockets/baileys`, an optional peer the computer that carries it installs. |
 | `computer/sync-contacts.zsh`, `sync-contacts.js`, `sync-contacts.json` | Sends the address book to the person's people list. The Mac Contacts setup line (its descriptor in `tools/connect-a-service-and-seal-its-key/records.json`) downloads these three files from this folder in the public Workshop. |

@@ -12,7 +12,7 @@ import { pieceRows, splitIntoPieces } from '../do-work/pieces.mjs';
 import SETTINGS from '../read-data/pieces.json' with { type: 'json' };
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const rowOf = id => rows.find(row => row.id === id);
 const DOOR_MESSAGE = 65_536;
 // The engine's door cuts a list page at what fits one message; the stand-in cuts it a little under that.

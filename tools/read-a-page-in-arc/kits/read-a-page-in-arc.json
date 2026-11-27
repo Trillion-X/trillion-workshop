@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-a-page-in-arc's row in tools/read-a-page-in-arc/tool-rows.json, read-a-page-in-arc.mjs and test/read-a-page-in-arc.test.mjs",
+  "drafted_from": "tool:read-a-page-in-arc's row in tools/read-a-page-in-arc/what-this-tool-does-and-how-to-run-it.json, read-a-page-in-arc.mjs and test/read-a-page-in-arc.test.mjs",
   "start_here": "Say to your AI: \"Read https://example.com/ in Arc.\" It opens the page in the browser you are signed in to, reads its title and visible text, and closes the tab.",
   "lists": [],
   "no_lists_because": "It keeps no list: each run reads one page and answers it.",

@@ -25,10 +25,10 @@ function fixture({ declared }) {
   writeFileSync(join(root, 'tools', 'app', 'do-work', 'main.mjs'), "import scripted from 'fake-scripted';\nexport default scripted;\n");
   const row = {
     kind: 'ai-tool-descriptor', id: 'tool:app', status: 'Active',
-    invoke: { argv: ['/opt/app/do-work/main.mjs'], files: { package_files: [{ package: 'app', paths: ['do-work'], at: '/opt/app' }] } },
+    invoke: { run: ['/opt/app/do-work/main.mjs'], files: { package_files: [{ package: 'app', paths: ['do-work'], at: '/opt/app' }] } },
   };
   if (declared) row.invoke.packages = { 'fake-scripted': { version: '1.0.0' } };
-  writeFileSync(join(root, 'tools', 'app', 'tool-rows.json'), JSON.stringify({ records: [{ payload: row }] }));
+  writeFileSync(join(root, 'tools', 'app', 'what-this-tool-does-and-how-to-run-it.json'), JSON.stringify({ records: [{ payload: row }] }));
   writeFileSync(join(root, 'package-lock.json'), JSON.stringify({
     lockfileVersion: 3,
     packages: { '': {}, [KEY]: { version: '1.0.0', resolved: 'https://registry.npmjs.org/fake-scripted/-/fake-scripted-1.0.0.tgz', integrity: 'sha512-AAAA', hasInstallScript: true } },
@@ -64,12 +64,12 @@ test('a package the row lays out under its own name is not laid out again by a m
   writeFileSync(join(root, 'tools', 'app', 'do-work', 'main.mjs'), "import kit from 'kit';\nexport default kit;\n");
   const row = {
     kind: 'ai-tool-descriptor', id: 'tool:app', status: 'Active',
-    invoke: { argv: ['/opt/app/do-work/main.mjs'], packages: { shared: { version: '1.0.0' } }, files: { package_files: [
+    invoke: { run: ['/opt/app/do-work/main.mjs'], packages: { shared: { version: '1.0.0' } }, files: { package_files: [
       { package: 'app', paths: ['do-work'], at: '/opt/app' },
       { packages: ['shared'], at: '/opt/node_modules/shared' },
     ] } },
   };
-  writeFileSync(join(root, 'tools', 'app', 'tool-rows.json'), JSON.stringify({ records: [{ payload: row }] }));
+  writeFileSync(join(root, 'tools', 'app', 'what-this-tool-does-and-how-to-run-it.json'), JSON.stringify({ records: [{ payload: row }] }));
   const at = name => ({ version: '1.0.0', resolved: `https://registry.npmjs.org/${name}/-/${name}-1.0.0.tgz`, integrity: 'sha512-AAAA' });
   writeFileSync(join(root, 'package-lock.json'), JSON.stringify({
     lockfileVersion: 3,

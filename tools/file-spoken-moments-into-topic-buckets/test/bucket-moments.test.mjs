@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'bucket_moments.py');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const run = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const lastLine = out => JSON.parse(out.trim().split('\n').pop()).result;
 const lines = path => readFileSync(path, 'utf8').trim().split('\n').map(line => JSON.parse(line));

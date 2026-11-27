@@ -1,6 +1,6 @@
 # tools/read-and-write-mail/
 
-A person's mail, on whichever mail provider their account is on: find, read, organize, trash and restore mail and conversations, keep and send drafts, and set the signature they send with. Each tool is one `container` row in `tool-rows.json` named for its job. It takes `provider` (an id of `read-data/mail-providers.json`) and `connection` (`{ connection_id, connected_at }`, the account of that provider, by its handle only), runs as that account, and answers the provider-neutral rows of `read-data/neutral.mjs`, never the provider's own payload. The person's key stays in their vault: the engine hands it to the run alone (descriptor 4), renews it when it has expired, and the run places it only in the Authorization header of a request to the provider's own host.
+A person's mail, on whichever mail provider their account is on: find, read, organize, trash and restore mail and conversations, keep and send drafts, and set the signature they send with. Each tool is one `container` row in `what-this-tool-does-and-how-to-run-it.json` named for its job. It takes `provider` (an id of `read-data/mail-providers.json`) and `connection` (`{ connection_id, connected_at }`, the account of that provider, by its handle only), runs as that account, and answers the provider-neutral rows of `read-data/neutral.mjs`, never the provider's own payload. The person's key stays in their vault: the engine hands it to the run alone (descriptor 4), renews it when it has expired, and the run places it only in the Authorization header of a request to the provider's own host.
 
 Earlier this folder was `tools/read-and-write-gmail/`: 21 `http` rows named `tool:google-account-<request>`, and the mail screen read Gmail's MIME payload itself (`gmail-email.ts`). Vendors are reached by connection role, never by name (the person's own rule, Nov 14 2026; case engines-already-do-it-sweep-2026-11-14, lane 12, findings 23 and 24), so the provider is a row and its wire format is one adapter file behind that row.
 
@@ -19,7 +19,7 @@ A new provider is a row in `mail-providers.json` and an adapter file. No tool id
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The 19 rows. Each `invoke.by_input` (`input: provider`) holds one variant per provider row: its `connection` `{ vendor, from_input: "connection" }` and its `refresh`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The 19 rows. Each `invoke.by_input` (`input: provider`) holds one variant per provider row: its `connection` `{ vendor, from_input: "connection" }` and its `refresh`. |
 | `read-data/mail.mjs` | The one entry: `providerFor`, `makeCall` (the key and the host guard), `perform`, and one export per operation, run by `tools/workflows/do-work/run-a-function.mjs`. |
 | `read-data/mail-providers.json` | The provider rows and the words of a refusal. |
 | `read-data/neutral.mjs` | `neutralMessage`, `HEADER_FIELDS`, the neutral/wire label words. |

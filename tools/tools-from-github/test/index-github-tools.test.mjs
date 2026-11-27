@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { indexRow, licenceOf } from '../index-github-tools.mjs';
 
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
-const rows = read('../tool-rows.json').records.map(record => record.payload);
+const rows = read('../what-this-tool-does-and-how-to-run-it.json').records.map(record => record.payload);
 const sources = read('../sources.json').rows;
 const classes = read('../../../licence-classes.json').records.map(record => record.payload);
 

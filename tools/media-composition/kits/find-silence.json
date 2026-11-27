@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-silence's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-silence.mjs, and the script run on a synthetic 7 second clip (a tone with silence from 2 to 4 s and from 6 to 7 s)",
+  "drafted_from": "tool:find-silence's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/detect-silence.mjs, and the script run on a synthetic 7 second clip (a tone with silence from 2 to 4 s and from 6 to 7 s)",
   "start_here": "Say to your AI: \"Find the silent pauses in my talking video and the parts worth keeping.\" It runs tool:find-silence and hands back the silences and the keep stretches in seconds.",
   "lists": [],
   "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",

@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { evaluate as formulaEvaluate, initSync } from '../../formula-engine/built-stored-bytes/formula-engine/formula_engine.js';
 
-export const catalogueRows = JSON.parse(readFileSync(new URL('../../show-my-screens-from-a-catalogue-of-reads-and-layouts/tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+export const catalogueRows = JSON.parse(readFileSync(new URL('../../show-my-screens-from-a-catalogue-of-reads-and-layouts/what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 initSync({ module: readFileSync(new URL('../../formula-engine/built-stored-bytes/formula-engine/formula_engine_bg.wasm', import.meta.url)) });
 const evaluate = (binding, input) => formulaEvaluate({ binding, input }).value;
 

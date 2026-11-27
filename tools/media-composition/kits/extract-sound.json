@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:extract-sound's own row in tools/media-composition/tool-rows.json (its argv is one ffmpeg command: no script, mono, 16 kHz, 64 kb/s), and that command run on a synthetic 7 second clip",
+  "drafted_from": "tool:extract-sound's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json (its argv is one ffmpeg command: no script, mono, 16 kHz, 64 kb/s), and that command run on a synthetic 7 second clip",
   "start_here": "Say to your AI: \"Take the sound out of my video as a small audio file so I can transcribe it.\" It runs tool:extract-sound and saves an MP3 in your files.",
   "lists": [],
   "no_lists_because": "It reads one video you name and saves its sound as one file, so it keeps no list of its own.",

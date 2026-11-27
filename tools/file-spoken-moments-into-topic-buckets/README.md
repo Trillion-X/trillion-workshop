@@ -8,7 +8,7 @@ The buckets are the person's own: the vocabulary starts empty, or from the perso
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:file-spoken-moments-into-topic-buckets`: `on-your-computer`, with the commands that fetch it and run it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:file-spoken-moments-into-topic-buckets`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/bucket_moments.py` | The command: `tag`, `tag-moments`, `report`. Each prints its account and a last line `{"result": ...}`. |
 | `do-work/cut_text_into_moments.py` | Untimed transcript text from a cloud-results sqlite copy cut into moments of whole sentences (at most `--max-words`, 120), each placed by its share of the text and, when the length is known, in estimated seconds; its source (the id of the origin row that holds the file, or drive-only) read from the person's file store (`--held`, the files door's answer, or `--namespace-sqlite`); identical texts kept once with the copies named in `duplicates`; the coverage (moments per source, transcripts per source and media kind, hours) in its answer. Moved from source-repo-a (`ports/cut-text-into-moments.json`). |
@@ -55,4 +55,4 @@ Options: `--vocabulary FILE` (default `<transcripts>/buckets.json`, or `<tagged>
 
 **Depends on:** Python 3.10 or later and its standard library; [Ollama](https://ollama.com) running on the same computer with the model pulled.
 
-**Depended on by:** `tool-rows.json` (`tool:file-spoken-moments-into-topic-buckets`), run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:file-spoken-moments-into-topic-buckets`), run on the person's computer by their AI.

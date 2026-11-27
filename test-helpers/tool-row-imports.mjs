@@ -1,8 +1,8 @@
 // test-helpers/tool-row-imports.mjs
 //
-// Purpose: for every ai-tool-descriptor row in a Workshop tree (a row of a folder's tool-rows.json, or a row a tool-row-source
+// Purpose: for every ai-tool-descriptor row in a Workshop tree (a row of a folder's what-this-tool-does-and-how-to-run-it.json, or a row a tool-row-source
 // there lists from its package's records file, as the engine reads them: see rowsOfToolFile), follow the static and dynamic relative imports from the
-// row's declared files and entry programs (invoke.argv under /opt), and report what the row's invoke.files.package_files
+// row's declared files and entry programs (invoke.run under /opt), and report what the row's invoke.files.package_files
 // does not cover. Findings: missing-relative-import (a file the program reaches is not packed), argv-not-declared (the
 // entry program is not packed), bare-import-not-declared (a module name with no module entry), dangling-in-tree (a
 // relative import whose target is not in the tree), read-file-not-packed (a file a module reads at run time by a literal
@@ -42,6 +42,7 @@ import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
 import { MODULES, SCRIPTS_NOT_NEEDED, treeOf } from './pinned-files.mjs';
+import { CARD, programOf } from './tool-rows.mjs';
 
 const SYSTEM_DATA = 'test-helpers/tool-row-imports.json';
 const PINNED_FILES = 'pinned-files.json';
@@ -132,7 +133,7 @@ if (top !== fs.realpathSync(repo)) throw new Error(`${repo} is not the top of a 
 
 const allFiles = git(['ls-tree', '-r', '--name-only', REF]).toString().split('\n').filter(Boolean);
 const fileSet = new Set(allFiles);
-const toolRowFiles = allFiles.filter((f) => /^tools\/[^/]+\/tool-rows\.json$/.test(f));
+const toolRowFiles = allFiles.filter((f) => { const parts = f.split('/'); return parts.length === 3 && parts[0] === 'tools' && parts[2] === CARD; });
 const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs|ts|py)$/.test(f));
 const PY = /\.py$/;
 // The tool a workshop path belongs to: tools/<name>.
@@ -170,11 +171,10 @@ const text = (f) => (blobs.get(f) ? blobs.get(f).toString('utf8') : null);
 
 // The rows a tools folder offers, read as the engine reads them (trillion-rust src/tool_runs/tools/catalog.rs `parse` and
 // `listed`; the names are tool-runs.json's `rows_file`, `row_kind`, `row_source_kind` and `source_records_file`). A folder's
-// tool-rows.json is { records: [{ payload }] }: a payload of ROW_KIND is a row, and a payload of ROW_SOURCE_KIND lists the rows of
+// what-this-tool-does-and-how-to-run-it.json is { records: [{ payload }] }: a payload of ROW_KIND is a row, and a payload of ROW_SOURCE_KIND lists the rows of
 // the kind it names (list.records.kind) from list.records.file (default SOURCE_RECORDS_FILE) in the folder list.records.package:
 // one .json file, or each .json file directly in a folder, every one holding `things` (else `records`) of { payload }. A row is
 // kept when it has an id that holds no `/` (the engine's tool key separator); a listed row is a row of its own package's files.
-const ROWS_FILE = 'tool-rows.json';
 const ROW_KIND = 'ai-tool-descriptor';
 const ROW_SOURCE_KIND = 'tool-row-source';
 const SOURCE_RECORDS_FILE = 'records.json';
@@ -203,7 +203,7 @@ function listedRowsOf(source) {
   }
   return rows;
 }
-// Every row a tool-rows.json offers, direct or listed, with the id the engine keys it by.
+// Every row a what-this-tool-does-and-how-to-run-it.json offers, direct or listed, with the id the engine keys it by.
 function rowsOfToolFile(rowFile) {
   const doc = JSON.parse(text(rowFile));
   const rows = [];
@@ -367,7 +367,7 @@ function doorReachFor(desc, files, text, fileSet) {
     return out;
   };
   // The entry: the export a run-an-export runner names, else the whole file of a direct script.
-  const argv = (desc.invoke?.argv || []).filter(a => typeof a === 'string');
+  const argv = programOf(desc.invoke).filter(a => typeof a === 'string');
   const runner = argv.findIndex(a => a.endsWith('/records-door/do-work/run-an-export.mjs'));
   let start = [];
   if (runner >= 0 && argv[runner + 1] && argv[runner + 2]) {
@@ -456,7 +456,7 @@ function checkRow(rowFile, desc) {
     const hits = fileSet.has(dir) ? [dir] : codeFiles.filter((f) => f.startsWith(dir + '/') && !PY.test(f));
     for (const h of hits) queue.push({ ws: h, from: 'declared' });
   }
-  for (const a of desc.invoke?.argv || []) {
+  for (const a of programOf(desc.invoke)) {
     if (typeof a !== 'string' || !a.startsWith('/opt/')) continue;
     const w = toWorkshop(a, covers);
     if (w && fileSet.has(w.ws)) queue.push({ ws: w.ws, from: 'argv' });
@@ -470,8 +470,8 @@ function checkRow(rowFile, desc) {
   const ownFolders = new Map();
   // Python: the packages a row's Python files import, each at the folder its entry program runs from (Python finds a module in the
   // folder of its script), and the files a Python file reaches by name in the tree (reachPy).
-  // The Python program the row runs: its first argv word ending in .py, relative to the row's workdir (else its own folder).
-  const entryWord = (desc.invoke?.argv || []).find((a) => typeof a === 'string' && a.endsWith('.py') && !a.startsWith('-'));
+  // The Python program the row runs: its first run word ending in .py, relative to the row's workdir (else its own folder).
+  const entryWord = programOf(desc.invoke).find((a) => typeof a === 'string' && a.endsWith('.py') && !a.startsWith('-'));
   const entryPy = entryWord && (entryWord.startsWith('/') ? entryWord : path.posix.join(desc.invoke?.workdir ?? `/opt/${toolOf(rowFile).split('/')[1]}`, entryWord));
   const pyNeeds = new Map(); // `${at}|${package}` -> {at, package}
   const needPython = (name, ws, spec) => {
@@ -692,7 +692,7 @@ for (const rf of toolRowFiles) {
   for (const d of rows) {
     if (!d.invoke) { if (d.kind === ROW_KIND) results.push({ row_file: rf, id: d.id, status: d.status, note: 'no invoke' }); continue; }
     const { findings, items } = checkRow(rf, d);
-    results.push({ row_file: rf, id: d.id, status: d.status, kind: d.invoke.kind, workdir: d.invoke.workdir ?? null, argv: d.invoke.argv ?? [], package_files: (d.invoke.files?.package_files || []).length, findings, items });
+    results.push({ row_file: rf, id: d.id, status: d.status, kind: d.invoke.kind, workdir: d.invoke.workdir ?? null, run: d.invoke.run ?? [], package_files: (d.invoke.files?.package_files || []).length, findings, items });
   }
 }
 const byRow = {};

@@ -55,7 +55,7 @@ const acceptance = (outcome, parts = []) => ({ outcome, target: { type: 'fixture
 const pick = (value, keys) => Object.fromEntries(keys.map(key => [key, value[key]]));
 
 const RULES = JSON.parse(readFileSync(new URL('../task-moves.json', import.meta.url), 'utf8'));
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const rowOf = id => ROWS.find(row => row.id === id);
 const T0 = Date.parse('2026-11-01T20:00:00.000Z');
 const at = minutes => () => new Date(T0 + minutes * 60000);
@@ -476,9 +476,9 @@ test('an owned bounded recovery resumes the same task; early and unrelated calle
   } finally { await fake.close(); }
 });
 
-// The row runs as the Workshop runs it: its invoke argv through the engine's runner, with the input and task on standard input.
+// The row runs as the Workshop runs it: its invoke run through the engine's runner, with the input and task on standard input.
 function runRow(id, input, task = {}) {
-  const [node, runner, file, name] = rowOf(id).invoke.argv;
+  const [node, runner, file, name] = rowOf(id).invoke.run;
   const local = path => path.replace(/^\/opt\//, TOOLS);
   const run = spawnSync(node, [local(runner), local(file), name], { input: JSON.stringify({ input, task }), encoding: 'utf8' });
   return JSON.parse(run.stdout.trim().split('\n').at(-1));

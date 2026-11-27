@@ -35,5 +35,5 @@
       "hands_back": "{\"segment\":{\"id\":\"a\",\"title\":\"A\",\"meaning\":\"Ready now.\",\"next_step\":null},\"follow_up\":[],\"kept\":true,\"keep_at\":null}"
     }
   ],
-  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/tool-rows.json and steps/serve-form-page.ts"
+  "drafted_from": "tool row in tools/ask-questions-sort-answers-follow-up/what-this-tool-does-and-how-to-run-it.json and steps/serve-form-page.ts"
 }

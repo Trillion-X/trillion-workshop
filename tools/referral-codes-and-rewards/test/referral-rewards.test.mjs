@@ -154,8 +154,8 @@ test('rules in one test group are arms: each referrer lands on one arm, always t
 test('no row holds a records door: the rules come in the request and the answer holds every result, and no money moves', () => {
   for (const row of [make, workOut, give, withdraw]) {
     assert.equal(row.invoke.records, undefined, `${row.id} holds no records door`);
-    assert.equal(row.invoke.internet ?? false, false, `${row.id} reaches no network`);
-    assert.equal(row.invoke.credential_mounts, undefined, `${row.id} holds no key`);
+    assert.equal(row.invoke.may_reach, undefined, `${row.id} reaches no network`);
+    assert.equal(row.invoke.key, undefined, `${row.id} holds no key`);
   }
   for (const row of [make, workOut, give]) assert.ok(row.input_schema.required.includes('rules'), `${row.id} takes the rule rows as input`);
 });

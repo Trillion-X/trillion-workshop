@@ -28,7 +28,7 @@
           }
         }
       },
-      "given": "Reads tools/hetzner-dns/tool-rows.json: POST https://api.hetzner.cloud/v1/zones/{zone}/rrsets with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
+      "given": "Reads tools/hetzner-dns/what-this-tool-does-and-how-to-run-it.json: POST https://api.hetzner.cloud/v1/zones/{zone}/rrsets with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
       "hands_back": "It answers the new record set: name www, type A, TTL 60, one value 203.0.113.10."
     }
   ]

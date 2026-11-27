@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:microsoft-markitdown's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs markitdown.",
+  "drafted_from": "tool:github:microsoft-markitdown's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs markitdown.",
   "start_here": "Say to your AI: \"Use markitdown on my computer to turn a PDF: the file is menu.pdf.\" It reads the row, installs markitdown if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: markitdown is a program that runs on the person's own computer and works on the one file or address it is handed.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:microsoft-markitdown runs on your computer, so after tools:list the AI runs, in the folder it got markitdown in, the command line: markitdown menu.pdf -o menu.md  (synthetic input: a one page PDF menu of a bakery).",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:microsoft-markitdown runs on your computer, so after tools:list the AI runs, in the folder it got markitdown in, the command line: markitdown menu.pdf -o menu.md  (synthetic input: a one page PDF menu of a bakery).",
       "hands_back": "markitdown writes menu.md: the text of menu.pdf as Markdown, with headings as \"#\" lines and each price list as \"-\" lines."
     }
   ]

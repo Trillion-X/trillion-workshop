@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:put-records-into-my-account row (tools/export-records-as-list-rows/tool-rows.json), read-data/record_write_plan.py, do-work/plan_record_write.py and test/test_record_write_plan.py; the answer is what do-work/plan_record_write.py printed on the made-up input below",
+  "drafted_from": "tool:put-records-into-my-account row (tools/export-records-as-list-rows/what-this-tool-does-and-how-to-run-it.json), read-data/record_write_plan.py, do-work/plan_record_write.py and test/test_record_write_plan.py; the answer is what do-work/plan_record_write.py printed on the made-up input below",
   "start_here": "Say to your AI: \"Put the records I built into my account, and tell me what you wrote and whether my account matches.\"",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it works out the writes from the payload the builder made and the records your own store holds, and writes nothing. Your store is written and read by your AI directly, in its own language.",

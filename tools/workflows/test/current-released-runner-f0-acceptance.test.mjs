@@ -14,7 +14,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 
 const COMPONENT = 'tools/build-engine-modules-for-web-hosts/built-stored-bytes/workflow-component/workflow_component.wasm';
 const SOURCE = 'tools/workflows/crates/workflow-component/src/main.rs';
-const ROWS = 'tools/workflows/tool-rows.json';
+const ROWS = 'tools/workflows/what-this-tool-does-and-how-to-run-it.json';
 const FORMULA = 'tools/formula-engine/built-stored-bytes/formula-engine';
 const CHOOSER = 'tools/workflows/read-data/choose-the-workflows-that-fire.mjs';
 const ACTOR = 'synthetic:acceptance-answerer';
@@ -136,13 +136,13 @@ test('current released workflow component acceptance', {
     const runner = rows.find(row => row.id === 'tool:run-a-workflow');
     assert.equal(source?.invoke_with, runner?.id);
     assert.equal(runner?.id, 'tool:run-a-workflow');
-    assert.equal(runner.invoke.argv[0], 'component');
+    assert.equal(runner.invoke.run[0], 'component');
     const [, packageName, ...parts] = COMPONENT.split('/');
     const modulePath = parts.join('/');
     assert.ok(runner.invoke.files.package_files.some(item => item.package === packageName
-      && item.paths.includes(modulePath) && posix.join(item.at, modulePath) === runner.invoke.argv[1]),
-    'the declared argv must run the same packaged component bytes this suite fingerprints');
-    assert.equal(runner.invoke.internet, false);
+      && item.paths.includes(modulePath) && posix.join(item.at, modulePath) === runner.invoke.run[1]),
+    'the declared run must run the same packaged component bytes this suite fingerprints');
+    assert.equal(runner.invoke.may_reach, undefined);
     child.diagnostic(JSON.stringify({ target: identity, declaration_only: true, live_wake_invocation_proved: false }));
   });
 

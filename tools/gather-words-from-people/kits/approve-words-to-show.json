@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/gather-words-from-people/tool-rows.json, do-work/gather-words.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
+  "drafted_from": "tool row in tools/gather-words-from-people/what-this-tool-does-and-how-to-run-it.json, do-work/gather-words.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
   "start_here": "Say to your AI: \"I read Sam Example's words on list:praise and they are right: approve 'The cake was the best part of the day.' for showing.\" It runs tool:approve-words-to-show with decision approve and the exact words you reviewed.",
   "lists": [
     {

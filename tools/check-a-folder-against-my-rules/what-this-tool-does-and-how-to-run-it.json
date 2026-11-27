@@ -1,0 +1,385 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-folder-against-my-rules",
+        "id": "tool:check-a-folder-against-my-rules",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 20, "network_egress": false },
+        "label": "Check a folder's files against rules I wrote",
+        "job": "Check the source files of a project folder against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
+        "description": "Give rules: one row each, { kind: \"source-file-rule\", id, why, scope: { path_matches, path_excludes }, applies_when: { all | any | content_matches | content_absent }, subject: { named: \"path\" | \"text\" | \"every_path\" }, violation: { unit: { split }, forbidden, required, exempt }, message }. A pattern is a regular expression, or { pattern, flags }, or { collected: { pattern, capture } } to match any value found in the text being judged. forbidden and required mean AND across a list; exempt means OR. The rule is data: the checker knows no rule. Optional under (a sub-folder to judge) and recorded ({ known_findings: { <rule id>: [\"path\" or \"path:line\"] } }) to compare against a written baseline in both directions. Runs over the folder the person granted for reading, using git's listing when the folder is a repository and every file otherwise; it reads the files as they are on disk and refuses links and special files instead of following them. Returns passed, said, violations ({ rule_id, path, line, evidence }), report (findings grouped under each rule's why), rule_coverage, refused_paths, dangling_paths, files, ratchet. A run where no file met a rule is not a pass.",
+        "input_schema": {
+          "type": "object",
+          "required": ["rules"],
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": ["id", "violation"],
+                "properties": {
+                  "id": { "type": "string", "description": "The rule's own id; findings are counted by it, so two rules may not share one" },
+                  "why": { "type": "string", "description": "Why the rule exists, shown with its findings" },
+                  "scope": { "type": "object", "description": "Which paths the rule covers: path_matches and path_excludes, regular expressions" },
+                  "applies_when": { "type": "object", "description": "A condition on the file's text: all, any, content_matches, content_absent" },
+                  "subject": { "type": "object", "description": "Which string the rule judges: { named: \"path\" | \"text\" | \"every_path\" }; the text when left out" },
+                  "violation": { "type": "object", "description": "unit (how to divide the text), forbidden, required, exempt" },
+                  "message": { "type": "string" },
+                  "requires_regular_file": { "type": "boolean" },
+                  "baseline_policy": { "type": "string", "description": "\"zero\": a finding fails the run even when it is recorded" }
+                }
+              },
+              "description": "The rules, one row each"
+            },
+            "under": { "type": "string", "description": "A sub-folder of the granted folder: only its files are judged" },
+            "recorded": { "type": "object", "description": "A written baseline: { known_findings: { <rule id>: [path or path:line] } }" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["passed", "said", "violations"],
+          "properties": {
+            "passed": { "type": "boolean" },
+            "said": { "type": "string" },
+            "rules": { "type": "integer" },
+            "files": { "type": "integer" },
+            "content_files": { "type": "integer" },
+            "scanned_from": { "type": "string" },
+            "violations": { "type": "array", "items": { "type": "object", "required": ["rule_id", "path"] } },
+            "report": { "type": "array" },
+            "rule_coverage": { "type": "array" },
+            "no_applicable_rule": { "type": "boolean" },
+            "refused_paths": { "type": "array" },
+            "dangling_paths": { "type": "array" },
+            "ratchet": { "type": ["object", "null"] }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/check-a-folder-against-my-rules",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/check-a-folder-against-my-rules/do-work/check-my-folder.mjs",
+            { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "check-a-folder-against-my-rules",
+              "paths": ["do-work"],
+              "at": "/opt/check-a-folder-against-my-rules"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"rules": [{"kind": "source-file-rule", "id": "no-fixme-marker", "why": "a fixme marker left in a file means unfinished work was shipped", "scope": {"path_matches": "\\.txt$"}, "violation": {"unit": {"split": "\\n"}, "forbidden": "FIXME"}, "message": "a fixme marker"}]}, "files": [{"grant": "read-a-folder", "path": "notes/todo.txt", "text": "Water the plants\nFIXME the sample line\n"}]}]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-folder-against-my-rules",
+        "id": "tool:rewrite-control-bytes-as-escapes",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 20, "network_egress": false },
+        "label": "Make a raw control byte in my source files searchable again",
+        "job": "Rewrite a raw control character hiding in source files (which makes search tools skip the file as binary) as the escape that means the same character, so the file stays exactly the program it was",
+        "description": "Give files: the paths, inside the folder the person granted for change, of the files to rewrite (names, never a search: finding them is the caller's job, with grep -a). A file is rewritten only when putting every escape back reproduces the original byte for byte and, for a file Node can parse, Node still accepts the result; otherwise it is left alone and the answer says why. Tab, newline and carriage return are never touched. A path that is a link, special file or leaves the folder is refused. Returns rewritten, left_alone and each file's outcome.",
+        "input_schema": {
+          "type": "object",
+          "required": ["files"],
+          "additionalProperties": false,
+          "properties": {
+            "files": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 }, "description": "Paths relative to the granted folder" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["rewritten", "left_alone", "each"],
+          "properties": {
+            "rewritten": { "type": "integer" },
+            "left_alone": { "type": "integer" },
+            "each": { "type": "array", "items": { "type": "object", "required": ["path", "changed"] } }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["change-a-folder"],
+          "workdir": "/opt/check-a-folder-against-my-rules",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/check-a-folder-against-my-rules/do-work/repair-control-bytes-in-my-folder.mjs",
+            { "fill": { "from": "task", "field": "grants.change-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "check-a-folder-against-my-rules",
+              "paths": ["do-work"],
+              "at": "/opt/check-a-folder-against-my-rules"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"files": ["src/keys.mjs"]}, "files": [{"grant": "change-a-folder", "path": "src/keys.mjs", "text": "export const SEPARATED = \"a\u0001b\";\n"}]}]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-a-folder-against-my-rules",
+        "id": "tool:check-an-archive-against-my-rules",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 30,
+          "network_egress": true,
+          "memory_mb": 1024
+        },
+        "label": "Check a commit's files against rules I wrote",
+        "job": "Check the files of a repository's commit, as its host serves it, against rules the person wrote down, and say which files break which rule, where, and why the rule exists",
+        "description": "Give archive (the https address of a .tar.gz, such as a host's archive of one commit) and rules, as tool:check-a-folder-against-my-rules takes them, with optional under, recorded, subjects_from and credential_name (the held name of a token a private repository's archive needs, sent only to the archive's own host). subjects_from computes, every run, a set a rule collects from (collected.from_subject) that the archive cannot hold: each value a pattern captures in the files of archive was, less those it captures in archive now (such as the tool ids another repository stopped declaring), with moved naming a value's new home. The archive's regular files are written into a private folder of this run (one top folder every path shares is dropped), judged by the same engine, and removed before the answer; a file larger than the DATA bound is not read: skipped_paths names each with its size and why, and a run where a rule covers one (unjudged_paths) is not a pass. Nothing on the person's computer is read, so a change is judged as it was pushed. Returns passed, said, archive, written, skipped, violations ({ rule_id, path, line, evidence, moved_to when its value's new home is recorded }), subjects (how many values each computed subject holds), report, rule_coverage, files, ratchet. A run where no file met a rule is not a pass.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "archive",
+            "rules"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "archive": {
+              "type": "string",
+              "pattern": "^https://",
+              "description": "The https address of a gzip tar archive, such as a host's archive of one commit"
+            },
+            "rules": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "violation"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The rule's own id; findings are counted by it, so two rules may not share one"
+                  },
+                  "why": {
+                    "type": "string",
+                    "description": "Why the rule exists, shown with its findings"
+                  },
+                  "scope": {
+                    "type": "object",
+                    "description": "Which paths the rule covers: path_matches and path_excludes, regular expressions"
+                  },
+                  "applies_when": {
+                    "type": "object",
+                    "description": "A condition on the file's text: all, any, content_matches, content_absent"
+                  },
+                  "subject": {
+                    "type": "object",
+                    "description": "Which string the rule judges: { named: \"path\" | \"text\" | \"every_path\" }; the text when left out"
+                  },
+                  "violation": {
+                    "type": "object",
+                    "description": "unit (how to divide the text), forbidden, required, exempt"
+                  },
+                  "message": {
+                    "type": "string"
+                  },
+                  "requires_regular_file": {
+                    "type": "boolean"
+                  },
+                  "baseline_policy": {
+                    "type": "string",
+                    "description": "\"zero\": a finding fails the run even when it is recorded"
+                  }
+                }
+              },
+              "description": "The rules, one row each"
+            },
+            "under": {
+              "type": "string",
+              "description": "A sub-folder of the granted folder: only its files are judged"
+            },
+            "recorded": {
+              "type": "object",
+              "description": "A written baseline: { known_findings: { <rule id>: [path or path:line] } }"
+            },
+            "subjects_from": {
+              "type": "object",
+              "description": "Named subjects computed from two archives: { <name>: { was, now, path_matches, pattern, capture?, moved? } } is each value pattern captures (group capture, 1 when left out) in the files of archive was that path_matches names, less every value it captures in archive now, one per line. moved is a pattern with groups from and to over now's same files. A subject no file of either archive matches is refused.",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "was",
+                  "now",
+                  "path_matches",
+                  "pattern"
+                ],
+                "properties": {
+                  "was": {
+                    "type": "string",
+                    "pattern": "^https://"
+                  },
+                  "now": {
+                    "type": "string",
+                    "pattern": "^https://"
+                  },
+                  "path_matches": {
+                    "type": "string"
+                  },
+                  "pattern": {
+                    "type": "string"
+                  },
+                  "capture": {
+                    "type": [
+                      "integer",
+                      "string"
+                    ]
+                  },
+                  "moved": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "credential_name": {
+              "type": "string",
+              "description": "The held name of a token that may read the archive (a private repository's): the vault name the person saved it under. It is sent only to the archive address's own host, as a bearer token."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "passed",
+            "said",
+            "violations"
+          ],
+          "properties": {
+            "passed": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            },
+            "rules": {
+              "type": "integer"
+            },
+            "files": {
+              "type": "integer"
+            },
+            "content_files": {
+              "type": "integer"
+            },
+            "scanned_from": {
+              "type": "string"
+            },
+            "violations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rule_id",
+                  "path"
+                ]
+              }
+            },
+            "report": {
+              "type": "array"
+            },
+            "rule_coverage": {
+              "type": "array"
+            },
+            "no_applicable_rule": {
+              "type": "boolean"
+            },
+            "refused_paths": {
+              "type": "array"
+            },
+            "dangling_paths": {
+              "type": "array"
+            },
+            "ratchet": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "archive": {
+              "type": "string"
+            },
+            "written": {
+              "type": "integer"
+            },
+            "skipped": {
+              "type": "integer"
+            },
+            "subjects": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [], "public_read": true,
+          "workdir": "/opt/check-a-folder-against-my-rules",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/check-a-folder-against-my-rules/do-work/check-an-archive.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "check-a-folder-against-my-rules",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/check-a-folder-against-my-rules"
+              }
+            ]
+          },
+          "key": [
+            {
+              "secret_name_from_input": "credential_name",
+              "fd": 3,
+              "only_when": {
+                "input": "credential_name",
+                "present": true
+              }
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "verify": []
+      }
+    }
+  ]
+}

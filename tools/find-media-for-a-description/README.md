@@ -6,7 +6,7 @@ A script a person's AI runs on the person's own computer. Given a few words and 
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:find-media-for-a-description`: `on-your-computer`, with the command that fetches and runs it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:find-media-for-a-description`: `on-your-computer`, with the command that fetches and runs it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/find_media.mjs` | The one entry point. Reads a request on standard input, looks its provider up in the table, checks the kind and licence the row offers, fills the row's argv from the request and runs it from this folder. No provider is named in it. |
 | `do-work/bank-provider.mjs` | The `bank` provider: tagged lookup over one folder of the person's media (sidecar `<file>.tags.json`, plain word overlap over tags and file name); copies the best match, never changes the folder. |
@@ -46,4 +46,4 @@ node do-work/find_media.mjs < request.json
 
 **Depends on:** Node 22 or later (standard library only). The stock provider reaches the libraries named in `stock-sources.json` with the person's own keys.
 
-**Depended on by:** `tool-rows.json` (`tool:find-media-for-a-description`), run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:find-media-for-a-description`), run on the person's computer by their AI.

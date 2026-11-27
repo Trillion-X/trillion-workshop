@@ -44,5 +44,5 @@
       "hands_back": "{\"checked\":true,\"disks\":[{\"mount\":\"/\",\"type\":\"ext4\",\"used_pct\":86.2}],\"engines\":[],\"findings\":[{\"computer\":\"data\",\"kind\":\"disk-filling\",\"level\":\"warn\",\"about\":\"/\",\"said\":\"/ is 86.2% full (at or past 85%); 5.4 GB free of 40 GB.\"}]}"
     }
   ],
-  "drafted_from": "tools/check-a-computer-from-inside/tool-rows.json and its read of three computers on Nov 24 2026"
+  "drafted_from": "tools/check-a-computer-from-inside/what-this-tool-does-and-how-to-run-it.json and its read of three computers on Nov 24 2026"
 }

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:turn-frames-into-slides-from-a-request's row in tools/turn-frames-into-slides/tool-rows.json and the made-up board of test/make-slides.test.mjs (the same program, make-slides.mjs, run by the engine with the request given inline)",
+  "drafted_from": "tool:turn-frames-into-slides-from-a-request's row in tools/turn-frames-into-slides/what-this-tool-does-and-how-to-run-it.json and the made-up board of test/make-slides.test.mjs (the same program, make-slides.mjs, run by the engine with the request given inline)",
   "start_here": "Say to your AI: \"Make slides from my deck: two frames, the first saying Made for Example Co and its 70 people., the second One line. and A second line., on paper #f5f1ea in ink #202020 with Georgia and Helvetica, titled Example deck.\" It calls tool:turn-frames-into-slides-from-a-request with that request as JSON and gives you the kept slides.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one request given as JSON and keeps the slide files it writes in the person's files.",

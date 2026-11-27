@@ -40,7 +40,7 @@
      "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
      "workdir": "/opt/parts/funnels-and-offers",
      "stdout": "json",
-     "argv": ["node", "do-work/walk-a-funnel.mjs", {"fill": {"from": "input"}}]
+     "run": ["node", "do-work/walk-a-funnel.mjs", {"fill": {"from": "input"}}]
     },
     "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
     "licence_class": "licence:maker-own",
@@ -104,7 +104,7 @@
      ]},
      "workdir": "/opt/parts/funnels-and-offers",
      "stdout": "json",
-     "argv": ["node", "do-work/measure-funnel-stages.mjs", {"fill": {"from": "input"}}]
+     "run": ["node", "do-work/measure-funnel-stages.mjs", {"fill": {"from": "input"}}]
     },
     "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
     "licence_class": "licence:maker-own",
@@ -308,7 +308,7 @@
      "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
      "workdir": "/opt/parts/funnels-and-offers",
      "stdout": "json",
-     "argv": ["node", "do-work/read-a-funnel-definition.mjs", {"fill": {"from": "input"}}]
+     "run": ["node", "do-work/read-a-funnel-definition.mjs", {"fill": {"from": "input"}}]
     },
     "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
     "licence_class": "licence:maker-own",
@@ -359,7 +359,7 @@
      "files": {"package_files": {"package": "funnels-and-offers", "paths": ["do-work", "read-data"], "at": "/opt/parts/funnels-and-offers"}},
      "workdir": "/opt/parts/funnels-and-offers",
      "stdout": "json",
-     "argv": ["node", "do-work/draft-a-funnel.mjs", {"fill": {"from": "input"}}]
+     "run": ["node", "do-work/draft-a-funnel.mjs", {"fill": {"from": "input"}}]
     },
     "needs": {"expected_seconds": 10, "network_egress": false, "memory_mb": 256},
     "licence_class": "licence:maker-own",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "the tool row in tool-rows.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
+  "drafted_from": "the tool row in what-this-tool-does-and-how-to-run-it.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
   "start_here": "Say to your AI: \"When a new sales contract comes in, run the contract builder\". Once this row is on, it sets a rule that runs a tool or workflow when something happens. It is off (status inactive) until the scheduling owner accepts the call shape; while it is off, the AI says so and does not pretend a schedule was kept.",
   "lists": [],
   "no_lists_because": "Rules are kept by the host, and this row does not store them.",

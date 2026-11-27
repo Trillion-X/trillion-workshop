@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:find-glitches-in-a-generated-voice-take's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:find-glitches-in-a-generated-voice-take's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Check my generated voice take /Work/demo/take.wav with its word times /Work/demo/take.words.json for breathy words, pitch breaks, clicks and stretched words.\" It runs tool:find-glitches-in-a-generated-voice-take on your computer and names each flagged word.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a take and its word times on your computer and writes a qc file beside the take.",

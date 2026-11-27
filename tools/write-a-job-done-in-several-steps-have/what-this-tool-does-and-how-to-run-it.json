@@ -1,0 +1,786 @@
+{
+  "kind": "package-set-records",
+  "record_set": "write-a-job-done-in-several-steps-have-tool-rows",
+  "what_this_is": "The Workshop row for the write-a-job-done-in-several-steps-have folder: run a person's workflow on the workflow engine in one call, from engine definitions or from a recipe (or its row and step rows), with the answers known so far. It takes what it runs in its request and returns the run in its answer; nothing is kept.",
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:write-a-job-done-in-several-steps-have",
+        "licence_class": "licence:maker-own",
+        "provenance": {
+          "source": "Moved from the older version (commit b6ae0ebf81): its row tool:run-workflow-definition (tools/run-rules-and-schedules-by-themselves/from-an-older-version/records/workshop-engine-tool-records.json), and its src/workflows.mjs definitionOf, moved whole into read-data/workflows.mjs (moved-from.json). The engine is tools/run-a-workflow-definition-on-the-workflow-engine-in-one-call."
+        },
+        "id": "tool:run-workflow-definition",
+        "label": "Run a workflow definition (workflow engine)",
+        "job": "Workflow engine: run a workflow definition of steps (asks, branches, loops, parallel steps, checks) with an input, using the answers known so far, and say where it finished or which steps are waiting for an answer",
+        "description": "Give definitions (workflow-core definitions: id, name, kind \"workflow\", is_active, version, steps [{id, kind, config}], edges [{from, to, kind}]), the workflow_id to run, its input and answers keyed by step id (an ask's config.context.step_id) or ask name. Returns the run (status completed, failed or paused, each step's output) and waiting: the asks with no answer yet, each with the input the engine gave it. Call again with those answers added and the run goes on from there. Or give a recipe (or the person's record:workflow-recipe row with its record:workflow-step rows) instead of definitions: it becomes one definition, each step an ask of the tool it runs or, when it runs none, of the run's own actor (the binding context.actor.user_id), followed by the steps that judge its checks, and a recipe holding its own definition runs as that definition, from the step start_at names when one is named. A check fails the run with the engine's own words, naming the value. A listed workflow row (source:workflow-recipes) runs as this tool: given its id as row, the shipped recipe runs, the row's other fields (a wake's input) are the run's input, start_at there is the step the run starts at, and the answer carries the recipe's kit. Nothing is kept: the caller keeps the answers and calls again.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "definitions": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object"
+              },
+              "description": "Every definition the run may reach (give these with workflow_id, or give a recipe)"
+            },
+            "workflow_id": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The definition to run, when definitions are given"
+            },
+            "input": {
+              "description": "The run's input, which the steps' checks may read (input....)"
+            },
+            "answers": {
+              "type": "object",
+              "description": "Answers so far, by step id or ask name"
+            },
+            "partition": {
+              "type": "string"
+            },
+            "recipe": {
+              "type": "object",
+              "description": "A workflow recipe (id, title, steps in order, or its own definition): made a definition by definitionOf, then run"
+            },
+            "row": {
+              "type": [
+                "object",
+                "string"
+              ],
+              "description": "The person's record:workflow-recipe row, given instead of recipe, with its steps; or a shipped workflow row's id, which is what the engine hands when a listed workflow row runs as this tool (its row source's invoke_with). Then every field other than these is the run's input, and start_at there names the step the run starts at."
+            },
+            "steps": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The recipe row's record:workflow-step rows"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "waiting"
+          ],
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "waiting": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "step_id"
+                ],
+                "properties": {
+                  "step_id": {
+                    "type": "string"
+                  },
+                  "asks": {
+                    "type": "string"
+                  },
+                  "input": {}
+                }
+              }
+            },
+            "execution_context": {
+              "type": "object"
+            },
+            "definition": {
+              "type": "object",
+              "description": "The definition a recipe was made into (only when a recipe was given)"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/write-a-job-done-in-several-steps-have",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/write-a-job-done-in-several-steps-have/read-data/run-a-workflow.mjs",
+            "runAsTheTool"
+          ],
+          "records": { "fd": 3, "from_listed_row": true },
+          "stdin": {
+            "run": { "fill": { "from": "input" } },
+            "woken_by": { "fill": { "from": "task", "field": "cause.detail" } }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "ai-tool-catalog",
+                "paths": [
+                  "do-work/derive-tool-rows-from-sources.mjs",
+                  "do-work/read-openapi.mjs",
+                  "read-data/declared-effects.ts",
+                  "read-data/read-ai-tool-catalog.ts"
+                ],
+                "at": "/opt/ai-tool-catalog"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "build-a-screen-from-patches",
+                "paths": [
+                  "read-data/declared-props.json",
+                  "read-data/screen-spec.json",
+                  "read-data/view-patch.json",
+                  "read-data/view-patch.mjs"
+                ],
+                "at": "/opt/build-a-screen-from-patches"
+              },
+              {
+                "package": "build-engine-modules-for-web-hosts",
+                "paths": [
+                  "built-stored-bytes/workflow-engine"
+                ],
+                "at": "/opt/build-engine-modules-for-web-hosts"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "do-work/external-effect-attempt.ts"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/blake3.mjs",
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decision-outcome.mjs",
+                  "read-data/what-helped-words.json"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "describe-the-workshop",
+                "paths": [
+                  "read-data/workshop-sample-rules.json"
+                ],
+                "at": "/opt/describe-the-workshop"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules/rule-operators.json",
+                  "rules/variants.json"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "http-client",
+                "paths": [
+                  "do-work/same-origin.mjs"
+                ],
+                "at": "/opt/http-client"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "parts/live-namespace/do-work/shared-file-reference.mjs",
+                  "parts/ui/show/file-chip/file-kinds.json",
+                  "parts/ui/show/file-field/file-takes.json",
+                  "parts/ui/show/file-field/takes-file.mjs",
+                  "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+                  "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+                  "records/outcome-handling.json",
+                  "records/sent-kinds.json",
+                  "server.json",
+                  "src/check-uses.mjs",
+                  "src/claimed-time.json",
+                  "src/claimed-time.mjs",
+                  "src/configurations.mjs",
+                  "src/connecting-without-the-store.json",
+                  "src/connecting-without-the-store.mjs",
+                  "src/cut-off.mjs",
+                  "src/execution-context.mjs",
+                  "src/input-alias-refusal.mjs",
+                  "src/live-tool-sources.mjs",
+                  "src/maker-payouts.json",
+                  "src/maker-payouts.mjs",
+                  "src/meaning-or-words.mjs",
+                  "src/model-admission.mjs",
+                  "src/model-budgets.json",
+                  "src/model-calls.mjs",
+                  "src/namespace-preview.mjs",
+                  "src/outcome-checks.mjs",
+                  "src/outcome-precedence.json",
+                  "src/pool-settings.json",
+                  "src/public-app-run-permission.mjs",
+                  "src/read-bounded-json.mjs",
+                  "src/record-model-tools.mjs",
+                  "src/record-model.json",
+                  "src/record-scope.json",
+                  "src/renamed-tools.json",
+                  "src/renamed-tools.mjs",
+                  "src/save-tool-example.json",
+                  "src/scheduler.json",
+                  "src/scheduler.mjs",
+                  "src/sent.mjs",
+                  "src/shared-namespace-file-input.mjs",
+                  "src/sold-copies.json",
+                  "src/sold-copies.mjs",
+                  "src/source-connection.mjs",
+                  "src/store-size.mjs",
+                  "src/tar-gz.mjs",
+                  "src/tool-releases.mjs",
+                  "src/work-workshop.mjs",
+                  "src/workshop-looks.json",
+                  "src/workshop-sample-rules.mjs",
+                  "src/workshop-settings.json",
+                  "src/workshop.mjs",
+                  "src/workspace/file-previews.json",
+                  "src/workspace/first-answers.json",
+                  "src/workspace/screens.mjs",
+                  "src/workspace/surfaces.json",
+                  "src/write-only-input.mjs",
+                  "src/your-records.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts",
+                  "read-data/configuration-aspects.json",
+                  "read-data/configuration-values.mjs",
+                  "read-data/saved-view-engine.mjs"
+                ],
+                "at": "/opt/keep-lists-of-rows"
+              },
+              {
+                "package": "learn-a-workflow-from-a-job",
+                "paths": [
+                  "src/learned-workflows.json",
+                  "src/learned-workflows.mjs"
+                ],
+                "at": "/opt/learn-a-workflow-from-a-job"
+              },
+              {
+                "package": "leave-a-makers-private-starting-values-out",
+                "paths": [
+                  "src/published-workflow-privacy.mjs"
+                ],
+                "at": "/opt/leave-a-makers-private-starting-values-out"
+              },
+              {
+                "package": "list-tools-for-an-ai",
+                "paths": [
+                  "read-data/tool-releases.json"
+                ],
+                "at": "/opt/list-tools-for-an-ai"
+              },
+              {
+                "package": "build-a-screen-from-patches",
+                "paths": [
+                  "read-data/declared-props.json",
+                  "read-data/screen-spec.json",
+                  "read-data/screen-spec.mjs",
+                  "read-data/view-patch.json",
+                  "read-data/view-patch.mjs"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/build-a-screen-from-patches"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/blake3.mjs",
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/content-identity"
+              },
+              {
+                "package": "pick-a-screen-as-you-type",
+                "paths": [
+                  "src/word-match.mjs"
+                ],
+                "at": "/opt/pick-a-screen-as-you-type"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/record-model.mjs",
+                  "do-work/store-size.json"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "refuse-requests-to-private-addresses",
+                "paths": [
+                  "public-address.json",
+                  "public-address.mjs"
+                ],
+                "at": "/opt/refuse-requests-to-private-addresses"
+              },
+              {
+                "package": "require-that-a-workflow-steps-ai-answer-comes",
+                "paths": [
+                  "src/workflow-actor-policy.mjs"
+                ],
+                "at": "/opt/require-that-a-workflow-steps-ai-answer-comes"
+              },
+              {
+                "package": "run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+                "paths": [
+                  "package.json",
+                  "src/workflow-definition-runner.mjs"
+                ],
+                "at": "/opt/run-a-workflow-definition-on-the-workflow-engine-in-one-call"
+              },
+              {
+                "package": "run-work-later-or-on-a-repeat",
+                "paths": [
+                  "do-work/timed-action.mjs",
+                  "built-stored-bytes/timed-action"
+                ],
+                "at": "/opt/run-work-later-or-on-a-repeat"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/effect-outcomes.json",
+                  "src/failure-codes.json",
+                  "src/failure.mjs",
+                  "src/platform-failures.json",
+                  "src/repo-explorer.mjs",
+                  "src/typed-operation-contract.mjs",
+                  "src/workflow-authoring-guidance.json",
+                  "src/workflow-authoring-guidance.mjs",
+                  "src/workflow-step-versions.json",
+                  "src/workflow-step-versions.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "tweak-live-controls",
+                "paths": [
+                  "effect-outcomes.json",
+                  "failure-codes.json",
+                  "failure.mjs",
+                  "platform-failures.json"
+                ],
+                "at": "/opt/tweak-live-controls"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "read-data/declared-selector.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "workflow-interruptions",
+                "paths": [
+                  "src/workflow-interruptions.json"
+                ],
+                "at": "/opt/workflow-interruptions"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs",
+                  "read-data/host-actions.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/large-file.json",
+                  "ask-rights.json",
+                  "kit-observe.json",
+                  "kit-template.json",
+                  "kits",
+                  "read-data/check-bindings.mjs",
+                  "read-data/draft-a-kit.mjs",
+                  "read-data/kit-for-a-run.mjs",
+                  "read-data/kit-problems.mjs",
+                  "read-data/kit-words.mjs",
+                  "read-data/public-recipes.mjs",
+                  "read-data/recipe-rows.mjs",
+                  "recipe-check-kinds.json",
+                  "recipes"
+                ],
+                "at": "/opt/workflows"
+              },
+              {
+                "package": "write-a-job-done-in-several-steps-have",
+                "paths": [
+                  "read-data/run-a-workflow.mjs",
+                  "read-data/workflows.mjs",
+                  "read-data/variants.mjs",
+                  "read-data/variant-results.json"
+                ],
+                "at": "/opt/write-a-job-done-in-several-steps-have"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "packages": [
+                  "node_modules/tldts"
+                ],
+                "paths": [
+                  "package.json",
+                  "LICENSE",
+                  "dist"
+                ],
+                "at": "/opt/node_modules/tldts"
+              },
+              {
+                "packages": [
+                  "node_modules/tldts-core"
+                ],
+                "paths": [
+                  "package.json",
+                  "LICENSE",
+                  "dist"
+                ],
+                "at": "/opt/node_modules/tldts-core"
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "placements": [
+          "placement:small-container"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "workflow_id": "draft-then-count",
+              "answers": {
+                "draft": {
+                  "text": "A short note about gardening"
+                }
+              },
+              "definitions": [
+                {
+                  "id": "draft-then-count",
+                  "name": "Draft then count",
+                  "kind": "workflow",
+                  "is_active": true,
+                  "version": 1,
+                  "steps": [
+                    {
+                      "id": "draft",
+                      "kind": "ask",
+                      "config": {
+                        "name": "tool:draft",
+                        "input": {
+                          "topic": "gardening"
+                        },
+                        "context": {
+                          "step_id": "draft"
+                        }
+                      }
+                    },
+                    {
+                      "id": "count",
+                      "kind": "ask",
+                      "config": {
+                        "name": "tool:count-words",
+                        "input": {},
+                        "context": {
+                          "step_id": "count"
+                        }
+                      }
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "from": "draft",
+                      "to": "count",
+                      "kind": "always"
+                    }
+                  ]
+                }
+              ]
+            },
+            "output_selector": "$.waiting[0].step_id",
+            "contains": "count"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "recipe": {
+                "id": "workflow:made-up-bake",
+                "title": "Bake a loaf",
+                "steps": [
+                  {
+                    "id": "pick",
+                    "title": "Pick flours",
+                    "do": "Pick the flours the card names.",
+                    "submit": {
+                      "type": "object",
+                      "properties": {
+                        "flours": {
+                          "type": "array"
+                        }
+                      }
+                    },
+                    "checks": [
+                      {
+                        "kind": "subset-of",
+                        "says": "Only flours the card names",
+                        "path": [
+                          "this",
+                          "flours",
+                          "*"
+                        ],
+                        "of": [
+                          "input",
+                          "allowed"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "id": "bake",
+                    "title": "Bake",
+                    "do": "Bake the loaf.",
+                    "submit": {
+                      "type": "object"
+                    }
+                  }
+                ]
+              },
+              "input": {
+                "allowed": [
+                  "rye",
+                  "wheat"
+                ]
+              }
+            },
+            "output_selector": "$.waiting[0].step_id",
+            "contains": "pick"
+          }
+        ]
+      }
+    }
+  ]
+}

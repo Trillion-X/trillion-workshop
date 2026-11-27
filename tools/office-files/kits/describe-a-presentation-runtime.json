@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/office-files/tool-rows.json, do-work/describe-presentation-runtime-surface.mjs and test/apply-presentation-edits.test.mjs (run on its stand-in runtime)",
+  "drafted_from": "tool row in tools/office-files/what-this-tool-does-and-how-to-run-it.json, do-work/describe-presentation-runtime-surface.mjs and test/apply-presentation-edits.test.mjs (run on its stand-in runtime)",
   "start_here": "Say to your AI: \"Show me the property names my presentation runtime /work/runtime.mjs exposes for a slide, a shape's text and speaker notes, using /work/in.pptx.\" It reads the tool's row and runs describe-presentation-runtime-surface.mjs on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads or rewrites one file on the person's own computer and prints what it found or changed.",

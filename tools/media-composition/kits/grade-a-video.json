@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:grade-a-video's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/grade-a-video.mjs, tools/media-composition/read-data/looks.json, tools/media-composition/test/grade-files-from-the-account.test.mjs, and the script run on a synthetic 7 second clip",
+  "drafted_from": "tool:grade-a-video's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/grade-a-video.mjs, tools/media-composition/read-data/looks.json, tools/media-composition/test/grade-files-from-the-account.test.mjs, and the script run on a synthetic 7 second clip",
   "start_here": "Say to your AI: \"Give my video a golden hour look with film grain, a little warmer and a touch brighter.\" It runs tool:grade-a-video and saves the graded video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

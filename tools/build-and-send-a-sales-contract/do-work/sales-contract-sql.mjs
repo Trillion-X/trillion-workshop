@@ -2,13 +2,13 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/build-and-send-a-sales-contract/do-work/sales-contract-sql.mjs
 //
-// tool:sales-contracts, one container process (tool-rows.json): save, list and read sales contracts as rows of a
+// tool:sales-contracts, one container process (what-this-tool-does-and-how-to-run-it.json): save, list and read sales contracts as rows of a
 // `sales_contracts` table in the selling pursuit's own database. The tool makes the table itself (each owner's AI makes its own
 // tables). A save is one upsert, a list is one page of one select, a read is one select. The rules are the store's
 // (sales-contract-records.mjs cleanContract): a contract needs a name and a list of primitives, and nothing here fixes a price,
 // a term or a billing period.
 //
-// The connection string is a held value the engine hands this process on descriptor 3 (the row's invoke.credential_mounts), named
+// The connection string is a held value the engine hands this process on descriptor 3 (the row's invoke.key), named
 // by the request's `database` (or `credential_name`); it is never in the request, argv, a file or the environment. The statements
 // go through the extended protocol, one statement per call, as the run-sql tool does; the proxy is run-sql's own
 // (through-the-run-proxy.mjs, the same file in this container).

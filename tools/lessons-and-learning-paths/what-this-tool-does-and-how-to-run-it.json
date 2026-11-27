@@ -1,0 +1,4096 @@
+{
+ "kind": "tool-rows",
+ "record_set": "lessons-and-learning-paths-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/lessons-and-learning-paths: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::lessons-and-learning-paths::tool::work-out-where-a-learner-stands",
+   "address": "package::lessons-and-learning-paths::tool::work-out-where-a-learner-stands",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:work-out-where-a-learner-stands",
+    "label": "Work out where a learner stands on a track",
+    "status": "active",
+    "job": "See how far a learner is along a course, lesson plan or learning path, which step comes next, and what they last showed",
+    "description": "Give the tracks, their ordered steps and the learner's progress states, evaluation receipts, evidence and label rows, and (to look at one person) the learner. Returns, per track, the steps in order, the percent finished counted from the steps (a stored percent or a \"mastered\" label never counts), the step to do next, the latest evaluation the learner's state names, the three newest pieces of evidence, the label for the latest decision and the path: each step complete, active or locked.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "tracks"
+     ],
+     "properties": {
+      "learner_id": {
+       "type": "string",
+       "description": "Look at this learner only; leave out to look at every learner's records"
+      },
+      "tracks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "trackId",
+         "label"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-track"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "summary": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "The tracks"
+      },
+      "steps": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "stepId",
+         "trackId",
+         "label",
+         "sortOrder"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-step"
+         },
+         "stepId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "cue": {
+          "type": "string"
+         },
+         "sortOrder": {
+          "type": "number"
+         }
+        }
+       },
+       "description": "Every step of every track"
+      },
+      "states": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "kind",
+         "learnerId",
+         "trackId",
+         "revision",
+         "completedStepIds",
+         "evaluationReceiptRefs"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-state"
+         },
+         "stateId": {
+          "type": "string"
+         },
+         "learnerId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "revision": {
+          "type": "integer",
+          "minimum": 0
+         },
+         "currentStepId": {
+          "type": "string"
+         },
+         "completedStepIds": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "evaluationReceiptRefs": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "updatedAt": {
+          "type": "string",
+          "description": "ISO time"
+         }
+        }
+       },
+       "description": "The learner's progress states"
+      },
+      "evaluationReceipts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "kind",
+         "evaluationId",
+         "learnerId",
+         "trackId",
+         "evidenceRefs",
+         "measureFactRef",
+         "measureDefinitionRef",
+         "decisionKey",
+         "decision",
+         "score",
+         "confidence",
+         "provenance",
+         "evaluatedAt"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-evaluation-receipt"
+         },
+         "evaluationId": {
+          "type": "string",
+          "description": "This evaluation's own id"
+         },
+         "learnerId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "stepId": {
+          "type": "string",
+          "description": "The step evaluated (required when the decision finishes it)"
+         },
+         "evidenceRefs": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          },
+          "description": "What was evaluated; at least one"
+         },
+         "measureFactRef": {
+          "type": "string"
+         },
+         "measureDefinitionRef": {
+          "type": "string"
+         },
+         "decisionKey": {
+          "type": "string",
+          "description": "The decision's own key"
+         },
+         "decision": {
+          "type": "object",
+          "required": [
+           "completed"
+          ],
+          "properties": {
+           "completed": {
+            "type": "boolean",
+            "description": "True only if the step is finished"
+           },
+           "nextStepId": {
+            "type": "string",
+            "description": "The step to do next"
+           }
+          }
+         },
+         "score": {
+          "type": "number"
+         },
+         "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+         },
+         "provenance": {
+          "type": "object",
+          "description": "Who or what judged it"
+         },
+         "evaluatedAt": {
+          "type": "string",
+          "description": "ISO time"
+         }
+        }
+       },
+       "description": "The accepted evaluation receipts"
+      },
+      "evidence": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "learnerId",
+         "trackId",
+         "label",
+         "createdAt"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-evidence"
+         },
+         "evidenceId": {
+          "type": "string"
+         },
+         "learnerId": {
+          "type": "string"
+         },
+         "trackId": {
+          "type": "string"
+         },
+         "stepId": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "summary": {
+          "type": "string"
+         },
+         "createdAt": {
+          "type": "string",
+          "description": "ISO time"
+         }
+        }
+       },
+       "description": "What the learner has shown"
+      },
+      "presentations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "key",
+         "label"
+        ],
+        "properties": {
+         "kind": {
+          "const": "progress-presentation"
+         },
+         "key": {
+          "type": "string",
+          "description": "A decision key"
+         },
+         "label": {
+          "type": "string",
+          "description": "The words shown for it"
+         }
+        }
+       },
+       "description": "The words to show for each decision key"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "views"
+     ],
+     "properties": {
+      "views": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "track",
+         "percent",
+         "path",
+         "statusLabel"
+        ],
+        "properties": {
+         "track": {
+          "type": "object",
+          "description": "The track"
+         },
+         "steps": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          },
+          "description": "Its steps in order"
+         },
+         "state": {
+          "type": [
+           "object",
+           "null"
+          ]
+         },
+         "latestEvaluation": {
+          "type": [
+           "object",
+           "null"
+          ]
+         },
+         "currentStep": {
+          "type": [
+           "object",
+           "null"
+          ]
+         },
+         "completedCount": {
+          "type": "integer"
+         },
+         "totalSteps": {
+          "type": "integer"
+         },
+         "percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100
+         },
+         "statusLabel": {
+          "type": "string"
+         },
+         "recentEvidence": {
+          "type": "array",
+          "items": {
+           "type": "object"
+          }
+         },
+         "path": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "label",
+            "status"
+           ],
+           "properties": {
+            "id": {
+             "type": "string"
+            },
+            "label": {
+             "type": "string"
+            },
+            "status": {
+             "enum": [
+              "complete",
+              "active",
+              "locked"
+             ]
+            }
+           }
+          }
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "do-work/work-out-where-a-learner-stands.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "learner_id": "learner:1",
+       "tracks": [
+        {
+         "kind": "progress-track",
+         "trackId": "track:bread",
+         "label": "Baking bread"
+        }
+       ],
+       "steps": [
+        {
+         "kind": "progress-step",
+         "stepId": "step:knead",
+         "trackId": "track:bread",
+         "label": "Knead the dough",
+         "sortOrder": 1
+        },
+        {
+         "kind": "progress-step",
+         "stepId": "step:proof",
+         "trackId": "track:bread",
+         "label": "Proof the loaf",
+         "sortOrder": 2
+        },
+        {
+         "kind": "progress-step",
+         "stepId": "step:bake",
+         "trackId": "track:bread",
+         "label": "Bake",
+         "sortOrder": 3
+        }
+       ],
+       "states": [
+        {
+         "kind": "progress-state",
+         "stateId": "state:1",
+         "learnerId": "learner:1",
+         "trackId": "track:bread",
+         "revision": 1,
+         "currentStepId": "step:proof",
+         "completedStepIds": [
+          "step:knead"
+         ],
+         "evaluationReceiptRefs": [
+          "evaluation::evaluation%3A1"
+         ],
+         "updatedAt": "2026-01-01T12:00:00Z"
+        }
+       ],
+       "evaluationReceipts": [
+        {
+         "kind": "progress-evaluation-receipt",
+         "evaluationId": "evaluation:1",
+         "learnerId": "learner:1",
+         "trackId": "track:bread",
+         "stepId": "step:knead",
+         "evidenceRefs": [
+          "evidence:1"
+         ],
+         "measureFactRef": "measure-fact:1",
+         "measureDefinitionRef": "measure-definition:1",
+         "decisionKey": "continue",
+         "decision": {
+          "completed": true,
+          "nextStepId": "step:proof"
+         },
+         "score": 0.8,
+         "confidence": 0.9,
+         "provenance": {
+          "evaluator": "evaluator:1"
+         },
+         "evaluatedAt": "2026-01-01T12:00:00Z"
+        }
+       ],
+       "presentations": [
+        {
+         "kind": "progress-presentation",
+         "key": "continue",
+         "label": "Keep building"
+        }
+       ]
+      },
+      "output_selector": "$.views[0].statusLabel",
+      "contains": "Keep building"
+     }
+    ],
+    "record_model": {
+     "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+     "kinds": [
+      {
+       "type": "record:program-application",
+       "guard_properties": {
+        "accepted_at": "text",
+        "answers": "object",
+        "applicant_ref": "text",
+        "applied_at": "text",
+        "program_id": "text",
+        "state": "text"
+       }
+      },
+      {
+       "type": "record:program-client",
+       "guard_properties": {
+        "client_ref": "text",
+        "name": "text",
+        "program_id": "text",
+        "since": "text",
+        "space_id": "text"
+       }
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::plan-an-evaluation-write",
+   "address": "package::lessons-and-learning-paths::tool::plan-an-evaluation-write",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:plan-an-evaluation-write",
+    "label": "Plan the write that accepts an evaluation of a learner's step",
+    "status": "active",
+    "job": "Accept the result of judging a learner's work on a step: the receipt to keep and the learner's next progress state, without applying one twice",
+    "description": "Give the evaluation receipt, the learner's current progress state (leave out if none) and the revision you expect it to be at, and the receipt already stored under that evaluation id if there is one. Returns the keep rows: the receipt and the next state, each with the value it expects to find in your store (the receipt not yet stored; the state as you gave it), so your store keeps each one only where it still holds that value. The step is finished only if the receipt's decision says so. The same receipt again returns idempotent with no keep rows; a different receipt under the same id, a stale revision, a state that belongs to another learner or track, or an unsound receipt is refused with the reason.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "receipt"
+     ],
+     "properties": {
+      "receipt": {
+       "type": "object",
+       "required": [
+        "kind",
+        "evaluationId",
+        "learnerId",
+        "trackId",
+        "evidenceRefs",
+        "measureFactRef",
+        "measureDefinitionRef",
+        "decisionKey",
+        "decision",
+        "score",
+        "confidence",
+        "provenance",
+        "evaluatedAt"
+       ],
+       "properties": {
+        "kind": {
+         "const": "progress-evaluation-receipt"
+        },
+        "evaluationId": {
+         "type": "string",
+         "description": "This evaluation's own id"
+        },
+        "learnerId": {
+         "type": "string"
+        },
+        "trackId": {
+         "type": "string"
+        },
+        "stepId": {
+         "type": "string",
+         "description": "The step evaluated (required when the decision finishes it)"
+        },
+        "evidenceRefs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "What was evaluated; at least one"
+        },
+        "measureFactRef": {
+         "type": "string"
+        },
+        "measureDefinitionRef": {
+         "type": "string"
+        },
+        "decisionKey": {
+         "type": "string",
+         "description": "The decision's own key"
+        },
+        "decision": {
+         "type": "object",
+         "required": [
+          "completed"
+         ],
+         "properties": {
+          "completed": {
+           "type": "boolean",
+           "description": "True only if the step is finished"
+          },
+          "nextStepId": {
+           "type": "string",
+           "description": "The step to do next"
+          }
+         }
+        },
+        "score": {
+         "type": "number"
+        },
+        "confidence": {
+         "type": "number",
+         "minimum": 0,
+         "maximum": 1
+        },
+        "provenance": {
+         "type": "object",
+         "description": "Who or what judged it"
+        },
+        "evaluatedAt": {
+         "type": "string",
+         "description": "ISO time"
+        }
+       }
+      },
+      "current_state": {
+       "type": "object",
+       "required": [
+        "kind",
+        "learnerId",
+        "trackId",
+        "revision",
+        "completedStepIds",
+        "evaluationReceiptRefs"
+       ],
+       "properties": {
+        "kind": {
+         "const": "progress-state"
+        },
+        "stateId": {
+         "type": "string"
+        },
+        "learnerId": {
+         "type": "string"
+        },
+        "trackId": {
+         "type": "string"
+        },
+        "revision": {
+         "type": "integer",
+         "minimum": 0
+        },
+        "currentStepId": {
+         "type": "string"
+        },
+        "completedStepIds": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "evaluationReceiptRefs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "updatedAt": {
+         "type": "string",
+         "description": "ISO time"
+        }
+       },
+       "description": "The learner's progress state stored now; leave out if there is none"
+      },
+      "expected_state_revision": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "The revision you read the state at (0 when there is none)"
+      },
+      "stored_receipt": {
+       "type": "object",
+       "required": [
+        "kind",
+        "evaluationId",
+        "learnerId",
+        "trackId",
+        "evidenceRefs",
+        "measureFactRef",
+        "measureDefinitionRef",
+        "decisionKey",
+        "decision",
+        "score",
+        "confidence",
+        "provenance",
+        "evaluatedAt"
+       ],
+       "properties": {
+        "kind": {
+         "const": "progress-evaluation-receipt"
+        },
+        "evaluationId": {
+         "type": "string",
+         "description": "This evaluation's own id"
+        },
+        "learnerId": {
+         "type": "string"
+        },
+        "trackId": {
+         "type": "string"
+        },
+        "stepId": {
+         "type": "string",
+         "description": "The step evaluated (required when the decision finishes it)"
+        },
+        "evidenceRefs": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         },
+         "description": "What was evaluated; at least one"
+        },
+        "measureFactRef": {
+         "type": "string"
+        },
+        "measureDefinitionRef": {
+         "type": "string"
+        },
+        "decisionKey": {
+         "type": "string",
+         "description": "The decision's own key"
+        },
+        "decision": {
+         "type": "object",
+         "required": [
+          "completed"
+         ],
+         "properties": {
+          "completed": {
+           "type": "boolean",
+           "description": "True only if the step is finished"
+          },
+          "nextStepId": {
+           "type": "string",
+           "description": "The step to do next"
+          }
+         }
+        },
+        "score": {
+         "type": "number"
+        },
+        "confidence": {
+         "type": "number",
+         "minimum": 0,
+         "maximum": 1
+        },
+        "provenance": {
+         "type": "object",
+         "description": "Who or what judged it"
+        },
+        "evaluatedAt": {
+         "type": "string",
+         "description": "ISO time"
+        }
+       },
+       "description": "The receipt stored now under this evaluation id, if any"
+      }
+     },
+     "additionalProperties": false
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "idempotent",
+      "receipt_ref",
+      "state_ref",
+      "revision",
+      "keep"
+     ],
+     "properties": {
+      "idempotent": {
+       "type": "boolean"
+      },
+      "receipt_ref": {
+       "type": "string"
+      },
+      "state_ref": {
+       "type": "string"
+      },
+      "revision": {
+       "type": "integer"
+      },
+      "decision_key": {
+       "type": "string"
+      },
+      "keep": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "ref",
+         "record",
+         "expected"
+        ],
+        "properties": {
+         "ref": {
+          "type": "string"
+         },
+         "record": {
+          "type": "object"
+         },
+         "expected": {
+          "type": [
+           "object",
+           "null"
+          ],
+          "description": "The record as you gave it for this ref: null for the receipt (not stored yet), the state as you gave it for the state (null when there is none)"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "do-work/plan-an-evaluation-write.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "receipt": {
+        "kind": "progress-evaluation-receipt",
+        "evaluationId": "evaluation:1",
+        "learnerId": "learner:1",
+        "trackId": "track:bread",
+        "stepId": "step:knead",
+        "evidenceRefs": [
+         "evidence:1"
+        ],
+        "measureFactRef": "measure-fact:1",
+        "measureDefinitionRef": "measure-definition:1",
+        "decisionKey": "continue",
+        "decision": {
+         "completed": true,
+         "nextStepId": "step:proof"
+        },
+        "score": 0.8,
+        "confidence": 0.9,
+        "provenance": {
+         "evaluator": "evaluator:1"
+        },
+        "evaluatedAt": "2026-01-01T12:00:00Z"
+       },
+       "expected_state_revision": 0
+      },
+      "output_selector": "$.keep[1].ref",
+      "contains": "progress-state::learner%3A1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::show-the-courses-a-learner-is-on",
+   "address": "package::lessons-and-learning-paths::tool::show-the-courses-a-learner-is-on",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:show-the-courses-a-learner-is-on",
+    "label": "Show the courses a learner is on, lesson by lesson",
+    "status": "active",
+    "job": "Show the learning page for one learner: each course as its lessons in order, how many are done, the lesson they are on now, and each lesson's words",
+    "description": "Give the courses (each with its id, title, about and lessons with id, title and body) and the lessons this learner has finished as { course_id, lesson_id }. Returns each course with how many lessons are done, and each lesson with its status: complete when done, active for the first lesson not done, locked for the rest, plus its words. A lesson with an interactive module is marked interactive. Nothing is read or written here.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "courses"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "courses": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "title",
+         "lessons"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "about": {
+          "type": "string"
+         },
+         "lessons": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "title"
+           ],
+           "properties": {
+            "id": {
+             "type": "string"
+            },
+            "title": {
+             "type": "string"
+            },
+            "body": {
+             "type": "string"
+            },
+            "module": {
+             "type": "object"
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "done": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "course_id",
+         "lesson_id"
+        ],
+        "properties": {
+         "course_id": {
+          "type": "string"
+         },
+         "lesson_id": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "courses"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work",
+        "read-data/courses-of-a-learner.mjs"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/show-the-courses-a-learner-is-on.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "screen": {
+     "group": "learn",
+     "kind": "module",
+     "module": {
+      "package": "lessons-and-learning-paths",
+      "entry": "web/course-lesson-screen-mount.tsx"
+     },
+     "icon": "BookOpen",
+     "label": "Lesson",
+     "about": "Read one lesson: its notes, the resources it names and what to try now."
+    },
+    "provenance": {
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path, and packages/course-lesson (its lesson page, moved byte for byte)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "courses": [
+        {
+         "id": "course:bread",
+         "title": "Baking bread",
+         "lessons": [
+          {
+           "id": "knead",
+           "title": "Knead",
+           "body": "Work the dough."
+          },
+          {
+           "id": "proof",
+           "title": "Proof"
+          }
+         ]
+        }
+       ],
+       "done": [
+        {
+         "course_id": "course:bread",
+         "lesson_id": "knead"
+        }
+       ]
+      },
+      "output_selector": "$.result.courses",
+      "contains": "Baking bread"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::list-the-courses-a-learner-is-on",
+   "address": "package::lessons-and-learning-paths::tool::list-the-courses-a-learner-is-on",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:list-the-courses-a-learner-is-on",
+    "label": "List the courses a learner is on",
+    "status": "active",
+    "job": "Show the learner their courses as a list: each course, how many lessons are done, and each lesson complete, active or locked. Opening a lesson opens it in the lesson screen.",
+    "description": "Give the courses (each with its id, title, about and lessons with id, title and body) and the lessons this learner has finished as { course_id, lesson_id }. Returns each course with how many lessons are done, and each lesson with its status: complete when done, active for the first lesson not done, locked for the rest. Nothing is read or written here; the course list screen runs the same read in the page.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "courses"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "courses": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "title",
+         "lessons"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "about": {
+          "type": "string"
+         },
+         "lessons": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "title"
+           ],
+           "properties": {
+            "id": {
+             "type": "string"
+            },
+            "title": {
+             "type": "string"
+            },
+            "body": {
+             "type": "string"
+            },
+            "module": {
+             "type": "object"
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "done": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "course_id",
+         "lesson_id"
+        ],
+        "properties": {
+         "course_id": {
+          "type": "string"
+         },
+         "lesson_id": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "courses"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work",
+        "read-data/courses-of-a-learner.mjs"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/show-the-courses-a-learner-is-on.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "screen": {
+     "group": "learn",
+     "kind": "module",
+     "module": {
+      "package": "lessons-and-learning-paths",
+      "entry": "web/course-list-screen-mount.tsx"
+     },
+     "icon": "BookOpen",
+     "label": "Courses",
+     "about": "Your courses, lesson by lesson. Open a lesson to read it and mark it done."
+    },
+    "provenance": {
+     "source": "new with the course list screen; the read is the one of tool:show-the-courses-a-learner-is-on (read-data/courses-of-a-learner.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "courses": [
+        {
+         "id": "course:bread",
+         "title": "Baking bread",
+         "lessons": [
+          {
+           "id": "knead",
+           "title": "Knead",
+           "body": "Work the dough."
+          },
+          {
+           "id": "proof",
+           "title": "Proof"
+          }
+         ]
+        }
+       ],
+       "done": [
+        {
+         "course_id": "course:bread",
+         "lesson_id": "knead"
+        }
+       ]
+      },
+      "output_selector": "$.result.courses",
+      "contains": "Baking bread"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::read-a-course",
+   "address": "package::lessons-and-learning-paths::tool::read-a-course",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-course",
+    "label": "Read a course",
+    "job": "Read one course with its lessons in order and which the learner has done",
+    "description": "Answers the course named by course: its title and description, its lessons in order each with its address (from lesson_path) and a done mark when person is named, and how many are done. An unknown course is refused by name. The answer is the props of show/Course.tsx.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "course"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database to read, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use, set by the workflow engine over any use the step's input carried). Given with database, the computer opens the database with its reader login (one that cannot get round the row rules, change a table or read the use binding) instead of the owner's, and hands the run a ticket of this use that it signed; the statement's transaction claims it first, so the database's row rules read this use and the statement cannot change it. A use with credential_name, which has no ticket, is refused. Absent: the owner's own work, read under the database's own purpose_when_unstated.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish or coach/review."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as social/instagram; empty for any surface."
+        }
+       }
+      },
+      "course": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The course's slug."
+      },
+      "person": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The signed-in learner, named by the trusted caller (the page's own sign-in or the member's pass); never chosen by a browser or an AI's arguments."
+      },
+      "tables": {
+       "type": "object",
+       "description": "Names of the pursuit tables to read in place of the defaults (courses, lessons, words, links, done); each a plain lower-case table name.",
+       "additionalProperties": {
+        "type": "string"
+       }
+      },
+      "lesson_path": {
+       "type": "string",
+       "description": "A path template for lesson addresses, such as /courses/{course}/lessons/{lesson}; without one an address is the bare lesson id."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "course",
+      "lessons",
+      "doneCount"
+     ],
+     "properties": {
+      "course": {
+       "type": "object"
+      },
+      "lessons": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "doneCount": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/courses.ts",
+      "readCourse"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "lessons-and-learning-paths",
+        "paths": [
+         "do-work/courses.ts",
+         "do-work/progress.ts"
+        ],
+        "at": "/opt/lessons-and-learning-paths"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-reader-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 12000
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "Written in tools/lessons-and-learning-paths/do-work from the course and lesson reads of the pages it replaces, made generic; read through run-sql-in-my-database/do-work/serve-a-read.ts"
+    },
+    "screen": {
+     "kind": "module",
+     "asked": [
+      "show this course",
+      "open the course"
+     ],
+     "entry": "show/Course.tsx",
+     "export": "View"
+    }
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::read-a-lesson",
+   "address": "package::lessons-and-learning-paths::tool::read-a-lesson",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-lesson",
+    "label": "Read a lesson",
+    "job": "Read one lesson with its recording, its timed words and the lessons around it",
+    "description": "Answers the lesson named by lesson in the course named by course: its title and done mark, its recording (a YouTube embed address, or a file address, or none), its words cut into timed passages with their speakers, and the lessons before and after. files_base_url is put in front of a stored recording key. The answer is the props of show/Lesson.tsx.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "course",
+      "lesson"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database to read, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use, set by the workflow engine over any use the step's input carried). Given with database, the computer opens the database with its reader login (one that cannot get round the row rules, change a table or read the use binding) instead of the owner's, and hands the run a ticket of this use that it signed; the statement's transaction claims it first, so the database's row rules read this use and the statement cannot change it. A use with credential_name, which has no ticket, is refused. Absent: the owner's own work, read under the database's own purpose_when_unstated.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish or coach/review."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as social/instagram; empty for any surface."
+        }
+       }
+      },
+      "course": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The course's slug."
+      },
+      "lesson": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The lesson id."
+      },
+      "person": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The signed-in learner, named by the trusted caller (the page's own sign-in or the member's pass); never chosen by a browser or an AI's arguments."
+      },
+      "tables": {
+       "type": "object",
+       "description": "Names of the pursuit tables to read in place of the defaults (courses, lessons, words, links, done); each a plain lower-case table name.",
+       "additionalProperties": {
+        "type": "string"
+       }
+      },
+      "lesson_path": {
+       "type": "string",
+       "description": "A path template for lesson addresses, such as /courses/{course}/lessons/{lesson}; without one an address is the bare lesson id."
+      },
+      "files_base_url": {
+       "type": "string",
+       "description": "Put in front of a recording that is a storage key."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "course",
+      "lesson",
+      "video",
+      "segments",
+      "previous",
+      "next"
+     ],
+     "properties": {
+      "course": {
+       "type": "object"
+      },
+      "lesson": {
+       "type": "object"
+      },
+      "video": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "segments": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "previous": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "next": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/courses.ts",
+      "readLesson"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "lessons-and-learning-paths",
+        "paths": [
+         "do-work/courses.ts",
+         "do-work/progress.ts"
+        ],
+        "at": "/opt/lessons-and-learning-paths"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-reader-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 12000
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "Written in tools/lessons-and-learning-paths/do-work from the course and lesson reads of the pages it replaces, made generic; read through run-sql-in-my-database/do-work/serve-a-read.ts"
+    },
+    "screen": {
+     "kind": "module",
+     "asked": [
+      "show this lesson",
+      "open the lesson"
+     ],
+     "entry": "show/Lesson.tsx",
+     "export": "View"
+    }
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::read-a-learners-done-lessons",
+   "address": "package::lessons-and-learning-paths::tool::read-a-learners-done-lessons",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-a-learners-done-lessons",
+    "label": "Read the lessons a learner has done",
+    "job": "Read the ids of the lessons one learner has marked done in one course",
+    "description": "Answers the lesson ids the named learner has marked done in the course, oldest first; no done table yet is an empty list.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "course",
+      "person"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database to read, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use, set by the workflow engine over any use the step's input carried). Given with database, the computer opens the database with its reader login (one that cannot get round the row rules, change a table or read the use binding) instead of the owner's, and hands the run a ticket of this use that it signed; the statement's transaction claims it first, so the database's row rules read this use and the statement cannot change it. A use with credential_name, which has no ticket, is refused. Absent: the owner's own work, read under the database's own purpose_when_unstated.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish or coach/review."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as social/instagram; empty for any surface."
+        }
+       }
+      },
+      "course": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The course's slug."
+      },
+      "person": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The signed-in learner, named by the trusted caller (the page's own sign-in or the member's pass); never chosen by a browser or an AI's arguments."
+      },
+      "tables": {
+       "type": "object",
+       "description": "Names of the pursuit tables to read in place of the defaults (courses, lessons, words, links, done); each a plain lower-case table name.",
+       "additionalProperties": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "course",
+      "done"
+     ],
+     "properties": {
+      "course": {
+       "type": "string"
+      },
+      "done": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/progress.ts",
+      "readDone"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "lessons-and-learning-paths",
+        "paths": [
+         "do-work/courses.ts",
+         "do-work/progress.ts"
+        ],
+        "at": "/opt/lessons-and-learning-paths"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-reader-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 12000
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "Written in tools/lessons-and-learning-paths/do-work from the course and lesson reads of the pages it replaces, made generic; read through run-sql-in-my-database/do-work/serve-a-read.ts"
+    }
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::mark-a-lesson-done",
+   "address": "package::lessons-and-learning-paths::tool::mark-a-lesson-done",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:mark-a-lesson-done",
+    "label": "Mark a lesson done",
+    "job": "Mark one lesson of a course done for the signed-in learner",
+    "description": "Writes one done row for the named learner, course and lesson when the lesson is one of the course's own and is not already marked; marking twice adds no second row. Answers whether a row was added.",
+    "status": "active",
+    "read_only": false,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database",
+      "course",
+      "lesson",
+      "person"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database to read, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "course": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The course's slug."
+      },
+      "lesson": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The lesson id."
+      },
+      "person": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The signed-in learner, named by the trusted caller (the page's own sign-in or the member's pass); never chosen by a browser or an AI's arguments."
+      },
+      "tables": {
+       "type": "object",
+       "description": "Names of the pursuit tables to read in place of the defaults (courses, lessons, words, links, done); each a plain lower-case table name.",
+       "additionalProperties": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "course",
+      "lesson",
+      "done",
+      "saved"
+     ],
+     "properties": {
+      "course": {
+       "type": "string"
+      },
+      "lesson": {
+       "type": "string"
+      },
+      "done": {
+       "type": "boolean"
+      },
+      "saved": {
+       "type": "boolean"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/progress.ts",
+      "saveDone"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "lessons-and-learning-paths",
+        "paths": [
+         "do-work/courses.ts",
+         "do-work/progress.ts"
+        ],
+        "at": "/opt/lessons-and-learning-paths"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       }
+      }
+     ],
+     "max_run_ms": 12000
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "Written in tools/lessons-and-learning-paths/do-work from the course and lesson reads of the pages it replaces, made generic; read through run-sql-in-my-database/do-work/serve-a-read.ts"
+    }
+   }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::read-the-courses",
+   "address": "package::lessons-and-learning-paths::tool::read-the-courses",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-the-courses",
+    "label": "Read the courses",
+    "job": "Read every course the pursuit offers, in its own order, for a catalogue page",
+    "description": "Answers every course of the pursuit database in sort order: slug, title, short description, category and the id of its picture. tables may rename the courses table to a plain lower-case name. The answer is the props of show/CourseList.tsx; image_template there turns a picture id into an address.",
+    "status": "active",
+    "read_only": true,
+    "result_selector": "$",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "database"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "database": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The name of the pursuit database to read, bound by the trusted caller. The engine opens it with the login its vault holds as that name and -connection; no caller supplies a login."
+      },
+      "use": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "purpose",
+        "surface"
+       ],
+       "description": "The use this statement runs for: a recipe step's declared purpose and surface (config.context.use, set by the workflow engine over any use the step's input carried). Given with database, the computer opens the database with its reader login (one that cannot get round the row rules, change a table or read the use binding) instead of the owner's, and hands the run a ticket of this use that it signed; the statement's transaction claims it first, so the database's row rules read this use and the statement cannot change it. A use with credential_name, which has no ticket, is refused. Absent: the owner's own work, read under the database's own purpose_when_unstated.",
+       "properties": {
+        "purpose": {
+         "type": "string",
+         "description": "The purpose path, such as publish or coach/review."
+        },
+        "surface": {
+         "type": "string",
+         "description": "The surface path, such as social/instagram; empty for any surface."
+        }
+       }
+      },
+      "tables": {
+       "type": "object",
+       "description": "Names of the pursuit tables to read in place of the defaults (courses); each a plain lower-case table name.",
+       "additionalProperties": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "courses"
+     ],
+     "properties": {
+      "courses": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/lessons-and-learning-paths",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/courses.ts",
+      "readCourses"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "lessons-and-learning-paths",
+        "paths": [
+         "do-work/courses.ts",
+         "do-work/progress.ts"
+        ],
+        "at": "/opt/lessons-and-learning-paths"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work/run-sql.mjs",
+         "do-work/serve-a-read.ts",
+         "do-work/through-the-run-proxy.mjs",
+         "read-data/role-recipes.json",
+         "read-data/time-limits.json",
+         "what-this-tool-does-and-how-to-run-it.json"
+        ],
+        "at": "/opt/run-sql-in-my-database"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs",
+         "read-data/blake3.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "node_modules/@noble/hashes"
+        ],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "database",
+       "held_suffix": "-connection",
+       "fd": 3,
+       "only_when": {
+        "input": "database",
+        "present": true
+       },
+       "under_use": {
+        "use_from_input": "use",
+        "ticket_fd": 5,
+        "held_suffix": "-reader-connection",
+        "key_suffix": "-use-key"
+       }
+      }
+     ],
+     "max_run_ms": 12000
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "Written in tools/lessons-and-learning-paths/do-work from the behaviour of the pages it replaces, made generic; read through run-sql-in-my-database/do-work/serve-a-read.ts"
+    },
+    "screen": {
+     "kind": "module",
+     "asked": [
+      "show my courses",
+      "list the courses"
+     ],
+     "entry": "show/CourseList.tsx",
+     "export": "View"
+    }
+   }
+  }
+ ]
+}

@@ -5,7 +5,7 @@
 // database holds; one record that moved refuses the whole list and nothing is written (the caller reads again and answers again).
 //
 // The client is a pg client (or any object with query(text, values) → { rows }). The connection is held by the engine and
-// handed to the run's process on its own descriptor (the row's invoke.credential_mounts), as approve-a-post does
+// handed to the run's process on its own descriptor (the row's invoke.key), as approve-a-post does
 // (tools/social-posts/do-work/approve-a-post-in-database.mjs): it is never in the request, argv, a file or the environment.
 // The table name comes from the row's keep_into data, checked as a plain identifier before it is written into the statements.
 export const TABLE_NAME = /^[a-z_][a-z0-9_]{0,62}$/;

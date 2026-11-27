@@ -11,12 +11,12 @@ import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const python = spawnSync('python3', ['--version'], { encoding: 'utf8' });
 
 test('the row runs the script that exists and packs the folders it imports', () => {
   assert.equal(row.id, 'tool:work-out-a-recipes-nutrients-from-fooddata-central');
-  assert.deepEqual(row.invoke.argv, ['python3', '-I', 'do-work/work_out_recipe_nutrients.py']);
+  assert.deepEqual(row.invoke.run, ['python3', '-I', 'do-work/work_out_recipe_nutrients.py']);
   assert.deepEqual(row.invoke.files.package_files.map(spec => [spec.package, spec.paths]),
     [['work-out-a-recipes-nutrients-from-fooddata-central', ['do-work', 'read-data']], ['settings', ['read-data']]]);
   for (const file of ['do-work/work_out_recipe_nutrients.py', 'read-data/fooddata_central.py', 'read-data/recipe_profile.py', 'ports/recipe-nutrients-reading.json', 'ports/recipe-nutrients-profile.json']) {

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/brand-kit/tool-rows.json, code in do-work/resolve-a-brand.mjs and read-data/brand-assets.mjs, test/resolve-a-brand.test.mjs, list definition list:brand-assets (read only)",
+  "drafted_from": "tool row in tools/brand-kit/what-this-tool-does-and-how-to-run-it.json, code in do-work/resolve-a-brand.mjs and read-data/brand-assets.mjs, test/resolve-a-brand.test.mjs, list definition list:brand-assets (read only)",
   "start_here": "Say to your AI: \"Read my brand assets list and tell me which Harbour Bakery logo a dark page draws, the wordmark and the mark as SVG.\" It saves the rows and tone dark into a request file, runs tool:resolve-a-brand on your computer and names the variant for each role.",
   "lists": [
     {

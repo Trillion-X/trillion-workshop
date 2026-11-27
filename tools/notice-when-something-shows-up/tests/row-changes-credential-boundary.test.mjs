@@ -57,7 +57,7 @@ test('a row waiter reads its own mounted descriptor instead of the run descripto
 });
 
 test('every packed row-change leaf includes its canonical credential helper', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const leaf = 'do-work/mechanisms/row-changes.mjs';
   const helper = 'do-work/mechanisms/given-credential.mjs';
   const covers = (packs, path) => packs.some(pack => pack.paths?.some(prefix => path === prefix || path.startsWith(`${prefix}/`)));

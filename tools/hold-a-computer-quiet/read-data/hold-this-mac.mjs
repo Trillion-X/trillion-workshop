@@ -3,7 +3,7 @@
 // PURPOSE
 //   Holds this Mac quiet for a session: the apps a hold names are asked to quit whenever they open (or, when a hold
 //   names `only`, every app but those and the always-open ones), and Focus is on, until the hold's own end time. Four
-//   tools on placement:your-computer (tool-rows.json): holdADeviceQuiet, releaseADevice, deviceHolds and focus, plus
+//   tools on placement:your-computer (what-this-tool-does-and-how-to-run-it.json): holdADeviceQuiet, releaseADevice, deviceHolds and focus, plus
 //   resumeHolds, which the computer's tool host calls once when it starts. A protocol step (a lock-in session, a bedtime
 //   schedule, any rule) runs them by tool id; nothing here knows what a session is.
 //

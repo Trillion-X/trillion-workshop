@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:watch-my-sources's row in tools/watch-my-sources/tool-rows.json, do-work/watch-my-sources.mjs, read-data/watch-sources.mjs and test/watch-my-sources.test.mjs; the lists' fields are the real lists' fields read from the account; the answers were observed by running watchMySources on the test's made-up blog feed",
+  "drafted_from": "tool:watch-my-sources's row in tools/watch-my-sources/what-this-tool-does-and-how-to-run-it.json, do-work/watch-my-sources.mjs, read-data/watch-sources.mjs and test/watch-my-sources.test.mjs; the lists' fields are the real lists' fields read from the account; the answers were observed by running watchMySources on the test's made-up blog feed",
   "start_here": "Say to your AI: \"Watch my sources and tell me what is new that moves my podcast pursuit. Run tool:watch-my-sources, answer its weighing question yourself and run it again with your answer.\" It reads each source marked Yes in your list signal-sources and answers what is new as rows of your list signals, which your AI then keeps.",
   "lists": [
     {

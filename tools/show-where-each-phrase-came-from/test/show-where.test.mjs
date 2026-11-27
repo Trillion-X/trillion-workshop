@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { PROVENANCE_SQL, inputOf, showWhere } from '../do-work/show-where.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 const good = { piece: 'example-piece', credential_name: 'my-database-connection' };
 
 // A door that records each call and answers the run-sql result shape: exit_code, result { columns, rows, row_count }.
@@ -57,6 +57,6 @@ test('the row is a computer tool that names its own do-work and the door client,
   assert.equal(row.id, 'tool:show-where-each-phrase-came-from');
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.input_schema.required, ['piece', 'credential_name']);
-  assert.equal(row.invoke.credential_mounts, undefined);
+  assert.equal(row.invoke.key, undefined);
   assert.equal(row.invoke.packages, undefined);
 });

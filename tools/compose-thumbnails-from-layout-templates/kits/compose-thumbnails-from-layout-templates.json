@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:compose-thumbnails-from-layout-templates's row (tools/compose-thumbnails-from-layout-templates/tool-rows.json), do-work/compose_thumbnails.py, tools/settings/read-data/settings.py and test/test_compose_thumbnails.py",
+  "drafted_from": "tool:compose-thumbnails-from-layout-templates's row (tools/compose-thumbnails-from-layout-templates/what-this-tool-does-and-how-to-run-it.json), do-work/compose_thumbnails.py, tools/settings/read-data/settings.py and test/test_compose_thumbnails.py",
   "start_here": "Say to your AI: \"Build thumbnail candidate A for my sample-film from the frames in ./frames and the cut-outs in ./cutouts, with the font fonts/DejaVuSans-Bold.ttf, into ./out.\" It reads your settings row for that film, writes the request file and runs the layout script on your computer.",
   "lists": [
     {

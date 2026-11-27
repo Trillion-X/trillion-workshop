@@ -76,7 +76,7 @@ store's own version check when the caller writes what `keep` gives back.
 | File | Purpose |
 |------|---------|
 | `read-data/requests.mjs` | `takeARequest`, `handARequestToItsOwner`, `myRequests` and the pure `ownerActionRequests`, run by the generic function runner `tools/records-door/do-work/run-an-export.mjs` (it holds no records here). |
-| `tool-rows.json` | The three rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three rows. |
 | `part.json` | The folder's public files. |
 | `test/requests.test.mjs` | The three rows run as the container runs them, with the records each is given as input and the rows it gives back as `keep`, carrying the package's cases with made-up data: hand-off, deferred owner, replay, source clash, refused origin, copy rows and two action refs, and the list.
 

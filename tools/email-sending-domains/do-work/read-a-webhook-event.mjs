@@ -1,11 +1,11 @@
 import { realpathSync } from 'node:fs';
 // tools/email-sending-domains/do-work/read-a-webhook-event.mjs
 //
-// The container tool `tool:read-a-webhook-event` (tool-rows.json): one event the person's email-sending account (Resend) sent
+// The container tool `tool:read-a-webhook-event` (what-this-tool-does-and-how-to-run-it.json): one event the person's email-sending account (Resend) sent
 // to one of its webhooks, by the webhook's id and the event's id (msg_...): its type, time, delivery status, the email it is
 // about and, for a bounce, the bounce's type (Permanent or Temporary) and sub-type. It only reads.
 //
-// The account key reaches this one process on a private pipe, descriptor 3 (the row's invoke.credential_mounts { fd: 3 }),
+// The account key reaches this one process on a private pipe, descriptor 3 (the row's invoke.key { fd: 3 }),
 // never in the request, argv, a file or the environment. This command asks GET /webhooks/{webhook_id}/events/{event_id} once
 // and answers those fields only: never the key, the addressees, the subject or the provider's raw reply.
 import { readFileSync } from 'node:fs';

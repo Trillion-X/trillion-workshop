@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/rank_candidate_frames.py and test/test_benchmark.py (Ranks)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/rank_candidate_frames.py and test/test_benchmark.py (Ranks)",
   "start_here": "Say to your AI: \"Rank the three candidate clips for slot 1, a person at a blue screen, with the siglip model some/clip, and tell me if its best is the one my editor would pick.\"",
   "lists": [
     {

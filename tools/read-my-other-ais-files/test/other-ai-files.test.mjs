@@ -7,7 +7,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { otherAiFiles, otherAiFilesInGrantedFolder } from '../read-data/other-ai-files.mjs';
 import rules from '../read-data/other-ai-files.json' with { type: 'json' };
-import toolRows from '../tool-rows.json' with { type: 'json' };
+import toolRows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const home = realpathSync(tempFolder(join(tmpdir(), 'other-ai-')));
 mkdirSync(join(home, '.claude/skills/jab-hook'), { recursive: true });
@@ -44,7 +44,7 @@ test('an unknown app or kind is said, and the tool is a Workshop row on the pers
   assert.match(otherAiFiles({ kind: 'dreams' }, { home }).error, /dreams is not a kind/);
   const row = toolRows.records.map(each => each.payload).find(each => each.id === 'tool:other-ai-files');
   assert.deepEqual([row.invoke.kind, row.invoke.capabilities], ['computer', ['read-a-folder']]);
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
 });
 
 test('another app\'s MCP servers are described with their variable names only, never their values, and are never switched on', () => {

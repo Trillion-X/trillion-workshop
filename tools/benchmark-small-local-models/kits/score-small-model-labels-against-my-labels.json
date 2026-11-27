@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/score_frame_labels.py and test/test_benchmark.py (Labels)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/score_frame_labels.py and test/test_benchmark.py (Labels)",
   "start_here": "Say to your AI: \"Score the size labels in p.json against my own labels and tell me how often the small model agrees with me and whether it beats always saying wide.\"",
   "lists": [
     {

@@ -13,7 +13,7 @@ Moved here from `Trillion-X/trillion` `computer/drive-tools/` (2026-11-02); run 
 | `read-data/drive-work.mjs` | All the work on the drives (transfers, other programs holding a drive) with pause, resume, stop and resume-at, and the part of eject that stops that work gracefully first. |
 | `read-data/file-transfer.mjs` | Copy or move files and folders to folders on connected drives, inside the run that asks: each copy checked by BLAKE3 before it gets its name, a move's sources trashed only after every copy is checked; progress in `<state>/progress.json`. |
 | `read-data/work-control.mjs` | A job's pause/stop choice in `<state>/control.json` and the checkpoint a worker passes between chunks. |
-| `tool-rows.json` | `tool:media-file-places`, `-work`, `-work-control`, `-transfer` and `-eject`, `computer` rows. `file-places` also declares `stored`: the person's files under `/`, handed in by the caller. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:media-file-places`, `-work`, `-work-control`, `-transfer` and `-eject`, `computer` rows. `file-places` also declares `stored`: the person's files under `/`, handed in by the caller. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/drives.test.mjs` | Hidden volumes, every row's export and capabilities, and a real copy in a temporary folder. |
 | `test/file-places.test.mjs` | Every place a file is, over pretend drives and files handed in. |
@@ -43,4 +43,4 @@ Checked against trillion-rust `src/runtime/workshop/computer-capabilities.json` 
 
 **Depends on:** `tools/connected-drives` (`drives.mjs` `enumerateDevices`, `drive-folder.mjs` `driveOf`, `drive-processes.mjs`), `tools/workflows` (`do-work/run-a-function.mjs`), `tools/content-identity` (`identity.mjs`), `@noble/hashes`, macOS `diskutil`, `lsof`, `ps` and `/usr/bin/trash`.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

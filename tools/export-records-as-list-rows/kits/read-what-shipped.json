@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-what-shipped row (tools/export-records-as-list-rows/tool-rows.json), do-work/read_what_shipped.py, read-data/what_shipped.py and test/test_what_shipped.py; the answers are what the script printed on a made-up git repository with fixed commit dates",
+  "drafted_from": "tool:read-what-shipped row (tools/export-records-as-list-rows/what-this-tool-does-and-how-to-run-it.json), do-work/read_what_shipped.py, read-data/what_shipped.py and test/test_what_shipped.py; the answers are what the script printed on a made-up git repository with fixed commit dates",
   "start_here": "Say to your AI: \"Read what my shop repository shipped since the last time and stage the new release in staged-releases.json, then tell me the newest entry.\"",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it only stages each new release or commit as an entry in a file, which your mapping later turns into rows.",

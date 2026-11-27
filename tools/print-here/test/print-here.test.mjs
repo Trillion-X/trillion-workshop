@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { makePrintTools, print, printArguments, printersFrom, printSettings } from '../read-data/print-here.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const listing = 'printer SAMPLE_OFFICE is idle.  enabled since Mon Jan  5 09:00:00 2026\nprinter SAMPLE_PHOTO disabled since Mon Jan  5 09:00:00 2026 -\nsystem default destination: SAMPLE_OFFICE\n';
 
 test('both rows run on the person\'s computer with only the print system, and print is given the file it prints', () => {
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, ['use-the-print-system']);
-    assert.notEqual(row.invoke.internet, true);
+    assert.equal(row.invoke.may_reach, undefined);
     assert.deepEqual(row.placements, ['placement:your-computer']);
     // run-a-function prints { result }, and the engine's `result` is that last line: the answer is one level down.
     assert.equal(row.result_selector, '$.result');

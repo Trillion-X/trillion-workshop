@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { quoteUntrusted } from '../read-data/untrusted-text.mjs';
 import data from '../read-data/untrusted-text.json' with { type: 'json' };
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 test('the quote normalises, strips control and format characters, escapes tag look-alikes and truncates by code points', () => {
   assert.equal(quoteUntrusted('é'), 'é', 'NFC');

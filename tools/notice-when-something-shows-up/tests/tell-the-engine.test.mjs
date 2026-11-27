@@ -92,7 +92,7 @@ test('a JSON-RPC error from the door is a refusal, so the fact stays untold', as
 
 test('one run watches many places, each waiter reading with its own credential on the descriptor the engine mounts it on', async () => {
   // The engine's rule for the row's `waiters[].credential_name` mount: the first descriptor plus the waiter's place.
-  const mount = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload.invoke.credential_mounts
+  const mount = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload.invoke.key
     .find(item => item.secret_name_from_input === 'waiters[].credential_name');
   assert.equal(mount.fd, EACH_WAITER_FD);
   const place = (id, credential_name) => ({ ...clock, id, ...(credential_name ? { credential_name } : {}),

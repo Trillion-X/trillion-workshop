@@ -8,8 +8,8 @@ import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const old = read('../records/old-recently-deleted-tool-descriptors.json').records.map(row => row.payload.id);
-const here = read('../tool-rows.json').records.map(row => row.payload);
-const sibling = read('../../recently-deleted/tool-rows.json').records.map(row => row.payload);
+const here = read('../what-this-tool-does-and-how-to-run-it.json').records.map(row => row.payload);
+const sibling = read('../../recently-deleted/what-this-tool-does-and-how-to-run-it.json').records.map(row => row.payload);
 const row = here.find(item => item.id === 'tool:set-deleted-files-keep-for');
 const keepFor = value => ({ id: 'setting:keep_for', type: 'setting', value });
 

@@ -9,7 +9,7 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. The account's key stays in this host process. The sandboxed script receives call() and nothing that holds the key.
 //   2. Every call a script makes is one tools:run through the person's door, under a request key unique to this run and call.
-//   3. The Node program and its pin come from this tool's own program row (tool-rows.json, invoke.programs.node); this file names none.
+//   3. The Node program and its pin come from this tool's own program row (what-this-tool-does-and-how-to-run-it.json, invoke.programs.node); this file names none.
 //   4. The answer is the script's value, or its refusal in words; a value over the sandbox's result_chars is refused there.
 //
 import { randomUUID } from 'node:crypto';
@@ -25,7 +25,7 @@ const DOOR_TOOL = 'do_one_thing_in_my_account';
 
 /** The Node the script runs in: this process's own Node, which the tool's program row pins by BLAKE3 (checked before it starts). */
 export function programNode() {
-  const rows = JSON.parse(readFileSync(join(HERE, 'tool-rows.json'), 'utf8'));
+  const rows = JSON.parse(readFileSync(join(HERE, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
   const tool = rows.records.map(record => record.payload).find(payload => payload.id === TOOL_ID);
   return { path: process.execPath, tier: 'read-only', pin: tool.invoke.programs.node.fetch['macos-aarch64'].executable_blake3 };
 }

@@ -4,7 +4,7 @@
 // (test-helpers/run-a-row.mjs) and the selector must find a value in that line. "$" is the line itself; "$.result" is
 // right only for a program that prints { result: ... }. A selector the line does not hold fails here, not as a failed
 // run on someone's computer. A row with no sample that runs is named with why, and fails the test. A sample
-// seeds the records a row reads (records), answers a row with internet: true from recorded replies (replies, read on
+// seeds the records a row reads (records), answers a row that holds may_reach from recorded replies (replies, read on
 // shape_read_at) and gives made-up held values (held). A row no sample here can run because its run needs a real
 // computer (a screen, a camera, an attached drive) has a needs-a-machine item naming exactly what (requires); every
 // other row fails until its own sample proves it. Run by the push gate once for each tool folder, with that
@@ -20,7 +20,7 @@ import { staleReplies } from '../test-helpers/stand-in-egress.mjs';
 
 const unit = process.env.WORKSHOP_UNIT_FOLDER ? basename(process.env.WORKSHOP_UNIT_FOLDER) : null;
 const processRows = readRows().filter(({ folder }) => unit === null || folder === unit).map(({ payload }) => payload)
-  .filter(row => Array.isArray(row.invoke?.argv) && typeof row.result_selector === 'string');
+  .filter(row => Array.isArray(row.invoke?.run) && typeof row.result_selector === 'string');
 const samplesOf = row => [row.verify ?? []].flat().filter(check => check?.kind === 'sample-run' && 'input' in check);
 // A row whose run truly needs a real computer (a screen, a camera, an attached drive) says so in its verify list:
 // { kind: "needs-a-machine", requires: "<OS, permission, device>", proved_on: null | "<date it was proved there>" }.
@@ -99,7 +99,7 @@ test('every process row\'s result_selector finds a value in the last line its ow
 });
 
 test('a process row with neither a passing sample nor a needs-a-machine item that names its requires is not accounted for', () => {
-  const row = verify => ({ id: 'tool:made-up', invoke: { argv: ['node'] }, result_selector: '$', verify });
+  const row = verify => ({ id: 'tool:made-up', invoke: { run: ['node'] }, result_selector: '$', verify });
   const none = new Set();
   assert.deepEqual(accountFor(row([]), new Set(['tool:made-up'])), { proved: true });
   assert.match(accountFor(row([]), none).unproved, /no sample run/);

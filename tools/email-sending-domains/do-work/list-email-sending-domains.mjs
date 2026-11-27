@@ -1,11 +1,11 @@
 import { realpathSync } from 'node:fs';
 // tools/email-sending-domains/do-work/list-email-sending-domains.mjs
 //
-// The container tool `tool:list-email-sending-domains` (tool-rows.json): which domains the person's email-sending
+// The container tool `tool:list-email-sending-domains` (what-this-tool-does-and-how-to-run-it.json): which domains the person's email-sending
 // account (Resend) may send from, and how many. It only reads; it sends no email.
 //
 // The account key is never in the request, argv, a file or the environment: Trillion hands the person's own held
-// key to this one process on a private pipe, descriptor 3 (the row's invoke.credential_mounts { fd: 3 }), and the
+// key to this one process on a private pipe, descriptor 3 (the row's invoke.key { fd: 3 }), and the
 // pipe ends after the key. This command reads it, asks the provider once, and answers domain names, their states and
 // the count only: never the key, a header or the provider's raw reply.
 import { readFileSync } from 'node:fs';

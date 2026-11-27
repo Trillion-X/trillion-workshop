@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:keep-hearing-session row in tools/listen-for-a-while/tool-rows.json and keepHearingSession in read-data/keep-hearing-session.mjs (the keep step of tool:hear-sources; the old automatic keeping, computer/hearing-sources.mjs:50-57 @b7dc53d08a)",
+  "drafted_from": "tool:keep-hearing-session row in tools/listen-for-a-while/what-this-tool-does-and-how-to-run-it.json and keepHearingSession in read-data/keep-hearing-session.mjs (the keep step of tool:hear-sources; the old automatic keeping, computer/hearing-sources.mjs:50-57 @b7dc53d08a)",
   "start_here": "Say to your AI: \"Keep the session tool:hear-sources answered in my proofs database.\" It runs tool:keep-hearing-session with the session record and the database name.",
   "lists": [],
   "no_lists_because": "It names no list: it writes the session record it is given into the hearing_sessions table of the database named in its input, and nothing else.",

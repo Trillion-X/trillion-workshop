@@ -1,5 +1,5 @@
 {
- "drafted_from": "tools/check-every-screen-at-every-width/check-live-screens.mjs, window-picture.mjs, live-screens.json and tool-rows.json (tool:check-live-screens), written by lane-live-tool (group 9); not yet run on the Mac",
+ "drafted_from": "tools/check-every-screen-at-every-width/check-live-screens.mjs, window-picture.mjs, live-screens.json and what-this-tool-does-and-how-to-run-it.json (tool:check-live-screens), written by lane-live-tool (group 9); not yet run on the Mac",
  "start_here": "Say to your AI: \"Check my members page on the real address on a phone and a desktop, and tell me how long each takes to show and be usable.\" It runs tool:check-live-screens with the page's address.",
  "lists": [],
  "no_lists_because": "It takes the pages in its input and keeps only the pictures of the run, in your Files under /live-screens/<run>/. Nothing is written to a list.",

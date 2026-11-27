@@ -9,7 +9,7 @@ Moved from a film's tools folder (`package_lines.py`). The overlap rule and the 
 | File | Purpose |
 |------|---------|
 | `do-work/name_recording.py` | The command. One JSON request on standard input (`archive`, `ranges`, `settings`), or `--archive FILE` and one or more `<first>-<last>` ranges; `--base FOLDER` is where a relative archive path is read. Prints one tab-separated line per overlap, then `{"result": {...}}` as its last line, or `{"error": ...}`. |
-| `tool-rows.json` | `tool:name-the-recording-behind-transcript-lines`, a `computer` row with `read-a-folder`. It declares no records door: the person's AI reads the settings row and hands it in as `settings_record`, the record itself. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:name-the-recording-behind-transcript-lines`, a `computer` row with `read-a-folder`. It declares no records door: the person's AI reads the settings row and hands it in as `settings_record`, the record itself. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/test_name_recording.py` | The overlap rule at the edges, the printed line, refusals, the request on standard input, a relative archive in the granted folder, and settings (archive and preview length). |
 | `test/name-the-recording-behind-transcript-lines.test.mjs` | Runs those tests and checks the row. |
@@ -38,7 +38,7 @@ Settings (defaults in `do-work/name_recording.py`): `archive` (used when the req
 
 **Depends on:** Python 3.10 or later and its standard library; `tools/settings` (`read-data/settings.py`), which its row packs.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Invariants
 

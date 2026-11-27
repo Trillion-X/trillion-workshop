@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/voice.py, test/test_assemble.py",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/what-this-tool-does-and-how-to-run-it.json, do-work/voice.py, test/test_assemble.py",
   "start_here": "Say to your AI: \"Record a voice take for every line my plans in plans/ have a voice read, using request.json.\" It runs the voice step and tells you how many lines were new.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads plan files and writes only voice takes (a .wav beside a .txt) in the folder you name.",

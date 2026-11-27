@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:govijr-terminal-phone's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it shows is read from the tool's README; the folder test test/index-github-tools.test.mjs only checks the row, never runs terminal-phone.",
+  "drafted_from": "tool:github:govijr-terminal-phone's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it shows is read from the tool's README; the folder test test/index-github-tools.test.mjs only checks the row, never runs terminal-phone.",
   "start_here": "Say to your AI: \"Open an iPhone in my terminal.\" It reads the row, installs terminal-phone if it is missing, runs it and shows you the result.",
   "lists": [],
   "no_lists_because": "It keeps no list: terminal-phone is a program that runs on the person's own computer.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:govijr-terminal-phone runs on your computer, so after tools:list the AI runs, in the folder it got terminal-phone in, the command line: terminal-phone",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:govijr-terminal-phone runs on your computer, so after tools:list the AI runs, in the folder it got terminal-phone in, the command line: terminal-phone",
       "hands_back": "An iOS simulator, or a paired iPhone, appears inline in the terminal at 30 fps; the person can tap and type on it and the AI can observe and act on the same phone through its CLI or MCP server."
     }
   ]

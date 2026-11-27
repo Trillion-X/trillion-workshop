@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:list-what-a-character-says's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "drafted_from": "tool:list-what-a-character-says's row in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
   "start_here": "Say to your AI: \"List every caption line the parrot says in my episodes, from the turns files, into a table I can quote.\" It runs tool:list-what-a-character-says and writes character-lines.tsv.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
@@ -33,7 +33,7 @@
           }
         }
       },
-      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json and LinesTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: vid-a has one turn from 10.0 to 14.0 s and captions \"the keeper speaks\" (5 s for 4 s), \">> crackers please\" (9 s for 2 s) and \"and a storm\" (11.5 s for 2 s).",
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json and LinesTest in tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py: vid-a has one turn from 10.0 to 14.0 s and captions \"the keeper speaks\" (5 s for 4 s), \">> crackers please\" (9 s for 2 s) and \"and a storm\" (11.5 s for 2 s).",
       "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/character-lines.tsv\", \"lines\": 2}}; the table rows are vid-a 20300105 episode second 9 turn 10.0-14.0 \">> crackers please\" and second 11 \"and a storm\"; \"the keeper speaks\" is left out because less than half of it lies in the turn."
     }
   ]

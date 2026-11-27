@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:render-an-edit's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/render-an-edit.mjs, and the script run on a synthetic 7 second clip",
+  "drafted_from": "tool:render-an-edit's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/render-an-edit.mjs, and the script run on a synthetic 7 second clip",
   "start_here": "Say to your AI: \"Render an edit of my video: its first 2 seconds, then 4 to 6.5 seconds at double speed.\" It runs tool:render-an-edit with that edit and saves the video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

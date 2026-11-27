@@ -34,5 +34,5 @@
       "hands_back": "{\"article\":{\"slug\":\"first\",\"title\":\"First\",\"sections\":[]}}"
     }
   ],
-  "drafted_from": "tool row in tools/publish-articles/tool-rows.json and tools/publish-articles/do-work/articles.ts"
+  "drafted_from": "tool row in tools/publish-articles/what-this-tool-does-and-how-to-run-it.json and tools/publish-articles/do-work/articles.ts"
 }

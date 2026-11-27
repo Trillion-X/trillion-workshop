@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json, do-work/build_training_rows.py and test/test_fine_tune.py (BuildRows), which I ran on its made-up fixture",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/what-this-tool-does-and-how-to-run-it.json, do-work/build_training_rows.py and test/test_fine_tune.py (BuildRows), which I ran on its made-up fixture",
   "start_here": "Say to your AI: \"Build the training rows for my two writing rules plain-words and said-aloud from my ruled lines, holding the test lines out first, into /work/out.\" It reads your settings row and your rules, writes a request file and runs build_training_rows.py on your computer.",
   "tools": [
     "tool:build-training-rows-from-a-persons-rules",

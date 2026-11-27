@@ -8,15 +8,15 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
 test('the row runs the one script on the person\'s computer, over the folder they let it change, with its own settings only', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:rank-library-formats-against-concepts']);
   const [row] = rows;
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['change-a-folder']);
-  assert.deepEqual(row.invoke.argv.slice(0, 2), ['python3', '-I']);
-  assert.ok(row.invoke.argv.includes('/opt/rank-library-formats-against-concepts/do-work/rank_formats.py'));
+  assert.deepEqual(row.invoke.run.slice(0, 2), ['python3', '-I']);
+  assert.ok(row.invoke.run.includes('/opt/rank-library-formats-against-concepts/do-work/rank_formats.py'));
   assert.equal(row.invoke.records, undefined, 'the setting arrives as input; the row declares no records door');
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.ok(existsSync(join(folder, 'do-work', 'rank_formats.py')));

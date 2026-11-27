@@ -7,7 +7,7 @@ import { createServer } from 'node:net';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { registerMyNotificationDevice, registerMyLiveActivity, sendNotificationToMyDevices, sendLiveActivityUpdate, myBrowserPushApplicationServerKey, heldNotificationSigningKeys } from '../read-data/device-notifications.mjs';
 import { base64url, makeSigningKey, publicPoint } from '../read-data/web-push.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import deliveryContract from '../read-data/delivery-contract.json' with { type: 'json' };
 
 const row = id => rowOf(rows, id);
@@ -239,7 +239,7 @@ test('empty Live Activity board does not send an APNs request', async () => {
 
 test('all signing rows use one private bundle and a registered activity type', () => {
   for (const id of ['tool:send-notification-to-my-devices', 'tool:send-live-activity-update', 'tool:my-browser-push-application-key']) {
-    assert.deepEqual(row(id).invoke.credential_mounts, [{ secret_name: 'notification-signing-keys', fd: 4 }]);
+    assert.deepEqual(row(id).invoke.key, [{ secret_name: 'notification-signing-keys', fd: 4 }]);
   }
   assert.equal(row('tool:register-my-notification-device').input_schema.properties.attributes_type.type, 'string');
   assert.equal(Object.hasOwn(row('tool:send-live-activity-update').input_schema.properties, 'attributes_type'), false);
@@ -306,7 +306,7 @@ test('the sender default reaches APNs through HTTP/2 CONNECT rather than fetch',
 });
 
 test('the browser push key row answers from its held key alone, run by the function runner with no door', async () => {
-  const command = row('tool:my-browser-push-application-key').invoke.argv.slice(1).map(part => part
+  const command = row('tool:my-browser-push-application-key').invoke.run.slice(1).map(part => part
     .replace('/opt/workflows/', fileURLToPath(new URL('../../workflows/', import.meta.url)))
     .replace('/opt/notifications/', fileURLToPath(new URL('../', import.meta.url))));
   const jwk = await makeSigningKey();

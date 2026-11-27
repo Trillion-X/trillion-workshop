@@ -3,7 +3,7 @@
 // hands over or moves items. The test stores each `keep` back the way the caller would. Every value here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { handOverASpace, moveStaticItemsIntoASpace, takeOverASpace } from '../do-work/space-members.mjs';
 import { KINDS, rowId } from '../read-data/space-rows.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -70,6 +70,6 @@ test('the four new tool rows sit with the membership rows and run their function
   for (const [id, fn] of Object.entries(expect)) {
     const row = rows.records.find(record => record.payload.id === id);
     assert.ok(row, `${id} exists`);
-    assert.equal(row.payload.invoke.argv.at(-1), fn);
+    assert.equal(row.payload.invoke.run.at(-1), fn);
   }
 });

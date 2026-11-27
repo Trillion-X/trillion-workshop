@@ -14,7 +14,7 @@ import { makeRecord } from '../../settings/read-data/settings.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'cite_principles.py');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const python = process.env.CAPTION_TEST_PYTHON || 'python3';
 const run = (...argv) => spawnSync(python, argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const tool = (...argv) => run(script, ...argv);

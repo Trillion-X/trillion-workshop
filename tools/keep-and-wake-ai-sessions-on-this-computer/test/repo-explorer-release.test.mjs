@@ -223,7 +223,7 @@ test('a sample input that is one of the caller\'s files is staged in the contain
   assert.deepEqual(descriptor.input_schema.properties.doc, { type: 'string', format: 'namespace-file', description: 'One of your files, given by its identity (1f: then 64 hex characters)' });
   assert.deepEqual(descriptor.input_schema.properties.page, { type: 'integer' });
   assert.deepEqual(descriptor.verify, [{ kind: 'sample-run', input: { doc: identity, page: 1 }, output_selector: '$.stdout', contains: 'of in.pdf' }]);
-  assert.deepEqual(descriptor.invoke.argv, ['./bin/pdfcraft-cli', 'text', { fill: { from: 'input', field: 'doc' } }, '--page', { fill: { from: 'input', field: 'page' } }]);
+  assert.deepEqual(descriptor.invoke.run, ['./bin/pdfcraft-cli', 'text', { fill: { from: 'input', field: 'doc' } }, '--page', { fill: { from: 'input', field: 'page' } }]);
   await assert.rejects(world.run(request), /one of your files, and this service has none/);
   await assert.rejects(explorer({ replies: [] }).run(request, SETTINGS, { open: async () => null }), /not in your files/);
 });

@@ -10,7 +10,7 @@ What belongs to one person is never in this folder. That includes the categories
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | 13 `on-your-computer` rows, one per command below. |
+| `what-this-tool-does-and-how-to-run-it.json` | 13 `on-your-computer` rows, one per command below. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/judge_sound_effects.py` | `tool:judge-sound-effect-candidates-and-pick-one-per-sound`. It trims each candidate: an event that earshot finds, with clean edges, or the whole sound for swells. It renders the trim in the palette's format and reads it (match z, realness, measure). A lead-in is cut to peak where the real one peaks. The pick is the highest match z that is not distorted, optionally not from another sound's source. The pick is levelled to the real sound's active loudness and A/B-compared with it. The tuned values may come from the settings record. Ported from the private launch-video repository's sound-effect generator (`ports/judge-sound-effects.json`). |
 | `do-work/listen_to_sound_effects.py` | Rank each category's folder, find the cleanest trim of the best (edges moved out in 5 ms steps to -30 dB of the peak), describe, realness, measure. `refine` is used by the judge. |

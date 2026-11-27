@@ -12,7 +12,7 @@ forwarder, which carries a request for that host to the computer, and the comput
 |------|---------|
 | `read-data/site-addresses.mjs` | `publishSite`, `nameSite`, `attachDomain`, `letGo`, `siteAddresses`: each reads and writes the origins list and the site's files through the run's door (`tools/records-door`). |
 | `read-data/site-addresses.json` | The folder, the list file, the names host, the name rules (old trillion `src/public-app-names.json`), the DNS record words and every refusal. |
-| `tool-rows.json` | `tool:publish_site`, `tool:name_site`, `tool:attach_domain`, `tool:let_go_of_site_address`, `tool:site_addresses`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:publish_site`, `tool:name_site`, `tool:attach_domain`, `tool:let_go_of_site_address`, `tool:site_addresses`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/site-addresses.test.mjs` | Tests, run by `npm test`. |
 | `web/src/public-site-pages.mjs` | `publicSitePage(request, publicSiteOrigin)`: a signed-in app article read answers a redirect to the public site that owns it, at the origin the caller passes; every other read and every write stays with the app router. Moved byte for byte from the web client (`moved-from.json`). |

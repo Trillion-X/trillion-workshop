@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/bring-in-what-i-write-elsewhere/tool-rows.json, read-data/incoming-files.mjs, test/incoming-files.test.mjs",
+  "drafted_from": "tools/bring-in-what-i-write-elsewhere/what-this-tool-does-and-how-to-run-it.json, read-data/incoming-files.mjs, test/incoming-files.test.mjs",
   "start_here": "Say to your AI: \"Check that the files attached to these incoming messages are really in my Files before you take them in.\" It runs tool:check-incoming-attachments on the batch and hands it back with each attachment's real name and media type.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it only finds each attached file among the Files handed to it and fills in what it found.",

@@ -12,7 +12,7 @@ This uses the native original-result-bound output contract from commit `8149251e
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | `tool:generate-speech`: `on-your-computer`, with the command that fetches it and runs it. `tool:say-with-a-voice-model` and `tool:voices`: `computer` rows with no capability yet (see Not yet), run by `tools/workflows/do-work/run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:generate-speech`: `on-your-computer`, with the command that fetches it and runs it. `tool:say-with-a-voice-model` and `tool:voices`: `computer` rows with no capability yet (see Not yet), run by `tools/workflows/do-work/run-a-function.mjs`. |
 | `read-data/speak.mjs` | `say` (takes the person's Voices and places rows as input `voices` and `places`; reads no records) and `voices`, run as functions by `tools/workflows/do-work/run-a-function.mjs`: the voice order (asked, else the place's or the chosen voice, else the shared voices), the voice and speed of a place, saying into the run's folder and handing the sound to the declared output, and making a voice from a recording on this computer (the row and its reference sound are the answer). |
 | `read-data/speak.json` | The speech programs and engines, the shared voices, the Voices and Where Trillion speaks list definitions, the speed scale, loudness, how a reference is picked, where a sound is kept, and every word. |
 | `do-work/speak-with-mlx.py` | The speech program: says a request with mlx-audio (`say`) or picks a reference stretch from a recording with mlx-whisper's word times (`reference`), once per request. |
@@ -68,4 +68,4 @@ The provider's answer is `{"output_artifact_refs": [{"src": "data:audio/wav;base
 
 **Depends on:** Python 3.10+ (standard library only) and the person's provider command; for the computer rows, `tools/workflows/do-work/run-a-function.mjs` and the person's own rows handed in as input; and a Python with mlx-audio, numpy, soundfile and mlx-whisper on an Apple silicon Mac. Nothing is sent anywhere by this script; what the provider command sends is the person's choice.
 
-**Depended on by:** `tool-rows.json` (`tool:generate-speech`, `tool:say-with-a-voice-model`, `tool:voices`).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:generate-speech`, `tool:say-with-a-voice-model`, `tool:voices`).

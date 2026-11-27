@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:mflux-community-mflux's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs mflux.",
+  "drafted_from": "tool:github:mflux-community-mflux's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs mflux.",
   "start_here": "Say to your AI: \"Use mflux on my computer: make an image from a text prompt on your own Mac with Apple silicon, with \"A puffin standing on a cliff\".\" It reads the row, installs mflux if it is missing, runs it and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: mflux is a program that runs on the person's own computer and works on what it is handed there.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:mflux-community-mflux runs on your computer, so after tools:list the AI runs, in the folder it got mflux in, the command line: mflux-generate-z-image-turbo --prompt \"A puffin standing on a cliff\" --steps 9",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:mflux-community-mflux runs on your computer, so after tools:list the AI runs, in the folder it got mflux in, the command line: mflux-generate-z-image-turbo --prompt \"A puffin standing on a cliff\" --steps 9",
       "hands_back": "mflux prints its steps as it generates and saves the image as image.png in the folder it ran in; the first run also downloads the model it uses."
     }
   ]

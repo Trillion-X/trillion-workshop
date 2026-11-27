@@ -1,19 +1,19 @@
 // test-helpers/tool-closures.mjs
 //
 // Purpose: for each tool folder under tools/, the other tool folders its files need, transitively, written into the folder's
-// OWN tool rows (tools/<folder>/tool-rows.json, each ai-tool-descriptor payload's `uses_tools`) as "<source>/<tool>" ids, the
+// OWN tool rows (tools/<folder>/what-this-tool-does-and-how-to-run-it.json, each ai-tool-descriptor payload's `uses_tools`) as "<source>/<tool>" ids, the
 // source being this Workshop's package name. An engine that installs one tool at a time reads a tool's row alone to know
 // which other tools to fetch with it; it reads no file of the Workshop's own.
 //
 //   toolClosures(top)         { "<folder>": ["<folder>", ...] } for every folder under <top>/tools, keys and lists sorted
-//   rowsWithUses(text, uses)  the text of one tool-rows.json with `uses_tools` set on each tool row (an empty list: absent)
-//   writeUses(top)            rewrites every tool-rows.json under <top>/tools whose text changes; returns the folders changed
-//   usesProblems(top)         one line for each tool-rows.json that is not what writeUses would write (none: they agree)
+//   rowsWithUses(text, uses)  the text of one what-this-tool-does-and-how-to-run-it.json with `uses_tools` set on each tool row (an empty list: absent)
+//   writeUses(top)            rewrites every what-this-tool-does-and-how-to-run-it.json under <top>/tools whose text changes; returns the folders changed
+//   usesProblems(top)         one line for each what-this-tool-does-and-how-to-run-it.json that is not what writeUses would write (none: they agree)
 //
 // A folder needs another folder when one of its files (code, build files, and json that holds relative paths) names it:
 //   - a relative path (`../../ui/show/x`) that resolves into the other folder;
 //   - a package path (`trillion-workshop/tools/ui/...`, `tools/ui/...`) in a code or build file;
-//   - a package_files item of its tool-rows.json whose `package` is the other folder.
+//   - a package_files item of its what-this-tool-does-and-how-to-run-it.json whose `package` is the other folder.
 // Documents (.md), held files (.held) and json data that only mentions a path as prose are not read for `tools/<name>/`.
 // Test folders and test files are not read at all: a test that imports another tool is not a need of the tool it tests.
 // Which names are tests is DATA in the tree (test-helpers/test-names.json: folder names, and file-name globs).
@@ -25,9 +25,9 @@
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, extname, join, relative, resolve, sep } from 'node:path';
+import { CARD as ROWS_FILE } from './tool-rows.mjs';
 
 export const USES_TOOLS = 'uses_tools';
-const ROWS_FILE = 'tool-rows.json';
 const TEST_NAMES_FILE = join('test-helpers', 'test-names.json');
 const SKIPPED_FOLDERS = new Set(['node_modules', 'target', '.git']);
 const CODE = new Set(['.js', '.mjs', '.cjs', '.ts', '.tsx', '.jsx', '.mts', '.cts', '.py', '.css', '.html', '.sh', '.rs', '.toml']);
@@ -69,7 +69,7 @@ function namedIn(file, source, folder, toolsDir, folders) {
   return found;
 }
 
-/** The package items of one tool-rows.json that name another tool folder. */
+/** The package items of one what-this-tool-does-and-how-to-run-it.json that name another tool folder. */
 function packagesIn(source, folder, folders) {
   const found = new Set();
   const walk = value => {
@@ -98,7 +98,7 @@ export function toolClosures(top) {
       const source = readFileSync(file, 'utf8');
       if (source.includes('\0')) continue;
       for (const name of namedIn(file, source, folder, toolsDir, folders)) needs.add(name);
-      if (file === join(toolsDir, folder, 'tool-rows.json')) for (const name of packagesIn(source, folder, folders)) needs.add(name);
+      if (file === join(toolsDir, folder, ROWS_FILE)) for (const name of packagesIn(source, folder, folders)) needs.add(name);
     }
     direct.set(folder, needs);
   }
@@ -159,7 +159,7 @@ function members(text, open) {
   }
 }
 
-/** The `{` of each record's payload in a tool-rows.json, in file order. */
+/** The `{` of each record's payload in a what-this-tool-does-and-how-to-run-it.json, in file order. */
 function payloadOpens(text) {
   const top = members(text, text.indexOf('{'));
   const records = top.find(member => member.key === 'records');
@@ -174,7 +174,7 @@ function payloadOpens(text) {
   }
 }
 
-/** The text of one tool-rows.json with each tool row's `uses_tools` (ids "<source>/<tool>") set to `uses`. */
+/** The text of one what-this-tool-does-and-how-to-run-it.json with each tool row's `uses_tools` (ids "<source>/<tool>") set to `uses`. */
 export function rowsWithUses(text, uses) {
   const opens = payloadOpens(text).reverse();
   let out = text;
@@ -228,5 +228,5 @@ export function usesProblems(top) {
   return rowFiles(top).filter(([folder, file]) => {
     const text = readFileSync(file, 'utf8');
     return rowsWithUses(text, uses(folder)) !== text;
-  }).map(([folder]) => `tools/${folder}/tool-rows.json does not declare the tools its files use (run node test-helpers/write-pinned-files.mjs)`);
+  }).map(([folder]) => `tools/${folder}/${ROWS_FILE} does not declare the tools its files use (run node test-helpers/write-pinned-files.mjs)`);
 }

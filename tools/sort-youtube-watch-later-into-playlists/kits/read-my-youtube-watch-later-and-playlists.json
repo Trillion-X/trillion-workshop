@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-my-youtube-watch-later-and-playlists row in tools/sort-youtube-watch-later-into-playlists/tool-rows.json, do-work/read_channel.py and test/test_sort.py (test_list_accounts_and_read_channel)",
+  "drafted_from": "tool:read-my-youtube-watch-later-and-playlists row in tools/sort-youtube-watch-later-into-playlists/what-this-tool-does-and-how-to-run-it.json, do-work/read_channel.py and test/test_sort.py (test_list_accounts_and_read_channel)",
   "start_here": "Say to your AI: \"Read my YouTube Watch Later, subscriptions and playlists for my kitchen channel into a private folder.\" It reads the tool's row, writes the request file with your cookies.txt and sort settings, runs read_channel.py on your computer and tells you the counts per channel.",
   "lists": [
     {

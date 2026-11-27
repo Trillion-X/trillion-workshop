@@ -14,7 +14,7 @@ A share is one record at `sharing:<label>` in the sharer's own store: `{ reach: 
 | `do-work/end-shares-whose-condition-failed.mjs` | `endSharesWhoseConditionFailed(input)`: judges the run shares the caller lists (`runs`) against their end rules and last uses, and returns the withdrawals as writes; `endOf`, when a rule ends its share |
 | `read-data/share-label.mjs` | `labelOf`, `grantOf`, `reachOf`: the one rule for the label a thing is shared at, so a caller can name the label before the run; public (`part.json`) |
 | `read-data/share-anything.json` | DATA: the record prefix, the key prefix and size, the kinds, the bounds and every word the tool says |
-| `tool-rows.json` | The rows `tool:share-anything` and `tool:end-shares-whose-condition-failed`: function rows with a sample run each; no records door, no records rights |
+| `what-this-tool-does-and-how-to-run-it.json` | The rows `tool:share-anything` and `tool:end-shares-whose-condition-failed`: function rows with a sample run each; no records door, no records rights |
 | `ports/share-anything.json` | The port contract: no older owner does this job; the nearest are named |
 | `kits/share-anything.json`, `kits/end-shares-whose-condition-failed.json` | The plain steps a person's AI follows: what the caller reads, what it writes back, and the examples |
 | `test/share-anything.test.mjs` | The tool over a Map store: a list shared with a person, an AI and a link, a text, a collection, stop, access, end, the run shares, what is refused, and the row's shape |
@@ -53,7 +53,7 @@ A share is one record at `sharing:<label>` in the sharer's own store: `{ reach: 
 
 **Depends on:** `@noble/hashes` (BLAKE3, through `content-identity`), Node's `crypto`, `tools/workflows/do-work/run-a-function.mjs` (the command the row runs). Nothing else: no records door.
 
-**Depended on by:** `tool-rows.json`; the sharing sheet and the board share in the Trillion apps, which call `tool:share-anything` and use `read-data/share-label.mjs` to name the label. Those callers must now read `stored` from the store and write back `writes`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the sharing sheet and the board share in the Trillion apps, which call `tool:share-anything` and use `read-data/share-label.mjs` to name the label. Those callers must now read `stored` from the store and write back `writes`.
 
 ## Public scene capsule
 

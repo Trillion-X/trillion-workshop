@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerTheSearchRoute } from '../do-work/search-everything.mjs';
 import settings from '../read-data/settings.json' with { type: 'json' };
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 const RECORDS_SOURCE = settings.lanes.find(lane => lane.match === 'records').source;
 
 const RECORDS = [{ id: 'k1', type: 'note', value: { title: 'Kiln notes', body: 'kiln at the studio' } }];

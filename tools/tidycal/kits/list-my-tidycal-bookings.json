@@ -26,7 +26,7 @@
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a GET to https://tidycal.com/api/bookings with the vault key tidycal-api-token as a bearer header. Reads only.",
+      "given": "Reads tools/tidycal/what-this-tool-does-and-how-to-run-it.json: a GET to https://tidycal.com/api/bookings with the vault key tidycal-api-token as a bearer header. Reads only.",
       "hands_back": "It answers the bookings, for example booking 12345 \"starts 2026-11-25 10:00 UTC, cancelled_at null, meeting link present\" with the booker's email kept out of the answer."
     }
   ]

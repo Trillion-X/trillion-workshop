@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/name-the-recording-behind-transcript-lines (do-work/name_recording.py, test/test_name_recording.py, tool-rows.json)",
+  "drafted_from": "tools/name-the-recording-behind-transcript-lines (do-work/name_recording.py, test/test_name_recording.py, what-this-tool-does-and-how-to-run-it.json)",
   "start_here": "Say to your AI: \"Run workflow:name-the-recording-behind-transcript-lines with store {\\\"where\\\": \\\"postgresql database example_me on my own computer\\\", \\\"language\\\": \\\"SQL (PostgreSQL)\\\", \\\"credential_name\\\": \\\"example-me-postgres-connection\\\"} and ranges [\\\"12-40\\\", \\\"90-95\\\"].\" It tells you which recording lines 12 to 40 and 90 to 95 come from, and where in it.",
   "lists": [],
   "no_lists_because": "It names no list of its own: the archive windows are the person's own rows in their own store, in whatever form that store keeps them, and store says where and in which language.",

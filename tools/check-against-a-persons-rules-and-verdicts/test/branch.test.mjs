@@ -112,7 +112,7 @@ test('an unknown branch, a missing check list, a list of another row type, and r
 });
 
 test('the rows declare no store right: their records are given as input, and each row names only what it reads', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   for (const id of ['tool:check-against-a-persons-rules-and-verdicts', 'tool:check-a-films-copy']) {
     const row = rows.find(item => item.id === id);
     assert.equal(row.stored, undefined, `${id} reads no store`);

@@ -181,5 +181,5 @@
       "field_map": {}
     }
   },
-  "drafted_from": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots's row in tools/fill-a-template-without-changing-its-words/tool-rows.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
+  "drafted_from": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots's row in tools/fill-a-template-without-changing-its-words/what-this-tool-does-and-how-to-run-it.json, do-work/*.py and the tests in tools/fill-a-template-without-changing-its-words/test/; the worked run was executed on made-up bakery words"
 }

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { PART_KIND, assemble, readParts, stateId, threadId, itemId } from '../read-data/snapshot.mjs';
 import { recipeProblems } from '../../workflows/read-data/recipe-problems.mjs';
 import { kitProblems } from '../../workflows/read-data/kit-problems.mjs';

@@ -11,13 +11,13 @@ import { composeAWritingInstruction } from '../do-work/compose-a-writing-instruc
 import { listWritingRecipes } from '../do-work/list-writing-recipes.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const at = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)\]/).filter(Boolean).reduce((node, key) => node?.[key], value);
 
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, () => {
     for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run' && item.output_selector)) {
-      const ran = spawnSync(process.execPath, row.invoke.argv.slice(1), { cwd: folder, input: JSON.stringify(sample.input), encoding: 'utf8' });
+      const ran = spawnSync(process.execPath, row.invoke.run.slice(1), { cwd: folder, input: JSON.stringify(sample.input), encoding: 'utf8' });
       assert.equal(ran.status, 0, ran.stderr);
       const answer = at(JSON.parse(ran.stdout.trim().split('\n').at(-1)), row.result_selector);
       assert.ok(String(at(answer, sample.output_selector)).includes(sample.contains), JSON.stringify(answer));
@@ -29,7 +29,7 @@ test('the file checker declares a computer run with only the explicit folder rea
   const row = rows.find(candidate => candidate.id === 'tool:check-writing-file');
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
-  assert.equal(row.invoke.argv.at(-1).fill.field, 'grants.read-a-folder.folder');
+  assert.equal(row.invoke.run.at(-1).fill.field, 'grants.read-a-folder.folder');
   assert.ok(row.invoke.files.package_files[0].paths.includes('package.json'));
   assert.ok(row.invoke.files.package_files.some(file => file.at === '/opt' && file.package === 'write-from-a-recipe' && file.paths.includes('package.json')), 'shared module imports stay inside the declared run package scope');
   assert.equal(JSON.parse(readFileSync(resolve(folder, 'package.json'), 'utf8')).type, 'module');

@@ -16,7 +16,7 @@ Records one chosen display or one chosen window of the person's Mac as a movie, 
 | `do-work/capture-exclusion.mjs` | `categoriesOn`, `domainsIn`, `domainsOf`, `excluded`, `applyDiff`, `exclusionTools.exclusion` and `exclusion` (the export the row runs). |
 | `read-data/capture-session.json` | The capturer rows in fallback order, the source kinds, the pointer settings, the save allow-list and refused roots, the shield's notification names and every word said. |
 | `read-data/capture-exclusion.json` | The categories with their defaults, the seed domains, the cursor and the words. |
-| `tool-rows.json` | `tool:record-the-screen` (with the `see-the-screen` capability) and `tool:places-left-out-of-screen-capture`. Both are `computer` rows run by `tools/workflows`' `do-work/run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:record-the-screen` (with the `see-the-screen` capability) and `tool:places-left-out-of-screen-capture`. Both are `computer` rows run by `tools/workflows`' `do-work/run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/capture-session.test.mjs` | The session on a pretend machine (no real recording is made): source required, the ladder and its JSON config, the verbs, the leave-out list, the shield, a source going away, the pointer sidecar, the save rules, and the row. |
 | `test/capture-exclusion.test.mjs` | The person's choice over the default, subdomains and look-alikes, cursor diffs and tombstones. |

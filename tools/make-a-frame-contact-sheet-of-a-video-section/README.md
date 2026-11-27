@@ -21,7 +21,7 @@ The last line printed is `{"result": {"sheet", "clip", "log", "columns", "rows"}
 |---|---|
 | `do-work/make_contact_sheet.py` | The command. |
 | `test/make-contact-sheet.test.mjs` | The command with stand-in yt-dlp and ffmpeg programs first on PATH, and once with real ffmpeg on a made-up test video when ffmpeg is installed. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 
 ## Moved from
 

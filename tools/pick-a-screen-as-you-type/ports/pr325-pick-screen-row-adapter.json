@@ -30,7 +30,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/pick-a-screen-as-you-type/tool-rows.json",
+      "path": "tools/pick-a-screen-as-you-type/what-this-tool-does-and-how-to-run-it.json",
       "why": "The rows declare and call these two function exports; their data does not implement either function."
     }
   ],

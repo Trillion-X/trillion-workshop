@@ -31,5 +31,5 @@
       "hands_back": "Exit 0 and the last line: {\"measured\": true, \"video\": \"ref/launch-teaser.mp4\", \"out\": \"ref/measured\", \"duration_s\": 12.4, \"files\": [\"earshot-timeline.txt\", \"probe.json\", \"rhythm.json\", \"scan\", \"scan.json\", \"sheet-1fps\", \"sheet-hook\"]} (the files are sorted; a video over 120 seconds also lists review-pages and review-pages.json). On a failed step: {\"measured\": false, \"video\": ..., \"out\": ..., \"duration_s\": 12.4, \"failed\": \"hf-media evidence (see sheet.err, scan.err)\"} with exit 1."
     }
   ],
-  "drafted_from": "tool:measure-a-reference-video's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
+  "drafted_from": "tool:measure-a-reference-video's row in tools/keep-a-record-library-valid/what-this-tool-does-and-how-to-run-it.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

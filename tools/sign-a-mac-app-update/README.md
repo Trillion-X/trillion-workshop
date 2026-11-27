@@ -14,7 +14,7 @@ Signs the Mac app's update record text with the release key held in the person's
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row, with the one right. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row, with the one right. |
 | `do-work/sign-a-mac-app-update.mjs` | The run: reads the payload on stdin, calls `secrets:sign` once on fd 3's door. |
 | `test/sign-a-mac-app-update.test.mjs` | A synthetic Ed25519 key on a synthetic account, through a stub door. |
 

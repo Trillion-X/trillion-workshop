@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(r => r.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(r => r.payload);
 const python = spawnSync('python3', ['--version'], { encoding: 'utf8' });
 
 test('the rows run on the person\'s computer and name scripts that exist', () => {

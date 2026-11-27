@@ -118,5 +118,5 @@ export function createFilePlaces({ devices = connectedDevices, identityOf = cont
 }
 
 export const filePlaceTools = { places: createFilePlaces() };
-// The row's runner calls it by this name, as fn(input); the person's files are input.stored.files (tool-rows.json `stored`).
+// The row's runner calls it by this name, as fn(input); the person's files are input.stored.files (what-this-tool-does-and-how-to-run-it.json `stored`).
 export const findEveryPlaceAFileIs = (input = {}) => filePlaceTools.places(input);

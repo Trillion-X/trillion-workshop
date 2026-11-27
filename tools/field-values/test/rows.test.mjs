@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { promisify } from 'node:util';
 
 const folder = new URL('..', import.meta.url).pathname;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const run = (argv, input) => new Promise(resolve => {
   const child = promisify(execFile)(argv[0], argv.slice(1), { cwd: folder });
   child.child.stdin.end(typeof input === 'string' ? input : JSON.stringify(input));
@@ -20,7 +20,7 @@ test('the three rows run their own sample and the output holds the words the row
   assert.deepEqual(rows.map(row => row.id), ['tool:set-fields-by-rules', 'tool:settle-field-values', 'tool:plan-a-column-fill']);
   for (const row of rows) {
     for (const check of row.verify) {
-      const { code, last } = await run(row.invoke.argv, check.input);
+      const { code, last } = await run(row.invoke.run, check.input);
       assert.equal(code, 0, `${row.id}: ${JSON.stringify(last)}`);
       assert.ok(String(select(select(last, row.result_selector), check.output_selector)).includes(check.contains), row.id);
     }
@@ -30,7 +30,7 @@ test('the three rows run their own sample and the output holds the words the row
 test('every row packs this folder, the formulas it matches rules with, the formula engine they run on and the identity owner, and is offline', () => {
   for (const row of rows) {
     assert.deepEqual(row.invoke.files.package_files.map(spec => spec.package ?? spec.module ?? spec.packages?.[0]?.replace(/^node_modules\//, "")), ['field-values', 'formulas', 'formula-engine', 'content-identity', '@noble/hashes'], row.id);
-    assert.deepEqual([row.invoke.internet, row.maker, row.invoke.workdir], [false, 'maker:field-values', '/opt/field-values'], row.id);
+    assert.deepEqual([row.invoke.may_reach, row.maker, row.invoke.workdir], [undefined, 'maker:field-values', '/opt/field-values'], row.id);
     assert.ok(row.job.length > 40 && row.input_schema.required.length > 0, row.id);
   }
 });

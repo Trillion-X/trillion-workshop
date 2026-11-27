@@ -6,11 +6,11 @@ Ported from an older tag of the old worker tools (`tools/list-and-run-my-tools-f
 
 ## How a row runs
 
-Every row runs `do-work/network-profile-sql.mjs` with its function named as the first argument. The request is one JSON object on standard input. The connection to the person's pursuit database is a held value handed to the process on descriptor 3 (the row's `credential_mounts`); it is never in the request, argv, a file or the environment. The process makes a `network_records` table when it is missing (`CREATE TABLE IF NOT EXISTS`), reads the Network rows (profiles, labels and introductions), calls one pure function, and writes each row the function changed with the value it read, refusing the write when the row has moved since.
+Every row runs `do-work/network-profile-sql.mjs` with its function named as the first argument. The request is one JSON object on standard input. The connection to the person's pursuit database is a held value handed to the process on descriptor 3 (the row's `key`); it is never in the request, argv, a file or the environment. The process makes a `network_records` table when it is missing (`CREATE TABLE IF NOT EXISTS`), reads the Network rows (profiles, labels and introductions), calls one pure function, and writes each row the function changed with the value it read, refusing the write when the row has moved since.
 
 ## Egress (open)
 
-These rows declare `internet: true`, because the process must reach the person's pursuit database through the run's proxy. The engine opens that path only to the hosts the held connection's vault entry names, but a row that declares internet true is the exposure c5's fence is meant to close: until it lands, a run of these rows can reach any host the engine allows for that connection. `database` is declared required in each row's input schema, so no run without a named database reaches the process.
+These rows declare `may_reach`, because the process must reach the person's pursuit database through the run's proxy. The engine opens that path only to the hosts the held connection's vault entry names, but a row that declares may_reach is the exposure c5's fence is meant to close: until it lands, a run of these rows can reach any host the engine allows for that connection. `database` is declared required in each row's input schema, so no run without a named database reaches the process.
 
 ## Meaning
 
@@ -34,6 +34,6 @@ A contact is kept on the person's own profile row. `tool:read-a-network-contact`
 | `read-data/profile-rows.mjs` | The record kinds (profile, label, introduction), ids, the records a run is handed, and `keepRow`. |
 | `do-work/network-people.mjs` | The four functions: `networkProfile`, `findNetworkPeople`, `onMyPath`, `readNetworkContact`; the cosine; the released states. |
 | `do-work/network-profile-sql.mjs` | The one process the rows run: reads and writes `network_records` through the held connection. |
-| `tool-rows.json` | The four rows: `tool:network-profile`, `tool:find-network-people`, `tool:on-my-path`, `tool:read-a-network-contact`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The four rows: `tool:network-profile`, `tool:find-network-people`, `tool:on-my-path`, `tool:read-a-network-contact`. |
 | `kits/` | One kit per row. |
 | `test/network-people.test.mjs` | Changes, refusals, meaning thresholds both ways, the words fallback, labels, paths, every released and unreleased state, the stranger rule, and the write-if-unchanged rule. |

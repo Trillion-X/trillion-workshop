@@ -61,7 +61,7 @@ test('the taker names its computer as the kept settings say, so its agent id is 
 });
 
 test('the row starts the run with its kept folder and grant, keeps it open, reaches only the task tools, and its wake asks for what the run needs', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const row = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:take-given-tasks-on-this-computer');
   assert.ok(row, 'the taker has a row');
   const { invoke } = row;
@@ -69,9 +69,9 @@ test('the row starts the run with its kept folder and grant, keeps it open, reac
   assert.deepEqual(invoke.capabilities, ['start-a-program']);
   assert.equal(invoke.session.keep_open, true);
   assert.equal(invoke.kept_folder, true);
-  const entry = invoke.argv[2];
+  const entry = invoke.run[2];
   assert.ok(existsSync(new URL(`..${entry.slice(invoke.files.package_files[0].at.length)}`, import.meta.url)), `${entry} is a file the row lays out`);
-  const flagValue = name => invoke.argv[invoke.argv.indexOf(name) + 1];
+  const flagValue = name => invoke.run[invoke.run.indexOf(name) + 1];
   assert.deepEqual(flagValue('--home'), { fill: { from: 'task', field: 'kept_folder' } });
   assert.deepEqual(flagValue('--program'), { fill: { from: 'task', field: 'grants.start-a-program.program' } });
   assert.deepEqual(flagValue('--work'), { fill: { from: 'task', field: 'grants.start-a-program.work' } });
@@ -99,8 +99,8 @@ test('each login the run was handed is read once from its own descriptor, and a 
 });
 
 test('the row mounts one login per element of logins, from descriptor 5 on', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const row = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:take-given-tasks-on-this-computer');
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'logins[].name', fd: FIRST_LOGIN_FD }]);
+  assert.deepEqual(row.invoke.key, [{ secret_name_from_input: 'logins[].name', fd: FIRST_LOGIN_FD }]);
   assert.deepEqual(row.input_schema.properties.logins.items.required, ['name']);
 });

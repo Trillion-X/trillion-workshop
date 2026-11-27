@@ -1,7 +1,7 @@
 import { realpathSync } from 'node:fs';
 // tools/find-tool-servers-in-a-catalog/do-work/find-tool-servers.mjs
 //
-// The container tool `tool:find-tool-servers-in-a-catalog` (tool-rows.json): the tool servers a published catalog lists
+// The container tool `tool:find-tool-servers-in-a-catalog` (what-this-tool-does-and-how-to-run-it.json): the tool servers a published catalog lists
 // for some words, each with the `address` a call names to see and run its tools (tools:list / tools:run { address }).
 // The catalog is data: read-data/catalogs.json names the default (the MCP registry's own list) and the shape it answers;
 // a call may name another catalog that speaks the same API. Nothing is kept: the catalog is read as it is now.

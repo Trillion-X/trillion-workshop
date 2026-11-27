@@ -6,7 +6,7 @@ import { fingerprintOf, filesAsBytes, descriptorProblems, saveTool, SAVED_TABLE,
 const echo = {
   kind: 'ai-tool-descriptor', id: 'tool:echo-test', job: 'Echo the input text back',
   input_schema: { type: 'object', properties: { text: { type: 'string' } } },
-  invoke: { kind: 'container', argv: ['python3', 'main.py'], workdir: '/work' },
+  invoke: { kind: 'container', run: ['python3', 'main.py'], workdir: '/work' },
   can_do: ['Echo the text back'], cannot_do: ['Send messages'],
 };
 
@@ -24,7 +24,7 @@ test('an empty job is refused in plain words', () => {
 });
 
 test('a container without argv is refused', () => {
-  assert.ok(descriptorProblems({ ...echo, invoke: { kind: 'container', workdir: '/work' } }).some(p => p.startsWith('invoke.argv:')));
+  assert.ok(descriptorProblems({ ...echo, invoke: { kind: 'container', workdir: '/work' } }).some(p => p.startsWith('invoke.run:')));
 });
 
 test('files must be a path inside the tool', () => {

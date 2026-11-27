@@ -27,7 +27,7 @@ Same bounds, containment and clamp as `read_file_range`, but the reply payload I
 
 ## The row
 
-`tool-rows.json` holds `tool:plan-choosing-and-saving-files-on-my-computer`. It runs `run/plan-local-files.mjs` `planLocalFiles`, which calls `chooseLocalFiles` or `saveLocalFileCopy` with the workspace's `#workspace-records` stood in by `run/requests-kept-here.mjs` (mapped by `run/package.json`): each `local.files` request is kept and answered, a choose from the picker reply handed in, a save as a Mac that wrote and read back the copy would. The row lays `do-work/` and `read-data/` under `run/` in the run, so only there does the stand-in replace the workspace's sender. Nothing on any computer is opened, picked, written or read.
+`what-this-tool-does-and-how-to-run-it.json` holds `tool:plan-choosing-and-saving-files-on-my-computer`. It runs `run/plan-local-files.mjs` `planLocalFiles`, which calls `chooseLocalFiles` or `saveLocalFileCopy` with the workspace's `#workspace-records` stood in by `run/requests-kept-here.mjs` (mapped by `run/package.json`): each `local.files` request is kept and answered, a choose from the picker reply handed in, a save as a Mac that wrote and read back the copy would. The row lays `do-work/` and `read-data/` under `run/` in the run, so only there does the stand-in replace the workspace's sender. Nothing on any computer is opened, picked, written or read.
 
 ## Restored from bitfield-packages `local-files`
 

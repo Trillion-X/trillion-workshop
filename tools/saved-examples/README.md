@@ -21,7 +21,7 @@ The list and the removal moved to the recipe `workflow:keep-saved-examples` (`to
 | File | Purpose |
 |------|---------|
 | `do-work/answer-the-saved-examples-page.mjs` | `answerTheSavedExamplesPage(input)`, run by `tools/workflows/do-work/run-a-function.mjs`: the page's routes, ported from the tag's `makeSavedExamples` and `handleSavedExamplesRequest`; reads `stored.records`, answers `{ status, body, keep }`. |
-| `tool-rows.json` | The one row (`tool:answer-the-saved-examples-page`). |
+| `what-this-tool-does-and-how-to-run-it.json` | The one row (`tool:answer-the-saved-examples-page`). |
 | `kits/answer-the-saved-examples-page.json` | The kit for the page's route row. |
 | `test/answer-the-saved-examples-page.test.mjs` | The tag's `test/saved-examples.test.mjs` and `test/native-saved-example-browser-routes.test.mjs`, ported onto the route row; the row runs as the engine runs it (argv, stdin, `stored`, `keep`). |
 | `test/keep-saved-examples-is-the-stores-own.test.mjs` | No row names the records door; the retired tools are gone; the recipe and kit validate; the recipe's example attempts replay to its expected answers. |

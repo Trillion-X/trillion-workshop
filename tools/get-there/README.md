@@ -14,7 +14,7 @@ Nothing about any brand, store, maps app or place service is in the code. The ma
 | `read-data/get-there.json` | The maps apps, the places services and their queries, the bounds and the words of every answer. |
 | `do-work/route-buttons.mjs` | The command of `tool:route-buttons`. |
 | `do-work/find-nearest-places.mjs` | The command of `tool:find-nearest-places`. |
-| `tool-rows.json` | The two rows, with a sample run of the pure one. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two rows, with a sample run of the pure one. |
 | `test/get-there.test.mjs` | The cases on made-up places with a stand-in for the network: both maps apps, stops, sorting and deduplication, a busy service handing on, the fallback search, none found, a start that is unknown, the bounds, and the rows. |
 
 ## Key Types / Functions
@@ -29,4 +29,4 @@ Nothing about any brand, store, maps app or place service is in the code. The ma
 
 **Depends on:** Node 24 only, and for places the open services named in `get-there.json`.
 
-**Depended on by:** `tool-rows.json`; the workflows that name `tool:route-buttons` and `tool:find-nearest-places`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the workflows that name `tool:route-buttons` and `tool:find-nearest-places`.

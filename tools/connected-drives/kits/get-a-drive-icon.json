@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/connected-drives/tool-rows.json, read-data/drives.mjs and test/drives.test.mjs",
+  "drafted_from": "tool row in tools/connected-drives/what-this-tool-does-and-how-to-run-it.json, read-data/drives.mjs and test/drives.test.mjs",
   "start_here": "Say to your AI: \"Get the Finder icon of my SAMPLE DRIVE as a 64 pixel picture.\" It runs tool:get-a-drive-icon with mount /Volumes/SAMPLE DRIVE and size 64 and hands back the PNG as base64.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the drives this computer shows and changes nothing.",

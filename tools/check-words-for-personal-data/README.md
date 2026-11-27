@@ -8,7 +8,7 @@ Before words go to a model that is not on the person's computer, checks on the c
 |------|---------|
 | `read-data/personal-data.mjs` | `luhn`, `checkPersonalData`, and `check(input)`, the row's function. |
 | `read-data/personal-data.json` | The rule patterns, the model questions, `use_model`, `threshold`, `sample_chars`, the choices offered and every word said. |
-| `tool-rows.json` | `tool:check-personal-data`: a `computer` row with `capabilities: []`, run by `tools/records-door`'s `run-an-export.mjs`. It also packs `tools/ask-a-small-model-for-a-verdict/do-work`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:check-personal-data`: a `computer` row with `capabilities: []`, run by `tools/records-door`'s `run-an-export.mjs`. It also packs `tools/ask-a-small-model-for-a-verdict/do-work`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/personal-data.test.mjs` | The original Trillion tests (rules, checksum, counts only, a model that does not answer, a model above the threshold, clean words). |
 
@@ -31,4 +31,4 @@ Before words go to a model that is not on the person's computer, checks on the c
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`), `tools/ask-a-small-model-for-a-verdict` (`answer-state-questions.mjs`), `tools/content-identity` (through it), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. Nothing imports this folder.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. Nothing imports this folder.

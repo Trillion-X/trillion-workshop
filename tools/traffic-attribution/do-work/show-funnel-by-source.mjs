@@ -3,7 +3,7 @@
 // The container tool `tool:show-funnel-by-source` (its descriptor is the offer in part.json): one read of the person's
 // funnel_by_source view (journey-steps.sql), answered as { columns, rows, row_count }. Shown as a parts screen at /funnel-by-source.
 //
-// The connection string is a held value the engine hands this one process on descriptor 3 (the offer's invoke.credential_mounts);
+// The connection string is a held value the engine hands this one process on descriptor 3 (the offer's invoke.key);
 // it is never in the request, argv, a file or the environment, and no answer or error holds it. The statement is fixed text and
 // takes no input from the request. The database is reached through the run's proxy (through-the-run-proxy.mjs).
 import { readFileSync } from 'node:fs';

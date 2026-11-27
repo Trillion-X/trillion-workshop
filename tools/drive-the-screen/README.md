@@ -21,7 +21,7 @@ Moved from Trillion-X/trillion `computer/drive-the-screen.mjs`, `computer/drive-
 | `read-data/ask-payload.mjs`, `.json` | The person's redaction of what the AI reads off the screen, off until they turn it on. |
 | `read-data/settings-file.mjs` | The one way a settings file the person may have edited is read and written: a file that cannot be understood is never replaced by defaults. |
 | `read-data/work-places.mjs`, `.json` | The person's hold on this Mac: they take it over (AIs refused until they hand it back or the take-over ends) and their own recent keyboard or pointer input holds it for a few seconds. Run directly, it is their command line: take-over, hand-back. |
-| `tool-rows.json` | `tool:look-at-the-screen`, `tool:find-on-the-screen`, `tool:drive-the-screen`, `tool:screen-actions`: `computer` rows run by `tools/workflows`'s `do-work/run-a-function.mjs` with the run's input. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:look-at-the-screen`, `tool:find-on-the-screen`, `tool:drive-the-screen`, `tool:screen-actions`: `computer` rows run by `tools/workflows`'s `do-work/run-a-function.mjs` with the run's input. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/` | The original tests from Trillion-X/trillion, repointed to these paths with their assertions: 16 files, 55 tests. The tests that start the real Swift programs run only on macOS. |
 
@@ -64,4 +64,4 @@ Moved from Trillion-X/trillion `computer/drive-the-screen.mjs`, `computer/drive-
 
 **Depends on:** `tools/formula-engine` (`rules/`, `built-stored-bytes/`: its `matches_any_glob` decides whether a rule's pattern holds; the tool rows pack it), `tools/look-at-screen` (`do-work/look-at-screen.mjs` `systemCommands.capture`), `tools/workflows` (`do-work/run-a-function.mjs`), `tools/content-identity`, `@noble/hashes` (BLAKE3 of the hand-back key); macOS `/usr/bin/osascript`, `screencapture`, `notifyutil` and `ioreg`.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

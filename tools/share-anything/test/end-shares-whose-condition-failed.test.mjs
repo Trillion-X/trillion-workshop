@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { endOf, endSharesWhoseConditionFailed } from '../do-work/end-shares-whose-condition-failed.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { assertNoRecordReach, callSweep, callTool, memoryStore } from './caller-store.mjs';
 
 const DAY = 86_400_000;
@@ -77,7 +77,7 @@ test('endOf reads the earlier of until and unused_days, and never ends a share w
 
 test('the sweep row is a function over its runs: its own invoke, no records door, and its withdrawals are writes', () => {
   assertNoRecordReach(sweepRow);
-  assert.deepEqual(sweepRow.invoke.argv.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/share-anything/do-work/end-shares-whose-condition-failed.mjs', 'endSharesWhoseConditionFailed']);
+  assert.deepEqual(sweepRow.invoke.run.slice(1), ['/opt/workflows/do-work/run-a-function.mjs', '/opt/share-anything/do-work/end-shares-whose-condition-failed.mjs', 'endSharesWhoseConditionFailed']);
   const ends = { until: at(30), since: at(0) };
   const answer = endSharesWhoseConditionFailed({ now: at(40), runs: [{ label: 'sharing:w', grant: { tools: [] }, people: [], ends, last_used: null }] });
   assert.deepEqual(answer.writes, [{ kind: 'run-share', address: 'sharing:w', value: null, expect: { grant: { tools: [] }, people: [], ends } }]);

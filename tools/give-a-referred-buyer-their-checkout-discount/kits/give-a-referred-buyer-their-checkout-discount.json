@@ -36,5 +36,5 @@
       "hands_back": "{\"checkoutCode\":\"SITE-AB12CD\",\"adjustments\":[{\"kind\":\"checkout-code-adjustment\",\"id\":\"checkout-code-adjustment:referral:r1:SITE-AB12CD\",\"label\":\"Friend\",\"code\":\"SITE-AB12CD\",\"adjustment\":{\"kind\":\"amount_cents\",\"amount_cents\":2500,\"currency\":\"usd\"},\"duration\":\"once\",\"applies_to\":{\"offer_ids\":[\"offer:membership\"]},\"sort_order\":0,\"state\":\"active\"}],\"metadata\":{\"referral_code\":\"SITE-AB12CD\"}}"
     }
   ],
-  "drafted_from": "tool row in tools/give-a-referred-buyer-their-checkout-discount/tool-rows.json and reads/referral-checkout.ts"
+  "drafted_from": "tool row in tools/give-a-referred-buyer-their-checkout-discount/what-this-tool-does-and-how-to-run-it.json and reads/referral-checkout.ts"
 }

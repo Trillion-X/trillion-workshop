@@ -16,7 +16,7 @@ This is a different job from `tools/judge-words`. That tool judges the words a p
 | `do-work/run-write-control-bytes-as-escapes.mjs` | The same repair over paths named on the command line. Changed only in its help text. |
 | `do-work/repair-control-bytes-in-my-folder.mjs` | `tool:rewrite-control-bytes-as-escapes`: names files inside the granted folder, refuses links and paths that leave it. |
 | `part.json` | `do-work/check-source-files-against-declared-rules.mjs` is public, so another tool may import the same engine. |
-| `tool-rows.json` | The two rows. Both run on the person's computer: reading the folder needs the `read-a-folder` grant, the repair needs `change-a-folder`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two rows. Both run on the person's computer: reading the folder needs the `read-a-folder` grant, the repair needs `change-a-folder`. |
 | `test/*.test.mjs` | The package's tests for the engine, the reader, the folder run and the repair, on made-up rules and folders; `check-my-folder-rows.test.mjs` runs both commands the way the engine does. |
 
 ## Key Types / Functions
@@ -34,4 +34,4 @@ This is a different job from `tools/judge-words`. That tool judges the words a p
 
 **Depends on:** nothing (Node 24 in the engine's run; git is used when it is there).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder` (`computer.change-a-folder` for the repair).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder` (`computer.change-a-folder` for the repair).

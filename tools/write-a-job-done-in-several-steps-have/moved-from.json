@@ -1,5 +1,5 @@
 {
-  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into what-this-tool-does-and-how-to-run-it.json: wiring a file is adapting it, in a commit that names this receipt.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
   "calls": [],
@@ -34,7 +34,7 @@
       "to": "tools/write-a-job-done-in-several-steps-have/read-data/workflows.mjs",
       "source_identity": "1f:ca75f730143a92d4cd4e0b9634654dd26ee3af3d044d212be0aad2e909dcf559",
       "identity": "1f:3fa0e75b47d4b7542e0e53202fd01901a3b6a1ff9c3e55de5ca5ab9e08399591",
-      "adapted": "Wired into tool:run-workflow-definition (tool-rows.json). Its imports name this repository's files; the skill sources and action completeness it imported are given to makeWorkflows (sourceReads, sourceConfig, sourceProblems, completeness); its 13 brand words are reworded (the host, the Workshop) and its reader header is x-reader, since a shared tool names no brand. The unchanged bytes stay held at src/workflows.mjs.held."
+      "adapted": "Wired into tool:run-workflow-definition (what-this-tool-does-and-how-to-run-it.json). Its imports name this repository's files; the skill sources and action completeness it imported are given to makeWorkflows (sourceReads, sourceConfig, sourceProblems, completeness); its 13 brand words are reworded (the host, the Workshop) and its reader header is x-reader, since a shared tool names no brand. The unchanged bytes stay held at src/workflows.mjs.held."
     }
   ]
 }

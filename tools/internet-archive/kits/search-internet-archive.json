@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/internet-archive/records.json and tool-rows.json (tool:search-internet-archive: its url, query template, input schema and verify check); no test file exists, and no live call was made",
+  "drafted_from": "tools/internet-archive/records.json and what-this-tool-does-and-how-to-run-it.json (tool:search-internet-archive: its url, query template, input schema and verify check); no test file exists, and no live call was made",
   "start_here": "Say to your AI: \"Search the Internet Archive for films about tennis, five results, and keep each item identifier and what its rights say.\" It runs the search and lists the identifiers with their metadata.",
   "lists": [],
   "no_lists_because": "It sends one search to the public Archive and hands back results; it reads and keeps no list of yours.",

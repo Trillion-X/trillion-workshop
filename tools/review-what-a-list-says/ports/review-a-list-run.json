@@ -37,7 +37,7 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/review-what-a-list-says/tool-rows.json",
+   "path": "tools/review-what-a-list-says/what-this-tool-does-and-how-to-run-it.json",
    "why": "This tool's own rows, which run this entry; they declare it and own no other job."
   }
  ],

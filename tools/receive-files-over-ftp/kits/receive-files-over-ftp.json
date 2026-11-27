@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:receive-files-over-ftp row in tool-rows.json, README.md, do-work/receive-pushed-files.mjs and test/receive-pushed-files.test.mjs",
+  "drafted_from": "tool:receive-files-over-ftp row in what-this-tool-does-and-how-to-run-it.json, README.md, do-work/receive-pushed-files.mjs and test/receive-pushed-files.test.mjs",
   "start_here": "Say to your AI: \"Start a receiver on my computer so my front-desk scanner can push its scans over FTP into the folder inbox, with one login called scanner.\" It writes the settings file with you, starts the receiver and tells you the host, port and login to type into the scanner.",
   "lists": [],
   "no_lists_because": "It names no list: it keeps files in the folder you give it, each with a .finished.json note beside it, and reads one settings file.",

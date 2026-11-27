@@ -128,7 +128,7 @@ export async function cancelCodexRun({ run, root = defaultRoot, grace_ms = 3000 
   return { run, ...stateOf(dir), cancelled: true };
 }
 
-// The command line the three keep-and-wake tool rows run (tool-rows.json, `invoke.run`):
+// The command line the three keep-and-wake tool rows run (what-this-tool-does-and-how-to-run-it.json, `invoke.run`):
 //   node harness/codex-runs.mjs start --folder <folder> --message-file <file>   the prompt is read from <file>, never argv
 //   node harness/codex-runs.mjs read --run <codex-run-id> --after <bytes>
 //   node harness/codex-runs.mjs cancel --run <codex-run-id>

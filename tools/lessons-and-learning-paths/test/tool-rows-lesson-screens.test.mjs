@@ -7,7 +7,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const FOLDER = join(dirname(fileURLToPath(import.meta.url)), '..');
-const rows = JSON.parse(readFileSync(join(FOLDER, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(FOLDER, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const byTool = id => rows.find(row => row.id === id);
 
 test('the lesson screen and the course list are both screen modules whose entries exist', () => {

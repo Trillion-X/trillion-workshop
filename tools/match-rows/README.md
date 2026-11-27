@@ -8,7 +8,7 @@ Pairs rows from two places that describe the same thing: a card line and its rec
 |------|---------|
 | `do-work/match-rows.mjs` | `matchRows(request)`: pure and deterministic. Scores every left row against every right row field by field, rules out pairs a required field disagrees on, then confirms, suggests and leaves over. |
 | `read-data/rules.json` | The defaults as DATA: the fields compared when a request names none (amount ignoring sign, date within 5 days, description words), `confirm_at`, `suggest_at`, `clear_lead`, the number of alternatives, the words that never count as shared, the id field and the mode. A request overrides any of it. |
-| `tool-rows.json` | The row `tool:match-rows`, run in the small container. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:match-rows`, run in the small container. |
 | `test/match-rows.test.mjs` | The pairing's behaviour on invented card lines, receipts, transfers and calendar rows, and the row's own sample run through the command the row runs. |
 | `part.json` | Nothing here is imported by other code. |
 

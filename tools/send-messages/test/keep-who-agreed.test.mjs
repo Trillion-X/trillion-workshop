@@ -9,7 +9,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { rowOf, answerOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import {
   KEY_FIRST_DESCRIPTOR, enrollInEmailCourse, heldKeysFrom, saveEmailInterest, sendDueEmailLessons, unsubscribeFromEmailCourse, whoAgreedToGetEmails,
 } from '../do-work/keep-who-agreed.mjs';
@@ -59,8 +59,8 @@ describe('the rows and the seam agree', () => {
       assert.equal(row.input_schema.properties.provider.enum, undefined, `${id} is named for its job, not a provider`);
     }
     for (const id of ['tool:save-interest-in-an-email-update', 'tool:stop-an-email-course', 'tool:who-agreed-to-get-which-emails']) {
-      assert.equal(rowOf(rows, id).invoke.credential_mounts, undefined, `${id} sends nothing and holds no key`);
-      assert.equal(rowOf(rows, id).invoke.internet, false);
+      assert.equal(rowOf(rows, id).invoke.key, undefined, `${id} sends nothing and holds no key`);
+      assert.equal(rowOf(rows, id).invoke.may_reach, undefined);
       assert.equal(rowOf(rows, id).invoke.records, undefined, `${id} keeps nothing and reads no store`);
     }
     assert.equal(KEY_FIRST_DESCRIPTOR, 4);
@@ -228,7 +228,7 @@ describe('the keep rows run their export from this folder, directly', () => {
   it('each row names keep-who-agreed.mjs and its export, with no records door between them', () => {
     for (const [id, name] of Object.entries(KEEP_ROWS)) {
       const row = rowOf(rows, id);
-      assert.deepEqual(row.invoke.argv, ['node', '/opt/send-messages/do-work/keep-who-agreed.mjs', name], id);
+      assert.deepEqual(row.invoke.run, ['node', '/opt/send-messages/do-work/keep-who-agreed.mjs', name], id);
       assert.ok(!row.invoke.files.package_files.some(files => files.package === 'records-door'), id);
     }
   });

@@ -9,7 +9,7 @@ The sort settings are the person's own data, kept in their account and passed in
 | File | Purpose |
 |------|---------|
 | `ports/*.json` | The port contracts: each file of `do-work/` and `read-data/` is launch-video `tools/yt-library`'s code, first committed byte for byte, then adapted. |
-| `tool-rows.json` | Three rows: `tool:plan-sorting-youtube-watch-later-into-playlists` (`computer`, proved by a sample run), `tool:read-my-youtube-watch-later-and-playlists` and `tool:make-youtube-playlists-from-a-sort-plan` (`on-your-computer`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Three rows: `tool:plan-sorting-youtube-watch-later-into-playlists` (`computer`, proved by a sample run), `tool:read-my-youtube-watch-later-and-playlists` and `tool:make-youtube-playlists-from-a-sort-plan` (`on-your-computer`). |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/youtube_client.py` | The YouTube web API client (ported from launch-video `ytc.py`): the cookies a browser sends to youtube.com, the signed-in check, the account a channel's `sign_in_as` names, and the reader of a playlist's videos page by page. Shared by the commands below. |
 | `do-work/list_signed_in_accounts.py` | Which accounts the browser login holds, by account number, and whether it is signed in (`account_at`, also used to find `sign_in_as`). |

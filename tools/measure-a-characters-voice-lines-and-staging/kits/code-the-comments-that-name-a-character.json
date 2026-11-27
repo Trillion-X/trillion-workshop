@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:code-the-comments-that-name-a-character's row in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
+  "drafted_from": "tool:code-the-comments-that-name-a-character's row in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json, its script in tools/measure-a-characters-voice-lines-and-staging/do-work/ and the tests in tools/measure-a-characters-voice-lines-and-staging/test/",
   "start_here": "Say to your AI: \"Code the comments that name the parrot with my codebook, pleasure and absence.\" It runs tool:code-the-comments-that-name-a-character on comments-character.tsv.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one settings row of yours (record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) or the settings you pass, and works on files in the show's folder.",
@@ -37,7 +37,7 @@
           }
         }
       },
-      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/tool-rows.json: comments-character.tsv holds c1 \"The parrot is so funny\" (9 likes), c3 \"I missed the parrot\" (3 likes) and c5 \"Polly!\" (0 likes); codebook pleasure = \"funny|laugh\", absence = \"miss(ed)? (him|the parrot)\".",
+      "given": "From the sample run in tools/measure-a-characters-voice-lines-and-staging/what-this-tool-does-and-how-to-run-it.json: comments-character.tsv holds c1 \"The parrot is so funny\" (9 likes), c3 \"I missed the parrot\" (3 likes) and c5 \"Polly!\" (0 likes); codebook pleasure = \"funny|laugh\", absence = \"miss(ed)? (him|the parrot)\".",
       "hands_back": "{\"result\": {\"table\": \"{grant:change-a-folder}/show/comments-character-coded.tsv\", \"comments\": 3, \"codes\": {\"pleasure\": 1, \"absence\": 1, \"mention-only\": 1}}}; coded rows: c1 pleasure, c3 absence, c5 mention-only."
     }
   ]

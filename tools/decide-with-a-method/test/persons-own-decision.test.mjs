@@ -11,7 +11,7 @@ import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { caseView, run } from './fixtures.mjs';
 import { account } from './old-engine-for-tests.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
 const TOOL = 'tool:record-a-persons-own-decision';
 

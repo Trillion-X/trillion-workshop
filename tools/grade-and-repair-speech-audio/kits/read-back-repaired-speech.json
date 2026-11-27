@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:read-back-repaired-speech), do-work/check_speech_by_reading.py and reading.py, grade_and_repair_speech.py (write_result); no test runs the read-back (it needs whisper weights)",
+  "drafted_from": "tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json (tool:read-back-repaired-speech), do-work/check_speech_by_reading.py and reading.py, grade_and_repair_speech.py (write_result); no test runs the read-back (it needs whisper weights)",
   "start_here": "Say to your AI: \"Read back every span in /Work/demo/out with whisper using my settings in /Work/settings.json and tell me which ones say the wrong words.\" It runs tool:read-back-repaired-speech on your computer and lists every span under the bar.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the folder a grade wrote and writes work/verify.json into it.",

@@ -15,7 +15,7 @@ The same words can also live in the AI's own files: `tool:keep-my-account-in-you
 | `read-data/standing-instructions.json` | The block's `markers` and default `text`. |
 | `read-data/harness-instruction-files.json` | Where each harness keeps its instruction file (`folder`, `home_variable`, `file`), or the control a hosted app has instead. |
 | `test/standing-instructions.test.mjs` | On a pretend home: apply, twice, outdated, remove byte for byte; broken markers blocked; home variable and symbolic link; hosted apps; the entry's input check. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:read-how-ais-are-told` and `tool:keep-my-account-in-your-instructions`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder: `tool:read-how-ais-are-told` and `tool:keep-my-account-in-your-instructions`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/read-how-ais-are-told.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
@@ -30,4 +30,4 @@ The same words can also live in the AI's own files: `tool:keep-my-account-in-you
 
 **Depends on:** `node:fs`, `node:os`, `node:path`.
 
-**Depended on by:** `tool-rows.json` (`tool:read-how-ais-are-told`, `tool:keep-my-account-in-your-instructions`); the engine's door reads `rows.json` through the installed Workshop.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:read-how-ais-are-told`, `tool:keep-my-account-in-your-instructions`); the engine's door reads `rows.json` through the installed Workshop.

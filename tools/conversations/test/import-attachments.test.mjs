@@ -18,7 +18,7 @@ import * as chat from '../read-data/chat-import.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { exportFilesBeside, mediaTypeOf } from '../read-data/chat-import.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const NOW = new Date('2026-11-04T12:00:00Z');
 
 // Bytes that start the way their kind does, and are long enough to take several pieces of a file (40 KiB each).

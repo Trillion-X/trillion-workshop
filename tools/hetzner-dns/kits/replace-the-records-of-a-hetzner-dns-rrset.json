@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Reads tools/hetzner-dns/tool-rows.json: POST https://api.hetzner.cloud/v1/zones/{zone}/rrsets/{rr_name}/{rr_type}/actions/set_records with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
+      "given": "Reads tools/hetzner-dns/what-this-tool-does-and-how-to-run-it.json: POST https://api.hetzner.cloud/v1/zones/{zone}/rrsets/{rr_name}/{rr_type}/actions/set_records with the vault key hetzner-api-token as a bearer header, to api.hetzner.cloud only.",
       "hands_back": "It answers the record set with its new single value 203.0.113.10; the TTL is unchanged."
     }
   ]

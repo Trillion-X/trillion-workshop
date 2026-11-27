@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import * as links from '../read-data/meeting-links.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 
 test('reading a link needs no capability; opening one names the one it needs, and each row runs an export that exists', () => {
   const byId = Object.fromEntries(rows.map(row => [row.id, row]));
@@ -11,8 +11,8 @@ test('reading a link needs no capability; opening one names the one it needs, an
   assert.deepEqual(byId['tool:open-meeting-link'].invoke.capabilities, ['open-links-in-their-apps']);
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer');
-    assert.equal(row.invoke.internet, false);
-    assert.equal(typeof links[row.invoke.argv.at(-1)], 'function', row.id);
+    assert.equal(row.invoke.may_reach, undefined);
+    assert.equal(typeof links[row.invoke.run.at(-1)], 'function', row.id);
   }
 });
 

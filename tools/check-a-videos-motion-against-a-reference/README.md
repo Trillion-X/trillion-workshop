@@ -12,7 +12,7 @@ This tool measures how much the whole frame moves. Tracking a subject or an obje
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop rows `tool:check-a-videos-motion-against-a-reference` and `tool:list-the-longest-still-holds-of-my-video`: `on-your-computer`, with what they need and the commands. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows `tool:check-a-videos-motion-against-a-reference` and `tool:list-the-longest-still-holds-of-my-video`: `on-your-computer`, with what they need and the commands. |
 | `part.json` | The files other code may import: `read-data/motion-bar.mjs` and `read-data/measure-motion.mjs`. |
 | `do-work/check-motion.mjs` | The command. Measures the reference and the piece, builds the bar from the person's rows, prints `{"result": ...}` or `{"error": ...}`. Exit 0 whether the piece passed or not; 2 when a flag, file or bar row is wrong. |
 | `do-work/list-holds.mjs` | The hold list, on the measure's own frame changes, cut level and still level. Prints `{"result": {video, seconds, still_threshold, holds: [{seconds, at}], text}}` or `{"error": ...}`. Exit 0 with an answer; 2 when a flag or file is wrong. |

@@ -180,7 +180,7 @@ The reader does not run as an engine row: a run the engine starts gets record ri
 | `test/refresh-changes-run-deadline.test.mjs` | Changed documents reconciled alone; the command line's deadline and stdin reads. |
 | `test/support/stored.mjs` | Made-up chores, recipes on disk, and the store's own refusal of a moved record. |
 | `test/support/sync-store.mjs` | A made-up store with version history for the two-way sync tests. |
-| `kits/read-a-list-view.json`, `tool-rows.json`, `part.json` | The AI's kit, the Workshop row and the public entries. |
+| `kits/read-a-list-view.json`, `what-this-tool-does-and-how-to-run-it.json`, `part.json` | The AI's kit, the Workshop row and the public entries. |
 
 ## Dependencies
 

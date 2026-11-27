@@ -30,7 +30,7 @@ test('the JavaScript reader picks the most specific scope and gives the default 
 
 test('the row runs the command that exists', async () => {
   const { readFileSync, existsSync } = await import('node:fs');
-  const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+  const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
   assert.equal(row.id, 'tool:read-a-tool-setting');
   assert.ok(existsSync(join(folder, 'do-work', 'read_setting.py')));
 });

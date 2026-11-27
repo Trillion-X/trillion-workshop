@@ -9,10 +9,10 @@ The slot validator and holder come from Trillion-X/trillion `computer/guarded-up
 | File | Purpose |
 |------|---------|
 | `read-data/guarded-upload-core.mjs` | The one source-preserving settings loader, slot validator and single-use holder; retains the redirect refusal. |
-| `read-data/guarded-upload.mjs` | Forwards `uploadSettings`, `checkSlot` and `makeGuardedUploads` with the same binding identities and supplies `uploadFromFolder`, the entry `tool-rows.json` runs. |
+| `read-data/guarded-upload.mjs` | Forwards `uploadSettings`, `checkSlot` and `makeGuardedUploads` with the same binding identities and supplies `uploadFromFolder`, the entry `what-this-tool-does-and-how-to-run-it.json` runs. |
 | `source-baselines/` and `ports/` | Inactive exact original bytes, the core's source-first contract and the narrow folder/export adapter provenance. |
 | `read-data/guarded-upload.json` | The destination rows (`host`, `path_prefix`, `max_fields`, `content_types`), `hold_minutes`, `max_hold_bytes` and every word said. The shipped list is empty, so the tool uploads nowhere until a destination row is added. |
-| `tool-rows.json` | `tool:upload-a-file-to-a-signed-slot`: a `computer` row with `capabilities: ["read-a-folder"]` and `"internet": true`, run by `tools/records-door`'s `run-an-export.mjs`; stdin is `{ input, folder }`, the folder filled from `grants.read-a-folder.folder`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:upload-a-file-to-a-signed-slot`: a `computer` row with `capabilities: ["read-a-folder"]` and `"may_reach": []`, run by `tools/records-door`'s `run-an-export.mjs`; stdin is `{ input, folder }`, the folder filled from `grants.read-a-folder.folder`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/guarded-upload.test.mjs` | The moved tests (import repointed) and the Workshop entry's tests, run by `npm test` at the top of the repository. |
 
@@ -35,4 +35,4 @@ The slot validator and holder come from Trillion-X/trillion `computer/guarded-up
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library and its `fetch`.
 
-**Depended on by:** `tool-rows.json`. The engine (Trillion-X/trillion-rust `src/runtime/workshop.rs`, kind `computer`) runs the row for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The engine (Trillion-X/trillion-rust `src/runtime/workshop.rs`, kind `computer`) runs the row for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.

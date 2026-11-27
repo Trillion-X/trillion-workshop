@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/social-posts/tool-rows.json (tool:list-my-youtube-videos), tools/social-posts/test/youtube-connection.test.mjs and the row's request; the answer is worked out from the row, not observed",
+  "drafted_from": "tools/social-posts/what-this-tool-does-and-how-to-run-it.json (tool:list-my-youtube-videos), tools/social-posts/test/youtube-connection.test.mjs and the row's request; the answer is worked out from the row, not observed",
   "start_here": "Say to your AI: \"List the videos on my YouTube channel, including unlisted and private ones, with their privacy status.\" It checks the connection for the uploads playlist id, then runs tool:list-my-youtube-videos with it.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads your uploads playlist through your YouTube connection and posts and changes nothing.",
@@ -32,7 +32,7 @@
           }
         }
       },
-      "given": "Read from tools/social-posts/tool-rows.json (the row's http request) and test/youtube-connection.test.mjs, not run live: the engine sends GET https://www.googleapis.com/youtube/v3/playlistItems with part=snippet,status,contentDetails, maxResults=50 and playlistId=UUexampleuploads0000000000, the connection's access token in the Authorization header only to www.googleapis.com. The channel (synthetic) has two uploads.",
+      "given": "Read from tools/social-posts/what-this-tool-does-and-how-to-run-it.json (the row's http request) and test/youtube-connection.test.mjs, not run live: the engine sends GET https://www.googleapis.com/youtube/v3/playlistItems with part=snippet,status,contentDetails, maxResults=50 and playlistId=UUexampleuploads0000000000, the connection's access token in the Authorization header only to www.googleapis.com. The channel (synthetic) has two uploads.",
       "hands_back": "YouTube's own answer for that request, unchanged: {\"items\":[{\"snippet\":{\"title\":\"Shaping a boule\",\"publishedAt\":\"2030-11-05T10:00:00Z\",\"resourceId\":{\"videoId\":\"vid-aaa\"}},\"status\":{\"privacyStatus\":\"public\"},\"contentDetails\":{\"videoId\":\"vid-aaa\"}},{\"snippet\":{\"title\":\"Draft: scoring tips\",\"publishedAt\":\"2030-11-06T10:00:00Z\",\"resourceId\":{\"videoId\":\"vid-bbb\"}},\"status\":{\"privacyStatus\":\"private\"},\"contentDetails\":{\"videoId\":\"vid-bbb\"}}], ...} (each item also carries the snippet's other fields; the example values are synthetic, the fields are the ones the request asks for). With more than 50 videos it also holds nextPageToken."
     }
   ]

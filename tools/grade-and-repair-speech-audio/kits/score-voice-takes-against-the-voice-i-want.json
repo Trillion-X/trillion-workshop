@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:score-voice-takes-against-the-voice-i-want's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/tool-rows.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:score-voice-takes-against-the-voice-i-want's own row (its words, invoke, input and output schema) in tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json; it runs on the person's computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Score the voice takes in /Work/demo/takes against my reference recordings in /Work/demo/refs and the voice I want, a warm, calm narrator, writing /Work/demo/scores.json.\" It runs tool:score-voice-takes-against-the-voice-i-want on your computer and shows each take's scores side by side.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads takes and reference recordings on your computer and writes the scores file you name.",

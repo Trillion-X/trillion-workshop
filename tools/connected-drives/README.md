@@ -24,7 +24,7 @@ How a computer knows its drives is a reader row in `read-data/drives.json`, trie
 | `read-data/drive-folder.mjs` | One folder on a drive, a page at a time, and `driveOf`, the check that a path really is on a connected drive. |
 | `read-data/drive-processes.mjs` | The programs with files open on a drive, from `lsof -Fpcn`, and `readProcessRows`, each process named the way the person knows it (from `ps`; a script by its script). |
 | `read-data/file-kinds.mjs`, `read-data/file-kinds.json` | What kind of file a name is (videos, audio, pictures, ...), as DATA. |
-| `tool-rows.json` | `tool:list-connected-drives`, `tool:list-a-drive-folder`, `tool:see-what-is-on-a-drive`, `tool:get-a-drive-icon`, `tool:name-what-holds-a-drive`, `tool:read-a-camera-card-index`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:list-connected-drives`, `tool:list-a-drive-folder`, `tool:see-what-is-on-a-drive`, `tool:get-a-drive-icon`, `tool:name-what-holds-a-drive`, `tool:read-a-camera-card-index`. |
 | `part.json` | `drives.mjs` (`enumerateDevices`), `drive-folder.mjs` (`driveOf`) and `drive-processes.mjs`, which `tools/work-on-connected-drives` imports. |
 | `test/drives.test.mjs` | Tests against a pretend `/Volumes`, a pretend mount table and pretend commands. |
 
@@ -42,4 +42,4 @@ How a computer knows its drives is a reader row in `read-data/drives.json`, trie
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library, and the programs of the place's reader: `mount`, `diskutil`, `lsof` and `osascript` for `finder-volumes`; the kernel mount table and `lsof` for `mount-table`.
 
-**Depended on by:** `tool-rows.json`; `tools/work-on-connected-drives` (the public files `part.json` lists). The engine sends old trillion's `tool:trillion-media-drives`, `-drive-folder`, `-drive-holders`, `-drive-kinds` and `-drive-icon` to these rows (trillion-rust `product/renamed-tools.json`). The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; `tools/work-on-connected-drives` (the public files `part.json` lists). The engine sends old trillion's `tool:trillion-media-drives`, `-drive-folder`, `-drive-holders`, `-drive-kinds` and `-drive-icon` to these rows (trillion-rust `product/renamed-tools.json`). The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).

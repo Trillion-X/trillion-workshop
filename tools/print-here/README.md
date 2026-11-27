@@ -8,7 +8,7 @@ Prints a file from the person's files on a printer their Mac already has, and sa
 |------|---------|
 | `read-data/print-here.mjs` | `printers()`: the printers and the default, from `lpstat`. `print(input, { readWholeFile })`: reads the file by name through the host action in `read_bytes` steps and sends one job with `lp`, with the options the input gives. |
 | `read-data/print-here.json` | The print commands, the option names, the read step, the largest file sent and every word said. |
-| `tool-rows.json` | `tool:printers` and `tool:print`. Both are `computer` rows with `capabilities: ["use-the-print-system"]`, run by the workflows `run-a-function.mjs` runner. `tool:print` also declares a files right in `stored`: `find_file` and `read_file` over the person's files. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:printers` and `tool:print`. Both are `computer` rows with `capabilities: ["use-the-print-system"]`, run by the workflows `run-a-function.mjs` runner. `tool:print` also declares a files right in `stored`: `find_file` and `read_file` over the person's files. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/print-here.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
@@ -27,4 +27,4 @@ Trillion's Mac kept its own copy of these two tools (`computer/print-here.mjs`, 
 
 **Depends on:** the workflows `run-a-function.mjs` runner and its `read-data/host-actions.mjs`, Node's standard library, and the Mac's `lpstat` and `lp`.
 
-**Depended on by:** `tool-rows.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs `printers` and `print` on placement:your-computer and hands `print` its host actions (the file read) and its effect journal. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the Trillion Mac app's tool host (`computer/mac-tools.json` in Trillion-X/trillion), which runs `printers` and `print` on placement:your-computer and hands `print` its host actions (the file read) and its effect journal. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).

@@ -24,7 +24,7 @@ Read as the old service read it (`connectionsNow`, the held-values operation `li
 | File | Purpose |
 |------|---------|
 | `do-work/business-screen.mjs` | The facts (`readBusiness`, `businessFacts`) and the row's entry (`readBusinessForScreen`). |
-| `tool-rows.json` | The two rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two rows. |
 | `test/business-screen.test.mjs` | The old test, ported; the golden draws the old layout through the formula engine as the screen host does. |
 | `test/draw-catalogue-screen.mjs` | Old `src/screen-layout.mjs` drawLayout and the old test helper `drawCatalogueScreen`. |
 | `test/fixtures/business-descriptions.json` | The old golden, unchanged. |

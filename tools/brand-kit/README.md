@@ -8,7 +8,7 @@ A brand is rows of a list, one per logo variant, and one selection row names the
 |------|---------|
 | `read-data/brand-assets.mjs` | `assetForBrand(rows, { role, format, tone })`, `presentationFromBrand(rows, tone)`, `selectedFamily(rows)`, `BRAND_FIELDS`: the pure picks. |
 | `do-work/resolve-a-brand.mjs` | `node do-work/resolve-a-brand.mjs <request.json>`: prints the family in use, every variant for both tones and the ones the asked tone draws. |
-| `tool-rows.json` | `tool:resolve-a-brand`, an `on-your-computer` row. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:resolve-a-brand`, an `on-your-computer` row. |
 | `part.json` | `read-data/brand-assets.mjs`, which other tools may import. |
 | `test/resolve-a-brand.test.mjs` | A made-up brand: the selected family only, both row shapes, unsafe addresses refused, local copies named. |
 | `src/brand-assets.mjs` | The held old brand API: worn-look palette, bundled fallback selection, brand list actions, and supplied admitted presentation readers. |

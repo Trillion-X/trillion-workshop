@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const FILE = 'StorableSidebar.json';
 
 function run(granted, input) {
@@ -80,8 +80,8 @@ test('the row runs on the person\'s computer with only the change-a-folder grant
   assert.equal(rows.length, 1);
   assert.equal(rows[0].invoke.kind, 'computer');
   assert.deepEqual(rows[0].invoke.capabilities, ['change-a-folder']);
-  assert.notEqual(rows[0].invoke.internet, true);
-  assert.deepEqual(rows[0].invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.change-a-folder.folder' } });
+  assert.equal(rows[0].invoke.may_reach, undefined);
+  assert.deepEqual(rows[0].invoke.run.at(-1), { fill: { from: 'task', field: 'grants.change-a-folder.folder' } });
 });
 
 test('a report-only run says what would move and leaves the file as it was', t => {

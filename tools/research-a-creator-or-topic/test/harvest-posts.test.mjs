@@ -12,7 +12,7 @@ import { keepPublicPostsByLink as keep, readPostLink, readRequest } from '../do-
 import { readSettings } from '../do-work/harvest-parts.mjs';
 
 const shipped = readSettings();
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:keep-public-posts-by-link');
 const MIRROR = 'https://mirror.example';
 const settingsWith = (changes = {}) => ({
@@ -144,7 +144,7 @@ test('the row packs what the tool reads, keeps its file by the settings\' bound,
   assert.equal(invoke.workdir, at.at);
   for (const file of ['do-work/harvest-posts.mjs', 'do-work/harvest-parts.mjs', 'do-work/harvest-settings.json']) assert.ok(at.paths.includes(file), file);
   assert.deepEqual(invoke.outputs.map(output => [output.name, output.path, output.max_bytes]), [['posts', `${at.at}/out/posts.jsonl`, shipped.file_bytes_at_most]]);
-  assert.equal(invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.ok(!JSON.stringify(row).includes('records-door'), 'no records door is mounted or named');
   assert.deepEqual(row.output_schema.properties.keep.items.required, ['id', 'type', 'value', 'expected']);
   assert.equal(row.input_schema.properties.links.maxItems, shipped.posts.links_at_most);

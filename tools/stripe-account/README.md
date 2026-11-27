@@ -4,6 +4,6 @@ The Workshop row for Stripe's account read (GET https://api.stripe.com/v1/accoun
 
 | File | Purpose |
 |---|---|
-| `tool-rows.json` | The http row the engine runs (no code of its own). |
+| `what-this-tool-does-and-how-to-run-it.json` | The http row the engine runs (no code of its own). |
 | `kits/read-my-stripe-account.json` | The kit: how to say it and what it answers. |
 | `test/stripe-account-rows.test.mjs` | Checks that the row holds only that key, sent to api.stripe.com as a bearer header, and only reads. |

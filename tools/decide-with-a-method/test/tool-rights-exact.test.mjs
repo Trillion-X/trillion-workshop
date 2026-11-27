@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { startADecision } from '../read-data/decisions.mjs';
 import { METHOD_VIEW, run, methodAccount, memoryDoor } from './fixtures.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const OPERATION = /records?:(read|list|write)\b/;
 
 test('no decision tool row declares rights to a store', () => {

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:score-soundtrack-variants-by-ear row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:score-soundtrack-variants-by-ear row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Score soundtrack variant A, with soundtrack and effects layer both /work/sfx/a-layer.wav, at every cue of my cue plan.\" It runs the scorer and reads each sound's match at its cue.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads REQUEST.json, the cue plan and the variants' WAV files on this computer and merges its scores into one scores file.",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/assemble-a-plan-into-a-cut/tool-rows.json, do-work/reel.py, test/test_assemble.py",
+  "drafted_from": "tools/assemble-a-plan-into-a-cut/what-this-tool-does-and-how-to-run-it.json, do-work/reel.py, test/test_assemble.py",
   "start_here": "Say to your AI: \"Put my two finished cuts first.mp4 and second.mp4 into one reel with a card before the second, and tell me where each starts.\" It runs the string-together step.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads the film files you name and writes one reel and an optional index text file.",

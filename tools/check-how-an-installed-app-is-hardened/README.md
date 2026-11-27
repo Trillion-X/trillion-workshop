@@ -8,7 +8,7 @@ Reads how an installed macOS app is hardened from its files on disk and the syst
 |------|---------|
 | `read-data/app-hardening.mjs` | `readFuses` (the fuse block in a framework binary's bytes, found by its sentinel and read per wire version), `signingFacts` (code-signing flags and the entitlements that are true, from `codesign`), `auditApp` (the findings for one bundle) and `audit`, the tool function. Moved one to one; the only addition is the named export `audit` for `run-an-export.mjs`. |
 | `read-data/app-hardening.json` | The sentinel, the byte-to-state table, the fuse names per wire version, where the framework and Info.plist sit, which fuse states and entitlements are findings and why, and every word said. Moved unchanged. |
-| `tool-rows.json` | `tool:check-an-app`: a `computer` row with `capabilities: ["read-a-folder"]`, run by `tools/records-door`'s `run-an-export.mjs`. The id is the one the Mac host gave it. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:check-an-app`: a `computer` row with `capabilities: ["read-a-folder"]`, run by `tools/records-door`'s `run-an-export.mjs`. The id is the one the Mac host gave it. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/app-hardening.test.mjs` | The original tests, repointed: fuse reading, a weak and a hardened made-up bundle, what cannot be read, codesign parsing on stand-in output, and a live read of a real installed Electron app that is skipped where none is installed. |
 
@@ -43,4 +43,4 @@ node --test tools/check-how-an-installed-app-is-hardened/test/app-hardening.test
 
 **Depends on:** `tools/records-door` (the command that runs a function), `tools/content-identity`, Node's standard library, macOS `/usr/bin/codesign`.
 
-**Depended on by:** `tool-rows.json`. In Trillion-X/trillion, finding F-0045 has a second half, `computer/switch-guard.mjs`. It stays there, called by `computer/end-with-the-app.mjs` in the Mac app, and is not moved here.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. In Trillion-X/trillion, finding F-0045 has a second half, `computer/switch-guard.mjs`. It stays there, called by `computer/end-with-the-app.mjs` in the Mac app, and is not moved here.

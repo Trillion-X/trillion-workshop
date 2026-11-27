@@ -5,7 +5,7 @@ import test from 'node:test';
 import { answerOf, rowOf, select } from '../../../test-helpers/run-a-row.mjs';
 import { mergeAStreamedAnswer } from '../do-work/stream-an-answer-in-keyed-parts.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 
 test('events merge into the entry, a later call continues it, and a replay adds nothing twice', () => {
   const first = mergeAStreamedAnswer({ events: [{ seq: 1, type: 'text', key: 'answer', text: 'Hello, ' }] });

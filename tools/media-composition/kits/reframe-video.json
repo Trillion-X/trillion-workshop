@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:reframe-video's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/reframe-to-a-size.mjs, and the script run on a synthetic 7 second 320x180 clip",
+  "drafted_from": "tool:reframe-video's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/reframe-to-a-size.mjs, and the script run on a synthetic 7 second 320x180 clip",
   "start_here": "Say to your AI: \"Make my 16:9 video vertical for a reel, with the frame following the action.\" It runs tool:reframe-video and saves the new video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

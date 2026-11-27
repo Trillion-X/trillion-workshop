@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:mix-sound-layers's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/layer-over-video.mjs, tools/media-composition/test/layer-over-video.test.mjs, and the script run on a synthetic 7 second clip with a 10 second tone as the music",
+  "drafted_from": "tool:mix-sound-layers's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/layer-over-video.mjs, tools/media-composition/test/layer-over-video.test.mjs, and the script run on a synthetic 7 second clip with a 10 second tone as the music",
   "start_here": "Say to your AI: \"Put my music file under my video at 30% volume with a one second fade in and out, ducking under speech, and even the loudness out to -14.\" It runs tool:mix-sound-layers and saves the new video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

@@ -3,7 +3,7 @@
 // back, as the caller's AI would.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { createASpace, leaveASpace } from '../do-work/space-members.mjs';
 import { KINDS, rowId } from '../read-data/space-rows.mjs';
 
@@ -50,6 +50,6 @@ test('join rows that do not hold are refused before anything is kept', () => {
 test('the tool row sits beside tool:leave-a-space and runs createASpace', () => {
   const row = rows.records.find(record => record.payload.id === 'tool:create-a-space');
   assert.ok(row, 'the row exists');
-  assert.equal(row.payload.invoke.argv.at(-1), 'createASpace');
+  assert.equal(row.payload.invoke.run.at(-1), 'createASpace');
   assert.ok(rows.records.some(record => record.payload.id === 'tool:leave-a-space'));
 });

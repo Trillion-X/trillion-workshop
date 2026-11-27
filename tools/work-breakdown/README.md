@@ -14,7 +14,7 @@ Holds a body of work as a tree of DATA: rolls up how much is really finished (an
 | `test/` | `roll-up-work-completion.test.mjs`, `intake-work-item.test.mjs` (carried from the package's `tests/`), `read-tasks.test.mjs` (carried from `packages/tasks`, plus the command). |
 | `records.json` | The four tool rows; the proof check's row carries the package's rubric and calibration examples as its prompt. |
 | `part.json` | No public files: only the container runs this code. |
-| `tool-rows.json` | Lists `records.json` into the Workshop (`source:business-work-breakdown-tools`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Lists `records.json` into the Workshop (`source:business-work-breakdown-tools`). |
 
 ## Key Types / Functions
 
@@ -36,4 +36,4 @@ Holds a body of work as a tree of DATA: rolls up how much is really finished (an
 
 **Depends on:** Node 24 in the tool container; the hosted model runtime for the proof check.
 
-**Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names), the Workshop's executors, Trillion's `test/business-tools.test.mjs`.
+**Depended on by:** Trillion's deploy (it reads `what-this-tool-does-and-how-to-run-it.json` and bundles the files a row names), the Workshop's executors, Trillion's `test/business-tools.test.mjs`.

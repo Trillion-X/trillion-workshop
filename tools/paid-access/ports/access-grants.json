@@ -581,7 +581,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/paid-access/tool-rows.json",
+      "path": "tools/paid-access/what-this-tool-does-and-how-to-run-it.json",
       "why": "The searched original rows describe existing access readers and paid-file delivery. The restored grant row calls this canonical writer."
     },
     {

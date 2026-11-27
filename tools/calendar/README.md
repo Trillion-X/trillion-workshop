@@ -14,7 +14,7 @@ A person's calendar, built from their own records. Any records that have a start
 | `do-work/command.mjs` | How every command here runs: JSON on stdin, one JSON line out, a refusal on stderr. |
 | `do-work/read-time-blocks.mjs` | The command of `tool:read-time-blocks`. |
 | `do-work/lay-out-a-calendar-view.mjs` | The command of `tool:lay-out-a-calendar-view`. |
-| `tool-rows.json` | The three rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three rows. |
 | `part.json` | No public files: only the tools run this code. |
 | `test/time-blocks.test.mjs` | The package's projection, account and sync-state cases on a bakery's pickups, plus unusable and empty lenses. |
 | `test/calendar-views.test.mjs` | The package's overlap and view cases, plus offsets, month, agenda, clashes and a view the code never named. |

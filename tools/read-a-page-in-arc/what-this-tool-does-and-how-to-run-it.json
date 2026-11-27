@@ -1,0 +1,294 @@
+{
+  "kind": "tool-rows",
+  "record_set": "read-a-page-in-arc-tool-rows",
+  "what_this_is": "The Workshop row that reads one public page in the person's Arc browser through its AppleScript interface on their computer: opens the address in a tab, reads its title, address and visible text, and closes the tab. Runs read-a-page-in-arc.mjs.",
+  "records": [
+    {
+      "id": "package::read-a-page-in-arc::tool::read-a-page-in-arc",
+      "address": "package::read-a-page-in-arc::tool::read-a-page-in-arc",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-page-in-arc",
+        "label": "Read a page in Arc",
+        "status": "active",
+        "job": "Read one public page in the person's Arc browser through its scripts, and close the tab it opened",
+        "description": "Opens the http or https address in a new tab of Arc's front window, waits until the page has loaded, reads its title, address and visible text (at most 20000 characters), and closes that tab. Click nothing. Answers { title, url, text } or { error }. Refused in words when Arc is not running or does not answer.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The page's address (http or https)"
+            },
+            "computer": {
+              "type": "object",
+              "required": [
+                "automate-an-app"
+              ],
+              "description": "The computer's capability: the browser app's bundle id, which the Mac must allow to be controlled",
+              "properties": {
+                "automate-an-app": {
+                  "type": "object",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "string",
+                      "const": "company.thebrowser.Browser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "computer",
+            "url"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "automate-an-app"
+          ],
+          "local_doors": [],
+          "workdir": "/opt/read-a-page-in-arc",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/read-a-page-in-arc/read-a-page-in-arc.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "max_run_ms": 60000,
+          "files": {
+            "package_files": [
+              {
+                "package": "read-a-page-in-arc",
+                "paths": [
+                  "read-a-page-in-arc.mjs",
+                  "arc-tab.mjs",
+                  "page-scripts.mjs"
+                ],
+                "at": "/opt/read-a-page-in-arc"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "test",
+            "requires": "node --test tools/read-a-page-in-arc/test/read-a-page-in-arc.test.mjs on a Mac with Arc running; the test opens https://example.com/ in Arc and checks its title and that the tab was closed",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:read-a-page-in-arc",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "provenance": {
+          "source": "the person's Arc browser through its AppleScript interface, the route the browser work uses when no extension is connected"
+        }
+      }
+    },
+    {
+      "id": "package::read-a-page-in-arc::tool::pull-a-page-in-arc",
+      "address": "package::read-a-page-in-arc::tool::pull-a-page-in-arc",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-a-page-in-arc",
+        "label": "Pull a page in Arc",
+        "status": "active",
+        "job": "Pull one page from the person's Arc browser, signed in, as its whole text and optionally its links, the pages those links lead to, or one file it can download",
+        "description": "Opens the http or https address in a new tab of Arc's front window, reads its title, address and whole text (up to 2000000 characters; truncated says when it was cut), and closes that tab; every call goes to its own tab by id, so two reads at once never read each other's page. A page that lands on another host is refused. A Notion page is read through its own API inside the tab: every block in order (tables, synced blocks, database rows, closed toggles and child pages included), child pages answered as links; the page view's lines the API lacks are added after a marker. Any other page is scrolled to its end until it stops growing (scroll_selector names an inner pane to scroll instead; when it matches nothing the window is scrolled). With links true it also answers every link on the page as { href, text }, once each (up to 2000). With follow it reads the linked pages one after another, same site only if same_site_only is true, optionally only those matching match, up to most_pages (at most 30), each as its own entry. With save it fetches one file inside the tab with the person's sign-in (a Google Doc as its signed-in text, a Sheet or Slides export, a Drive file, or file_url) and writes it under the save root, named by its BLAKE3 with its extension; it answers { file: { name, path, bytes, blake3, media_type, from_url } }. A file the in-tab fetch cannot read (a cross-site Drive file) is saved by Arc's own download: its address opens in a tab of its own, the finished file is moved from the downloads folder into the save folder by its BLAKE3, and it is never opened or run. Nothing is filled, submitted or clicked. Every tab it opens is closed. Refused in words when the address is not http or https, when the save folder is outside the save root, or when Arc does not answer.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The page's address (http or https)"
+            },
+            "links": {
+              "type": "boolean",
+              "description": "Answer every link on the page as { href, text }. Default false."
+            },
+            "scroll_selector": {
+              "type": "string",
+              "description": "CSS selector of a scrolling pane inside the page (for example a Notion scroller) to scroll instead of the page itself"
+            },
+            "most_scroll_steps": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "The most scrolls this one read makes, so a long page is read in fixed chunks (at most pull-settings.json scroll.most_steps). Default: the settings bound."
+            },
+            "follow": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "same_site_only",
+                "most_pages"
+              ],
+              "properties": {
+                "same_site_only": {
+                  "type": "boolean",
+                  "description": "Only follow links on the same host as the page"
+                },
+                "most_pages": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 30,
+                  "description": "How many linked pages to read, in the order the links appear"
+                },
+                "match": {
+                  "type": "string",
+                  "description": "Optional regular expression: follow only links whose address or text matches"
+                }
+              }
+            },
+            "save": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "folder"
+              ],
+              "properties": {
+                "folder": {
+                  "type": "string",
+                  "description": "Folder the file is written in: an absolute path, or one starting with ~/, inside the save root"
+                },
+                "format": {
+                  "type": "string",
+                  "description": "The export format: md, txt, html, docx or pdf for a Google Doc; csv, tsv, xlsx, ods or pdf for a Sheet; pdf or pptx for Slides. Other files: their extension"
+                },
+                "file_url": {
+                  "type": "string",
+                  "description": "The file's address (http or https), when the page is not a Google file or a Drive file"
+                }
+              }
+            },
+            "save_attachments": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "folder"
+              ],
+              "description": "A Notion page's attached files (file, pdf, image, video, audio blocks and attachment: links) are signed in the page and saved by Arc's download into this folder (an absolute path or one starting with ~/, inside the save root), each named by its BLAKE3 with its own extension; the answer lists them as attachments.",
+              "properties": {
+                "folder": {
+                  "type": "string"
+                }
+              }
+            },
+            "computer": {
+              "type": "object",
+              "required": [
+                "automate-an-app"
+              ],
+              "description": "The computer's capability: the browser app's bundle id, which the Mac must allow to be controlled",
+              "properties": {
+                "automate-an-app": {
+                  "type": "object",
+                  "required": [
+                    "app"
+                  ],
+                  "properties": {
+                    "app": {
+                      "type": "string",
+                      "const": "company.thebrowser.Browser"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": [
+            "computer",
+            "url"
+          ]
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "automate-an-app"
+          ],
+          "local_doors": [],
+          "workdir": "/opt/read-a-page-in-arc",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/read-a-page-in-arc/pull-a-page-in-arc.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "max_run_ms": 900000,
+          "files": {
+            "package_files": [
+              {
+                "package": "read-a-page-in-arc",
+                "paths": [
+                  "pull-a-page-in-arc.mjs",
+                  "arc-tab.mjs",
+                  "page-scripts.mjs",
+                  "pull-settings.json"
+                ],
+                "at": "/opt/read-a-page-in-arc"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "test",
+            "requires": "node --test tools/read-a-page-in-arc/test/pull-a-page-in-arc.test.mjs (against a fake Arc, no browser) and, on a Mac with Arc running, node --test tools/read-a-page-in-arc/test/pull-a-page-in-arc.live.test.mjs (reads example.com, reads the signed-in Google Doc export and saves it, and reads a Notion page before and after scrolling)",
+            "proved_on": null
+          }
+        ],
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:pull-a-page-in-arc",
+        "listed_on": "2026-11-21T00:00:00Z",
+        "provenance": {
+          "source": "the person's Arc browser through its AppleScript interface, the route the browser work uses when no extension is connected; the BLAKE3 owner is @noble/hashes"
+        }
+      }
+    }
+  ]
+}

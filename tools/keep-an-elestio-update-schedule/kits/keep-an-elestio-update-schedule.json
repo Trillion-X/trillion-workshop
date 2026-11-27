@@ -50,5 +50,5 @@
       "hands_back": "{\"ok\":true,\"sent\":[],\"before\":{\"system\":{\"enabled\":true,\"security_only\":true,\"day\":0,\"hour\":5,\"minute\":0},\"app\":{\"enabled\":true,\"day\":0,\"hour\":1,\"minute\":0}}}"
     }
   ],
-  "drafted_from": "tools/keep-an-elestio-update-schedule/tool-rows.json and Elestio's API documentation (DoActionOnServer), read Nov 25 2026"
+  "drafted_from": "tools/keep-an-elestio-update-schedule/what-this-tool-does-and-how-to-run-it.json and Elestio's API documentation (DoActionOnServer), read Nov 25 2026"
 }

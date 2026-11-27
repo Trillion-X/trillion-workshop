@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { pour } from '../do-work/pour.mjs';
 import { kitProblems } from '../../workflows/read-data/kit-problems.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 const sample = row.verify[0].input;
 const program = new URL('../do-work/pour.mjs', import.meta.url).pathname;
 

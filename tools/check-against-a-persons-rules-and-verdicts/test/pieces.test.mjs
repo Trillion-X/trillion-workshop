@@ -84,7 +84,7 @@ test('~~~ fences a block as ``` does, as CommonMark defines a fence: the same ch
 });
 
 test('tool:split-a-document-into-pieces answers the pieces of its text and keeps nothing; a request with neither text nor name is refused', async () => {
-  const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
+  const row = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
   assert.deepEqual(row.stored, [{ files: '/', operations: ['read_file'] }], 'the row is given no rows of the person\'s');
   const ran = await runRow(row, { text: '## Made-up\n\n- one\n- two\n', file: 'made-up.md' }, {});
   assert.equal(ran.code, 0, ran.stdout + ran.stderr);
@@ -117,7 +117,7 @@ test('a named file is read whole through the run\'s host, and a file the host ca
 
 test('the pieces come a page per call: after names the last piece of the page before, and every piece comes once', async () => {
   const text = Array.from({ length: 60 }, (_, at) => `## Made-up part ${at}\n\n**Made-up rule ${at}.** ${'Made-up words said plainly. '.repeat(20)}\n`).join('\n');
-  const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
+  const row = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload).find(item => item.id === 'tool:split-a-document-into-pieces');
   const want = pieceRows([{ text, file: 'made-up.md' }]);
   const got = [];
   let after, pages = 0;

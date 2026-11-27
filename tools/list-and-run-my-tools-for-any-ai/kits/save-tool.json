@@ -40,7 +40,7 @@
                 },
                 "invoke": {
                   "kind": "container",
-                  "argv": [
+                  "run": [
                     "python3",
                     "main.py"
                   ],

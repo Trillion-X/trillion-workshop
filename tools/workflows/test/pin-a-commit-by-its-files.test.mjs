@@ -116,15 +116,15 @@ test('a container tool row that names package files needs its key in package-fil
     return { repository, commit: git('rev-parse', 'HEAD') };
   };
   const base = { 'tools/kit/do-work/run.mjs': 'export {}' };
-  const noKey = commitOf('no-key', { ...base, 'tools/kit/tool-rows.json': container('tool:needs-files', laid), 'package-files.json': '{}' });
+  const noKey = commitOf('no-key', { ...base, 'tools/kit/what-this-tool-does-and-how-to-run-it.json': container('tool:needs-files', laid), 'package-files.json': '{}' });
   assert.throws(() => pinOf(noKey.repository, noKey.commit, address), (error) =>
     error.problems?.length === 1 && error.problems[0] === 'tool:needs-files is a container tool that names package files, and package-files.json has no key for it');
-  const noLayoutFile = commitOf('no-layout-file', { ...base, 'tools/kit/tool-rows.json': container('tool:needs-files', laid) });
+  const noLayoutFile = commitOf('no-layout-file', { ...base, 'tools/kit/what-this-tool-does-and-how-to-run-it.json': container('tool:needs-files', laid) });
   assert.throws(() => pinOf(noLayoutFile.repository, noLayoutFile.commit, address), (error) => error.problems?.[0] === 'tool:needs-files is a container tool that names package files, and package-files.json has no key for it');
-  const withKey = commitOf('with-key', { ...base, 'tools/kit/tool-rows.json': container('tool:needs-files', laid),
+  const withKey = commitOf('with-key', { ...base, 'tools/kit/what-this-tool-does-and-how-to-run-it.json': container('tool:needs-files', laid),
     'package-files.json': JSON.stringify({ 'tool:needs-files': laid }) });
   assert.equal(pinOf(withKey.repository, withKey.commit, address).files, 3, 'a row with its key is pinned');
-  const noPackageFiles = commitOf('no-package-files', { ...base, 'tools/kit/tool-rows.json': container('tool:plain', undefined) });
+  const noPackageFiles = commitOf('no-package-files', { ...base, 'tools/kit/what-this-tool-does-and-how-to-run-it.json': container('tool:plain', undefined) });
   assert.equal(pinOf(noPackageFiles.repository, noPackageFiles.commit, address).files, 2, 'a container row that names no package files needs no key');
 });
 
@@ -141,8 +141,8 @@ test('a landing is judged by the problems its commit adds against its parent: an
     return git('rev-parse', 'HEAD');
   };
   const base = { 'tools/kit/do-work/run.mjs': 'export {}', 'package-files.json': '{}' };
-  const parent = commit('origin', { ...base, 'tools/kit/tool-rows.json': container('tool:already-there') });
-  const child = commit('lane', { 'tools/other/tool-rows.json': container('tool:new-one') });
+  const parent = commit('origin', { ...base, 'tools/kit/what-this-tool-does-and-how-to-run-it.json': container('tool:already-there') });
+  const child = commit('lane', { 'tools/other/what-this-tool-does-and-how-to-run-it.json': container('tool:new-one') });
   const archive = (c) => tarFiles(execFileSync('git', ['-C', repository, 'archive', '--format=tar', c], { maxBuffer: 1 << 30 }));
   const origin = 'tool:already-there is a container tool that names package files, and package-files.json has no key for it';
   const added = 'tool:new-one is a container tool that names package files, and package-files.json has no key for it';
@@ -163,7 +163,7 @@ test('a landing is judged by the problems its commit adds against its parent: an
 test('a container row whose invoke.packages names a package that no package_files item of its own lays is reported; a laid one is not', () => {
   const rowFile = (payload) => Buffer.from(JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', ...payload } }] }));
   const declared = (packages, packageFiles) => ({ id: 'tool:needs-pg', invoke: { kind: 'container', packages, files: packageFiles ? { package_files: packageFiles } : {} } });
-  const check = (payload, layout = { 'tool:needs-pg': [] }) => layoutProblems([['tools/kit/tool-rows.json', rowFile(payload)], ['package-files.json', Buffer.from(JSON.stringify(layout))]]);
+  const check = (payload, layout = { 'tool:needs-pg': [] }) => layoutProblems([['tools/kit/what-this-tool-does-and-how-to-run-it.json', rowFile(payload)], ['package-files.json', Buffer.from(JSON.stringify(layout))]]);
   const notLaid = 'tool:needs-pg declares the package pg, and no package_files item of its own lays it';
   assert.deepEqual(check(declared({ pg: { version: '8.23.1' } })), [notLaid], 'the object form of invoke.packages, nothing lays pg');
   assert.deepEqual(check(declared(['pg'], [{ package: 'kit', paths: ['do-work'], at: '/opt/kit' }])), [notLaid], 'a package_files item that lays other paths only');

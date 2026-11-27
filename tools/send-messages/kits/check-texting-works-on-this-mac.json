@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-texting-works-on-this-mac row in tools/send-messages/tool-rows.json, do-work/check-texting.mjs and test/check-texting.test.mjs",
+  "drafted_from": "tool:check-texting-works-on-this-mac row in tools/send-messages/what-this-tool-does-and-how-to-run-it.json, do-work/check-texting.mjs and test/check-texting.test.mjs",
   "start_here": "Say to your AI: \"Check that you can use Messages on my Mac, without sending anything.\" It runs tool:check-texting-works-on-this-mac once and says how many chats and which kinds of accounts Messages has.",
   "lists": [],
   "no_lists_because": "It names no list: it reads two counts from Messages when run, keeps nothing and sends nothing.",

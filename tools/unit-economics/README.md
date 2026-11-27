@@ -9,9 +9,9 @@ Works out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV:CAC, pa
 | `read-data/unit-economics-types.ts` | `UnitEconomicsInput`, `UnitEconomics` (every figure `number \| null`). |
 | `read-data/compute-unit-economics.ts` | Pure `computeUnitEconomics(input)`: formulas only, no I/O. |
 | `do-work/work-out-unit-economics.mjs` | The tool's command: the period's numbers as JSON in `argv[2]`, one JSON line out (the figures and the input echoed). |
-| `records.json` | The tool's row, listed into the Workshop by `tool-rows.json`. |
+| `records.json` | The tool's row, listed into the Workshop by `what-this-tool-does-and-how-to-run-it.json`. |
 | `part.json` | No public files: only the container runs this code. |
-| `tool-rows.json` | Lists `records.json` into the Workshop (`source:business-unit-economics-tools`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Lists `records.json` into the Workshop (`source:business-unit-economics-tools`). |
 | `test/compute-unit-economics.test.ts` | The package's 8 formula and honesty cases (unknown inputs give null, never a made-up number). |
 
 ## Key Types / Functions
@@ -31,4 +31,4 @@ Works out a business's unit economics (ARPU, gross margin, CAC, LTV, LTV:CAC, pa
 
 **Depends on:** Node 24 in the tool container (runs the `.ts` files by stripping their types).
 
-**Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names), the Workshop's container executor, Trillion's `test/business-tools.test.mjs`.
+**Depended on by:** Trillion's deploy (it reads `what-this-tool-does-and-how-to-run-it.json` and bundles the files a row names), the Workshop's container executor, Trillion's `test/business-tools.test.mjs`.

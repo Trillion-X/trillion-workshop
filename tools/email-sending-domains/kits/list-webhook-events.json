@@ -30,9 +30,9 @@
           }
         }
       },
-      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends GET https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events?limit=100 with your key in the Authorization header and returns Resend's reply unchanged. The events are a synthetic sample in the shape of Resend's list-events reference.",
+      "given": "Read from tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: the row sends GET https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events?limit=100 with your key in the Authorization header and returns Resend's reply unchanged. The events are a synthetic sample in the shape of Resend's list-events reference.",
       "hands_back": "{\"object\":\"list\",\"has_more\":false,\"data\":[{\"id\":\"msg_1srOsB4mXhCqCVwAxYRNnpFZhb3\",\"type\":\"email.delivered\",\"created_at\":\"2026-11-22T15:28:00.000Z\",\"status\":\"failed\"},{\"id\":\"msg_1srOrx2ZWZBpBUvZwXKQmoEYga2\",\"type\":\"email.delivered\",\"created_at\":\"2026-11-25T14:45:47.000Z\",\"status\":\"success\"}]}"
     }
   ],
-  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row) and Resend's list-events reference (https://resend.com/docs/api-reference/webhooks/list-events, read 2026-11-25)"
+  "drafted_from": "tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json (its row) and Resend's list-events reference (https://resend.com/docs/api-reference/webhooks/list-events, read 2026-11-25)"
 }

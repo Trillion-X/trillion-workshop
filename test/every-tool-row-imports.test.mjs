@@ -71,8 +71,8 @@ test('type-only imports are not followed, because they are erased before the pro
 function fixtureFindings(sharedEntry) {
   const folder = tempFolder(join(tmpdir(), 'tool-row-imports-fixture-'));
   const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
-  const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, sharedEntry] } } };
-  write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
+  const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { run: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, sharedEntry] } } };
+  write('tools/user/what-this-tool-does-and-how-to-run-it.json', JSON.stringify({ records: [{ payload: row }] }));
   write('tools/user/do-work/run.mjs', "import { go } from './via.ts';\ngo();\n");
   write('tools/user/do-work/via.ts', "import type { T } from './types.ts';\nexport { go } from '../../shared/read-data/go.mjs';\n");
   write('tools/shared/read-data/go.mjs', 'export const go = () => 1;\n');
@@ -97,14 +97,14 @@ test('a file reached through a .ts program is packed, and only where a relative 
 test('a bare import of the Workshop by its own name is followed into the tree, and the file it names is walked for its own imports', () => {
   const folder = tempFolder(join(tmpdir(), 'tool-row-imports-own-name-'));
   const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
-  const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }] } } };
-  write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
+  const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { run: ['node', '/opt/user/do-work/run.mjs'], files: { package_files: [{ package: 'user', paths: ['do-work'], at: '/opt/user' }] } } };
+  write('tools/user/what-this-tool-does-and-how-to-run-it.json', JSON.stringify({ records: [{ payload: row }] }));
   write('tools/user/do-work/run.mjs', "import { identify } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';\nimport { x } from 'trillion-workshop/test-helpers/outside.mjs';\nidentify(x);\n");
   write('tools/content-identity/read-data/identity.mjs', "import { hash } from '" + ['.', 'hash.mjs'].join('/') + "';\nexport const identify = () => hash();\n");
   write('tools/content-identity/read-data/hash.mjs', 'export const hash = () => 1;\n');
   write('test-helpers/outside.mjs', 'export const x = 1;\n');
   write('package.json', JSON.stringify({ name: 'trillion-workshop' }));
-  write('tools/user/tool-rows.json.unused', '');
+  write('tools/user/what-this-tool-does-and-how-to-run-it.json.unused', '');
   write('test-helpers/tool-row-imports.json', JSON.stringify({ provided_by_the_system: [] }));
   write('package-lock.json', JSON.stringify({ packages: {} }));
   const git = args => execFileSync('git', ['-C', folder, ...args], { env: { ...process.env, GIT_AUTHOR_NAME: 'check', GIT_AUTHOR_EMAIL: 'check@example.test', GIT_COMMITTER_NAME: 'check', GIT_COMMITTER_EMAIL: 'check@example.test' } }).toString();
@@ -121,7 +121,7 @@ test('a bare import of the Workshop by its own name is followed into the tree, a
 test('every path a tool row lays is a file or folder of its package', () => {
   const gone = [];
   for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
-    const file = join(repo, 'tools', tool.name, 'tool-rows.json');
+    const file = join(repo, 'tools', tool.name, 'what-this-tool-does-and-how-to-run-it.json');
     if (!existsSync(file)) continue;
     for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
       for (const entry of [payload?.invoke?.files?.package_files ?? []].flat()) {
@@ -139,7 +139,7 @@ test('every path a tool row lays is a file or folder of its package', () => {
 test('every package a tool row pins in invoke.packages is laid at /opt/node_modules/<name>', () => {
   const unlaid = [];
   for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
-    const file = join(repo, 'tools', tool.name, 'tool-rows.json');
+    const file = join(repo, 'tools', tool.name, 'what-this-tool-does-and-how-to-run-it.json');
     if (!existsSync(file)) continue;
     for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
       const invoke = payload?.invoke ?? {};
@@ -157,8 +157,8 @@ test('a bare import of a package the row pins counts as declared only where the 
     const folder = tempFolder(join(tmpdir(), 'tool-row-imports-pinned-'));
     const write = (file, text) => { mkdirSync(dirname(join(folder, file)), { recursive: true }); writeFileSync(join(folder, file), text); };
     const files = [{ package: 'user', paths: ['do-work'], at: '/opt/user' }, ...(laid ? [{ packages: ['pg'], at: '/opt/node_modules/pg' }] : [])];
-    const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { argv: ['node', '/opt/user/do-work/run.mjs'], packages: { pg: { version: '8.23.1' } }, files: { package_files: files } } };
-    write('tools/user/tool-rows.json', JSON.stringify({ records: [{ payload: row }] }));
+    const row = { kind: 'ai-tool-descriptor', id: 'tool:user', status: 'live', invoke: { run: ['node', '/opt/user/do-work/run.mjs'], packages: { pg: { version: '8.23.1' } }, files: { package_files: files } } };
+    write('tools/user/what-this-tool-does-and-how-to-run-it.json', JSON.stringify({ records: [{ payload: row }] }));
     write('tools/user/do-work/run.mjs', "const { default: pg } = await import('pg');\nexport { pg };\n");
     write('test-helpers/tool-row-imports.json', JSON.stringify({ provided_by_the_system: [] }));
     write('package-lock.json', JSON.stringify({ packages: {} }));
@@ -212,7 +212,7 @@ test('every package a tool row lays has each dependency its laid code imports la
   };
   const unlaid = [];
   for (const tool of readdirSync(join(repo, 'tools'), { withFileTypes: true }).filter(entry => entry.isDirectory())) {
-    const file = join(repo, 'tools', tool.name, 'tool-rows.json');
+    const file = join(repo, 'tools', tool.name, 'what-this-tool-does-and-how-to-run-it.json');
     if (!existsSync(file)) continue;
     for (const { payload } of JSON.parse(readFileSync(file, 'utf8')).records ?? []) {
       const items = [payload?.invoke?.files?.package_files ?? []].flat().filter(item => item && typeof item === 'object');

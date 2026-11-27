@@ -247,7 +247,7 @@ test('with held connections but no records, the account is asked of tool:find-th
 test('the read row runs only the connections list, the money read and the account finder, holds no records right, and packs every file it imports', () => {
   const read = rows.tools.find(row => row.id === 'tool:read-business');
   assert.deepEqual(read.invoke.records, { fd: 3, runs: [LIST_CONNECTIONS, MONEY_READ, FIND_ACCOUNT] });
-  assert.equal(read.invoke.internet, false, 'the money is read by the nested run, which alone reaches Stripe');
+  assert.equal(read.invoke.may_reach, undefined, 'the money is read by the nested run, which alone reaches Stripe');
   for (const { package: folder, paths } of read.invoke.files.package_files.filter(files => files.package)) {
     for (const path of paths) assert.ok(existsSync(new URL(`../../${folder}/${path}`, import.meta.url)), `${folder}/${path}`);
   }
@@ -255,6 +255,7 @@ test('the read row runs only the connections list, the money read and the accoun
   assert.equal(money.invoke.kind, 'http');
   assert.equal(money.invoke.connection_id, undefined, 'no bare connection: the input names which Stripe account');
   assert.deepEqual(money.invoke.connection, { vendor: 'stripe', from_input: 'connection' });
-  assert.deepEqual(money.invoke.credential_injections.map(item => [item.field_id, item.hosts]), [['secret_key', ['api.stripe.com']]]);
+  assert.deepEqual(money.invoke.credential_injections.map(item => item.field_id), ['secret_key']);
+  assert.deepEqual(money.invoke.may_reach, ['api.stripe.com']);
   assert.deepEqual(Object.keys(money.input_schema.properties), ['since', 'connection']);
 });

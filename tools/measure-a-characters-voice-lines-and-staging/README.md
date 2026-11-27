@@ -17,7 +17,7 @@ Every `do-work` script reads one JSON request on standard input (the folders, `s
 
 | File | Purpose |
 |---|---|
-| `tool-rows.json` | Ten rows. `computer` rows with a sample run each: catalog, lines in turns, staging, time per video, running terms, comments named, comments coded. `on-your-computer` rows (they need numpy, scikit-learn, librosa, torch, pyannote and ffmpeg): find when a character speaks, high-pitched stretches, turns from caption marks. |
+| `what-this-tool-does-and-how-to-run-it.json` | Ten rows. `computer` rows with a sample run each: catalog, lines in turns, staging, time per video, running terms, comments named, comments coded. `on-your-computer` rows (they need numpy, scikit-learn, librosa, torch, pyannote and ffmpeg): find when a character speaks, high-pitched stretches, turns from caption marks. |
 | `do-work/find_voice.py` | Steps `embed`, `seed`, `score`, `batch`, `rescore`: the voice finder (speaker embeddings plus pitch; an adaptive voice of the character per recording). |
 | `do-work/check_seed_model.py` | Leave one labelled recording out: window precision and recall of the seed model alone. |
 | `do-work/check_voice_finder.py` | Leave one labelled recording out: the whole finder over pitch-gate ratios and cosine thresholds. |
@@ -47,4 +47,4 @@ Changed on purpose: `<id>.hf.json` and its `hf_s` are now `<id>.turns.json` and 
 
 **Depends on:** Python 3; `tools/settings` (`read-data/settings.py`) for `settings_record`; `tools/judge-words` (`do-work/judge-against-rules.mjs`, node) for the running terms, mentions and codes; numpy for the caption-turn count and the views; numpy, scikit-learn, librosa, torch, pyannote.audio and ffmpeg for the voice finder and the pitch runs.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

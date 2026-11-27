@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:predict-viewer-response-to-a-video row in tool-rows.json, do-work/predict_viewer_response.py and test/test_response_curve.py (the test uses synthetic predictions, with no model download)",
+  "drafted_from": "tool:predict-viewer-response-to-a-video row in what-this-tool-does-and-how-to-run-it.json, do-work/predict_viewer_response.py and test/test_response_curve.py (the test uses synthetic predictions, with no model download)",
   "start_here": "Say to your AI: \"Predict where a viewer's attention spikes and goes flat in clips/cake-cut-a.mp4, using the video and sound only; I use this for non-commercial work.\" It writes a request file, runs the model on your computer and tells you the spike seconds and flat stretches.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one request file and one video, and writes curve.json and curve.png into a new folder.",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/connections/tool-rows.json, do-work/list-connections.mjs, test/list-connections.test.mjs",
+  "drafted_from": "tools/connections/what-this-tool-does-and-how-to-run-it.json, do-work/list-connections.mjs, test/list-connections.test.mjs",
   "start_here": "Say to your AI: \"List the services my account is connected to and which of them can send right now.\" It runs tool:list-connections and hands back one row per connection with its status and can_send.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it works from the connection records you hand it and the names the vault holds, and changes nothing.",

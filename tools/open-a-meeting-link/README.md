@@ -8,7 +8,7 @@ Reads a meeting link (a deep link such as `zoommtg://...` or a web address) thro
 |------|---------|
 | `read-data/meeting-links.mjs` | `readLink(text, settings?)`, `applyRoster(roster, update)`, `linkTools.read` / `linkTools.open`, and the named exports `read` and `open` that `run-a-function.mjs` calls. |
 | `read-data/meeting-links.json` | The routes: schemes, host patterns, actions with their parameters and needed ones, each parameter's form and whether it is secret, and every sentence said. A new meeting app is one more route. |
-| `tool-rows.json` | `tool:read-meeting-link` (no capability) and `tool:open-meeting-link` (`open-links-in-their-apps`), run by `tools/workflows`'s `run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:read-meeting-link` (no capability) and `tool:open-meeting-link` (`open-links-in-their-apps`), run by `tools/workflows`'s `run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/meeting-links.test.mjs` | The old app's tests, repointed to this folder. |
 | `test/tool-rows.test.mjs` | The rows' capabilities and exports. |
@@ -34,4 +34,4 @@ Reads a meeting link (a deep link such as `zoommtg://...` or a web address) thro
 
 **Depends on:** `tools/workflows` (`run-a-function.mjs`), Node's standard library, and the computer's `/usr/bin/open` for opening.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

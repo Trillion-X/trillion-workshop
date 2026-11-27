@@ -1,0 +1,232 @@
+{
+ "kind": "tool-rows",
+ "record_set": "what-runs-on-its-own-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/what-runs-on-its-own: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::what-runs-on-its-own::tool::see-what-runs-on-its-own",
+   "address": "package::what-runs-on-its-own::tool::see-what-runs-on-its-own",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:see-what-runs-on-its-own",
+    "label": "See what runs on its own",
+    "status": "active",
+    "job": "Show everything my account runs on its own (due times, facts it hears, programs it keeps running): what each waits for, whether it is on, its last run, which ones should have run and did not, and a switch to turn each off or on",
+    "description": "Give wakes, the rows wake:list answers ([{tool, id, on, switched_on, mark}]). Returns one row per cause: what it waits for in plain words (a due time as its schedule), its state (on, running, off, last run failed, outcome unknown, came with no budget left, not picked up yet), red when it needs the person, why (a failed run says its cause), its last run and outcome, and the switch that turns it off or on; red rows first, then switched-on ones, with counts of red, on and off.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "wakes"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "wakes": {
+       "type": "array",
+       "description": "The rows wake:list answers: [{tool, id, on, budget, switched_on, mark}]",
+       "items": {
+        "type": "object",
+        "required": [
+         "tool",
+         "id",
+         "on"
+        ]
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "causes",
+      "red",
+      "on",
+      "off"
+     ],
+     "properties": {
+      "causes": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "tool",
+         "id",
+         "waits_for",
+         "state",
+         "label",
+         "red",
+         "why",
+         "switch"
+        ]
+       }
+      },
+      "red": {
+       "type": "number"
+      },
+      "on": {
+       "type": "number"
+      },
+      "off": {
+       "type": "number"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "what-runs-on-its-own",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/what-runs-on-its-own"
+       }
+      ]
+     },
+     "workdir": "/opt/what-runs-on-its-own",
+     "stdout": "json",
+     "run": [
+      "node",
+      "do-work/what-runs-on-its-own.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:what-runs-on-its-own",
+    "provenance": {
+     "source": "the engine's wake:list rows (each declared wake, whether it is switched on, and its mark), shown the way onit (MIT) shows a computer's background jobs: what is on, its state, and a switch"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "wakes": [
+        {
+         "tool": "tool:sample",
+         "id": "daily",
+         "on": {
+          "fact": {
+           "kind": "due-time",
+           "from": [
+            "run"
+           ],
+           "watch": {
+            "schedules": [
+             {
+              "cadence": {
+               "unit": "day"
+              },
+              "local_window": {
+               "start": "14:00",
+               "duration_minutes": 1
+              },
+              "timezone": "UTC"
+             }
+            ]
+           }
+          }
+         },
+         "budget": {
+          "steps": 1
+         },
+         "switched_on": true,
+         "mark": {
+          "outcome": "failed",
+          "outcome_cause": "the run was refused"
+         }
+        }
+       ]
+      },
+      "output_selector": "$.causes[0].label",
+      "contains": "Last run failed"
+     }
+    ],
+    "record_model": {
+     "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+     "kinds": [
+      {
+       "type": "schedule",
+       "guard_properties": {
+        "set_by": "text",
+        "backs": "objects",
+        "default": "boolean",
+        "enabled": "boolean",
+        "every": "object",
+        "label": "text",
+        "last_run": "object",
+        "once_at": "text",
+        "overlap": "text",
+        "revision": "number",
+        "scan_from": "text",
+        "schedule_id": "text",
+        "set_at": "text",
+        "starts_on": "text",
+        "then": "object"
+       }
+      },
+      {
+       "type": "schedule-state",
+       "guard_properties": {
+        "last_run": "object",
+        "scan_from": "text",
+        "schedule_id": "text"
+       }
+      },
+      {
+       "type": "schedule-removed",
+       "properties": {
+        "schedule_id": "text",
+        "removed_at": "text"
+       },
+       "_read_by": "src/starting-rules.mjs keptAsChanges: historical removed schedule marks migrate to default-change"
+      },
+      {
+       "type": "default-change",
+       "properties": {
+        "id": "text",
+        "removed": "boolean",
+        "at": "text"
+       },
+       "_read_by": "src/shipped-defaults.mjs and src/starting-rules.mjs: a person's removed shipped default remains removed across deployments"
+      },
+      {
+       "type": "made-by-trillion",
+       "properties": {
+        "rule_id": "text",
+        "schedule_id": "text",
+        "at": "text"
+       },
+       "_read_by": "src/starting-rules.mjs keptAsChanges: historical default ownership marks consumed by migration"
+      },
+      {
+       "type": "trigger-rule-removed",
+       "properties": {
+        "rule_id": "text",
+        "removed_at": "text"
+       },
+       "_read_by": "src/starting-rules.mjs keptAsChanges: historical removed rule marks migrate to default-change"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

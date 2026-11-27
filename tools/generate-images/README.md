@@ -6,7 +6,7 @@ A script a person's AI runs on the person's own computer. It makes images from a
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:generate-images`: `on-your-computer`, with the command that fetches it and runs it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:generate-images`: `on-your-computer`, with the command that fetches it and runs it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/generate_images.py` | The command. Reads the request, runs the provider command, writes any image returned inline to a file, prints `{"result": ...}`. Exit 0 for a result, 2 for an error. |
 | `do-work/placeholder_image_provider.py` | The smallest provider: one solid-colour PNG per prompt, no account, no model. For checking the chain and as the shape a real provider follows. |
@@ -48,4 +48,4 @@ The provider's answer is `{"output_artifact_refs": [{"src": "data:image/png;base
 
 **Depends on:** Python 3.10+ (standard library only) and the person's provider command. Nothing is sent anywhere by this script; what the provider command sends is the person's choice.
 
-**Depended on by:** `tool-rows.json` (`tool:generate-images`), run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:generate-images`), run on the person's computer by their AI.

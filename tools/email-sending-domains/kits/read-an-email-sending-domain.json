@@ -29,9 +29,9 @@
           }
         }
       },
-      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends GET https://api.resend.com/domains/4dd369bc-aa82-4ff3-97de-514ae3000ee0 with your key in the Authorization header and returns Resend's reply unchanged. The record states are a synthetic sample.",
+      "given": "Read from tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: the row sends GET https://api.resend.com/domains/4dd369bc-aa82-4ff3-97de-514ae3000ee0 with your key in the Authorization header and returns Resend's reply unchanged. The record states are a synthetic sample.",
       "hands_back": "{\"id\":\"4dd369bc-aa82-4ff3-97de-514ae3000ee0\",\"name\":\"example.com\",\"status\":\"pending\",\"records\":[{\"record\":\"SPF\",\"name\":\"send\",\"type\":\"MX\",\"value\":\"feedback-smtp.us-east-1.amazonses.com\",\"ttl\":\"Auto\",\"priority\":10,\"status\":\"verified\"},{\"record\":\"DKIM\",\"name\":\"resend._domainkey\",\"type\":\"TXT\",\"value\":\"p=MIGfMA0GCSqGSIb3DQEB-example\",\"ttl\":\"Auto\",\"status\":\"pending\"}]}"
     }
   ],
-  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
+  "drafted_from": "tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json (its row), test/list-email-sending-domains.test.mjs"
 }

@@ -34,7 +34,7 @@ The store is not reached from here. A person's voice (their profiles, the edits 
 | `ports/voice.json` | The port contract of the move: source repository, commit, paths and their BLAKE3 identities. |
 | `do-work/brief-a-profile.mjs`, `do-work/keep-a-profile.mjs`, `do-work/check-a-draft-against-a-profile.mjs`, `do-work/save-voice.mjs`, `do-work/keep-a-voice-edit.mjs`, `do-work/find-repeated-voice-edits.mjs` | One command per row. |
 | `part.json` | The rules file is public. |
-| `tool-rows.json` | The six rows, each with a sample run. |
+| `what-this-tool-does-and-how-to-run-it.json` | The six rows, each with a sample run. |
 | `test/how-someone-does-their-thing.test.mjs` | Tests with made-up subjects, refs and drafts. |
 | `test/voice.test.mjs` | The voice shapers and their rows, with made-up words. |
 
@@ -46,7 +46,7 @@ The old build workflow (gather records, dispatch an AI producer, write facts bac
 
 **Depends on:** Node 24. No records door: the store is the recipe's (`tools/workflows`).
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Restored from bitfield-packages `how-someone-does-their-thing`
 

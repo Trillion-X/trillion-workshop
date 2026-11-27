@@ -11,7 +11,7 @@ Writes one body (a change summary, a status, a picture with words) for each kind
 | `read-data/markup-tree.mjs` | The one tree writer the composer writes markup through (`element`, `serialise`, `textOf`). Copied byte for byte from Trillion-X/trillion `tools/ui/show/server-rendered-page/markup-tree.mjs`. |
 | `read-data/escape-html.mjs` | The escaper the tree writer uses. Copied byte for byte from the same old folder. |
 | `read-data/post-tools.mjs` | The row's function: picks the capability record the input names (a surface, a whole record, or a post place) and composes. |
-| `tool-rows.json` | `tool:write-a-post-for-a-place`, a container row run by `tools/records-door`'s `run-an-export.mjs`; no records door. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:write-a-post-for-a-place`, a container row run by `tools/records-door`'s `run-an-export.mjs`; no records door. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/surface-compose.test.mjs` | Trillion's `test/surface-compose.test.mjs` with its assertions unchanged, and a text format added as a row only. |
 | `test/write-a-post-row.test.mjs` | The row run as the container runner runs it: a named surface, a whole record, a post place, and the refusals. |
@@ -34,4 +34,4 @@ Trillion-X/trillion `src/surface-compose.mjs`, `src/surface-compose.json` and `t
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs` only), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. In Trillion-X/trillion, `src/change-picture.mjs` still imports its own copy.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. In Trillion-X/trillion, `src/change-picture.mjs` still imports its own copy.

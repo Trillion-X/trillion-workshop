@@ -29,7 +29,7 @@ test('an image attaches only when the clipboard markup has no text of its own', 
 });
 
 test('the row sample runs as the container runs it: a long paste becomes a named attachment', () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url))).records[0].payload;
   const run = spawnSync('node', ['read-data/paste-policy.mjs'], { cwd: new URL('..', import.meta.url), input: JSON.stringify(row.verify[0].input), encoding: 'utf8' });
   assert.equal(run.status, 0, run.stderr);
   const { result } = JSON.parse(run.stdout);
@@ -40,7 +40,7 @@ test('the row sample runs as the container runs it: a long paste becomes a named
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 
 test('the actual packaged descriptor keeps its public entry and relative dependencies', async () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url))).records[0].payload;
   const answer = await answerOf(row, row.verify[0].input);
   assert.equal(answer.status, 0, answer.error);
   assert.ok(answer.result && typeof answer.result === 'object');

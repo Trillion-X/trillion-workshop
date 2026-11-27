@@ -10,7 +10,7 @@ Ported from the trillion-apps glance message in `web/src/workspace/alone-page.ts
 |------|---------|
 | `do-work/say-what-the-menu-bar-mark-shows.mjs` | `tool:say-what-the-menu-bar-mark-shows`: one JSON input on standard input, `{ result }` or `{ error }` on the last line. |
 | `test/say-what-the-menu-bar-mark-shows.test.mjs` | Tests for the now line, the next line, the progress rounding, the eight titles and the refusals. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `part.json` | The entry the row runs is public. |
 
 Not carried: the page's dedupe of the message (it tells the host only when the message changes) stays in the app, since it is the app's delivery.

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/render_note_events.py (run for real) and tools/compare-voice-and-music-models/test/test_compare_models.py",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/what-this-tool-does-and-how-to-run-it.json, do-work/render_note_events.py (run for real) and tools/compare-voice-and-music-models/test/test_compare_models.py",
   "start_here": "Say to your AI: \"Render the note events in events.json to playback.wav so I can measure what the transcription model wrote down.\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one JSON file of note events and writes one WAV.",

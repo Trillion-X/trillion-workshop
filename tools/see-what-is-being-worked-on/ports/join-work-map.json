@@ -55,7 +55,7 @@
    ]
   },
   "test_refs": [
-   "tools/see-what-is-being-worked-on/tool-rows.json sample run (tool:join-what-is-being-worked-on-into-a-tree)"
+   "tools/see-what-is-being-worked-on/what-this-tool-does-and-how-to-run-it.json sample run (tool:join-what-is-being-worked-on-into-a-tree)"
   ]
  }
 }

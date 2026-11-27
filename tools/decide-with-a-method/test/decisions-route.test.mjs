@@ -10,7 +10,7 @@ import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { answerDecisionsRoute } from '../read-data/decisions-route.mjs';
 import { seeMyDecisions } from '../read-data/work-screen.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const ROUTE = rowOf(ROWS, 'tool:answer-the-decisions-route');
 const page = (path, method) => ({ path, method, query: {}, body: {}, browser: { user_agent: 'Sample browser', origin: 'https://app.example', visitor: 'sample' } });
 const decision = { input: { goal: 'Choose a sample supplier', options: [{ id: 'a', label: 'A' }] }, status: 'needs_outcome', decision: { option_id: 'a' },

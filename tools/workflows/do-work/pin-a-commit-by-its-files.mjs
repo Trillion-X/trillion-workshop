@@ -79,13 +79,13 @@ export function duplicateLayouts(rows) {
   return duplicates;
 }
 
-/** The container tool rows of the commit, read from every top-level record of each tools/<tool>/tool-rows.json, each as {id,
+/** The container tool rows of the commit, read from every top-level record of each tools/<tool>/what-this-tool-does-and-how-to-run-it.json, each as {id,
  *  packageFiles, packages}: the items of invoke.files.package_files, and the package names of invoke.packages (a list, or the keys
  *  of an object). A row that cannot be read is skipped here, as the tool's own loader reports it. */
 export function containerRows(files) {
   const rows = [];
   for (const [path, bytes] of files) {
-    if (!/^tools\/[^/]+\/tool-rows\.json$/.test(path)) continue;
+    if (!/^tools\/[^/]+\/what-this-tool-does-and-how-to-run-it\.json$/.test(path)) continue;
     let records;
     try { records = JSON.parse(bytes.toString('utf8')).records ?? []; } catch { continue; }
     for (const { payload } of records) {

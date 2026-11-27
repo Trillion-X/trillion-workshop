@@ -48,7 +48,7 @@
    ]
   },
   "test_refs": [
-   "tools/browse-my-recordings-and-media/tool-rows.json sample run (tool:list-my-recordings-and-media)"
+   "tools/browse-my-recordings-and-media/what-this-tool-does-and-how-to-run-it.json sample run (tool:list-my-recordings-and-media)"
   ]
  }
 }

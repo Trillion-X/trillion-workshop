@@ -14,7 +14,7 @@ import { startShop } from './fixture-shop.mjs';
 const script = fileURLToPath(new URL('../do-work/walk-through-an-app.mjs', import.meta.url));
 const fixtures = fileURLToPath(new URL('./fixtures', import.meta.url));
 const conventions = JSON.parse(readFileSync(new URL('../do-work/walk-conventions.json', import.meta.url), 'utf8'));
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 
 const run = (job, request) => new Promise((done, failed) => {
   const child = spawn(process.execPath, [script, job], { stdio: ['pipe', 'pipe', 'pipe'] });
@@ -100,7 +100,7 @@ test('the report: verdicts, the fix handoff, what was learned and how a re-run c
 
 test('every row runs this folder\'s command in the person\'s own computer with the right job', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:walk-through-an-app-like-its-users', 'tool:map-an-apps-screens-and-controls', 'tool:read-what-a-running-app-shows']);
-  assert.deepEqual(rows.map(row => row.invoke.argv.at(-1)), ['walk', 'map', 'observe']);
+  assert.deepEqual(rows.map(row => row.invoke.run.at(-1)), ['walk', 'map', 'observe']);
   for (const row of rows) {
     assert.deepEqual(row.placements, ['placement:your-computer', 'placement:caller-sandbox']);
     for (const path of row.invoke.files.package_files.paths) assert.ok(existsSync(fileURLToPath(new URL(`../${path}`, import.meta.url))), path);

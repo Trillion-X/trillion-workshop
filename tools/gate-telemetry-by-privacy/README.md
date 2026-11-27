@@ -9,7 +9,7 @@ The one gate a telemetry sink reads before it sends or keeps anything about a pa
 | `read-data/telemetry-gate.mjs` | `classOf`, `sends`, `pageSends` and `TELEMETRY_PRIVACY`. Moved byte for byte from Trillion-X/trillion `src/telemetry-gate.mjs`. |
 | `read-data/telemetry-privacy.json` | The classes (ranked `public` to `unknown`) and the sinks each may feed, the four sinks, the routes per surface and the header a handler declares a class with. Moved byte for byte. |
 | `read-data/gate-tools.mjs` | The row's function `gateTelemetryRow`: `{ surface, path, declared?, sink? }` in, `{ class, sinks, sink?, may_send? }` out; a sink that is not a row is refused. |
-| `tool-rows.json` | `tool:gate-telemetry-by-privacy`, a container row run by `tools/records-door`'s `run-an-export.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:gate-telemetry-by-privacy`, a container row run by `tools/records-door`'s `run-an-export.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/telemetry-privacy-gate.test.mjs` | Trillion's test of the gate with its assertions unchanged, and the row run as the container runs it. |
 
@@ -30,4 +30,4 @@ Trillion-X/trillion `src/telemetry-gate.mjs` and `src/telemetry-privacy.json`, w
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs`), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. In Trillion-X/trillion, `src/interaction-routes.mjs` and `src/interactions.mjs` still import their own copy.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. In Trillion-X/trillion, `src/interaction-routes.mjs` and `src/interactions.mjs` still import their own copy.

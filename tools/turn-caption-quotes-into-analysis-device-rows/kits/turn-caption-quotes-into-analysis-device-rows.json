@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:turn-caption-quotes-into-analysis-device-rows's row in tools/turn-caption-quotes-into-analysis-device-rows/tool-rows.json, do-work/turn_quotes_into_device_rows.py, read-data/device_rows.py and test/turn-quotes-into-device-rows.test.mjs; the answers were observed by running the script on the test's made-up settings and caption file",
+  "drafted_from": "tool:turn-caption-quotes-into-analysis-device-rows's row in tools/turn-caption-quotes-into-analysis-device-rows/what-this-tool-does-and-how-to-run-it.json, do-work/turn_quotes_into_device_rows.py, read-data/device_rows.py and test/turn-quotes-into-device-rows.test.mjs; the answers were observed by running the script on the test's made-up settings and caption file",
   "start_here": "Say to your AI: \"Check the quotes behind my garden-tips device rows against the saved captions in captions/, then write the family file and the checked rows into out/.\" It reads your settings row for the piece garden-tips and runs the script on your computer, first as a check only.",
   "lists": [
     {

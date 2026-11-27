@@ -62,8 +62,8 @@ export function descriptorProblems(row) {
   if (!object(invoke) || !nonempty(invoke.kind)) {
     problems.push('invoke: how the tool runs, an object with a kind: "container" (your own code, sent in files).');
   } else if (invoke.kind === 'container') {
-    if (!Array.isArray(invoke.argv) || !invoke.argv.length) {
-      problems.push('invoke.argv: the command that runs the tool, as a list, run in /work without a shell.');
+    if (!Array.isArray(invoke.run) || !invoke.run.length) {
+      problems.push('invoke.run: the command that runs the tool, as a list, run in /work without a shell.');
     }
   }
   const admitted = admitToolDescriptor({ kind: 'ai-tool-descriptor', ...row });

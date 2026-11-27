@@ -12,7 +12,7 @@ Runs a game of Texas Hold'em: opens a table, seats players, deals, takes each pl
 | `do-work/run-a-poker-table.mjs` | The command of `tool:run-a-poker-table`: `{ operation, room?, ... }` in, `{ result: { operation, room, ... } }` out. |
 | `do-work/rank-poker-hands.mjs` | The command of `tool:rank-poker-hands`: `{ board, hands }` in, `{ result: { ranking, winners } }` out. |
 | `do-work/view-a-poker-table.mjs` | The command of `tool:view-a-poker-table-for-a-player`: `{ room, player_id? }` in, the table as that player sees it out. |
-| `tool-rows.json` | The three tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three tool rows. |
 | `part.json` | No module here is offered to other tools. |
 | `test/poker-rules.test.mjs` | The package's rule tests (deck, blinds, calls, config, lobby and host, street changes, showdown and split pot, all-in run-out) on `node:test` with made-up players, plus hand categories, the wheel, kickers, seeds, what a player may see and the controls. |
 | `test/poker-commands.test.mjs` | The three commands over standard input: a whole hand played turn by turn with the room carried as JSON, the seed's determinism, refusals, the hidden-cards view. |
@@ -43,7 +43,7 @@ Runs a game of Texas Hold'em: opens a table, seats players, deals, takes each pl
 
 **Not carried:** the old `poker-table` room descriptors, privacy-lane addresses, room-sync and engine write batches (engine plumbing the new engine does not use), the table's screen files, the workspace layout and the native-core helper (screens).
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.
 
 ## Moved from bitfield-packages (byte for byte, not yet wired to a tool row)
 

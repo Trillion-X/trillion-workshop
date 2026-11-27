@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "drafted_from": "tool row in tools/start-a-computer/what-this-tool-does-and-how-to-run-it.json, do-work/start-a-computer.mjs and tools/start-a-computer/test/start-a-computer.test.mjs",
   "start_here": "Say to your AI: \"Start a computer on my spare Linux machine at 192.0.2.40 as computer.example.com, have it fetch and build its engine itself, and tell me whether its health page answers 200.\"",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a request file, the computer row and provider descriptions it names, and keeps one lease file.",

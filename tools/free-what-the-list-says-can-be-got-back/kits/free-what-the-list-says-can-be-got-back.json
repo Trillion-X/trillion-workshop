@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:free-what-the-list-says-can-be-got-back's own row (its words, input schema and sample run) in tools/free-what-the-list-says-can-be-got-back/tool-rows.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:free-what-the-list-says-can-be-got-back's own row (its words, input schema and sample run) in tools/free-what-the-list-says-can-be-got-back/what-this-tool-does-and-how-to-run-it.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Check which files my kept-files list says I can get back and show me what would go to Trash, moving nothing\", with {\"rows\": [{\"id\": \"synthetic:dry-run\", \"value\": {}}], \"dry_run\": true}. It runs tool:free-what-the-list-says-can-be-got-back and answers what is eligible and how many bytes it would free.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads the rows you pass from your own list of files and how to get them back.",

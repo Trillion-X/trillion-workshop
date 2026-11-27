@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:tesseract-ocr-tesseract's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs tesseract.",
+  "drafted_from": "tool:github:tesseract-ocr-tesseract's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs tesseract.",
   "start_here": "Say to your AI: \"Use tesseract on my computer to read the text in an image or a scan (OCR): the file is receipt.png.\" It reads the row, installs tesseract if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: tesseract is a program that runs on the person's own computer and works on the one file or address it is handed.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:tesseract-ocr-tesseract runs on your computer, so after tools:list the AI runs, in the folder it got tesseract in, the command line: tesseract receipt.png receipt  (synthetic input: a photo of a paper receipt from a bakery).",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:tesseract-ocr-tesseract runs on your computer, so after tools:list the AI runs, in the folder it got tesseract in, the command line: tesseract receipt.png receipt  (synthetic input: a photo of a paper receipt from a bakery).",
       "hands_back": "tesseract prints nothing and writes receipt.txt (it adds the .txt itself): the lines of text it read from the photo, for example \"Sam's Bakery / 2 loaves 8.00 / Total 8.00\"."
     }
   ]

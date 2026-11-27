@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/where-a-person-stands/tool-rows.json (tool:make-examples-from-rulings), do-work/rulings.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
+  "drafted_from": "tools/where-a-person-stands/what-this-tool-does-and-how-to-run-it.json (tool:make-examples-from-rulings), do-work/rulings.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
   "start_here": "Say to your AI: \"Make labelled examples for calibrating a small model from my rulings on lines and the lines I said myself, leaving out the lines the model was trained on.\" It runs tool:make-examples-from-rulings and hands back the examples and what it left out.",
   "lists": [
     {

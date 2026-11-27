@@ -22,7 +22,7 @@ Ported from old trillion `src/workspace/next-commitment.ts` and `src/workspace/n
 | `read-data/next-commitment.ts` | The countdown line, from the old tree. |
 | `read-data/next-commitment.json` | Its words and limits, from the old tree. |
 | `test/name-my-next-commitment.test.mjs` | Tests for the line, the reach, the calendar counting rules and the refusals; the local-midnight case is written in local clock times so it holds in any time zone. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row Trillion reads for this folder. |
 | `part.json` | The entry the row runs is public. |
 
 ## Key Types / Functions
@@ -36,4 +36,4 @@ Ported from old trillion `src/workspace/next-commitment.ts` and `src/workspace/n
 
 **Depends on:** nothing outside this folder (Node 24 type stripping runs `read-data/next-commitment.ts`).
 
-**Depended on by:** `tool-rows.json` (the row packs these files), `test/name-my-next-commitment.test.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (the row packs these files), `test/name-my-next-commitment.test.mjs`.

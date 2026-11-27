@@ -11,7 +11,7 @@ import { recordsHandedIn } from '../do-work/records-in-hand.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
 test('the piece sweep reports a changed piece with its checks, a gone piece, a new piece with no check, an orphan check and a reason pointing nowhere', () => {
   const before = atomsOf('Alpha stays.\n\nBeta will change.\n\nGamma will go.\n');

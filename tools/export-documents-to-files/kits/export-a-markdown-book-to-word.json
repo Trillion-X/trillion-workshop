@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/export-documents-to-files/tool-rows.json (tool:export-a-markdown-book-to-word), do-work/export-a-book.mjs, README.md (the book settings row), test/export-a-book.test.mjs, and the real definitions of list:settings and list:checks read from the account",
+  "drafted_from": "tools/export-documents-to-files/what-this-tool-does-and-how-to-run-it.json (tool:export-a-markdown-book-to-word), do-work/export-a-book.mjs, README.md (the book settings row), test/export-a-book.test.mjs, and the real definitions of list:settings and list:checks read from the account",
   "start_here": "Say to your AI: \"Export my book rye-cookbook to Word. Its settings row is already in my settings list, and the checks branch bakery-book judges the words first.\" It runs the exporter on your computer and tells you whether the Word file was written or why it was blocked.",
   "lists": [
     {

@@ -12,7 +12,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const python = spawnSync('python3', ['--version'], { encoding: 'utf8' });
 const blake3 = python.status === 0 && (spawnSync('python3', ['-I', '-c', 'import blake3']).status === 0
   || spawnSync('b3sum', ['--version']).status === 0);
@@ -32,7 +32,7 @@ test('the Python tests of edit-a-copy-of-a-premiere-project pass', { skip }, () 
 });
 
 test('the FilmCraft frame-hold row names the script that exists and runs on the person\'s computer', () => {
-  const holds = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[1].payload;
+  const holds = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[1].payload;
   assert.equal(holds.id, 'tool:insert-frame-holds-into-a-filmcraft-project-copy');
   assert.equal(holds.invoke.kind, 'on-your-computer');
   assert.match(holds.invoke.run, /^python3 -I tools\/edit-a-copy-of-a-premiere-project\/do-work\/filmcraft_insert_frame_holds\.py \{project\} \{output\} --shots \{shots\} --out \{out\} \{shot_ids\}$/);

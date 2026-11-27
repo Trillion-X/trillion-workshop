@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json, do-work/train_an_adapter.py and test/test_fine_tune.py (model_runs_refuse_a_folder_that_is_not_a_decider); the refusal was run here, a real run needs torch and a decider model and is not run",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/what-this-tool-does-and-how-to-run-it.json, do-work/train_an_adapter.py and test/test_fine_tune.py (model_runs_refuse_a_folder_that_is_not_a_decider); the refusal was run here, a real run needs torch and a decider model and is not run",
   "start_here": "Say to your AI: \"Train an adapter on /work/out/train.jsonl with my decider model /work/models/decider-2b, my frame, rank 8, one epoch and a 30 minute budget, saved to /work/adapter.\" It writes a request file and runs train_an_adapter.py on your computer.",
   "tools": [
     "tool:train-a-small-model-on-a-persons-rules",

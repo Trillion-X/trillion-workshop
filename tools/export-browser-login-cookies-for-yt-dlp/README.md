@@ -8,7 +8,7 @@ The file it writes is the person's login: it is written readable by its owner on
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:export-browser-login-cookies-for-yt-dlp`: `on-your-computer`, with the commands that fetch it and run it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:export-browser-login-cookies-for-yt-dlp`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/export_cookies.py` | The command. The last line printed is `{"result": ...}` or `{"error": ...}`. |
 | `test/test_export_cookies.py` | Builds a made-up profile with cookies encrypted the way Chromium does, using a made-up password from the environment, and checks the export, domain choice, both cookie-database places and the refusals. |

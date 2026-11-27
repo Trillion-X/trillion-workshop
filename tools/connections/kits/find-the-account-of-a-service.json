@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/connections/tool-rows.json, do-work/find-the-account-of-a-service.mjs, test/find-the-account-of-a-service.test.mjs",
+  "drafted_from": "tools/connections/what-this-tool-does-and-how-to-run-it.json, do-work/find-the-account-of-a-service.mjs, test/find-the-account-of-a-service.test.mjs",
   "start_here": "Say to your AI: \"Which of my Stripe accounts should this payment use?\" It reads the names of the connections your vault holds and runs tool:find-the-account-of-a-service with {\"service\": \"service_connection:stripe\", \"held_connections\": [...]}, and hands back the one account to use, or names them all when you hold several.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it works from the connection id and the held connection names you hand it, and changes nothing.",

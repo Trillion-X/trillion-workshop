@@ -1,6 +1,6 @@
 # tools/lessons-and-learning-paths/
 
-Where a learner stands on a track of ordered steps, and the keep rows that accept an evaluation of a step. A track, its steps, a learner's progress state, evaluation receipts and evidence are plain records the caller reads from its own store and hands over; nothing here reads storage or the clock. Ported from bitfield-packages `learning-progress` (its read-data and do-work logic) and the pure step-to-path projection of `learning-path`. The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+Where a learner stands on a track of ordered steps, and the keep rows that accept an evaluation of a step. A track, its steps, a learner's progress state, evaluation receipts and evidence are plain records the caller reads from its own store and hands over; nothing here reads storage or the clock. Ported from bitfield-packages `learning-progress` (its read-data and do-work logic) and the pure step-to-path projection of `learning-path`. The two Workshop tools that run it in the tool container are rows in `what-this-tool-does-and-how-to-run-it.json`.
 
 ## What the old packages became
 
@@ -32,7 +32,7 @@ Where a learner stands on a track of ordered steps, and the keep rows that accep
 | `read-data/courses-of-a-learner.mjs` | The learning page's read (complete, active, locked), shared by the do-work script and the course list screen. |
 | `packages/course-lesson/show/` | The lesson page, moved from bitfield-packages (receipt: `moved-from.json`). |
 | `part.json` | The engine file is public. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder. |
 | `test/lessons-and-learning-paths.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. Fixtures are a made-up bakery course. |
 | `show/mount-learning-home.tsx` | The Learn screen carried from `learning-home` (see the table above); `from-bitfield-packages/moved-from.json` is its receipt. |
 | `do-work/courses.ts` | `tool:read-a-course` and `tool:read-a-lesson`: the answers are the props of `show/Course.tsx` and `show/Lesson.tsx`. Table names are one block (`SOURCE`); a caller may rename a table to a plain identifier. A YouTube address becomes its privacy-enhanced embed address; a stored recording gets `files_base_url`; words are cut into passages by pauses and sentence ends only. |
@@ -58,7 +58,7 @@ Each tool script reads the run's input as JSON on standard input and prints its 
 
 **Depends on:** nothing (Node 24 in the tool container runs the scripts).
 
-**Depended on by:** `tool-rows.json` (the tool rows), `test/lessons-and-learning-paths.test.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (the tool rows), `test/lessons-and-learning-paths.test.mjs`.
 
 ## The learning-mastery-protocol screen
 

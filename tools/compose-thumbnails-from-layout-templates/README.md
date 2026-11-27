@@ -96,7 +96,7 @@ For the scene above, use an existing `./frames/one.png` and your own font file. 
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:compose-thumbnails-from-layout-templates`: `on-your-computer`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:compose-thumbnails-from-layout-templates`: `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/compose_thumbnails.py` | The scene renderer, six legacy layouts and shared command. |
 | `ports/compose-thumbnails.json` | The port contract for the six layouts moved from the film script. |

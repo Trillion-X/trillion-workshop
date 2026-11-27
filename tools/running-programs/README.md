@@ -14,7 +14,7 @@ The folder also holds the deciding and stopping steps of `workflow:stop-programs
 | `do-work/programs-left-running.mjs` | `chooseProgramsLeftRunning` (`tool:choose-programs-left-running`): which programs the person's left-behind rows describe and no never-stop row names; a list not given is refused, a field a row may not hold is refused, a program whose session still has an owner is always kept. `stopProgramsLeftRunning` (`tool:stop-programs-left-running`): asks each chosen program to end when it is still the same program (pid and start time), waits, and answers one stop row per program and one notice per sweep that ended any. |
 | `do-work/programs-left-running.json` | The system's first process id, the fields each kind of rule row may hold, the grace time, how much of a command a stop row keeps, and the kind of news a sweep's notice is told as. |
 | `kits/` | One kit per tool row. |
-| `tool-rows.json` | `tool:list-running-programs`, `tool:choose-programs-left-running`, `tool:stop-programs-left-running`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:list-running-programs`, `tool:choose-programs-left-running`, `tool:stop-programs-left-running`. |
 | `read-data/mac-process-inspection.py` | The canonical read-only birth, session and captured group observer used by native admission cleanup. Ported byte for byte before adding the verified captured-group API; its source contract is `ports/native-process-observations.json`. It never signals a process or authorizes a lease release. |
 | `part.json` | Declares the canonical process observer as a source API. |
 | `test/mac-process-inspection.test.mjs` | Real kernel layout and birth checks, exited captured rows, malformed observations and unsupported-layout refusals. |
@@ -34,4 +34,4 @@ The folder also holds the deciding and stopping steps of `workflow:stop-programs
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, and one reader the computer has: a process table folder, or `osascript` with libproc.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes) (the stop row also holds `close-apps`). `tools/workflows/recipes/stop-programs-left-running.json` asks the three rows in order.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes) (the stop row also holds `close-apps`). `tools/workflows/recipes/stop-programs-left-running.json` asks the three rows in order.

@@ -1,6 +1,6 @@
 # tools/move-records-through-declared-states/
 
-A record (a deal, an order, an applicant) is in one of a declared set of stages, moves only where a declared move allows it, and its current stage is read from its moves, never stored beside them. Ported from bitfield-packages `move-records-through-declared-states`, whose condition algebra is now the formula engine's rule groups. The two Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+A record (a deal, an order, an applicant) is in one of a declared set of stages, moves only where a declared move allows it, and its current stage is read from its moves, never stored beside them. Ported from bitfield-packages `move-records-through-declared-states`, whose condition algebra is now the formula engine's rule groups. The two Workshop tools that run it in the tool container are rows in `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Files
 
@@ -10,7 +10,7 @@ A record (a deal, an order, an applicant) is in one of a declared set of stages,
 | `do-work/check-a-stage-move.mjs` | `tool:check-a-stage-move`: where a record is now, every next stage with why it is or is not open, and whether it may move to the stage asked for, with the move to keep. |
 | `do-work/check-a-pipeline.mjs` | `tool:check-a-pipeline`: every mistake in a set of stages (duplicate keys, a way out of a finished stage, a move to an undeclared stage, stages the start never reaches), reported rather than thrown. |
 | `part.json` | The engine file is public. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder: `tool:check-a-stage-move`, `tool:check-a-pipeline`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder: `tool:check-a-stage-move`, `tool:check-a-pipeline`. |
 | `test/move-records-through-declared-states.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
 ## Key Types / Functions
@@ -32,4 +32,4 @@ Each tool script reads the run's input as JSON from its first argument and print
 
 **Depends on:** tools/formula-engine (`rules/` and `built-stored-bytes/`: its rule evaluator decides each move's condition; the tool rows pack it) and Node 24 in the tool container.
 
-**Depended on by:** `tool-rows.json` (the tool rows), Trillion's deploy (it bundles the files a row names), `test/move-records-through-declared-states.test.mjs`, Trillion's `test/crm-tools.test.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (the tool rows), Trillion's deploy (it bundles the files a row names), `test/move-records-through-declared-states.test.mjs`, Trillion's `test/crm-tools.test.mjs`.

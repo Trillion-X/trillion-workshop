@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:critique-a-public-page row in tools/page-critic/tool-rows.json, do-work/critique-a-page.mjs and read-data/page-craft-rules.json (the tests in test/ cover the rules, not a whole run)",
+  "drafted_from": "tool:critique-a-public-page row in tools/page-critic/what-this-tool-does-and-how-to-run-it.json, do-work/critique-a-page.mjs and read-data/page-craft-rules.json (the tests in test/ cover the rules, not a whole run)",
   "start_here": "Say to your AI: \"Critique https://bakery.example/ against the craft rules at phone and desktop width, and tell me what to change on the page.\" It runs tool:critique-a-public-page and lists each finding with its marked picture.",
   "lists": [],
   "no_lists_because": "It names no list: it only reads the public page you give it and answers findings and pictures kept in your files.",

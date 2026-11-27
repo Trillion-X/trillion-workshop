@@ -52,7 +52,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/check-how-an-installed-app-is-hardened/tool-rows.json",
+      "path": "tools/check-how-an-installed-app-is-hardened/what-this-tool-does-and-how-to-run-it.json",
       "why": "This declares the user-facing audit tool entry, not a module export-forwarding implementation."
     },
     {

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readSentEmail } from '../do-work/read-a-sent-email.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:read-a-sent-email');
 const canary = 'held-key-canary-0123456789';
 const bodyCanary = 'email-body-canary';
@@ -15,10 +15,10 @@ const answering = (status, body) => async (address, request) => {
 };
 
 test('the row hands the held key on a private pipe, the input on stdin, reads only, and runs on the person\'s computer', () => {
-  assert.ok(row, 'tools/email-sending-domains/tool-rows.json has tool:read-a-sent-email');
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'key_name', fd: 3 }]);
+  assert.ok(row, 'tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json has tool:read-a-sent-email');
+  assert.deepEqual(row.invoke.key, [{ secret_name_from_input: 'key_name', fd: 3 }]);
   assert.deepEqual(row.invoke.stdin, { fill: { from: 'input' } });
-  assert.equal(row.invoke.internet, true);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.deepEqual(row.input_schema.required, ['key_name', 'email_id']);
   assert.deepEqual(row.verify[0].replies.map(reply => reply.request), [{ method: 'GET', url: `https://api.resend.com/emails/${id}` }]);

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:look-at-screen row in tools/look-at-screen/tool-rows.json, do-work/look-at-screen.mjs, read-data/rules.json and test/look-at-screen.test.mjs",
+  "drafted_from": "tool:look-at-screen row in tools/look-at-screen/what-this-tool-does-and-how-to-run-it.json, do-work/look-at-screen.mjs, read-data/rules.json and test/look-at-screen.test.mjs",
   "start_here": "Say to your AI: \"Look at my screen now and tell me what is on it; make the pictures at most 800 pixels on the long side and include the mouse pointer.\" It runs tool:look-at-screen once and describes each display.",
   "lists": [],
   "no_lists_because": "It names no list: it takes a picture only when run, keeps nothing on the Mac and answers the pictures in its reply.",

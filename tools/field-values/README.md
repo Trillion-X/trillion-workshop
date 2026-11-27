@@ -19,7 +19,7 @@ Taken from what bookkeeping, spend-management and CRM products were seen to do (
 | `do-work/requests.mjs` | One function per row: checks the request, refuses with a sentence, calls the above |
 | `do-work/run-request.mjs` | `node do-work/run-request.mjs <function>`: the request on standard input, `{ result }` or `{ error }` out |
 | `part.json` | The one public module |
-| `tool-rows.json` | The three Workshop rows |
+| `what-this-tool-does-and-how-to-run-it.json` | The three Workshop rows |
 | `test/*.test.mjs` | Rules setting fields over a person's values, provenance and undo; precedence, floors, withdrawals and as_of; the waterfall's order, checks, keys and stops; each row's sample run in the container |
 
 ## The rows

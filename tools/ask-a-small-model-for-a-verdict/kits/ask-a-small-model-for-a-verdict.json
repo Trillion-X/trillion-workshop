@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:ask-a-small-model-for-a-verdict row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:ask-a-small-model-for-a-verdict row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Does the note 'the rye order is ready, trust me' say the order is ready without saying it was checked? Ask my local model, but only trust it if it gets my two known cases right.\" It writes the request, runs the tool and tells you the answer and which model gave it.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one request file (and optionally a rubrics file) on this computer and writes only the calibration, log and rubrics files you name.",

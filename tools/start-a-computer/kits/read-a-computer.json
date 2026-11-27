@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/start-a-computer/tool-rows.json, do-work/start-a-computer.mjs (computerStatus) and tools/start-a-computer/test/start-a-computer.test.mjs",
+  "drafted_from": "tool row in tools/start-a-computer/what-this-tool-does-and-how-to-run-it.json, do-work/start-a-computer.mjs (computerStatus) and tools/start-a-computer/test/start-a-computer.test.mjs",
   "start_here": "Say to your AI: \"Is my computer arm1 running, and does its health page at place.example.com answer?\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a lease file and asks the provider and the public health page.",

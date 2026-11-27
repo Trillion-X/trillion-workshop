@@ -55,7 +55,7 @@
    ]
   },
   "test_refs": [
-   "tools/watch-and-keep-a-live-camera/tool-rows.json sample run (tool:plan-the-address-a-live-camera-streams-to)"
+   "tools/watch-and-keep-a-live-camera/what-this-tool-does-and-how-to-run-it.json sample run (tool:plan-the-address-a-live-camera-streams-to)"
   ]
  }
 }

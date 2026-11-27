@@ -1,0 +1,414 @@
+{
+ "kind": "tool-rows",
+ "record_set": "hold-to-it-tool-rows",
+ "what_this_is": "The Workshop row for the tool in tools/hold-to-it: a group's agreements, who kept them, and the scorecard.",
+ "records": [
+  {
+   "id": "package::hold-to-it::tool::hold-to-it",
+   "address": "package::hold-to-it::tool::hold-to-it",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:hold-to-it",
+    "label": "Hold a group to what it agreed",
+    "status": "active",
+    "job": "Work out an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline): when to remind and check, who kept it, and the scorecard",
+    "description": "Reads and keeps nothing: everything it works from comes in with the request and everything it makes comes back in the answer. The caller keeps the agreement and the marks. keep { group, what, agreed_by, cadence?, policy, agreement? } answers the agreement to keep and, when it says a time, its next meeting and the reminder and the check as something to arm (a repeat or one time); with no time it answers needs_time and arms nothing; agreement is the already held one, to merge into. retime { group, agreement, at, policy, ... } answers the agreement with its time given or moved. remind { group, agreement, policy } answers the sentence. check { group, agreement, arranged, evidence, policy, marks? } works out who came to the last meeting from the evidence handed in (speakers heard, members who wrote), marks each person from the policy, answers one mark_record per person, day and rule to keep, and who missed and any run of misses (marks are the ones already held). mark { group, agreement, person, rule, policy } answers one mark_record with its evidence (a newer mark for the same day replaces the older). scorecard { group, marks, policy } answers each person's points. Nothing is sent or booked: whoever runs it arms the wake, books the calendar and tells the group. The marks and their points, the meeting length, the time zone and the reminder and check minutes are the policy handed in; there is no default. Reading who was heard in a call needs a listening owner; until one exists the caller hands in the names it has.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "operation",
+      "group"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "operation": {
+       "enum": [
+        "keep",
+        "retime",
+        "remind",
+        "check",
+        "mark",
+        "scorecard"
+       ]
+      },
+      "group": {
+       "type": "string",
+       "description": "Which group's agreements"
+      },
+      "what": {
+       "type": "string"
+      },
+      "agreed_by": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "proposed_by": {
+       "type": "string"
+      },
+      "cadence": {
+       "type": "object",
+       "description": "{ every: day | week | once, at: HH:MM, on?: [weekdays], date?: YYYY-MM-DD for once, minutes?, time_zone? }; no time is never guessed"
+      },
+      "quote": {
+       "type": "string"
+      },
+      "source_ref": {
+       "type": "string"
+      },
+      "aliases": {
+       "type": "object",
+       "description": "Other names a person is heard by"
+      },
+      "agreement": {
+       "type": "object",
+       "description": "The held agreement, as keep answered it: { agreement_id, group, what, agreed_by, cadence, ... }. retime, remind, check and mark take it; keep takes it to merge into"
+      },
+      "marks": {
+       "type": "array",
+       "items": { "type": "object" },
+       "description": "check, scorecard: the marks already held, each { group, person, rule, points, miss, agreement, date, at }"
+      },
+      "at": {
+       "type": "string",
+       "description": "retime: the new HH:MM"
+      },
+      "date": {
+       "type": "string"
+      },
+      "time_zone": {
+       "type": "string"
+      },
+      "minutes": {
+       "type": "integer"
+      },
+      "on": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "because": {
+       "type": "string"
+      },
+      "arranged": {
+       "type": "boolean",
+       "description": "check: whether the meeting was set up on the calendar, read from the calendar by the caller"
+      },
+      "evidence": {
+       "description": "check: [{ name, at }] speakers heard or members who wrote in the meeting's window; mark: the words that show it"
+      },
+      "heard": {
+       "type": "array",
+       "description": "check: one row per speaker turn heard, { start, end?, speaker, ... }; the speaker is the name, or text the policy's unnamed_prefixes say is a voice with no name. The caller reads these rows; the tool never reads a call",
+       "items": { "type": "object" }
+      },
+      "read_from": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "check: where the evidence was read"
+      },
+      "person": {
+       "type": "string"
+      },
+      "rule": {
+       "type": "string"
+      },
+      "area": {
+       "type": "string"
+      },
+      "policy": {
+       "type": "object",
+       "description": "The group's marks and defaults (required): { marks, defaults: { minutes, time_zone, remind_minutes, check_after_minutes }, evidence_before_minutes?, evidence_after_minutes?, unnamed_prefixes? (names that start with one of these are voices with no name) }"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "keep: { agreement, next, remind, check, said } or { agreement, needs_time, said }; retime the same; remind: { said, people }; check: { date, present, absent, marks, mark_records, said }; mark: { mark_record, said }; scorecard: { people, said }"
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/hold-to-it",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/hold-to-it/read-data/hold-to-it.mjs",
+      "holdToIt"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "hold-to-it",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/hold-to-it"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+          "do-work/timed-action.mjs",
+          "built-stored-bytes/timed-action"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "packages": ["node_modules/@noble/hashes"],
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:hold-to-it",
+    "provenance": {
+     "source": "the app's hold-to-it action, as records and a pure core; the space, calendar, listening and wake calls it made are the caller's"
+    },
+    "verify": [{"kind": "sample-run", "input": {"operation": "keep", "group": "bread-club", "what": "Meet every morning", "agreed_by": ["Priya Shah", "Omar Reyes", "Lin"], "cadence": {"every": "day", "at": "09:00", "minutes": 30, "time_zone": "UTC"}, "policy": {"defaults": {"minutes": 30, "time_zone": "UTC", "remind_minutes": 10, "check_after_minutes": 30}, "marks": [{"id": "came", "label": "Came", "points": 1, "when": "present"}, {"id": "missed", "label": "Missed the meeting", "points": -3, "when": "absent", "miss": true}]}}}]
+   }
+  }
+ ]
+}

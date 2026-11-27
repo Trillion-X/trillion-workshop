@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/track-and-compare-movement/tool-rows.json, do-work/estimate_pose.py and test/test_estimate_pose.py (read from code and test; no pose model run here)",
+  "drafted_from": "tool row in tools/track-and-compare-movement/what-this-tool-does-and-how-to-run-it.json, do-work/estimate_pose.py and test/test_estimate_pose.py (read from code and test; no pose model run here)",
   "start_here": "Say to your AI: \"Read the poses of the people in /work/serve.mp4 with my pose model /work/models/pose.pt and write the track to /work/poses/serve.json.\" It reads the tool's row and runs estimate_pose.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads video or pose files on the person's own computer and writes a new file or folder beside them.",

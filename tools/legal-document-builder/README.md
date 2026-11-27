@@ -14,9 +14,9 @@ Writes a business's terms of service, privacy policy, refund policy and waiver f
 | `data/contract-output-targets.json` | The file forms a contract can be made in (PDF, CSV, Excel, Markdown, text), each with its extension and the format id the file maker knows it by. |
 | `do-work/write-legal-documents.mjs` | The first tool's command: one JSON input in `argv[2]`, one JSON line out (each document's text, BLAKE3 `1f:` identity, clauses, readiness, missing and to-confirm facts, and every fact each document reads). |
 | `do-work/make-a-sales-contract.mjs` | The second tool's command: one JSON request on standard input, `{ result: { acceptance_requirements, terms_rows, export_request, output_forms, approval_link? } }` out. |
-| `records.json` | The tools' rows (`ai-tool-descriptor`), listed into the Workshop by `tool-rows.json`. |
+| `records.json` | The tools' rows (`ai-tool-descriptor`), listed into the Workshop by `what-this-tool-does-and-how-to-run-it.json`. |
 | `part.json` | No public files: only the container runs this code. |
-| `tool-rows.json` | Lists `records.json` into the Workshop (`source:business-legal-document-tools`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Lists `records.json` into the Workshop (`source:business-legal-document-tools`). |
 | `test/assemble-legal-documents.test.ts` | The package's assembler tests (predicates, slot fill and gates, a business from DATA alone, identity parity over made-up businesses). |
 | `test/project-to-prose-page-record.test.ts` | The package's page-record tests, plus new tests of the blocks projection. |
 | `test/contract-output.test.ts` | New: the contract output (the package had no test). |

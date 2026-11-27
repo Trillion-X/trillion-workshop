@@ -1,0 +1,605 @@
+{
+ "kind": "tool-rows",
+ "record_set": "send-a-report-tool-rows",
+ "what_this_is": "The Workshop row for tool:tell-the-makers-of-a-product (tools/send-a-report-or-a-note-to-the-people-who-make): one feedback note written as one row of a product's makers' calendar_tasks, through the caller's own insert-only login (named by input.credential_name, mounted on descriptor 3). Its script is do-work/tell-the-makers.mjs.",
+ "records": [
+  {
+   "id": "package::send-a-report-or-a-note-to-the-people-who-make::tool::tell-the-makers-of-a-product",
+   "address": "package::send-a-report-or-a-note-to-the-people-who-make::tool::tell-the-makers-of-a-product",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/bug-reports",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:tell-the-makers-of-a-product",
+    "label": "Tell the makers of this product",
+    "job": "Tell the people who make this product about anything: report a bug, send feedback, or share an idea, with the things picked in the product",
+    "description": "Takes credential_name (the held name of your own makers login), kind (a bug report, friction, feedback or an idea), things (what the person picked: each { kind, label, screen_label?, place?, address?, id? }), note (their own words, up to 8000 characters), where (their own work or the space they were in), screen (the address they were on), browser and picture. Writes one row to the makers' calendar_tasks: title (the note's first line, 80 characters at most), description (the whole note with kind, where and screen), with the id taken from the content, so the same note sent twice is refused as already taken. The server sets the rest of the row.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "credential_name",
+      "kind",
+      "note"
+     ],
+     "properties": {
+      "credential_name": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The held name of your own makers login: a connection that may only insert into the makers' calendar_tasks."
+      },
+      "kind": {
+       "type": "string",
+       "enum": [
+        "a bug report",
+        "friction",
+        "feedback",
+        "an idea"
+       ],
+       "description": "What the note is: a bug report (something went wrong), friction (something was hard to do), feedback (something to change) or an idea"
+      },
+      "things": {
+       "type": "array",
+       "maxItems": 50,
+       "items": {
+        "type": "object",
+        "required": [
+         "kind",
+         "label"
+        ],
+        "properties": {
+         "key": {
+          "type": "string"
+         },
+         "kind": {
+          "type": "string"
+         },
+         "label": {
+          "type": "string"
+         },
+         "icon": {
+          "type": "string"
+         },
+         "screen": {
+          "type": "string"
+         },
+         "screen_label": {
+          "type": "string"
+         },
+         "address": {
+          "type": "string"
+         },
+         "id": {
+          "type": "string"
+         },
+         "place": {
+          "type": "string"
+         }
+        }
+       },
+       "description": "What was picked"
+      },
+      "note": {
+       "type": "string",
+       "maxLength": 8000,
+       "description": "In your own words"
+      },
+      "screen": {
+       "type": "string",
+       "description": "The address you were on"
+      },
+      "browser": {
+       "type": "string",
+       "description": "The browser you use"
+      },
+      "picture": {
+       "type": "string",
+       "description": "A picture of the screen, from your Files"
+      },
+      "where": {
+       "type": "string",
+       "maxLength": 200,
+       "description": "Where you were working: your own space or the pursuit's name"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "id",
+      "row_count"
+     ],
+     "properties": {
+      "id": {
+       "type": "string"
+      },
+      "row_count": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/tell-the-makers-of-a-product",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/tell-the-makers-of-a-product/do-work/tell-the-makers.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "send-a-report-or-a-note-to-the-people-who-make",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/tell-the-makers-of-a-product"
+       },
+       {
+        "package": "run-sql-in-my-database",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/tell-the-makers-of-a-product/run-sql"
+       },
+       {
+        "packages": [
+         "pg"
+        ],
+        "at": "/opt/node_modules/pg"
+       },
+       {
+        "packages": [
+         "pg-connection-string"
+        ],
+        "at": "/opt/node_modules/pg-connection-string"
+       },
+       {
+        "packages": [
+         "pg-pool"
+        ],
+        "at": "/opt/node_modules/pg-pool"
+       },
+       {
+        "packages": [
+         "pg-protocol"
+        ],
+        "at": "/opt/node_modules/pg-protocol"
+       },
+       {
+        "packages": [
+         "pg-types"
+        ],
+        "at": "/opt/node_modules/pg-types"
+       },
+       {
+        "packages": [
+         "pg-int8"
+        ],
+        "at": "/opt/node_modules/pg-int8"
+       },
+       {
+        "packages": [
+         "postgres-array"
+        ],
+        "at": "/opt/node_modules/postgres-array"
+       },
+       {
+        "packages": [
+         "postgres-bytea"
+        ],
+        "at": "/opt/node_modules/postgres-bytea"
+       },
+       {
+        "packages": [
+         "postgres-date"
+        ],
+        "at": "/opt/node_modules/postgres-date"
+       },
+       {
+        "packages": [
+         "postgres-interval"
+        ],
+        "at": "/opt/node_modules/postgres-interval"
+       },
+       {
+        "packages": [
+         "xtend"
+        ],
+        "at": "/opt/node_modules/xtend"
+       },
+       {
+        "packages": [
+         "pgpass"
+        ],
+        "at": "/opt/node_modules/pgpass"
+       },
+       {
+        "packages": [
+         "split2"
+        ],
+        "at": "/opt/node_modules/split2"
+       },
+       {
+        "packages": [
+         "@noble/hashes"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "packages": {
+      "pg": {
+       "version": "8.23.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg/-/pg-8.23.1.tgz",
+         "blake3": "d9fa473dbb66d6ebb3f9ed639504645825d90f0e581940545e394b97d540b827",
+         "checked_against": "https://registry.npmjs.org/pg/8.23.1"
+        }
+       }
+      },
+      "pg-connection-string": {
+       "version": "2.14.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-connection-string/-/pg-connection-string-2.14.1.tgz",
+         "blake3": "3ebf322e73fbb3789b12506529485c3d34d2e0b496fa8b57ae0237dbfd605965",
+         "checked_against": "https://registry.npmjs.org/pg-connection-string/2.14.1"
+        }
+       }
+      },
+      "pg-pool": {
+       "version": "3.14.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-pool/-/pg-pool-3.14.0.tgz",
+         "blake3": "936d28ee7461005bc3b8fdb2003e6333a7079d654e21fa3f83fb85f1fe08cd1e",
+         "checked_against": "https://registry.npmjs.org/pg-pool/3.14.0"
+        }
+       }
+      },
+      "pg-protocol": {
+       "version": "1.16.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-protocol/-/pg-protocol-1.16.1.tgz",
+         "blake3": "3604bc8340c62cb2451d63bf49496831fcf157a0da3c759f3794f64223a4bbb4",
+         "checked_against": "https://registry.npmjs.org/pg-protocol/1.16.1"
+        }
+       }
+      },
+      "pg-types": {
+       "version": "2.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-types/-/pg-types-2.2.0.tgz",
+         "blake3": "6c9524b7c592b94d3aad0399acf47ddf22c1eb53a24b9ae3ab14d4180a572945",
+         "checked_against": "https://registry.npmjs.org/pg-types/2.2.0"
+        }
+       }
+      },
+      "pg-int8": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pg-int8/-/pg-int8-1.0.1.tgz",
+         "blake3": "8f4971d42324eae73a49354f8e120dce0a6a95e159316a753558fc4644512efa",
+         "checked_against": "https://registry.npmjs.org/pg-int8/1.0.1"
+        }
+       }
+      },
+      "postgres-array": {
+       "version": "2.0.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-array/-/postgres-array-2.0.0.tgz",
+         "blake3": "71fc338a8920999897cbaf581dc843d4ff3a910fe478f863b12c8a5da3dc0836",
+         "checked_against": "https://registry.npmjs.org/postgres-array/2.0.0"
+        }
+       }
+      },
+      "postgres-bytea": {
+       "version": "1.0.1",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-bytea/-/postgres-bytea-1.0.1.tgz",
+         "blake3": "d1b058156ca51001e64ebe0efea72ef9befe365ba66b4731f5b591052f060553",
+         "checked_against": "https://registry.npmjs.org/postgres-bytea/1.0.1"
+        }
+       }
+      },
+      "postgres-date": {
+       "version": "1.0.7",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-date/-/postgres-date-1.0.7.tgz",
+         "blake3": "005396786ab1c87c62c9f2422040e90711000bdf26d3d673e1073b9972e1a079",
+         "checked_against": "https://registry.npmjs.org/postgres-date/1.0.7"
+        }
+       }
+      },
+      "postgres-interval": {
+       "version": "1.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/postgres-interval/-/postgres-interval-1.2.0.tgz",
+         "blake3": "24a6078fab15e22e6ffc864acab92746d6bfcb0ee9569b0c2bed3d1fc12856f2",
+         "checked_against": "https://registry.npmjs.org/postgres-interval/1.2.0"
+        }
+       }
+      },
+      "xtend": {
+       "version": "4.0.2",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/xtend/-/xtend-4.0.2.tgz",
+         "blake3": "3ac366571ec5d13e6beb846cd1eeb69193d47d833a19f6cada5ccdd0fcb0a8be",
+         "checked_against": "https://registry.npmjs.org/xtend/4.0.2"
+        }
+       }
+      },
+      "pgpass": {
+       "version": "1.0.5",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/pgpass/-/pgpass-1.0.5.tgz",
+         "blake3": "d0f6f693abc27625c5ef62c1e75aa91cf0cf2769f74908bbdc541f748ad67a2d",
+         "checked_against": "https://registry.npmjs.org/pgpass/1.0.5"
+        }
+       }
+      },
+      "split2": {
+       "version": "4.2.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/split2/-/split2-4.2.0.tgz",
+         "blake3": "5e0899c8843b75de6d7326c029931a636b3d19e854d05e53967ffde6d6b92005",
+         "checked_against": "https://registry.npmjs.org/split2/4.2.0"
+        }
+       }
+      },
+      "@noble/hashes": {
+       "version": "2.4.0",
+       "archive": "tgz",
+       "fetch": {
+        "any": {
+         "url": "https://registry.npmjs.org/@noble/hashes/-/hashes-2.4.0.tgz",
+         "blake3": "6af7788e29bad9e404a61eb5b6417187ae3b245b379d2875630631fc7617ebc3",
+         "checked_against": "https://registry.npmjs.org/@noble/hashes/2.4.0"
+        }
+       }
+      }
+     },
+     "key": [
+      {
+       "secret_name_from_input": "credential_name",
+       "fd": 3,
+       "only_when": {
+        "input": "credential_name",
+        "present": true
+       }
+      }
+     ]
+    },
+    "result_selector": "$",
+    "needs": {
+     "expected_seconds": 10,
+     "memory_mb": 256
+    },
+    "maker": "maker:the-product-owner",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "vep-L12, Nov 20 2026 about 4:25 AM CST: the brand-free tool, per the lead's ruling (b). The login and its sent_by are set by the caller's own feedback login, not by this tool."
+    }
+   }
+  }
+ ]
+}

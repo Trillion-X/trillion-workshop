@@ -10,7 +10,7 @@ Marks are append-only. A mark is never edited: a later operation hides, restyles
 |------|---------|
 | `do-work/ink.mjs` | The mechanism, pure: `readMarkOperationRecords`, `readMarkStyles`, `readMarkTools`, `markTargetKey`, `materializeMarkRecords`, `mapPointsForTool`, `nearestMarkPathRef`, `marksToSvg`. |
 | `do-work/marks.mjs` | The command of all three tools: the verb (`see`, `stroke`, `erase`) is the first argument, one JSON request is on standard input, `{ result }` or `{ error }` is the last line. |
-| `tool-rows.json` | The three tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three tool rows. |
 | `part.json` | The pure module other tools may import. |
 | `test/ink.test.mjs` | The package's export tests, plus folding, reference effects, stroke shapes and erasing, over made-up pictures. |
 | `test/marks-command.test.mjs` | The three commands run as the container runs them. |
@@ -38,4 +38,4 @@ The drawing surface (pointer capture, the toolbar, the live overlay and its sess
 
 **Depends on:** Node 24 in the tool container (`node:stream/consumers`).
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.

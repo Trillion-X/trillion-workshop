@@ -126,11 +126,11 @@ test('a computer that does not answer, a refused address and a refused mode chan
 });
 
 test('the row mounts the administrator key, packs the SSH helper and names no host', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const { invoke, id } = rows.records[0].payload;
   assert.equal(id, 'tool:reboot-a-computer-when-it-asks');
-  assert.deepEqual(invoke.credential_mounts, [{ secret_name: 'server-administration-ssh-key', mount_path: '/run/held/server-administration-ssh-key' }]);
-  assert.equal(invoke.argv.at(-1), '/run/held/server-administration-ssh-key');
+  assert.deepEqual(invoke.key, [{ secret_name: 'server-administration-ssh-key', mount_path: '/run/held/server-administration-ssh-key' }]);
+  assert.equal(invoke.run.at(-1), '/run/held/server-administration-ssh-key');
   assert.ok(invoke.files.package_files.some(item => item.package === 'administer-a-rented-host'));
   assert.ok(!/\b(?:\d{1,3}\.){3}\d{1,3}\b/.test(JSON.stringify(rows)), 'no address is written into the row');
 });

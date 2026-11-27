@@ -35,5 +35,5 @@
       "hands_back": "{\"course\":\"first-principles\",\"done\":[\"grip\"]}"
     }
   ],
-  "drafted_from": "tool row in tools/lessons-and-learning-paths/tool-rows.json and tools/lessons-and-learning-paths/do-work/progress.ts"
+  "drafted_from": "tool row in tools/lessons-and-learning-paths/what-this-tool-does-and-how-to-run-it.json and tools/lessons-and-learning-paths/do-work/progress.ts"
 }

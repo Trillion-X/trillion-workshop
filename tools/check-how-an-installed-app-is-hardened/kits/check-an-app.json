@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/check-how-an-installed-app-is-hardened/tool-rows.json (its sample run), read-data/app-hardening.mjs, read-data/app-hardening.json and test/app-hardening.test.mjs; the sample bundle was run here on 2026-11-13",
+  "drafted_from": "tools/check-how-an-installed-app-is-hardened/what-this-tool-does-and-how-to-run-it.json (its sample run), read-data/app-hardening.mjs, read-data/app-hardening.json and test/app-hardening.test.mjs; the sample bundle was run here on 2026-11-13",
   "start_here": "Say to your AI: \"Check how the app at /Applications/Sample.app is hardened, without launching it, and tell me what falls short.\" It runs tool:check-an-app on the folder you granted for reading.",
   "lists": [],
   "no_lists_because": "It reads one app bundle and the system's codesign output and keeps no list of its own.",

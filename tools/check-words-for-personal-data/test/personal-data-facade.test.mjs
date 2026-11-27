@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url';
 // Install only the row's declared files; a sibling checkout must not hide a missing dependency.
 test('the packaged descriptor executes the historical public entry with its relative DATA', t => {
   const repository = fileURLToPath(new URL('../../..', import.meta.url));
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url))).records[0].payload;
   const sandbox = tempFolder(join(tmpdir(), 'public-facade-package-'));
   t.after(() => rmSync(sandbox, { recursive: true, force: true }));
   const placed = path => path.startsWith('/opt/') ? join(sandbox, path.slice(1)) : path;
@@ -31,7 +31,7 @@ test('the packaged descriptor executes the historical public entry with its rela
     }
   }
   assert.equal(existsSync(join(placed(row.invoke.workdir), 'source-baselines')), false);
-  const argv = row.invoke.argv.map(placed);
+  const argv = row.invoke.run.map(placed);
   const child = spawnSync(process.execPath, argv.slice(1), {
     cwd: placed(row.invoke.workdir), input: JSON.stringify({ text: 'Write to sample@example.invalid about the weather.' }), encoding: 'utf8', timeout: 10_000,
   });

@@ -2,11 +2,11 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/network-people/do-work/network-profile-sql.mjs
 //
-// The one process the Network rows run (tools/network-people/tool-rows.json): the action is the first argument, the request is one
+// The one process the Network rows run (tools/network-people/what-this-tool-does-and-how-to-run-it.json): the action is the first argument, the request is one
 // JSON object on standard input, and the answer is one JSON line. The rows are kept in a `network_records` table of the database the
 // caller names (`database`, or `credential_name`): the person's own pursuit database for their profile, and the database the search
 // reads for the listings. The connection string is a held value the engine hands this process on descriptor 3 (the row's
-// invoke.credential_mounts); it is never in the request, argv, a file or the environment. The table is made when it is missing
+// invoke.key); it is never in the request, argv, a file or the environment. The table is made when it is missing
 // (CREATE TABLE IF NOT EXISTS, as tool:sales-contracts does). Each statement goes through run-sql's own proxy.
 import { readFileSync } from 'node:fs';
 import { findNetworkPeople, networkProfile, onMyPath, readNetworkContact } from './network-people.mjs';

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:run-a-script's own row in tools/run-on-a-persons-computer/tool-rows.json (its words, input schema and Node pin), tools/run-on-a-persons-computer/run-a-script.mjs and its test, and the script sandbox's tests (script-sandbox.mjs, test/script-sandbox-child.test.mjs); read them before relying on this kit",
+  "drafted_from": "tool:run-a-script's own row in tools/run-on-a-persons-computer/what-this-tool-does-and-how-to-run-it.json (its words, input schema and Node pin), tools/run-on-a-persons-computer/run-a-script.mjs and its test, and the script sandbox's tests (script-sandbox.mjs, test/script-sandbox-child.test.mjs); read them before relying on this kit",
   "start_here": "Say to your AI: \"Run this script over my tools: find my open rows and return their ids\", and give it the body as code, with input for anything the body reads. It runs tool:run-a-script on this Mac, and the answer is the value the body returns.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes code and input in its request and keeps nothing in your records; any row the script reads or writes is a tool call the script makes itself.",

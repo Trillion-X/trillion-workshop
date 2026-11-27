@@ -1,4 +1,4 @@
-// A stand-in for the engine's loopback proxy, for samples of rows with internet: true (settings in
+// A stand-in for the engine's loopback proxy, for samples of rows that hold may_reach (settings in
 // stand-in-egress.json). It answers a plain request by its absolute address, and a CONNECT by finishing TLS itself with
 // a certificate for the asked host, signed by a certificate authority made once for this test run, then reading the
 // request inside. Each request is answered from the replies the sample recorded, by method and address; a request with

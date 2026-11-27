@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/see-what-my-business-took-in-this-month/tool-rows.json (tool:stripe-events-read_money_since, an http row) and the tests in test/business-screen.test.mjs that exercise it; not run against Stripe: the answer is read from the row's request template and the test's Stripe answer",
+  "drafted_from": "tools/see-what-my-business-took-in-this-month/what-this-tool-does-and-how-to-run-it.json (tool:stripe-events-read_money_since, an http row) and the tests in test/business-screen.test.mjs that exercise it; not run against Stripe: the answer is read from the row's request template and the test's Stripe answer",
   "start_here": "Say to your AI: \"List the money that moved on my Stripe account since October 1, 2026, newest first, at most 100 entries.\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it asks your own Stripe connection for the balance transactions since a moment and answers them unchanged.",

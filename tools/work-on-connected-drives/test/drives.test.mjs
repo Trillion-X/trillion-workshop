@@ -13,7 +13,7 @@ process.env.HOME = home;
 const drives = await import('../read-data/drives.mjs');
 const { hiddenIn } = await import('../../connected-drives/read-data/drives.mjs');
 const { runTransfer } = await import('../read-data/file-transfer.mjs');
-const rows = JSON.parse(await readFile(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(await readFile(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 test.after(() => rm(home, { recursive: true, force: true }));
 
 test('a volume Finder hides (mounted nobrowse, like a simulator runtime) is never a drive', () => {
@@ -30,7 +30,7 @@ test('every tool the rows name is a function run-a-function can call', async () 
   for (const name of ['listDriveWork', 'controlDriveWork', 'copyOrMoveBetweenDrives', 'ejectADrive']) assert.equal(typeof drives[name], 'function', name);
   assert.equal(typeof places.findEveryPlaceAFileIs, 'function');
   for (const row of rows) {
-    const [, , file, name] = row.invoke.argv;
+    const [, , file, name] = row.invoke.run;
     const module = await import(path.join(import.meta.dirname, '..', 'read-data', path.basename(file)));
     assert.equal(typeof module[name], 'function', `${row.id} ${name}`);
   }
@@ -43,7 +43,7 @@ test('every row is a computer row seeing connected drives, and only transfer may
     assert.equal(row.invoke.workdir, '/opt/work-on-connected-drives');
     assert.deepEqual(row.invoke.capabilities, row.id === 'tool:media-transfer' ? ['see-connected-drives', 'change-a-folder'] : ['see-connected-drives'], row.id);
     assert.ok(row.invoke.files.package_files.some(item => item.package === 'connected-drives'), row.id);
-    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', row.id);
+    assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs', row.id);
     assert.ok(row.invoke.files.package_files.some(item => item.package === 'workflows' && item.at === '/opt/workflows'), row.id);
     assert.ok(!row.invoke.files.package_files.some(item => item.package === 'records-door'), row.id);
   }

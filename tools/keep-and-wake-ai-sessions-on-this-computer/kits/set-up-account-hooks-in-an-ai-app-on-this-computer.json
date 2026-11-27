@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:set-up-account-hooks-in-an-ai-app-on-this-computer), harness/setup.mjs and test/harness-setup.test.mjs, and a run of setup() with a non-Mac platform over an empty scratch home",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/what-this-tool-does-and-how-to-run-it.json (tool:set-up-account-hooks-in-an-ai-app-on-this-computer), harness/setup.mjs and test/harness-setup.test.mjs, and a run of setup() with a non-Mac platform over an empty scratch home",
   "start_here": "Say to your AI: \"Inspect whether Trillion's hooks are set up in Claude Code on this computer, and change nothing.\" It runs the inspect action and tells you what is ready and what each failed check says.",
   "lists": [],
   "no_lists_because": "It reads and edits one AI app's own settings file on this computer and keeps no list of yours.",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "the tool row in tool-rows.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
+  "drafted_from": "the tool row in what-this-tool-does-and-how-to-run-it.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
   "start_here": "Say to your AI: \"Run my weekday report at 7 in the morning, Chicago time\" (or \"Show my schedules\"). Once this row is on, it lists, sets, removes or runs one schedule of yours. It is off (status inactive) until the scheduling owner accepts the call shape; while it is off, the AI says so and does not pretend a schedule was kept.",
   "lists": [],
   "no_lists_because": "The schedules are not kept by this row; the host keeps the list.",

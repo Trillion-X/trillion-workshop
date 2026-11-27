@@ -1,7 +1,7 @@
 [
   {
     "id": "workshop-ai-tools",
-    "filename": "tool-rows.json",
+    "filename": "what-this-tool-does-and-how-to-run-it.json",
     "records_path": "records",
     "kind_path": "payload.kind",
     "kind_value": "ai-tool-descriptor",

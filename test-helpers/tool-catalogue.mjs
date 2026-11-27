@@ -1,4 +1,4 @@
-// The tool catalogue in README.md, generated from every folder's tool-rows.json (the rows Trillion reads, test-helpers/tool-rows.mjs).
+// The tool catalogue in README.md, generated from every folder's what-this-tool-does-and-how-to-run-it.json (the rows Trillion reads, test-helpers/tool-rows.mjs).
 // One table row per folder that offers tools, listing each tool id it offers. A tool's job, inputs, outputs and sample run
 // stay in its row. write-tool-catalogue.mjs splices this table between the two markers in README.md, and
 // test/tool-catalogue-is-current.test.mjs fails when the README no longer matches what the rows say.
@@ -31,7 +31,7 @@ export function catalogueBlock() {
   const table = entries.map(({ folder, ids }) => `| \`${folder}\` | ${ids.map(id => `\`${id.replaceAll('|', '\\|')}\``).join(', ')} |`);
   return [
     START,
-    `Generated from each folder's \`tool-rows.json\` by \`node test-helpers/write-tool-catalogue.mjs\`; do not edit it by hand. ${count} tools in ${entries.length} folders. A tool's job, inputs, outputs and sample run are in its row. \`test/tool-catalogue-is-current.test.mjs\` fails when this table is stale.`,
+    `Generated from each folder's \`what-this-tool-does-and-how-to-run-it.json\` by \`node test-helpers/write-tool-catalogue.mjs\`; do not edit it by hand. ${count} tools in ${entries.length} folders. A tool's job, inputs, outputs and sample run are in its row. \`test/tool-catalogue-is-current.test.mjs\` fails when this table is stale.`,
     '',
     '| Folder | Tools |',
     '|---|---|',

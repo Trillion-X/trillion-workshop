@@ -10,7 +10,7 @@ Lists, read only, the instruction files, slash commands and skills that other AI
 | `read-data/ai-setups.json` | The places, as rows: single files, or a folder's entries by ending, or folders holding one entry file; with their kind, the most items, the most characters per item and the label length. Moved unchanged but for the paths it names, which are path segments with `~` for the home folder read at run time. |
 | `read-data/file-arguments.mjs` | `expandFileArguments`, carried unchanged from Trillion-X/trillion `computer/file-arguments.mjs` (alive there for the Mac host's own tool boundary). A file is read only after its real path is inside a root and no segment or ending is protected, within a byte cap. |
 | `read-data/file-arguments.json` | Its settings, cut to what this tool uses: the `$file:` text prefix, the roots (`~`, the person's home), the protected names and endings (keys and credentials), the byte cap and the words. |
-| `tool-rows.json` | `tool:read-ai-setups`: a `computer` row with `capabilities: ["read-a-folder"]`, run by `tools/workflows`' `do-work/run-a-function.mjs`. The id is the one the Mac host gave it. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:read-ai-setups`: a `computer` row with `capabilities: ["read-a-folder"]`, run by `tools/workflows`' `do-work/run-a-function.mjs`. The id is the one the Mac host gave it. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/ai-setups.test.mjs` | The original listing test, repointed: each kind of place read on a made-up home, long text cut, an empty place counted, and a link out of the home folder named as unreadable. |
 
@@ -45,4 +45,4 @@ node --test tools/read-other-ais-setups/test/ai-setups.test.mjs
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`, the command that runs a function), `tools/content-identity`, Node's standard library.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

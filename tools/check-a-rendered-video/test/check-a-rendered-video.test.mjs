@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const environment = JSON.parse(python(join(folder, 'test', 'check_environment.py')).stdout.trim().split('\n').pop() || '{"ok":false,"reason":"python3 did not run"}');
 const skip = environment.ok ? false : `needs python3 with numpy, opencv-python, pillow, scipy and blake3, and ffmpeg (${environment.reason}); run the row's get_it commands`;
 const limits = join(folder, 'test', 'fixtures', 'limits-for-generated-videos.json');

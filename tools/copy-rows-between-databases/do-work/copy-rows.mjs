@@ -1,12 +1,12 @@
 import { realpathSync } from 'node:fs';
 // tools/copy-rows-between-databases/do-work/copy-rows.mjs
 //
-// The container tool `tool:copy-rows-between-databases` (tool-rows.json): copies named rows of one table from one Postgres-wire
+// The container tool `tool:copy-rows-between-databases` (what-this-tool-does-and-how-to-run-it.json): copies named rows of one table from one Postgres-wire
 // database to another, inside this one process, and answers only counts and each key's version, a few KB however big the rows are.
 // A row's body is read from the source and written to the destination here; it is never in the request, the answer or the run's record.
 //
 // Both connection strings are held values the engine hands this one process on private pipes: the source's on descriptor 3 and the
-// destination's on descriptor 4 (the row's invoke.credential_mounts). Neither is ever in the request, argv, a file or the environment,
+// destination's on descriptor 4 (the row's invoke.key). Neither is ever in the request, argv, a file or the environment,
 // and no answer or error holds one. This file reads no vault and names no vendor, table or host.
 //
 // A row is found by its key column and carried whole as JSON: the destination fills its own table's columns from the names in it

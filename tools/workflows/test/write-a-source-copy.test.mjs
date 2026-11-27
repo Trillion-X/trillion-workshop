@@ -11,7 +11,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { resolveItem, RESOLVERS } from '../read-data/citation-resolvers.mjs';
 import { writeASourceCopy } from '../read-data/write-a-source-copy.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const HEAD = 'a1'.repeat(20);
 const HEAD2 = 'b2'.repeat(20);
 
@@ -55,7 +55,7 @@ test('the tool row writes only where the resolver reads', () => {
   for (const folder of folders) assert.ok(`${folder}/`.startsWith(right.files), `${folder} is under the right ${right.files}`);
   assert.deepEqual(rightsOf(row).filter(item => item.kind), [], 'no records kinds');
   assert.ok(rightsOf(row).every(item => item.operations === undefined), 'no door operations');
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   // uses_tools is the generated closure of every tool the row's runner may reach, not what the row mounts or names.
   const { uses_tools: _closure, ...mounted } = row;
   assert.ok(!JSON.stringify(mounted).includes('records-door'), 'the row mounts and names no records door');

@@ -48,8 +48,8 @@
       "removed": {
         "commit": "959a3852b",
         "homes": {
-          "tool:run-when-something-happens": "tools/run-rules-and-schedules-by-themselves/tool-rows.json (row at line 807)",
-          "tool:run-at-a-time": "tools/run-rules-and-schedules-by-themselves/tool-rows.json (row at line 563)"
+          "tool:run-when-something-happens": "tools/run-rules-and-schedules-by-themselves/what-this-tool-does-and-how-to-run-it.json (row at line 807)",
+          "tool:run-at-a-time": "tools/run-rules-and-schedules-by-themselves/what-this-tool-does-and-how-to-run-it.json (row at line 563)"
         }
       }
     },
@@ -62,15 +62,15 @@
       "removed": {
         "commit": "959a3852b",
         "homes": {
-          "tool:when-to-run-next": "tools/run-work-later-or-on-a-repeat/tool-rows.json:26",
-          "tool:plan-recurring-windows": "tools/run-work-later-or-on-a-repeat/tool-rows.json:217",
-          "tool:run-workflow-definition": "tools/workflows/tool-rows.json",
-          "tool:filter-rows-by-rules": "tools/formula-engine/tool-rows.json:195",
-          "tool:evaluate-binding": "replaced by tool:evaluate-a-formula, tools/formula-engine/tool-rows.json:600",
-          "tool:check-copy": "tools/check-against-a-persons-rules-and-verdicts/tool-rows.json:1513",
-          "tool:read-source-health": "tools/run-rules-and-schedules-by-themselves/tool-rows.json:1047",
-          "tool:say-what-got-worse": "tools/run-rules-and-schedules-by-themselves/tool-rows.json:196",
-          "tool:build-docs-site": "tools/build-a-docs-site/tool-rows.json (landed cd23f9a21)",
+          "tool:when-to-run-next": "tools/run-work-later-or-on-a-repeat/what-this-tool-does-and-how-to-run-it.json:26",
+          "tool:plan-recurring-windows": "tools/run-work-later-or-on-a-repeat/what-this-tool-does-and-how-to-run-it.json:217",
+          "tool:run-workflow-definition": "tools/workflows/what-this-tool-does-and-how-to-run-it.json",
+          "tool:filter-rows-by-rules": "tools/formula-engine/what-this-tool-does-and-how-to-run-it.json:195",
+          "tool:evaluate-binding": "replaced by tool:evaluate-a-formula, tools/formula-engine/what-this-tool-does-and-how-to-run-it.json:600",
+          "tool:check-copy": "tools/check-against-a-persons-rules-and-verdicts/what-this-tool-does-and-how-to-run-it.json:1513",
+          "tool:read-source-health": "tools/run-rules-and-schedules-by-themselves/what-this-tool-does-and-how-to-run-it.json:1047",
+          "tool:say-what-got-worse": "tools/run-rules-and-schedules-by-themselves/what-this-tool-does-and-how-to-run-it.json:196",
+          "tool:build-docs-site": "tools/build-a-docs-site/what-this-tool-does-and-how-to-run-it.json (landed cd23f9a21)",
           "tool:evaluate-rules-over-records": "retired by ruling in 3798a1242 (T5): its condition now lives in workflow fires_when (tools/workflows/read-data/choose-the-workflows-that-fire.mjs, formula engine filterRecords at line 86). Its module and crate were deleted in 3798a1242; c4c068f9b had re-added it as a container and cc77b90d0 dropped it from the catalog."
         }
       }

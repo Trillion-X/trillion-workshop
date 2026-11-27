@@ -1,5 +1,5 @@
 {
- "_what": "Make pictures and sounds: the style rows (media-generation-style) and the makers they run (media-maker). One runner, do-work/make-pictures-and-sounds.mjs, turns a style into files; records/workshop-media-generation-tool-records.json lists every style here as its own Workshop tool (tool:make-<style>), and the editor's Make panel (src/workspace/media-edit/make-panel.tsx) lists them from this file. A style says what it makes (makes, and the file kind: media_type, extension), what it needs (input_schema: a recording and a moment, a line of text; frames: how many frames of that recording it looks at and how far apart; made_from: other styles' results, made from the same input), how many it makes by default (count), its prompt, and which maker runs it. A maker runs_as an http request that answers with base64 bytes (its key is read from the file the style's credential_mounts places, named by connection, never written here) or a program run in the container. An http maker that Trillion can also pay for names `through_trillion`: the Workshop tool that sends the same request through Trillion's own account at a gateway (`tool`) and that tool's input besides the maker's request body (`input`); a run with no connected account of the person's sends there, through the relay its container is given, and each call is taken from their Trillion credit. A value reference is { value: [path...] } into { prompt, settings, images, inputs, output }; a path part is a key, an index, \"*\" (first match) or { any_of: [keys] }. A maker that runs a program may say makes_all: the program is run once with output.folder and output.count and leaves every result there (a model loaded once). What differs per computer (a program path, a weights folder) is the person's settings, given at run time. Adding a style or a maker is a row here, never code.",
+ "_what": "Make pictures and sounds: the style rows (media-generation-style) and the makers they run (media-maker). One runner, do-work/make-pictures-and-sounds.mjs, turns a style into files; records/workshop-media-generation-tool-records.json lists every style here as its own Workshop tool (tool:make-<style>), and the editor's Make panel (src/workspace/media-edit/make-panel.tsx) lists them from this file. A style says what it makes (makes, and the file kind: media_type, extension), what it needs (input_schema: a recording and a moment, a line of text; frames: how many frames of that recording it looks at and how far apart; made_from: other styles' results, made from the same input), how many it makes by default (count), its prompt, and which maker runs it. A maker runs_as an http request that answers with base64 bytes (its key is read from the file the style's key places, named by connection, never written here) or a program run in the container. An http maker that Trillion can also pay for names `through_trillion`: the Workshop tool that sends the same request through Trillion's own account at a gateway (`tool`) and that tool's input besides the maker's request body (`input`); a run with no connected account of the person's sends there, through the relay its container is given, and each call is taken from their Trillion credit. A value reference is { value: [path...] } into { prompt, settings, images, inputs, output }; a path part is a key, an index, \"*\" (first match) or { any_of: [keys] }. A maker that runs a program may say makes_all: the program is run once with output.folder and output.count and leaves every result there (a model loaded once). What differs per computer (a program path, a weights folder) is the person's settings, given at run time. Adding a style or a maker is a row here, never code.",
  "things": [
   {
    "address": "package::media-composition::media-maker::google-ai-image",
@@ -368,7 +368,7 @@
     ],
     "description": "Make a bold thumbnail picture about a video's topic, with no text, and keep it in your files. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -441,7 +441,7 @@
     ],
     "description": "Make a striking thumbnail of the person in a recording, keeping their face, from frames of the video and a topic. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -497,7 +497,7 @@
     ],
     "description": "Take one frame of a recording and make it a sharp, well-lit, vivid picture that keeps the people and composition. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -556,7 +556,7 @@
     ],
     "description": "Draw a black-and-white pencil portrait of the person in a recording, with room above for a title. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -650,7 +650,7 @@
     ],
     "description": "Make a dramatic wide background picture about a video's topic, with no people and no text. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -716,7 +716,7 @@
     ],
     "description": "Cut the person out of a recording's frame and place them on a new background made about the video's topic. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -770,7 +770,7 @@
     ],
     "description": "Make a sound effect from a description of the sound. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"
@@ -824,7 +824,7 @@
     ],
     "description": "Make a piece of instrumental music for a video from a mood or style. Each result is a new file kept in your files; the recording itself is never changed.",
     "connection_id": "service_connection:google",
-    "credential_mounts": [
+    "key": [
      {
       "field_id": "api_key",
       "mount_path": "/run/connections/google/api_key"

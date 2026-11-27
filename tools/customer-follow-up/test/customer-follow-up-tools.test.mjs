@@ -10,11 +10,11 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = join(dirname(fileURLToPath(import.meta.url)), '..');
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const rowOf = id => rows.find(row => row.id === id);
 
 function run(id, input) {
-  const [command, ...rest] = rowOf(id).invoke.argv;
+  const [command, ...rest] = rowOf(id).invoke.run;
   return new Promise((done, fail) => {
     const child = spawn(command === 'node' ? process.execPath : command, rest, { cwd: folder, stdio: ['pipe', 'pipe', 'pipe'] });
     let out = '';

@@ -22,7 +22,7 @@ export async function readInDatabase<Input extends Given, Answer>(input: Input, 
     async (query: (sql: string, params?: unknown[]) => Promise<{ rows: Record<string, unknown>[] }>) => reader(input, async (sql, params) => (await query(sql, params)).rows));
 }
 
-// The tool's row names its reader in argv: node <file> <reader name>.
+// The tool's row names its reader in run: node <file> <reader name>.
 export async function serveARead(readers: Record<string, Reader<any, unknown>>): Promise<void> {
   let connection = '', ticket = '';
   try {

@@ -8,7 +8,7 @@ What the principles are about, how advice sounds, what rows a model is asked for
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:cite-principles-from-captions`: `on-your-computer`, with the command that fetches and runs it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:cite-principles-from-captions`: `on-your-computer`, with the command that fetches and runs it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/cite_principles.py` | The command: `corpus`, `coverage`, `candidates`, `extract`, `find`, `verify`, `registry`, `index`. Each prints its account and a last line `{"result": ...}`. `verify` and `find` exit 1 (2 for a video with no captions) when a quote is not found. |
 | `read-data/captions.py` | Pure readers: caption files to timed lines, exact-quote search, how a video did against its channel's usual, scoring of passages, evidence strength. |
@@ -132,7 +132,7 @@ Internal extraction coverage treats channel files as kept rows and counts their 
 
 **Depends on:** Python 3.10 or later; `extract` also needs `blake3` for phase identity and, when a reply schema is configured, `jsonschema` and `referencing` (declared in `requirements-extract.txt`). Other commands use the standard library; `tools/settings/read-data/settings.py` (beside it in the same clone) for `--settings-record`. Only `extract` sends anything: each part's words go to the chat model the person's `model.json` names (on their own computer when its url is local); a key, when needed, is read from the environment variable it names and never written down.
 
-**Depended on by:** `tool-rows.json` (`tool:cite-principles-from-captions`), run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:cite-principles-from-captions`), run on the person's computer by their AI.
 
 Extraction refuses channel names whose normalized output filenames collide with `done.jsonl`, `failed.jsonl`, `dropped.jsonl` or another channel, before creating phase state or calling a model. Bound resumes also require each checkpoint to name the verified phase; explicit legacy unbound HTTP continuation remains separate. Internal extraction coverage uses the in-memory bound corpus even if the input file changes during the run; standalone coverage reads its supplied corpus file. A response-body connection failure consumes a recorded reply attempt rather than a connection-establishment wait.
 

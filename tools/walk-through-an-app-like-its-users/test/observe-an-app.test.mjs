@@ -9,7 +9,7 @@ import { findBrowser } from '../do-work/browser.mjs';
 
 const script = fileURLToPath(new URL('../do-work/walk-through-an-app.mjs', import.meta.url));
 const conventions = JSON.parse(readFileSync(new URL('../do-work/walk-conventions.json', import.meta.url), 'utf8'));
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 let skip = false;
 try { findBrowser(conventions.browser); } catch { skip = 'no Chromium-family browser on this computer'; }
 
@@ -129,6 +129,6 @@ test('the source offers no way to intercept, stub or route the page', () => {
 test('the observe row runs the observe job with the same files as the walk', () => {
   const row = rows.find(item => item.id === 'tool:read-what-a-running-app-shows');
   assert.ok(row);
-  assert.deepEqual(row.invoke.argv.slice(-1), ['observe']);
+  assert.deepEqual(row.invoke.run.slice(-1), ['observe']);
   assert.equal(row.invoke.files.package_files.paths[0], 'do-work');
 });

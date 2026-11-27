@@ -18,7 +18,7 @@ import { engineCarrier, EACH_WAITER_FD, placesConnection } from '../do-work/tell
 import { runResidentEmitter, THIS_TOOL } from '../do-work/emit-arrival-fact.mjs';
 import { folderPlaces, placesFor, PLACES_FD, PLACES_TABLE } from '../do-work/kept-places.mjs';
 
-const ROW = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const ROW = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 /** The row's own row-changes waiter, reading again every second (a stand-in database sends no NOTIFY). */
 const ROW_WAITER = (() => {
   const waiter = ROW.wakes.find(wake => wake.id === 'keep-noticing-row-changes').input.waiters[0];
@@ -264,7 +264,7 @@ test('the places table is made once, a table with a trigger of its own is refuse
   await places.exec(`CREATE FUNCTION told() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NULL; END $$;
     CREATE TRIGGER tell_row_change AFTER INSERT OR UPDATE ON ${PLACES_TABLE} FOR EACH ROW EXECUTE FUNCTION told()`);
   await assert.rejects(placesFor({ placesIn: PLACES_IN, tool: THIS_TOOL, keptOn: 'mac', run: 'c', connect: async () => clientOf(places) }), /has a trigger of its own/);
-  const mounts = ROW.invoke.credential_mounts;
+  const mounts = ROW.invoke.key;
   assert.deepEqual(mounts.find(item => item.secret_name_from_input === 'places_in'), { secret_name_from_input: 'places_in', fd: PLACES_FD, only_when: { input: 'places_in', present: true } });
   assert.ok(PLACES_FD > EACH_WAITER_FD && PLACES_FD <= 63, 'the last descriptor a process is handed, past every waiter of a usual list');
   assert.equal(ROW.input_schema.properties.places_in.type, 'string');

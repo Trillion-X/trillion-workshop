@@ -53,10 +53,10 @@ test('two names under one registration are one domain, and each name no registry
 });
 
 test('the row runs the program it packs, reaches the network only through the run\'s proxy and holds no value', () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
-  assert.equal(row.invoke.internet, true);
-  assert.equal(row.invoke.credential_mounts, undefined);
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
+  assert.ok(Array.isArray(row.invoke.may_reach));
+  assert.equal(row.invoke.key, undefined);
   const packed = row.invoke.files.package_files[0];
-  assert.ok(row.invoke.argv[1].startsWith(`${packed.at}/`));
+  assert.ok(row.invoke.run[1].startsWith(`${packed.at}/`));
   for (const path of packed.paths) assert.ok(existsSync(new URL(`../${path}`, import.meta.url)), path);
 });

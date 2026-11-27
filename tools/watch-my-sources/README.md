@@ -26,7 +26,7 @@ The row holds no records right: it reads only public addresses and writes nothin
 | `read-data/ranked-lists.mjs` | A ranked list read whole by its reader row, and how an item moved between two days. |
 | `do-work/watch-my-sources.mjs` | `watchMySources(input, { read })`: the tool's run over `input.records`, with the weighing and hand-in answered for the caller and `keep` for what to keep. |
 | `ports/watch-sources.json` | The port contract: the Trillion sources, their BLAKE3 identities and the baseline copy. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `part.json` | Public files. |
 | `test/watch-sources.test.mjs` | The moved tests: feeds, pages, YouTube, X, 304, caps, the held question, history, ranked lists, one read and one write a run, over lists handed in (`read-data/lists-in-hand.mjs`). |
 | `test/watch-my-sources.test.mjs` | The tool's run: the weighing hand-off, arrivals, pursuits from records, starter places, the answer's `keep`, and the row run through the plain function runner with no records door. |

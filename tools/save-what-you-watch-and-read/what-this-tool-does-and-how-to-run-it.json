@@ -1,0 +1,2694 @@
+{
+ "kind": "tool-rows",
+ "record_set": "save-what-you-watch-and-read-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/save-what-you-watch-and-read: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::ai-tool-catalog::tool::read-my-saved-x-posts",
+   "address": "package::ai-tool-catalog::tool::read-my-saved-x-posts",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composio-connection",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-my-saved-x-posts",
+    "label": "Read my saved X posts",
+    "job": "Read the posts I bookmarked or liked on X, newest first, with their full words, links and quoted posts",
+    "description": "Reads the posts the person bookmarked or liked on X through X's API with the access token of their connected X account, newest first: each post's full words, who wrote it, when, its pictures, every real link it carries (not the short t.co form) and the post it quotes. Give already_kept (post keys the person already has) to stop at the first posts they already have. It reads only: nothing is posted, liked, followed or changed on X, and the token is never shown. When X refuses (expired token, a plan or credits that do not allow the list, a limit), it says so and gives no empty list.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "which",
+      "account"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "account": {
+       "type": "string",
+       "description": "Which of the person's X connections to read with, by its id (service_connection:x, or service_connection:x:<account>)."
+      },
+      "which": {
+       "type": "string",
+       "enum": [
+        "bookmarks",
+        "likes"
+       ],
+       "description": "Which saved posts to read."
+      },
+      "already_kept": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Keys of posts the person already has; the read stops once several pages hold only those."
+      },
+      "since": {
+       "type": "string",
+       "description": "The key of the newest post the last read returned (its newest): posts above it are the new ones. Left out, the read is the whole list."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "which",
+      "read",
+      "posts",
+      "newest"
+     ],
+     "properties": {
+      "which": {
+       "type": "string"
+      },
+      "via": {
+       "type": "string"
+      },
+      "pages": {
+       "type": "integer"
+      },
+      "read": {
+       "type": "integer"
+      },
+      "not_kept_yet": {
+       "type": "integer"
+      },
+      "newest": {
+       "type": [
+        "string",
+        "null"
+       ],
+       "description": "The key of the newest post read: the since a later read takes. The since it was given when nothing is newer."
+      },
+      "posts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "key",
+         "url",
+         "title"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "saved_from": {
+          "type": "string"
+         },
+         "saved_as": {
+          "type": "string"
+         },
+         "key": {
+          "type": "string"
+         },
+         "url": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "author": {
+          "type": "string"
+         },
+         "author_name": {
+          "type": "string"
+         },
+         "posted_at": {
+          "type": "string"
+         },
+         "media": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "links": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          }
+         },
+         "quoted": {
+          "type": "object"
+         }
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "refresh": {"token_url": "https://api.x.com/2/oauth2/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "basic", "client": {"id": {"name": "x-sign-in-client-id"}, "secret": {"name": "x-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/save-what-you-watch-and-read/do-work/read-saved-x-posts.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "x",
+      "from_input": "account"
+     },
+     "key": [
+      {
+       "field_id": "access_token",
+       "fd": 3
+      }
+     ]
+    },
+    "result_selector": "$",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "maker": "maker:save-what-you-watch-and-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "verify": [{"kind": "sample-run", "input": {"which": "bookmarks", "account": "service_connection:x"}, "replies": [{"request": {"method": "GET", "url": "https://api.x.com/2/users/me"}, "status": 200, "body": {"data": {"id": "1000000001", "name": "Sample Maker", "username": "sample_maker"}}}, {"request": {"method": "GET", "url": "https://api.x.com/2/users/1000000001/bookmarks"}, "status": 200, "body": {"data": [{"id": "2000000001", "text": "A sample post https://t.co/aaa", "author_id": "1000000001", "created_at": "2026-09-02T16:50:26.000Z", "edit_history_tweet_ids": ["2000000001"], "entities": {"urls": [{"url": "https://t.co/aaa", "expanded_url": "https://example.org/sample-repo"}]}}], "includes": {"users": [{"id": "1000000001", "name": "Sample Maker", "username": "sample_maker"}]}, "meta": {"result_count": 1}}}], "shape_read_at": "2026-11-03"}]
+   }
+  },
+  {
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composio-connection",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:save-what-you-watch-and-read",
+    "id": "tool:read-my-saved-bookmarks-and-pins",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false
+    },
+    "label": "Read my saved bookmarks and pins",
+    "job": "Read the bookmarks or pins a person saved on a social site (an export file of X bookmarks or Pinterest pins and boards) from a folder they chose, and give each saved item with its words, author and time, ready to be kept and found like anything else they read",
+    "description": "Runs on the person's computer over the folder they granted it to read, and reads only inside it. Give file (a path inside the folder). source is x-bookmarks or pinterest-saved; left out, the file is matched to a kind by what it looks like. sources_file is a file in the folder holding the person's own kinds of saved-items export ({ sources: [row] }): a kind is a row of field names, so a new site is a new row, not new code. descriptor holds the run's own choices (source_ref: what to call this source). mode all (the default) returns the whole export a page of atoms at a time (limit, cursor); threads returns the list of saved items, newest first. Each saved item is one thread with one atom: the atom has a stable atom_ref that does not change when its words are edited. Also returns rejections (one structured entry for each thing the export could not give) and next_cursor where there is more. Keeps nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "file"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "file": {
+       "type": "string",
+       "minLength": 1,
+       "description": "The export, a path inside the granted folder"
+      },
+      "source": {
+       "type": "string",
+       "enum": [
+        "x-bookmarks",
+        "pinterest-saved"
+       ],
+       "description": "The kind of export; left out, matched by what the file looks like"
+      },
+      "sources_file": {
+       "type": "string",
+       "description": "A file in the folder holding the person's own kinds: { sources: [row] }"
+      },
+      "descriptor": {
+       "type": "object",
+       "description": "The run's own choices",
+       "properties": {
+        "source_ref": {
+         "type": "string",
+         "description": "What to call this source"
+        }
+       }
+      },
+      "mode": {
+       "type": "string",
+       "enum": [
+        "all",
+        "threads"
+       ]
+      },
+      "cursor": {
+       "type": [
+        "integer",
+        "string"
+       ],
+       "description": "Where the next page starts: the next_cursor of the answer before"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 2000
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source",
+      "mode",
+      "rejections"
+     ],
+     "properties": {
+      "source": {
+       "type": "string"
+      },
+      "source_ref": {
+       "type": "string"
+      },
+      "mode": {
+       "type": "string"
+      },
+      "threads": {
+       "type": "array"
+      },
+      "atoms": {
+       "type": "array"
+      },
+      "total_atoms": {
+       "type": "integer"
+      },
+      "total_threads": {
+       "type": "integer"
+      },
+      "rejections": {
+       "type": "array"
+      },
+      "next_cursor": {
+       "type": [
+        "integer",
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "read-a-folder"
+     ],
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "stdout": "json",
+     "run": [
+      "python3",
+      "/opt/conversations/read-data/decode_source.py",
+      {
+       "fill": {
+        "from": "task",
+        "field": "grants.read-a-folder.folder"
+       }
+      },
+      "--sources",
+      "/opt/save-what-you-watch-and-read/read-data/sources.json"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "conversations",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/conversations"
+       },
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "harness/account-key.json",
+         "harness/account-key.mjs",
+         "harness/hook-run-receipt.mjs",
+         "harness/record-every-message.mjs",
+         "harness/source-return-pending.mjs",
+         "src/claimed-time.json",
+         "src/claimed-time.mjs",
+         "src/harnesses.mjs",
+         "src/hybrid-clock.mjs",
+         "src/messages.mjs",
+         "src/reactions.json",
+         "src/responses.mjs",
+         "src/voice-sessions.mjs",
+         "src/waiting-on-you.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data/byte-pages.mjs",
+         "read-data/lists-door.mjs",
+         "read-data/records-door.mjs",
+         "read-data/settled-write.mjs",
+         "read-data/whole-file.mjs",
+         "read-data/write-batches.mjs"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "package": "take-pictures-out-of-a-zip-archive",
+        "paths": [
+         "src/archive-entries.json",
+         "src/archive-entries.mjs"
+        ],
+        "at": "/opt/take-pictures-out-of-a-zip-archive"
+       },
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data/decide-with-a-method.json",
+         "read-data/decision-records.mjs"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/harnesses.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"file": "pull-bookmarks.json", "source": "x-bookmarks"}, "files": [{"grant": "read-a-folder", "path": "pull-bookmarks.json", "text": "{\"user_id\":\"1000000001\",\"bookmarks\":[{\"id\":\"2000000001\",\"text\":\"A sample saved post\",\"author_id\":\"1000000002\",\"created_at\":\"2026-09-02T16:50:26.000Z\"},{\"id\":\"2000000002\",\"text\":\"Another saved post\",\"author_id\":\"1000000003\",\"created_at\":\"2026-09-03T01:00:00.000Z\"}]}"}]}]
+   }
+  },
+  {
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composio-connection",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:save-what-you-watch-and-read",
+    "id": "tool:observe-something-i-watched-or-read",
+    "placements": [
+     "placement:small-container"
+    ],
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "label": "Observe something I watched or read",
+    "job": "Turn one thing a person watched, read, used or saved (a page they visited, words they selected, an app they spent a while in, a feed item) into one observation with a stable identity, so seeing the same thing again is recognised and a changed page is a new revision",
+    "description": "Give source_ref (what to call the source) and content (an object saying what was seen: url, text, title, app, window, whatever applies). Optional: native_ref (the item's own id; else its url, else the identity of its content), observed_at (ISO-8601 UTC; else now), metadata. Returns observation { id, source_ref, native_ref, observed_at, content_revision, payload } and said. A url adds its host and, where none was given, a title. content_revision is the BLAKE3 identity of the payload without the time, so the same words seen at another time are the same revision and the same id. Reads nothing and keeps nothing: hand the observation to whatever keeps the person's records.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "source_ref",
+      "content"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "source_ref": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What to call this source"
+      },
+      "content": {
+       "type": "object",
+       "minProperties": 1,
+       "description": "What was seen: url, text, title, app, window, and so on"
+      },
+      "native_ref": {
+       "type": "string",
+       "description": "The item's own id"
+      },
+      "observed_at": {
+       "type": "string",
+       "description": "When it was seen, ISO-8601 UTC; left out, now"
+      },
+      "metadata": {
+       "description": "Anything to keep with the observation"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "observation",
+      "said"
+     ],
+     "properties": {
+      "said": {
+       "type": "string"
+      },
+      "observation": {
+       "type": "object",
+       "required": [
+        "id",
+        "source_ref",
+        "native_ref",
+        "observed_at",
+        "content_revision",
+        "payload"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "stdout": "json",
+     "run": [
+      "python3",
+      "/opt/save-what-you-watch-and-read/read-data/observe_activity.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "conversations",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/conversations"
+       },
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "harness/account-key.json",
+         "harness/account-key.mjs",
+         "harness/hook-run-receipt.mjs",
+         "harness/record-every-message.mjs",
+         "harness/source-return-pending.mjs",
+         "src/claimed-time.json",
+         "src/claimed-time.mjs",
+         "src/harnesses.mjs",
+         "src/hybrid-clock.mjs",
+         "src/messages.mjs",
+         "src/reactions.json",
+         "src/responses.mjs",
+         "src/voice-sessions.mjs",
+         "src/waiting-on-you.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data/byte-pages.mjs",
+         "read-data/lists-door.mjs",
+         "read-data/records-door.mjs",
+         "read-data/settled-write.mjs",
+         "read-data/whole-file.mjs",
+         "read-data/write-batches.mjs"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "package": "take-pictures-out-of-a-zip-archive",
+        "paths": [
+         "src/archive-entries.json",
+         "src/archive-entries.mjs"
+        ],
+        "at": "/opt/take-pictures-out-of-a-zip-archive"
+       },
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data/decide-with-a-method.json",
+         "read-data/decision-records.mjs"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/harnesses.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       }
+      ]
+     }
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "source_ref": "source:pages",
+       "content": {
+        "url": "https://www.example.org/rye-bread",
+        "text": "Rye needs a long rise."
+       },
+       "observed_at": "2026-01-02T08:00:00Z"
+      },
+      "output_selector": "$.said",
+      "contains": "Observed https://www.example.org/rye-bread from source:pages"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composio-connection",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:save-what-you-watch-and-read",
+    "id": "tool:find-new-or-changed-files",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false
+    },
+    "label": "Find new or changed files",
+    "job": "Find the files under a folder the person chose that are new or have changed since the last look, matched by a pattern, without reading what they mean, so a folder of saved things can be followed",
+    "description": "Runs on the person's computer over the folder they granted it to read, and reads only inside it; a link that leads out of the folder is skipped and named in skipped, never followed. Give source_ref (what to call the source). glob is the pattern relative to the folder (default **/*); under narrows to a path inside it; account_prefix looks in each sub-folder whose name starts with it (under_account names a path inside each); include_kinds is file and/or directory. since is the next_since of the answer before: only entries whose state (modification time and size) changed are returned, so a re-run over an unchanged folder finds nothing. most (default 200, at most 5000) cuts newest first and more says there is more. with_hash true also gives each file its content identity (BLAKE3) up to hash_up_to_bytes. window (a number) instead returns the newest that-many files by name and size alone, opening no file. Returns observations { source_ref, native_ref (the path inside the folder), observed_at, state, content_hash, payload }, next_since, more and skipped. Writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "source_ref"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "source_ref": {
+       "type": "string",
+       "minLength": 1,
+       "description": "What to call this source"
+      },
+      "glob": {
+       "type": "string",
+       "description": "A pattern inside the folder, like **/*.jsonl"
+      },
+      "under": {
+       "type": "string",
+       "description": "A path inside the folder to look in"
+      },
+      "account_prefix": {
+       "type": "string",
+       "description": "Look in each sub-folder whose name starts with this"
+      },
+      "under_account": {
+       "type": "string",
+       "description": "A path inside each account folder"
+      },
+      "include_kinds": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "enum": [
+         "file",
+         "directory"
+        ]
+       }
+      },
+      "since": {
+       "type": "object",
+       "description": "The next_since of the answer before"
+      },
+      "most": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 5000
+      },
+      "with_hash": {
+       "type": "boolean"
+      },
+      "hash_up_to_bytes": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "window": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 5000
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "source_ref",
+      "observations",
+      "more",
+      "skipped"
+     ],
+     "properties": {
+      "source_ref": {
+       "type": "string"
+      },
+      "observations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "source_ref",
+         "native_ref",
+         "observed_at",
+         "state",
+         "payload"
+        ]
+       }
+      },
+      "next_since": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "more": {
+       "type": "boolean"
+      },
+      "skipped": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer",
+     "capabilities": [
+      "read-a-folder"
+     ],
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "stdout": "json",
+     "run": [
+      "python3",
+      "/opt/save-what-you-watch-and-read/read-data/observe_files.py",
+      {
+       "fill": {
+        "from": "task",
+        "field": "grants.read-a-folder.folder"
+       }
+      }
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "conversations",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/conversations"
+       },
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "harness/account-key.json",
+         "harness/account-key.mjs",
+         "harness/hook-run-receipt.mjs",
+         "harness/record-every-message.mjs",
+         "harness/source-return-pending.mjs",
+         "src/claimed-time.json",
+         "src/claimed-time.mjs",
+         "src/harnesses.mjs",
+         "src/hybrid-clock.mjs",
+         "src/messages.mjs",
+         "src/reactions.json",
+         "src/responses.mjs",
+         "src/voice-sessions.mjs",
+         "src/waiting-on-you.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data/byte-pages.mjs",
+         "read-data/lists-door.mjs",
+         "read-data/records-door.mjs",
+         "read-data/settled-write.mjs",
+         "read-data/whole-file.mjs",
+         "read-data/write-batches.mjs"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "package": "take-pictures-out-of-a-zip-archive",
+        "paths": [
+         "src/archive-entries.json",
+         "src/archive-entries.mjs"
+        ],
+        "at": "/opt/take-pictures-out-of-a-zip-archive"
+       },
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data/decide-with-a-method.json",
+         "read-data/decision-records.mjs"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/harnesses.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "verify": [{"kind": "sample-run", "input": {"source_ref": "source:sample-files"}}]
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::tool::find-my-x-account",
+   "address": "package::ai-tool-catalog::tool::find-my-x-account",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composio-connection",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/copy-a-site",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:find-my-x-account",
+    "label": "Find which X account the person's connection holds",
+    "job": "Find the X account id the person's connected X account holds, so a listening source knows whose posts it reads",
+    "description": "Asks X who the connected token belongs to (users/me) and answers the account's id, username and name. Reads only. The bookmark and like listeners keep this id as their route key, so they start only when it is known.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "account"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "account": {
+       "type": "string",
+       "description": "Which of the person's X connections to ask, by its id (service_connection:x, or service_connection:x:<account>)."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "data"
+     ],
+     "properties": {
+      "data": {
+       "type": "object",
+       "required": [
+        "id"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "username": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "name": {
+         "type": [
+          "string",
+          "null"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "refresh": {
+      "token_url": "https://api.x.com/2/oauth2/token",
+      "asked": {
+       "method": "POST",
+       "grant_type": "refresh_token",
+       "token_param": "refresh_token"
+      },
+      "client_auth": "basic",
+      "client": {
+       "id": {
+        "name": "x-sign-in-client-id"
+       },
+       "secret": {
+        "name": "x-sign-in-client-secret"
+       }
+      },
+      "access_field": "access_token",
+      "token_paths": [
+       [
+        "access_token"
+       ]
+      ],
+      "expires_path": [
+       "expires_in"
+      ],
+      "refresh": {
+       "field": "refresh_token",
+       "token_paths": [
+        [
+         "refresh_token"
+        ]
+       ]
+      },
+      "when_expiry_unknown": true
+     },
+     "kind": "container",
+     "may_reach": [],
+     "workdir": "/opt/save-what-you-watch-and-read",
+     "stdout": "json",
+     "run": [
+      "node",
+      "/opt/save-what-you-watch-and-read/do-work/find-my-x-account.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "connection": {
+      "vendor": "x",
+      "from_input": "account"
+     },
+     "key": [
+      {
+       "field_id": "access_token",
+       "fd": 3
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": true
+    },
+    "maker": "maker:save-what-you-watch-and-read",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "verify": [],
+    "listed_on": null
+   }
+  },
+  {
+    "id": "package::ai-tool-catalog::tool::save-x-bookmarks",
+    "address": "package::ai-tool-catalog::tool::save-x-bookmarks",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composio-connection",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:save-x-bookmarks",
+      "label": "Save your X bookmarks to your files",
+      "job": "Keep the posts the person bookmarked on X in their files, newest first, so their AI can use them",
+      "description": "Reads the posts the person bookmarked on X, through the person's X account that Composio holds: Composio's X bookmarks action, run as the person. No X token is kept in the vault for this. It keeps them as one file in their files. Give since (the newest key the last read answered) to read only the new ones; the answer says how many were read, how many are not kept yet, the newest key and the file's name. It reads only: nothing is posted, liked or changed on X.",
+      "status": "active",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "connection"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "connection": {
+            "type": "object",
+            "required": [
+              "connection_id",
+              "user_id",
+              "project_id"
+            ],
+            "additionalProperties": false,
+            "description": "The person's X account in Composio: its account id, the user id that owns it, and the project its key lists (tool:list-my-connected-accounts names all three).",
+            "properties": {
+              "connection_id": {
+                "type": "string",
+                "description": "The Composio account id, as the connection list names it (for example ca_...)."
+              },
+              "user_id": {
+                "type": "string",
+                "description": "The Composio user id that owns the account."
+              },
+              "project_id": {
+                "type": "string",
+                "description": "The Composio project (pr_...) the account is in."
+              }
+            }
+          },
+          "since": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The newest key the last read answered; posts above it are the new ones."
+          },
+          "already_kept": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Keys of posts the person already has; the read stops once several pages hold only those."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "which",
+          "read",
+          "total",
+          "newest",
+          "file"
+        ],
+        "properties": {
+          "which": {
+            "type": "string"
+          },
+          "read": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "not_kept_yet": {
+            "type": "integer"
+          },
+          "newest": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file": {
+            "type": "string"
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "may_reach": [],
+        "workdir": "/opt/save-what-you-watch-and-read",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/save-what-you-watch-and-read/do-work/save-x-posts.mjs",
+          "--which",
+          "bookmarks",
+          "--out",
+          "/opt/save-what-you-watch-and-read/saved"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        },
+        "outputs": [
+          {
+            "name": "saved",
+            "folder": "/opt/save-what-you-watch-and-read/saved",
+            "keep_in": "files",
+            "media_type": "application/json",
+            "max_bytes": 50000000
+          }
+        ],
+        "files": {
+          "package_files": [
+            {
+              "package": "save-what-you-watch-and-read",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/save-what-you-watch-and-read"
+            },
+            {
+              "package": "headless-browser",
+              "paths": [
+                "quiet-switches.json"
+              ],
+              "at": "/opt/headless-browser"
+            },
+            {
+              "package": "composio-connection",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/composio-connection"
+            }
+          ]
+        },
+        "connection": null,
+        "key": [
+          {
+            "secret_name": "composio-api-key",
+            "fd": 4
+          }
+        ]
+      },
+      "needs": {
+        "expected_seconds": 60,
+        "network_egress": true
+      },
+      "maker": "maker:save-what-you-watch-and-read",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "which": "bookmarks",
+            "connection": {
+              "connection_id": "ca_sample",
+              "user_id": "sample-owner",
+              "project_id": "pr_sample"
+            }
+          },
+          "replies": [
+            {
+              "request": {
+                "method": "POST",
+                "url": "https://backend.composio.dev/api/v3/tools/execute/TWITTER_BOOKMARKS_BY_USER"
+              },
+              "status": 200,
+              "body": {
+                "successful": true,
+                "data": {
+                  "data": {
+                    "data": [
+                      {
+                        "id": "2000000001",
+                        "text": "A sample post https://t.co/aaa",
+                        "author_id": "1000000001",
+                        "created_at": "2026-09-02T16:50:26.000Z",
+                        "entities": {
+                          "urls": [
+                            {
+                              "url": "https://t.co/aaa",
+                              "expanded_url": "https://example.org/sample-repo"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "includes": {
+                      "users": [
+                        {
+                          "id": "1000000001",
+                          "name": "Sample Maker",
+                          "username": "sample_maker"
+                        }
+                      ]
+                    },
+                    "meta": {
+                      "result_count": 1
+                    }
+                  }
+                }
+              }
+            }
+          ],
+          "shape_read_at": "2026-11-20"
+        }
+      ]
+    }
+  },
+  {
+    "id": "package::ai-tool-catalog::tool::save-x-likes",
+    "address": "package::ai-tool-catalog::tool::save-x-likes",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "uses_tools": [
+        "trillion-workshop/account-dashboard",
+        "trillion-workshop/account-session",
+        "trillion-workshop/addressed-marks",
+        "trillion-workshop/agents-hub",
+        "trillion-workshop/ai-execution-history",
+        "trillion-workshop/ai-guided-work",
+        "trillion-workshop/ai-memory",
+        "trillion-workshop/ai-records-producer",
+        "trillion-workshop/ai-tool-catalog",
+        "trillion-workshop/ambience",
+        "trillion-workshop/arrange-screens-in-panes",
+        "trillion-workshop/ask-a-small-model-for-a-verdict",
+        "trillion-workshop/audio-transcription",
+        "trillion-workshop/away-summary",
+        "trillion-workshop/background-runner-control",
+        "trillion-workshop/bring-in-new-items-from-this-computer",
+        "trillion-workshop/browse-and-upload-my-files",
+        "trillion-workshop/browse-inspiration-clips",
+        "trillion-workshop/browse-public-page",
+        "trillion-workshop/build-a-screen-from-patches",
+        "trillion-workshop/build-engine-modules-for-web-hosts",
+        "trillion-workshop/calibrate-a-camera-frame",
+        "trillion-workshop/chat",
+        "trillion-workshop/check-a-packages-declared-permissions",
+        "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+        "trillion-workshop/check-bundle-package-boundaries",
+        "trillion-workshop/check-consent-to-an-introduction",
+        "trillion-workshop/choose-and-publish-screen-looks",
+        "trillion-workshop/command-palette",
+        "trillion-workshop/composio-connection",
+        "trillion-workshop/composition-scene-renderer",
+        "trillion-workshop/computer-programs",
+        "trillion-workshop/connect-a-service-and-seal-its-key",
+        "trillion-workshop/content-identity",
+        "trillion-workshop/content-media-evidence",
+        "trillion-workshop/conversations",
+        "trillion-workshop/copy-a-site",
+        "trillion-workshop/decide-when-things-show",
+        "trillion-workshop/decide-with-a-method",
+        "trillion-workshop/delight-moments",
+        "trillion-workshop/describe-the-workshop",
+        "trillion-workshop/documents",
+        "trillion-workshop/documents-as-list-rows",
+        "trillion-workshop/draw-lists-on-a-canvas",
+        "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+        "trillion-workshop/drive-the-screen",
+        "trillion-workshop/edit-a-document-together",
+        "trillion-workshop/edit-a-site-visually",
+        "trillion-workshop/feel",
+        "trillion-workshop/file-content-renderer",
+        "trillion-workshop/fill-a-list-from-a-feed",
+        "trillion-workshop/find-anything-from-one-box",
+        "trillion-workshop/formula-engine",
+        "trillion-workshop/founder-growth-engine-screens",
+        "trillion-workshop/funnel-offer-graph",
+        "trillion-workshop/funnels-screen",
+        "trillion-workshop/graph-canvas",
+        "trillion-workshop/guided-overlay",
+        "trillion-workshop/hand-off-jobs-between-agents",
+        "trillion-workshop/hand-work-to-ais",
+        "trillion-workshop/headless-browser",
+        "trillion-workshop/hold-one-thing-until-done",
+        "trillion-workshop/http-client",
+        "trillion-workshop/introduce-two-people",
+        "trillion-workshop/judge-words",
+        "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+        "trillion-workshop/keep-copies-in-step",
+        "trillion-workshop/keep-lists-of-rows",
+        "trillion-workshop/keep-records-only-my-devices-can-read",
+        "trillion-workshop/know-the-projects-on-this-computer",
+        "trillion-workshop/know-who-is-in-this",
+        "trillion-workshop/learn-a-workflow-from-a-job",
+        "trillion-workshop/learn-from-everyones-results",
+        "trillion-workshop/leave-a-makers-private-starting-values-out",
+        "trillion-workshop/lessons-and-learning-paths",
+        "trillion-workshop/let-someone-look-at-my-account-read",
+        "trillion-workshop/list-tools-for-an-ai",
+        "trillion-workshop/listen-for-a-while",
+        "trillion-workshop/live-namespace",
+        "trillion-workshop/local-files",
+        "trillion-workshop/look-at-screen",
+        "trillion-workshop/make-a-video-playable-at-ingest",
+        "trillion-workshop/make-screen-layouts-and-controls",
+        "trillion-workshop/make-things-feel-good",
+        "trillion-workshop/marketplace-defaults",
+        "trillion-workshop/media-composition",
+        "trillion-workshop/media-identity",
+        "trillion-workshop/media-playback",
+        "trillion-workshop/messages-screen",
+        "trillion-workshop/model-response",
+        "trillion-workshop/models-on-this-computer",
+        "trillion-workshop/move-records-through-declared-states",
+        "trillion-workshop/native-space-source-release",
+        "trillion-workshop/network-people",
+        "trillion-workshop/operation-records",
+        "trillion-workshop/organize-my-files",
+        "trillion-workshop/organize-the-sidebar",
+        "trillion-workshop/outside-conversations",
+        "trillion-workshop/paid-access",
+        "trillion-workshop/pair-unknown-senders",
+        "trillion-workshop/permission-lease",
+        "trillion-workshop/person-list",
+        "trillion-workshop/pick-a-screen-as-you-type",
+        "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+        "trillion-workshop/pin-files-by-content",
+        "trillion-workshop/plan-tasks-and-todo-lists",
+        "trillion-workshop/process-session",
+        "trillion-workshop/query-and-change-list-rows",
+        "trillion-workshop/quote-untrusted-words",
+        "trillion-workshop/read-and-write-mail",
+        "trillion-workshop/recently-deleted-and-storage",
+        "trillion-workshop/record-audio",
+        "trillion-workshop/record-graph",
+        "trillion-workshop/record-log",
+        "trillion-workshop/record-video",
+        "trillion-workshop/record-video-with-teleprompter",
+        "trillion-workshop/record-voice-and-meetings",
+        "trillion-workshop/records-door",
+        "trillion-workshop/refuse-requests-to-private-addresses",
+        "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+        "trillion-workshop/review-what-a-list-says",
+        "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+        "trillion-workshop/run-experiments",
+        "trillion-workshop/run-on-a-persons-computer",
+        "trillion-workshop/run-sql-in-my-database",
+        "trillion-workshop/run-tools-in-my-signed-in-browser",
+        "trillion-workshop/run-work-later-or-on-a-repeat",
+        "trillion-workshop/screen-arrangement",
+        "trillion-workshop/screen-look",
+        "trillion-workshop/screen-looks",
+        "trillion-workshop/screen-ready-records",
+        "trillion-workshop/screen-recording",
+        "trillion-workshop/sealed-records",
+        "trillion-workshop/see-a-pursuit-through-the-lens",
+        "trillion-workshop/see-what-is-being-worked-on",
+        "trillion-workshop/see-what-my-ais-did",
+        "trillion-workshop/selected-agent",
+        "trillion-workshop/send-requests-to-an-engine",
+        "trillion-workshop/send-to-trillion-from-my-browser",
+        "trillion-workshop/serialized-content",
+        "trillion-workshop/set-storage-release-rules",
+        "trillion-workshop/set-up-my-account",
+        "trillion-workshop/set-up-my-devices-and-cameras",
+        "trillion-workshop/settings",
+        "trillion-workshop/settle-amounts-and-reconcile",
+        "trillion-workshop/shared-code",
+        "trillion-workshop/show-any-file-as-itself",
+        "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+        "trillion-workshop/show-ideas-as-records",
+        "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+        "trillion-workshop/sidebar",
+        "trillion-workshop/slot-table",
+        "trillion-workshop/social-posts",
+        "trillion-workshop/start-from-any-landing-page",
+        "trillion-workshop/starting-set",
+        "trillion-workshop/stream-an-answer-in-keyed-parts",
+        "trillion-workshop/take-pictures-out-of-a-zip-archive",
+        "trillion-workshop/tell-one-person-something-through-every-way-they",
+        "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+        "trillion-workshop/tours-screen",
+        "trillion-workshop/transcript-reader",
+        "trillion-workshop/turn-a-list-column-that-holds-names-into",
+        "trillion-workshop/turn-frames-into-slides",
+        "trillion-workshop/tweak-live-controls",
+        "trillion-workshop/ui",
+        "trillion-workshop/view-as",
+        "trillion-workshop/walk-a-new-person-through-first-setup",
+        "trillion-workshop/walk-nested-input-within-limits",
+        "trillion-workshop/watch-my-sources",
+        "trillion-workshop/what-is-waiting-on-me",
+        "trillion-workshop/where-a-person-stands",
+        "trillion-workshop/who-does-each-step",
+        "trillion-workshop/work-map",
+        "trillion-workshop/workflow-canvas",
+        "trillion-workshop/workflow-interruptions",
+        "trillion-workshop/workflows",
+        "trillion-workshop/workspace-pieces",
+        "trillion-workshop/workspace-screens",
+        "trillion-workshop/write-a-job-done-in-several-steps-have",
+        "trillion-workshop/write-a-post-for-each-place"
+      ],
+      "kind": "ai-tool-descriptor",
+      "id": "tool:save-x-likes",
+      "label": "Save the posts you liked on X to your files",
+      "job": "Keep the posts the person liked on X in their files, newest first, so their AI can use them",
+      "description": "Reads the posts the person liked on their connected X account through X's API (the reader in save-what-you-watch-and-read) and keeps them as one file in their files. Give since (the newest key the last read answered) to read only the new ones; the answer says how many were read, how many are not kept yet, the newest key and the file's name. It reads only: nothing is posted, liked or changed on X.",
+      "status": "active",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "account"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "Which of the person's X connections to read with, by its id (service_connection:x, or service_connection:x:<account>)."
+          },
+          "since": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The newest key the last read answered; posts above it are the new ones."
+          },
+          "already_kept": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Keys of posts the person already has; the read stops once several pages hold only those."
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "which",
+          "read",
+          "total",
+          "newest",
+          "file"
+        ],
+        "properties": {
+          "which": {
+            "type": "string"
+          },
+          "read": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          },
+          "not_kept_yet": {
+            "type": "integer"
+          },
+          "newest": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "file": {
+            "type": "string"
+          }
+        }
+      },
+      "invoke": {
+        "refresh": {
+          "token_url": "https://api.x.com/2/oauth2/token",
+          "asked": {
+            "method": "POST",
+            "grant_type": "refresh_token",
+            "token_param": "refresh_token"
+          },
+          "client_auth": "basic",
+          "client": {
+            "id": {
+              "name": "x-sign-in-client-id"
+            },
+            "secret": {
+              "name": "x-sign-in-client-secret"
+            }
+          },
+          "access_field": "access_token",
+          "token_paths": [
+            [
+              "access_token"
+            ]
+          ],
+          "expires_path": [
+            "expires_in"
+          ],
+          "refresh": {
+            "field": "refresh_token",
+            "token_paths": [
+              [
+                "refresh_token"
+              ]
+            ]
+          },
+          "when_expiry_unknown": true
+        },
+        "kind": "container",
+        "may_reach": [],
+        "workdir": "/opt/save-what-you-watch-and-read",
+        "stdout": "json",
+        "run": [
+          "node",
+          "/opt/save-what-you-watch-and-read/do-work/save-x-posts.mjs",
+          "--which",
+          "likes",
+          "--out",
+          "/opt/save-what-you-watch-and-read/saved"
+        ],
+        "stdin": {
+          "fill": {
+            "from": "input"
+          }
+        },
+        "outputs": [
+          {
+            "name": "saved",
+            "folder": "/opt/save-what-you-watch-and-read/saved",
+            "keep_in": "files",
+            "media_type": "application/json",
+            "max_bytes": 50000000
+          }
+        ],
+        "files": {
+          "package_files": [
+            {
+              "package": "save-what-you-watch-and-read",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/save-what-you-watch-and-read"
+            },
+            {
+              "package": "headless-browser",
+              "paths": [
+                "quiet-switches.json"
+              ],
+              "at": "/opt/headless-browser"
+            }
+          ]
+        },
+        "connection": {
+          "vendor": "x",
+          "from_input": "account"
+        },
+        "key": [
+          {
+            "field_id": "access_token",
+            "fd": 3
+          }
+        ]
+      },
+      "needs": {
+        "expected_seconds": 60,
+        "network_egress": true
+      },
+      "maker": "maker:save-what-you-watch-and-read",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "verify": []
+    }
+  }
+ ]
+}

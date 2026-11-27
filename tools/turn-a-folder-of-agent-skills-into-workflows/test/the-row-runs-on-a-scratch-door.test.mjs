@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 const SECRET = ['sk', 'live', 'y'.repeat(24)].join('_');
 const file = (path, text) => ({ id: `record:agent-skill:scratch~${path}`, type: 'record:agent-skill', value: { 'file.path': path, 'file.folder': path.slice(0, path.lastIndexOf('/')), 'file.ext': path.split('.').pop(), 'document.text': text } });
 const skill = (name, description, body) => `---\nname: ${name}\ndescription: ${description}\n---\n${body}\n`;

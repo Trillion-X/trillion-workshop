@@ -14,7 +14,7 @@ import { measureMotion, stillLevelOf } from '../read-data/measure-motion.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const command = join(folder, 'do-work', 'check-motion.mjs');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const work = tempFolder(join(tmpdir(), 'check-motion-'));
 const node = (...argv) => spawnSync('node', [command, ...argv], { encoding: 'utf8' });
 const lastLine = run => JSON.parse(run.stdout.trim().split('\n').pop());

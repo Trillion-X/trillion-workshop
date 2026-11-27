@@ -3,7 +3,7 @@
 //
 // Purpose
 //   The taker (take-open-work.mjs) as a tool run this computer's engine keeps: tool:take-given-tasks-on-this-computer and
-//   its kept-running wake keep-taking-given-tasks (tool-rows.json). The engine starts it when the person switches the wake
+//   its kept-running wake keep-taking-given-tasks (what-this-tool-does-and-how-to-run-it.json). The engine starts it when the person switches the wake
 //   on, starts it again when it crashes or the engine restarts, and stops it when the wake is switched off, so the tasks
 //   given to this computer's taker are taken with no launchd job, login item, terminal or hand-started process.
 //     node harness/take-open-work-in-a-run.mjs --home <kept folder> --program <granted AI program> --work <granted folder>
@@ -11,7 +11,7 @@
 //   (the row fills them from the run's task). Standard input is the run's input; its `settings` are this computer's
 //   take-open-work.computer.json values (computer_name, chosen_ai, tasks_store, account, ais, working_folder ...), where
 //   the text {granted_program}, {granted_work} and {kept_home} stands for the three values above. Its `logins` ([{name}])
-//   are the vault values the engine mounted for the run, element i on descriptor 5 + i (the row's credential_mounts): the
+//   are the vault values the engine mounted for the run, element i on descriptor 5 + i (the row's key): the
 //   logins the settings' `ai_auth` pools, one taken per AI run (ai-auth.mjs), each resting on its own when it reaches its limit.
 //
 // How it works
@@ -39,7 +39,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const HOLES = { granted_program: '--program', granted_work: '--work', kept_home: '--home' };
-/** The descriptor the first mounted login is on (the row's credential_mounts `logins[].name`, fd 5). */
+/** The descriptor the first mounted login is on (the row's key `logins[].name`, fd 5). */
 export const FIRST_LOGIN_FD = 5;
 const takerData = JSON.parse(readFileSync(new URL('./take-open-work.json', import.meta.url), 'utf8'));
 

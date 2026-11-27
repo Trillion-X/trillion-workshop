@@ -1,11 +1,11 @@
 import { realpathSync } from 'node:fs';
 // tools/email-sending-domains/do-work/list-resend-webhooks.mjs
 //
-// The container tool `tool:list-resend-webhooks` (tool-rows.json): which addresses the person's email-sending account
+// The container tool `tool:list-resend-webhooks` (what-this-tool-does-and-how-to-run-it.json): which addresses the person's email-sending account
 // (Resend) sends its email events to, each one's state and the events it asks for. It only reads; it changes no webhook.
 //
 // The account key is never in the request, argv, a file or the environment: the engine hands the person's own held key to
-// this one process on a private pipe, descriptor 3 (the row's invoke.credential_mounts { fd: 3 }), and the pipe ends after
+// this one process on a private pipe, descriptor 3 (the row's invoke.key { fd: 3 }), and the pipe ends after
 // the key. This command reads it, asks the provider's webhook list once, and answers each webhook's id, address, state and
 // events and the count only: never the key, a header, a webhook's signing secret or the provider's raw reply (the list
 // gives no secret; only one webhook's own read does, and this tool never makes that read).

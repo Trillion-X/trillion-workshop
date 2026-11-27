@@ -15,7 +15,7 @@ import path from 'node:path';
 import test from 'node:test';
 import { say, sayHere, speakSettings, voiceOrder, voices, personFromRows } from '../read-data/speak.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import toolRows from '../tool-rows.json' with { type: 'json' };
+import toolRows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const folder = tempFolder(path.join(os.tmpdir(), 'speak-test-'));
 test.after(() => rmSync(folder, { recursive: true, force: true }));

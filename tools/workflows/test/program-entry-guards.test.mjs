@@ -1,4 +1,4 @@
-// Every program a tool row starts (invoke.argv) must test whether it is the entry point with the one idiom: the real path of
+// Every program a tool row starts (invoke.run) must test whether it is the entry point with the one idiom: the real path of
 // argv[1] against the real path of the module. A guard that compares a file URL built from a raw path, or the raw argv
 // with the module URL, misses on a symlinked folder or a path with a space, and the program then exits 0 having done
 // nothing. This test keeps that from coming back.
@@ -24,7 +24,7 @@ function toolRowFiles(dir = join(root, 'tools')) {
   for (const name of readdirSync(dir)) {
     const path = join(dir, name);
     if (statSync(path).isDirectory()) found.push(...toolRowFiles(path));
-    else if (name === 'tool-rows.json') found.push(path);
+    else if (name === 'what-this-tool-does-and-how-to-run-it.json') found.push(path);
   }
   return found;
 }
@@ -46,14 +46,14 @@ function resolveProgram(program, rowFile) {
   return committed().has(relPath) && existsSync(join(root, relPath)) ? relPath : null;
 }
 
-// The programs the tool rows start: the .mjs or .js entry of each invoke.argv, resolved to a committed file of this checkout.
+// The programs the tool rows start: the .mjs or .js entry of each invoke.run, resolved to a committed file of this checkout.
 function rowPrograms() {
   const programs = new Set();
   const visit = (node, file) => {
     if (Array.isArray(node)) return node.forEach(child => visit(child, file));
     if (!node || typeof node !== 'object') return;
-    if (node.invoke && Array.isArray(node.invoke.argv)) {
-      const program = node.invoke.argv.find(arg => /\.(mjs|js)$/.test(arg));
+    if (node.invoke && Array.isArray(node.invoke.run)) {
+      const program = node.invoke.run.find(arg => /\.(mjs|js)$/.test(arg));
       if (program) {
         const path = resolveProgram(program, file);
         if (path && existsSync(join(root, path))) programs.add(path);

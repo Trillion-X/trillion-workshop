@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { dictate, typeDictatedText } from '../read-data/dictation.mjs';
 
-const rows = Object.fromEntries(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => [record.payload.id, record.payload]));
+const rows = Object.fromEntries(JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => [record.payload.id, record.payload]));
 
 test('dictate holds only the granted folder; typing at the cursor also names the capability it needs', () => {
   assert.deepEqual(rows['tool:dictate'].invoke.capabilities, ['change-a-folder']);
@@ -62,7 +62,7 @@ test('polish is handed this computer\'s model: the dictate row asks the dictatio
 
 test('the dictation rows run the workflows function runner and mount no records door', () => {
   for (const row of [rows['tool:dictate'], rows['tool:type-dictated-text']]) {
-    assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+    assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
     assert.ok(row.invoke.files.package_files.some(spec => spec.package === 'workflows' && spec.paths.includes('do-work/run-a-function.mjs') && spec.at === '/opt/workflows'));
     assert.ok(!row.invoke.files.package_files.some(spec => spec.package === 'records-door'));
   }

@@ -81,7 +81,7 @@ test('CLI returns JSON and nonzero for gaps and malformed input',()=>{
  const r=spawnSync(process.execPath,[cli.pathname],{input:JSON.stringify(fixture()),encoding:'utf8'});assert.equal(r.status,0);assert.equal(JSON.parse(r.stdout).with_step,1);
 });
 test('descriptor runs with its declared packaged dependencies only',async()=>{
- const file=JSON.parse(readFileSync(new URL('../tool-rows.json',import.meta.url),'utf8'));
+ const file=JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json',import.meta.url),'utf8'));
  const row=rowOf(file,'tool:measure-source-coverage');
  const result=await runRow(row,fixture());
  assert.equal(result.cannot,undefined);assert.equal(result.code,0,JSON.stringify(result));

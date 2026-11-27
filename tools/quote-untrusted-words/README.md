@@ -9,7 +9,7 @@ The one way another party's words are quoted into a turn an AI reads. Mail, impo
 | `read-data/untrusted-text.mjs` | `quoteUntrusted(text, { max? })`. Moved byte for byte from Trillion-X/trillion `src/untrusted-text.mjs`. |
 | `read-data/untrusted-text.json` | The steps as data: normal form, the stripped categories (`Cc`, `Cf`) and the kept characters, the escape rows, the ellipsis and the default limit (8000 code points). Moved byte for byte. |
 | `read-data/quote-tools.mjs` | The row's function `quoteForTurn`: `{ text, max? }` in, `{ quoted, code_points }` out. |
-| `tool-rows.json` | `tool:quote-untrusted-words`, a container row run by `tools/workflows`'s `run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:quote-untrusted-words`, a container row run by `tools/workflows`'s `run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/untrusted-text.test.mjs` | Trillion's test of the quote with its assertions unchanged, and the row run as the container runs it. |
 
@@ -28,4 +28,4 @@ Trillion-X/trillion `src/untrusted-text.mjs` and `src/untrusted-text.json`, with
 
 **Depends on:** `tools/workflows` (`run-a-function.mjs`), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. In Trillion-X/trillion, `src/quoted-words.mjs` and `src/inbound.mjs` still import their own copy.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. In Trillion-X/trillion, `src/quoted-words.mjs` and `src/inbound.mjs` still import their own copy.

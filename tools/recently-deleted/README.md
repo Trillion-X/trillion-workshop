@@ -18,7 +18,7 @@ Setting the days, deleting, archiving and putting back also arm the account's al
 |------|---------|
 | `read-data/keep-for.mjs` | `readKeepFor` (takes `keep_for` as input), run by `tools/records-door/do-work/run-an-export.mjs`. |
 | `read-data/set-aside.json` | The two states and the usual numbers of days. |
-| `tool-rows.json` | The row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. |
 | `test/keep-for.test.mjs` | Defaults, a person's own choice, and a right on one record. |
 
 ## Dependencies

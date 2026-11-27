@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/copy-a-file-into-a-storage-place/tool-rows.json, do-work/copy-a-file-into-a-storage-place.mjs and test/copy-a-file-into-a-storage-place.test.mjs",
+  "drafted_from": "tool row in tools/copy-a-file-into-a-storage-place/what-this-tool-does-and-how-to-run-it.json, do-work/copy-a-file-into-a-storage-place.mjs and test/copy-a-file-into-a-storage-place.test.mjs",
   "start_here": "Say to your AI: \"Copy /Shared/clips/clip-1080p.mp4 into the Google Drive folder 1AbCdEfGh my friend shared with me.\" It shares the file to itself for an hour, runs tool:copy-a-file-into-a-storage-place with that link, and hands back the new file's id, or says plainly that you may not add files to that folder.",
   "lists": [],
   "no_lists_because": "It keeps no list: it copies one file and answers what the storage place made.",

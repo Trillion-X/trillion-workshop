@@ -30,9 +30,9 @@
           }
         }
       },
-      "given": "From test/list-email-sending-domains.test.mjs (the id shape) and tools/email-sending-domains/tool-rows.json: the row POSTs https://api.resend.com/domains/4dd369bc-aa82-4ff3-97de-514ae3000ee0/verify with no body and returns Resend's reply unchanged; its output_schema names only id.",
+      "given": "From test/list-email-sending-domains.test.mjs (the id shape) and tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: the row POSTs https://api.resend.com/domains/4dd369bc-aa82-4ff3-97de-514ae3000ee0/verify with no body and returns Resend's reply unchanged; its output_schema names only id.",
       "hands_back": "{\"id\":\"4dd369bc-aa82-4ff3-97de-514ae3000ee0\"}, then tool:read-an-email-sending-domain shows the new status."
     }
   ],
-  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
+  "drafted_from": "tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json (its row), test/list-email-sending-domains.test.mjs"
 }

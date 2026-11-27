@@ -11,7 +11,7 @@ A person's AI composes this with other tools: it scores the observer for each ch
 | `read-data/challenges.mjs` | `validateChallengeDefinition`, `enrollmentAddress`, `buildEnrollment`, `decideEnrollments`: pure, no clock, no I/O, no scoring. |
 | `do-work/requests.mjs` | `checkChallengeDefinitions`, `enrollInChallenges`: the two functions the rows run; a request that cannot run throws a sentence saying what to fix. |
 | `do-work/run-request.mjs` | The command the rows run: `node do-work/run-request.mjs <function>`, the request as JSON on standard input, `{ result }` or `{ error }` on the last line. |
-| `tool-rows.json` | The two rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two rows. |
 | `part.json` | No public files: only the container runs this code. |
 | `test/` | `challenges.test.mjs` (the logic), `rows.test.mjs` (each row's sample run as the container runs it, and the refusals). |
 
@@ -42,4 +42,4 @@ A person's AI composes this with other tools: it scores the observer for each ch
 
 **Depends on:** Node 24 in the tool container; nothing else.
 
-**Depended on by:** Trillion's deploy (it reads `tool-rows.json` and bundles the files a row names).
+**Depended on by:** Trillion's deploy (it reads `what-this-tool-does-and-how-to-run-it.json` and bundles the files a row names).

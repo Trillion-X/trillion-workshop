@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/reply-by-keyword-rule/tool-rows.json (tool:send-a-reply-on-instagram), do-work/send-a-reply.mjs, read-data/reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture with a stand-in network",
+  "drafted_from": "tools/reply-by-keyword-rule/what-this-tool-does-and-how-to-run-it.json (tool:send-a-reply-on-instagram), do-work/send-a-reply.mjs, read-data/reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture with a stand-in network",
   "start_here": "Say to your AI: \"Send the Instagram reply that tool:decide-the-replies chose for the message that asked the price from my Instagram account.\" It runs tool:send-a-reply-on-instagram with account_id and that one decision and tells you whether it was sent.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes one decision and the reply-kept rows you hold, and answers the reply-kept row for your AI to keep, so a reply is sent once.",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:answer-the-calendar-page-route row in tool-rows.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read from the person's own store; the example answer was produced by running answerTheCalendarRoute against the test's in-memory rows",
+  "drafted_from": "tool:answer-the-calendar-page-route row in what-this-tool-does-and-how-to-run-it.json, src/calendar-route.mjs, src/native-calendar-owner.mjs and test/calendar-route.test.mjs; list:calendar-tasks read from the person's own store; the example answer was produced by running answerTheCalendarRoute against the test's in-memory rows",
   "start_here": "Say to your AI: \"Show me my calendar tasks and the tasks waiting for my review.\" It reads the calendar rows from your own store, then calls the calendar page route twice, a GET to /calendar/tasks and a GET to /calendar/task-proposals, with those rows handed in as records.",
   "workflows": [
     "workflow:keep-my-calendar-tasks-and-proposals"

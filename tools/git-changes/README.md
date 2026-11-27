@@ -8,7 +8,7 @@ See and commit the changes in a project folder on the person's own computer: whi
 |------|---------|
 | `read-data/git-changes.mjs` | `seeChangesInAProject`, `seeAFilesChange`, `stageChanges`, `unstageChanges` and `commitChanges`, run by `tools/workflows`' `do-work/run-a-function.mjs`. Also `renderArgv` (a command template as its argument list), `parsePorcelain` and `parseBranchHeader` (the reading of `git status --porcelain --branch`) and `startGit`. Ported from the old git-worktree package's two process scripts. |
 | `read-data/git-commands.json` | DATA: the five git commands as templates, the settings every command starts with (`GIT_TERMINAL_PROMPT=0`, `GIT_OPTIONAL_LOCKS=0`, `LC_ALL=C`), the time limit and the most output returned. |
-| `tool-rows.json` | `tool:see-changes-in-a-project`, `tool:see-a-files-change`, `tool:stage-changes`, `tool:unstage-changes` and `tool:commit-changes`. All `computer` rows with `capabilities: ["use-git-in-a-folder"]`; each takes `folder`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:see-changes-in-a-project`, `tool:see-a-files-change`, `tool:stage-changes`, `tool:unstage-changes` and `tool:commit-changes`. All `computer` rows with `capabilities: ["use-git-in-a-folder"]`; each takes `folder`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/git-changes.test.mjs` | Templates, the reading of status lines, all five tools against a real git in a throwaway folder with made-up files and a made-up author, the refusals, the output bound and the rows. |
 
@@ -25,7 +25,7 @@ See and commit the changes in a project folder on the person's own computer: whi
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, and the `git` command on the computer.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the rows on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes).
 
 ## Invariants
 

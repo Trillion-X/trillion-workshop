@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/generate-speech/tool-rows.json (tool:say-with-a-voice-model), read-data/speak.mjs and speak.json, test/speak.test.mjs",
+  "drafted_from": "tools/generate-speech/what-this-tool-does-and-how-to-run-it.json (tool:say-with-a-voice-model), read-data/speak.mjs and speak.json, test/speak.test.mjs",
   "start_here": "Say to your AI: \"Say 'Three stores said yes.' out loud in the car voice.\" Your AI reads your Voices and Where Trillion speaks rows from your store and runs tool:say-with-a-voice-model with that text, the place car and those rows. It makes the sound on your own computer and hands back the file, the voice and the speed to play it at.",
   "lists": [
     {

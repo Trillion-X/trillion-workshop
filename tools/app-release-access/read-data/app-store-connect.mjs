@@ -6,7 +6,7 @@
 //
 // Invariants:
 // - The key is the release owner's held value `app-store-connect-key`, handed to this one process on a private pipe
-//   (the row's invoke.credential_mounts, descriptor 4) as JSON { key_id, issuer_id, private_key }. It stays in this
+//   (the row's invoke.key, descriptor 4) as JSON { key_id, issuer_id, private_key }. It stays in this
 //   process's memory: never a file, argv, environment, log, error message or answer. Nothing reads a Keychain.
 // - ES256 (ECDSA P-256 over SHA-256) is App Store Connect's required JWT algorithm; it is an external protocol
 //   signature, never an identity this code mints.

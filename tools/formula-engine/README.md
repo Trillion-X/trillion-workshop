@@ -18,7 +18,7 @@ Logic has three states, and only a true answer keeps a row. A value that is unkn
 | `rules/rule-operators.json` | Every comparison and group combinator as DATA |
 | `rules/evaluation-guards.json` | The limits and their refusal words as DATA |
 | `rules/text-formulas.json` | Every function and operator of a text formula: the op it runs, where each argument goes, and one example. A name the table does not hold is refused; the old positional REPLACE, DSUM, IS_NUMBER and the retired role functions are listed there as not carried, with why and where their job lives now |
-| `tool-rows.json`, `kits/` | `tool:filter-rows-by-rules`, `tool:evaluate-a-formula`, `tool:list-comparisons`, `tool:classify-a-record`, each running the component |
+| `what-this-tool-does-and-how-to-run-it.json`, `kits/` | `tool:filter-rows-by-rules`, `tool:evaluate-a-formula`, `tool:list-comparisons`, `tool:classify-a-record`, each running the component |
 | `test/*.test.mjs` | Three-state logic, comparisons, errors and path safety (binding), rule trees (rules), the classifier (classify), the guards, the shipped module and the stored-formula contracts, and every row's sample run through the component (rows) |
 | `part.json` | The files other code may import |
 

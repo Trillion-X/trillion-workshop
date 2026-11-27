@@ -29,9 +29,9 @@
           }
         }
       },
-      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/auth/me with your token in X-Treg-Token and returns treg's reply unchanged. org_id is the field the row's output_schema and provenance name; the value 42 is a synthetic sample.",
+      "given": "Read from tools/treg/what-this-tool-does-and-how-to-run-it.json: the row sends GET https://treg.to/auth/me with your token in X-Treg-Token and returns treg's reply unchanged. org_id is the field the row's output_schema and provenance name; the value 42 is a synthetic sample.",
       "hands_back": "{\"org_id\":42}"
     }
   ],
-  "drafted_from": "tools/treg/tool-rows.json (its row), its README (org_id read from /auth/me); the value is a synthetic sample"
+  "drafted_from": "tools/treg/what-this-tool-does-and-how-to-run-it.json (its row), its README (org_id read from /auth/me); the value is a synthetic sample"
 }

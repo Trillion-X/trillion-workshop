@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const run = promisify(execFile);
 const tool = fileURLToPath(new URL('..', import.meta.url));
@@ -29,7 +29,7 @@ for (const row of descriptors) {
   test(`${row.id} runs from the files it packs and its sample holds`, async () => {
     const folder = await packed(row);
     for (const sample of row.verify) {
-      const child = run(row.invoke.argv[0], row.invoke.argv.slice(1), { cwd: folder });
+      const child = run(row.invoke.run[0], row.invoke.run.slice(1), { cwd: folder });
       child.child.stdin.end(JSON.stringify(sample.input));
       const answer = JSON.parse((await child).stdout.trim());
       const result = select(answer, row.result_selector);
@@ -41,7 +41,7 @@ for (const row of descriptors) {
 
 test('every row packs the files its command needs and offers no network', () => {
   for (const row of descriptors) {
-    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.invoke.may_reach, undefined, row.id);
     assert.ok(row.invoke.files.package_files.paths.includes('read-data'), `${row.id} packs read-data`);
     assert.match(row.maker, /^maker:poker$/);
   }

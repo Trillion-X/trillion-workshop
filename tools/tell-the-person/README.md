@@ -15,7 +15,7 @@ are workflows now, each a recipe with its kit in `tools/workflows`:
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Holds no tool rows (`records: []`). |
+| `what-this-tool-does-and-how-to-run-it.json` | Holds no tool rows (`records: []`). |
 | `part.json` | The public view of this folder: none. |
 | `test/no-records-door.test.mjs` | The rows hold no records-door method, and each workflow's recipe and kit exist. |
 

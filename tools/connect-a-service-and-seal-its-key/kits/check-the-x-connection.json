@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-the-x-connection's row in tools/connect-a-service-and-seal-its-key/tool-rows.json (job, description: the X \"who am I\" call returns data.id and data.username) and sign-in-settings.json (the connect tool runs it as the x verify step); the folder test has no stand-in for X's answer, so the reply is the shape the row's description gives, with made-up values",
+  "drafted_from": "tool:check-the-x-connection's row in tools/connect-a-service-and-seal-its-key/what-this-tool-does-and-how-to-run-it.json (job, description: the X \"who am I\" call returns data.id and data.username) and sign-in-settings.json (the connect tool runs it as the x verify step); the folder test has no stand-in for X's answer, so the reply is the shape the row's description gives, with made-up values",
   "start_here": "Say to your AI: \"Check that my X connection service_connection:x:sams_bakery still works and tell me which account it is.\" It runs tool:check-the-x-connection and names the X account the sign-in reaches, changing nothing.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it asks X one read-only question for the connection it is handed and answers X's reply.",
@@ -29,7 +29,7 @@
           }
         }
       },
-      "given": "Read from tools/connect-a-service-and-seal-its-key/tool-rows.json: the row sends the X \"who am I\" request (api.x.com version 2, users, me) with the connection's held access token and answers X's reply as it is (result_selector $). Input: {\"account_id\":\"service_connection:x:sams_bakery\"}; the account is made up.",
+      "given": "Read from tools/connect-a-service-and-seal-its-key/what-this-tool-does-and-how-to-run-it.json: the row sends the X \"who am I\" request (api.x.com version 2, users, me) with the connection's held access token and answers X's reply as it is (result_selector $). Input: {\"account_id\":\"service_connection:x:sams_bakery\"}; the account is made up.",
       "hands_back": "{\"data\":{\"id\":\"2244994945\",\"name\":\"Sam's Bakery\",\"username\":\"sams_bakery\"}}: the connection still reaches the X account sams_bakery. A refused answer would mean connect X again."
     }
   ]

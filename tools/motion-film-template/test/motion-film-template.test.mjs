@@ -39,7 +39,7 @@ test('icon shapes are read from lucide modules, the React key dropped, and a mis
 });
 
 test('the rows name scripts that exist, read only their own settings rows, and name no film or person', () => {
-  const rows = JSON.parse(fs.readFileSync(path.join(folder, 'tool-rows.json'), 'utf8')).records.map(r => r.payload);
+  const rows = JSON.parse(fs.readFileSync(path.join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(r => r.payload);
   assert.deepEqual(rows.map(r => r.id), ['tool:plan-a-motion-films-soundtrack-premix', 'tool:premix-a-motion-films-soundtrack',
     'tool:write-the-icon-shapes-a-motion-film-uses']);
   for (const r of rows) {
@@ -47,8 +47,8 @@ test('the rows name scripts that exist, read only their own settings rows, and n
     for (const n of named) assert.ok(fs.existsSync(path.join(folder, n.replace('motion-film-template/', ''))), n);
   }
   assert.equal(rows[0].invoke.records, undefined);
-  assert.deepEqual(rows[0].invoke.argv, ['python3', '/opt/motion-film-template/do-work/premix_soundtrack.py']);
-  const all = ['tool-rows.json', 'README.md', 'do-work/premix_soundtrack.py', 'do-work/write-icon-shapes.mjs'].map(f => fs.readFileSync(path.join(folder, f), 'utf8')).join('\n');
+  assert.deepEqual(rows[0].invoke.run, ['python3', '/opt/motion-film-template/do-work/premix_soundtrack.py']);
+  const all = ['what-this-tool-does-and-how-to-run-it.json', 'README.md', 'do-work/premix_soundtrack.py', 'do-work/write-icon-shapes.mjs'].map(f => fs.readFileSync(path.join(folder, f), 'utf8')).join('\n');
   assert.doesNotMatch(all, /\/Users\//);
 });
 

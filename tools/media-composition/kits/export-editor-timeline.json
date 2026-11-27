@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:export-editor-timeline's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/export-editor-timeline.mjs, tools/media-composition/do-work/export-xmeml.mjs and export-xmeml.md, and the script run on a two-cut edit",
+  "drafted_from": "tool:export-editor-timeline's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/export-editor-timeline.mjs, tools/media-composition/do-work/export-xmeml.mjs and export-xmeml.md, and the script run on a two-cut edit",
   "start_here": "Say to your AI: \"Export my two-cut bakery edit as a timeline file I can open in Premiere Pro or DaVinci Resolve.\" It runs tool:export-editor-timeline and saves the xmeml file in your files.",
   "lists": [],
   "no_lists_because": "It turns the edit you hand it into one timeline file and keeps no list of its own.",

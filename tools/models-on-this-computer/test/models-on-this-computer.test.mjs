@@ -6,7 +6,7 @@ import { createServer } from 'node:http';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import { askLocal } from '../read-data/models-on-this-computer.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const serve = answer => new Promise(resolve => {
   const server = createServer((request, response) => {
@@ -350,18 +350,18 @@ test('the local model chat builds its streamed answer as keyed parts through ask
 
 test('every row runs on the person\'s computer through run-a-function with no internet; none asks a capability (the restart of the server check is a /bin program the base sandbox starts)', async () => {
   const { readFileSync } = await import('node:fs');
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-  assert.deepEqual(rows.map(row => [row.id, row.invoke.argv.at(-1)]), [['tool:ask-a-model', 'ask'], ['tool:get-free-models', 'fit'], ['tool:check-the-model-server-and-restart-it-if-stuck', 'check']]);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  assert.deepEqual(rows.map(row => [row.id, row.invoke.run.at(-1)]), [['tool:ask-a-model', 'ask'], ['tool:get-free-models', 'fit'], ['tool:check-the-model-server-and-restart-it-if-stuck', 'check']]);
   for (const row of rows) {
-    const file = row.invoke.argv.at(-1) === 'check' ? 'check-the-model-server.mjs' : 'models-on-this-computer.mjs';
+    const file = row.invoke.run.at(-1) === 'check' ? 'check-the-model-server.mjs' : 'models-on-this-computer.mjs';
     const module = await import(`../read-data/${file}`);
     assert.equal(row.invoke.kind, 'computer');
     assert.deepEqual(row.invoke.capabilities, []);
-    assert.notEqual(row.invoke.internet, true);
+    assert.equal(row.invoke.may_reach, undefined);
     assert.deepEqual(row.placements, ['placement:your-computer']);
     assert.equal(row.result_selector, '$.result');
-    assert.equal(row.invoke.argv[2], `/opt/models-on-this-computer/read-data/${file}`);
-    assert.equal(typeof module[row.invoke.argv[3]], 'function');
+    assert.equal(row.invoke.run[2], `/opt/models-on-this-computer/read-data/${file}`);
+    assert.equal(typeof module[row.invoke.run[3]], 'function');
   }
 });
 

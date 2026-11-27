@@ -1,6 +1,6 @@
 // tools/show-where-each-phrase-came-from/do-work/show-where.mjs
 //
-// The computer tool `tool:show-where-each-phrase-came-from` (tool-rows.json): the provenance rows of one made piece, answered as
+// The computer tool `tool:show-where-each-phrase-came-from` (what-this-tool-does-and-how-to-run-it.json): the provenance rows of one made piece, answered as
 // { piece_id, columns, rows, row_count }. The rows are read from public.piece_provenance by tool:run-sql-in-my-database, run on this
 // computer's own door with the held connection name the person gave as credential_name. This process never holds a connection
 // string: the name is passed on, and the database login stays in the vault.

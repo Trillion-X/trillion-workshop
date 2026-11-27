@@ -34,7 +34,7 @@ For this byte form, `source.multihash` and `baseline.source_multihash` identify 
 | `do-work/read-from-repositories.mjs` | `gitReaders({ root, repositories?, tree? })`: a source's bytes at its commit, a target's bytes in the judged tree (staged, a commit, or disk), whether an old path is still on its repository's main line, and the code search. A repository is the checkout of that name beside `root` unless named; one with no checkout here answers null, which is reported as deferred. |
 | `part.json` | The validator, the repository judge and its git readers are public, so another tool or repository test may use them. |
 | `ports/checker-in-place.json` | Genuine same-file source snapshots of the validator, judge and reader at the rules' original `e854b028...` commit, with BLAKE3 identities and current grouped retention. |
-| `tool-rows.json` | The row. It runs on the person's computer after they grant `read-a-folder`, and packs `tools/content-identity` with its BLAKE3 module. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. It runs on the person's computer after they grant `read-a-folder`, and packs `tools/content-identity` with its BLAKE3 module. |
 | `test/validate-reference-adaptation-contract.test.mjs` | The package's test: source-first, visual replica, adversarial, fuzz, determinism, the command, and the golden contract. Its pictures are made in the test. The package's test of the package-owned schema is the same check as the first test now that the old schema names are gone; both are kept. |
 | `test/check-my-reference-contract-row.test.mjs` | The row's shape, and the command run the way the engine runs it over a made-up folder. |
 | `test/check-a-repository-for-port-contracts.test.mjs` | Made-up checkouts side by side: no contract, a rewrite, an old copy alive past its date or under VERIFIED, and a `NO_PRIOR_OWNER` claim the search contradicts are refused; a byte copy then adapted, the copy commit itself, and a claim whose near files are all named pass; an unreadable repository is deferred. |
@@ -64,7 +64,7 @@ History proof checks every relevant content event not strictly descended from th
 
 **Depends on:** `tools/content-identity` (BLAKE3), Node's `zlib`, `git` for the repository judge.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`. `test/every-feature-file-has-a-port-contract.test.mjs` at the root of this repository runs the repository judge wherever the tests run; the check row in the person's check lists (rules-and-their-checks) runs it at commit and push with the full search.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`. `test/every-feature-file-has-a-port-contract.test.mjs` at the root of this repository runs the repository judge wherever the tests run; the check row in the person's check lists (rules-and-their-checks) runs it at commit and push with the full search.
 
 ## A baseline at a different path
 

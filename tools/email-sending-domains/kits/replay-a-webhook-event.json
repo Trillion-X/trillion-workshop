@@ -32,9 +32,9 @@
           }
         }
       },
-      "given": "Read from tools/email-sending-domains/tool-rows.json: the row sends POST https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events/msg_1srOsB4mXhCqCVwAxYRNnpFZhb3/replay with your key in the Authorization header and returns Resend's reply unchanged. The ids are a synthetic sample in the shape of Resend's replay-event reference.",
+      "given": "Read from tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json: the row sends POST https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events/msg_1srOsB4mXhCqCVwAxYRNnpFZhb3/replay with your key in the Authorization header and returns Resend's reply unchanged. The ids are a synthetic sample in the shape of Resend's replay-event reference.",
       "hands_back": "{\"object\":\"webhook_event\",\"id\":\"msg_1srOsB4mXhCqCVwAxYRNnpFZhb3\"}"
     }
   ],
-  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row) and Resend's replay-event reference (https://resend.com/docs/api-reference/webhooks/replay-event, read 2026-11-25)"
+  "drafted_from": "tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json (its row) and Resend's replay-event reference (https://resend.com/docs/api-reference/webhooks/replay-event, read 2026-11-25)"
 }

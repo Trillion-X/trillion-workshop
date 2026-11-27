@@ -53,12 +53,12 @@ test('a missing index says where to look, and the command prints one JSON line',
 });
 
 test('the row runs this command on the person\'s computer, reading only the folder the person granted', () => {
-  const [tool] = JSON.parse(fs.readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map((record) => record.payload);
+  const [tool] = JSON.parse(fs.readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map((record) => record.payload);
   assert.equal(tool.id, 'tool:find-files-in-an-index');
   assert.equal(tool.invoke.kind, 'computer');
   assert.deepEqual(tool.invoke.capabilities, ['read-a-folder']);
   assert.deepEqual(tool.placements, ['placement:your-computer']);
-  assert.equal(tool.invoke.argv.at(-1), 'findFilesInAnIndexForARun');
+  assert.equal(tool.invoke.run.at(-1), 'findFilesInAnIndexForARun');
   assert.equal(tool.invoke.records, undefined);
   assert.deepEqual(tool.input_schema.required, []);
   assert.deepEqual(tool.input_schema.anyOf, [{ required: ['query'] }, { required: ['names'] }]);

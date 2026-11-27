@@ -39,7 +39,7 @@ test('the wrapper, with a fake HTTP, reads markets, books and bars, sends its Us
 });
 
 test('the rows name the three commands and the data row names a User-Agent that holds no old brand', () => {
-  const rows = JSON.parse(readFileSync(join(here, '..', 'tool-rows.json'), 'utf8')).records.map(({ payload }) => payload);
+  const rows = JSON.parse(readFileSync(join(here, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(({ payload }) => payload);
   assert.deepEqual(rows.map(row => row.id).sort(), ['tool:list-public-prediction-markets', 'tool:read-prediction-market-order-book', 'tool:read-price-bars-from-my-market-data-account']);
   const source = JSON.parse(readFileSync(join(here, '..', 'sources', 'public-markets-api.json'), 'utf8'));
   assert.match(source.user_agent, /github\.com\/Trillion-X\/trillion-workshop/);

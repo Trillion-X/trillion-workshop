@@ -12,7 +12,7 @@ import { hashBuffers, literalPieces, verifySourceSpans } from '../do-work/verify
 
 const spans = fileURLToPath(new URL('../do-work/verify-source-spans.mjs', import.meta.url));
 const writing = fileURLToPath(new URL('../do-work/verify-writing-profile.mjs', import.meta.url));
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 
 // An independent BLAKE3: Python's blake3 package, when it is installed.
 const python = spawnSync('python3', ['-c', 'import blake3'], { encoding: 'utf8' });

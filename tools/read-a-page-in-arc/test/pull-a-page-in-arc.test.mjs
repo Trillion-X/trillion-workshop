@@ -527,12 +527,12 @@ test('the save folder is made under the root, and nothing is written outside it'
 });
 
 test('the tool row names the pull, its input schema is closed, and its time bounds cover the follow run and a page', async () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const record = rows.records.find((item) => item.payload.id === 'tool:pull-a-page-in-arc');
   assert.ok(record, 'the pull row exists');
   const { payload } = record;
   assert.equal(payload.invoke.kind, 'computer');
-  assert.deepEqual(payload.invoke.argv, ['node', '/opt/read-a-page-in-arc/pull-a-page-in-arc.mjs']);
+  assert.deepEqual(payload.invoke.run, ['node', '/opt/read-a-page-in-arc/pull-a-page-in-arc.mjs']);
   assert.equal(payload.input_schema.additionalProperties, false);
   assert.deepEqual(payload.input_schema.required, ['computer', 'url']);
   assert.deepEqual(payload.invoke.capabilities, ['automate-an-app']);
@@ -541,7 +541,7 @@ test('the tool row names the pull, its input schema is closed, and its time boun
   assert.ok(payload.invoke.max_run_ms >= realSettings.follow.most_run_seconds * 1000 + perPage + 60000, 'the row time covers a follow run and the last page');
   assert.ok(payload.invoke.max_run_ms >= realSettings.save.most_download_seconds * 1000);
   const old = rows.records.find((item) => item.payload.id === 'tool:read-a-page-in-arc');
-  assert.equal(old.payload.invoke.argv[1], '/opt/read-a-page-in-arc/read-a-page-in-arc.mjs', 'the read tool row is untouched');
+  assert.equal(old.payload.invoke.run[1], '/opt/read-a-page-in-arc/read-a-page-in-arc.mjs', 'the read tool row is untouched');
 });
 
 test('a tab that lands on another host is refused, and the tab is closed', async () => {
@@ -681,10 +681,10 @@ test('most_scroll_steps caps the scrolls of one read, and refuses a number outsi
 });
 
 // Nov 22 2026: 188cb225c dropped `computer` and `most_scroll_steps` from the fields this tool takes, so the engine's own
-// input (tool-rows.json requires computer.automate-an-app) was refused before Arc was touched. Every property the row
+// input (what-this-tool-does-and-how-to-run-it.json requires computer.automate-an-app) was refused before Arc was touched. Every property the row
 // declares is a field the tool takes, and the declared bound of most_scroll_steps is the settings' own.
 test('every input property the tool row declares is a field the tool takes, computer included', async () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const row = rows.records.find(record => JSON.stringify(record.payload ?? record).includes('"tool:pull-a-page-in-arc"'));
   const schema = findSchema(row);
   assert.ok(schema, 'the row declares its input');
@@ -715,7 +715,7 @@ for (const [id, read] of [
   ['tool:pull-a-page-in-arc', pullAPageInArc],
 ]) {
   test(`${id} declares input on stdin and accepts the scoped fixture without changing tabs`, async () => {
-    const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+    const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
     const { invoke, input_schema: schema } = rows.records.find(({ payload }) => payload.id === id).payload;
     assert.equal(invoke.kind, 'computer');
     assert.deepEqual(invoke.capabilities, ['automate-an-app']);
@@ -737,7 +737,7 @@ for (const [id, read] of [
   });
 
   test(`${id} kit examples carry the app target required by its descriptor`, () => {
-    const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+    const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
     const schema = rows.records.find(({ payload }) => payload.id === id).payload.input_schema;
     const kit = JSON.parse(readFileSync(new URL(`../kits/${id.slice('tool:'.length)}.json`, import.meta.url), 'utf8'));
     const examples = kit.worked_examples.filter(({ mcp }) => mcp.input.input.tool === id);

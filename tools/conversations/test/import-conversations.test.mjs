@@ -17,7 +17,7 @@ import * as chat from '../read-data/chat-import.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 
 const { conversationImportProgress, countConversationsPerApp, importConversationsFrom, keepWhatISaidToAnAi, listConversationSourcesHere, resumeConversationImports } = chat;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const NOW = new Date('2026-11-04T12:00:00Z');
 
 const lines = list => list.map(row => JSON.stringify(row) + '\n').join('');

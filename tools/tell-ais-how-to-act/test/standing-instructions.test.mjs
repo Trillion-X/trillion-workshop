@@ -93,7 +93,7 @@ test('the entry checks its input the way the Mac tool did and says where the tex
 });
 
 test('the native placement selects the report from the Mac host envelope', async () => {
-  const tool = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records
+  const tool = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records
     .map(record => record.payload).find(row => row.id === 'tool:keep-my-account-in-your-instructions');
   const binding = macTools.tools[tool.id];
   assert.equal(binding.workshop, 'tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs');

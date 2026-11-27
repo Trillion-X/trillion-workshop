@@ -73,7 +73,7 @@ test('a transcript is kept under its recording identity, and never without one',
 });
 
 test('the tool row requires the granted program, so a run cannot start without one', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
   const row = rows.find(record => record.payload.id === 'tool:transcribe-file').payload;
   assert.deepEqual(row.input_schema.required, ['file', 'program']);
   assert.ok(row.input_schema.properties.program);
@@ -82,7 +82,7 @@ test('the tool row requires the granted program, so a run cannot start without o
 });
 
 test('the tool row declares the stored reads its run needs; tool:hear-a-recording only writes and is handed its file', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
   const payload = id => rows.find(record => record.payload.id === id).payload;
   assert.deepEqual(payload('tool:transcribe-file').stored, [{ files: '/', operations: ['find_file', 'read_file'] }]);
   // A row whose files right only writes (its transcript, under /transcripts/) still is handed the file its namespace-file input
@@ -91,11 +91,11 @@ test('the tool row declares the stored reads its run needs; tool:hear-a-recordin
   assert.deepEqual(payload('tool:hear-a-recording').stored, [{ files: '/transcripts/', operations: ['write_file_start', 'write_file_piece', 'write_file_finish'] }]);
   assert.ok(!payload('tool:hear-a-recording').stored.some(item => item.operations.some(operation => ['find_file', 'read_file', 'read_file_span'].includes(operation))));
   assert.equal(payload('tool:hear-a-recording').input_schema.properties.file.format, 'namespace-file');
-  assert.equal(payload('tool:hear-a-recording').invoke.argv.at(-1), 'hearAndKeepARecording');
+  assert.equal(payload('tool:hear-a-recording').invoke.run.at(-1), 'hearAndKeepARecording');
 });
 
 test('the tool row sets its run deadline, so a 512 MB recording is not cut off by the default 120 s', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
   const { invoke, max_input_bytes } = rows.find(record => record.payload.id === 'tool:transcribe-file').payload;
   // 512 MB at the slowest measured share rate (0.77 MB/s) is about 665 s of reading, before MLX hears it.
   assert.ok(invoke.max_run_ms >= 665000, `max_run_ms ${invoke.max_run_ms} is below the read time`);

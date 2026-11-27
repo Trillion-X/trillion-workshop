@@ -221,7 +221,7 @@ test('the fixtures command is the row tool:check-a-check-rows-fixtures: { rows }
 });
 
 test('the row runs as the container runs it, with only the files it packs, and answers for the literal row', async () => {
-  const row = rowOf(JSON.parse(readFileSync(resolve(import.meta.dirname, '..', 'tool-rows.json'), 'utf8')), 'tool:check-a-check-rows-fixtures');
+  const row = rowOf(JSON.parse(readFileSync(resolve(import.meta.dirname, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')), 'tool:check-a-check-rows-fixtures');
   const answer = await answerOf(row, { rows: [LITERALS, { ...LITERALS, id: 'made-up-wrong', fixtures: { pass: ['foo'], refuse: ['key'] } }] });
   assert.equal(answer.status, 0);
   assert.equal(answer.result.holds, false);

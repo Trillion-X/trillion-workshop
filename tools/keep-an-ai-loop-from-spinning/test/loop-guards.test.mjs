@@ -50,7 +50,7 @@ test('failing calls past the budget give the job back with the count said', () =
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 
 test('the actual packaged descriptor keeps its public entry and relative dependencies', async () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url))).records[0].payload;
   const answer = await answerOf(row, row.verify[0].input);
   assert.equal(answer.status, 0, answer.error);
   assert.ok(answer.result && typeof answer.result === 'object');

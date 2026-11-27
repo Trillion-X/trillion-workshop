@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/motion-film-template/tool-rows.json (tool:premix-a-motion-films-soundtrack), do-work/premix_soundtrack.py, test/test_premix_soundtrack.py (RunTest, PlanTest); list:settings read from the person's own store; the answer was produced by running the script with ffmpeg tones",
+  "drafted_from": "tools/motion-film-template/what-this-tool-does-and-how-to-run-it.json (tool:premix-a-motion-films-soundtrack), do-work/premix_soundtrack.py, test/test_premix_soundtrack.py (RunTest, PlanTest); list:settings read from the person's own store; the answer was produced by running the script with ffmpeg tones",
   "start_here": "Say to your AI: \"Mix the soundtrack for my sample film from its cue sheet: the music bed ducked under both voice lines, and three sound effects on their frames.\" It writes the request file and runs the premix on your computer.",
   "lists": [
     {

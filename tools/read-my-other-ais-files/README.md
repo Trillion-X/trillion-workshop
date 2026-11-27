@@ -8,7 +8,7 @@ Lets the person's AIs read the instruction, command, skill and MCP-server files 
 |------|---------|
 | `read-data/other-ai-files.mjs` | `otherAiEntries({ rules?, home?, only? })`: every entry the rows name that exists; `otherAiFiles(input, { rules?, home? })`: the tool; `otherAiFilesInGrantedFolder({ input, folder })`: the row's export, reading under `folder`, the folder the person granted; refused when no folder is granted. The header states the invariants. |
 | `read-data/other-ai-files.json` | One row per AI app; each `places` row says the kind it holds and its shape (`file`, `files`, `skill_folders`, `mcp_servers`). A new app or folder is one more row. |
-| `tool-rows.json` | `tool:other-ai-files`: a `computer` row with the `read-a-folder` capability, run by `tools/workflows`' `do-work/run-a-function.mjs`; its stdin is `{ input, folder }`, where `folder` is the granted folder the places are read under. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:other-ai-files`: a `computer` row with the `read-a-folder` capability, run by `tools/workflows`' `do-work/run-a-function.mjs`; its stdin is `{ input, folder }`, where `folder` is the granted folder the places are read under. |
 | `test/other-ai-files.test.mjs` | The listing (names, no contents, narrowed by app and kind), reading (labelled, cut long ones saying so, links never followed), unknown app or kind, MCP servers with variable names only, and the row's command run on a made-up home folder. |
 | `part.json` | Nothing here is imported by other code. |
 
@@ -26,4 +26,4 @@ Trillion-X/trillion `computer/other-ai-files.mjs`, `computer/other-ai-files.json
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`) and Node's standard library. It reads no door and no record: the rows it reads are the files under the granted folder.
 
-**Depended on by:** `tool-rows.json` only.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` only.

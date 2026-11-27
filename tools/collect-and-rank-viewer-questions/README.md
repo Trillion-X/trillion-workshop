@@ -10,7 +10,7 @@ Fetching is not here: forum posts are `tool:keep-forum-posts-from-a-public-archi
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:collect-and-rank-viewer-questions`: `on-your-computer`, with the commands that fetch it and run it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:collect-and-rank-viewer-questions`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/candidates.py` | Question sentences out of `<dir>/forum-posts.jsonl` (or `raw/reddit.jsonl`), `youtube-comments/*.info.json` (or `raw/youtube-comments/`) and the channel harvest's `comments.jsonl`, as a TSV: id, kind, link, segment, score, question. |
 | `do-work/keep_comments.py` | Keeps the top-level video comments (`<comments dir>/<video id>.info.json` of each `url` in a sources TSV) that ask a question or state the writer's own situation, tags each with every tag of every tag column whose regex hits, and writes `questions.tsv` (most-liked first) and `by-concept.md` (the most-liked comments of each tag of one column). Settings: `keep_comments` ({min_chars, max_chars, is_question, is_situation}), `comment_tags` (ordered `[[column, [[tag, regex]]]]`), `comment_group_by`, `comment_group_top`. |

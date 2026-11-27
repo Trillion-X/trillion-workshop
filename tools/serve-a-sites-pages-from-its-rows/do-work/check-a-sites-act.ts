@@ -137,7 +137,7 @@ export async function checkASitesAct(asked: Asked, deps: Deps) {
 }
 
 /** The pinned commit's tools unpacked once into the kept folder (git archive of the granted Workshop folder), its rights, and
- * each tool's row there (every tools/<folder>/tool-rows.json record's payload, by id). */
+ * each tool's row there (every tools/<folder>/what-this-tool-does-and-how-to-run-it.json record's payload, by id). */
 export function rightsFrom(workshop: string, kept: string) {
   return async (pin: string) => {
     const tree = join(kept, `workshop-${pin}`);
@@ -162,7 +162,7 @@ export function rightsFrom(workshop: string, kept: string) {
     const rows = new Map<string, Record<string, unknown>>();
     for (const folder of readdirSync(join(tree, 'tools'))) {
       let file: { records?: { payload?: Record<string, unknown> }[] };
-      try { file = JSON.parse(readFileSync(join(tree, 'tools', folder, 'tool-rows.json'), 'utf8')); } catch { continue; }
+      try { file = JSON.parse(readFileSync(join(tree, 'tools', folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')); } catch { continue; }
       for (const { payload } of file.records ?? []) if (payload && typeof payload.id === 'string') rows.set(payload.id, payload);
     }
     return { rights: rights as Rights, tools: join(tree, 'tools'), rowOf: (tool: string) => rows.get(tool) ?? null };

@@ -33,9 +33,9 @@
           }
         }
       },
-      "given": "Read from tools/email-sending-domains/tool-rows.json and test/list-email-sending-domains.test.mjs: the row POSTs https://api.resend.com/api-keys with {\"name\":\"Bakery newsletter\",\"permission\":\"sending_access\"} and your key in the Authorization header; reply_holds_values moves the reply's token into your vault as bakery-newsletter-key. The id below is a synthetic sample.",
+      "given": "Read from tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json and test/list-email-sending-domains.test.mjs: the row POSTs https://api.resend.com/api-keys with {\"name\":\"Bakery newsletter\",\"permission\":\"sending_access\"} and your key in the Authorization header; reply_holds_values moves the reply's token into your vault as bakery-newsletter-key. The id below is a synthetic sample.",
       "hands_back": "{\"id\":\"0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0\",\"token\":\"<the held word standing for bakery-newsletter-key, not the key>\"}"
     }
   ],
-  "drafted_from": "tools/email-sending-domains/tool-rows.json (its row), test/list-email-sending-domains.test.mjs"
+  "drafted_from": "tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json (its row), test/list-email-sending-domains.test.mjs"
 }

@@ -8,7 +8,7 @@ import { cp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const tool = fileURLToPath(new URL('..', import.meta.url));
 const descriptors = rows.records.map(record => record.payload);
@@ -24,7 +24,7 @@ async function packed(row) {
 }
 
 const runWith = (row, folder, input) => new Promise(resolve => {
-  const child = execFile(row.invoke.argv[0], row.invoke.argv.slice(1), { cwd: folder }, (error, stdout) => resolve({ error, stdout: stdout.trim() }));
+  const child = execFile(row.invoke.run[0], row.invoke.run.slice(1), { cwd: folder }, (error, stdout) => resolve({ error, stdout: stdout.trim() }));
   child.stdin.end(JSON.stringify(input));
 });
 
@@ -49,7 +49,7 @@ for (const row of descriptors) {
 
 test('every row packs the files its command needs and offers no network', () => {
   for (const row of descriptors) {
-    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.invoke.may_reach, undefined, row.id);
     assert.ok(row.invoke.files.package_files.paths.includes('read-data'), `${row.id} packs read-data`);
     assert.match(row.maker, /^maker:match-picks$/);
   }

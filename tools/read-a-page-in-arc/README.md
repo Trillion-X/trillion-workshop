@@ -16,7 +16,7 @@ Two tools live here:
 | `arc-tab.mjs` | The three Arc calls a pull makes (open a tab, run one piece of JavaScript in it, close it), each one osascript call. Arc answers a string as an AppleScript literal, so `evaluate` decodes it twice. |
 | `page-scripts.mjs` | The JavaScript that runs in the page, one piece per call: readiness, scroll steps, the kept text and its pieces, links, the download and its pieces. Every value comes back as ASCII JSON. |
 | `pull-settings.json` | Every bound of the pull as DATA: wait, scroll, text, links, follow, save (root, bytes, export formats). |
-| `tool-rows.json` | The Workshop rows for both tools. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows for both tools. |
 | `part.json` | The exports and the public entry programs. |
 | `test/read-a-page-in-arc.test.mjs` | The read tool against Arc: example.com. |
 | `test/arc-tab-retry.test.mjs` | Offline osascript error fixtures: bounded connection retries, terminal permission/syntax/missing-tab failures, and cleanup of only the run's tab. |

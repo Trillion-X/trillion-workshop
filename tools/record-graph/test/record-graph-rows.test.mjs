@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { findConnections } from '../read-data/find-connections.mjs';
 import { readAround } from '../read-data/read-around.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { activityRow, me, relationRow } from './graph-rows.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));

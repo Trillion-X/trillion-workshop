@@ -37,5 +37,5 @@
       "hands_back": "{\"status\":200,\"state\":\"form\"}"
     }
   ],
-  "drafted_from": "tool row in tools/gather-words-from-people/tool-rows.json and routes/check-a-words-ask.ts"
+  "drafted_from": "tool row in tools/gather-words-from-people/what-this-tool-does-and-how-to-run-it.json and routes/check-a-words-ask.ts"
 }

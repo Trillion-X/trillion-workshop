@@ -109,7 +109,7 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/upload-a-file-to-a-signed-slot/tool-rows.json",
+      "path": "tools/upload-a-file-to-a-signed-slot/what-this-tool-does-and-how-to-run-it.json",
       "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
     },
     {

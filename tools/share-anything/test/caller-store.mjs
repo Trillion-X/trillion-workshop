@@ -16,8 +16,8 @@ const same = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
 /** The function has no record authority. `uses_tools` is the generator's conservative source-fetch closure, not a grant. */
 export function assertNoRecordReach(row) {
   assert.equal(row.invoke.kind, 'container');
-  assert.equal(row.invoke.internet, false);
-  for (const field of ['records', 'credential_mounts', 'local_doors', 'parent_actions', 'by_input']) assert.equal(row.invoke[field], undefined, `no ${field}`);
+  assert.equal(row.invoke.may_reach, undefined);
+  for (const field of ['records', 'key', 'local_doors', 'parent_actions', 'by_input']) assert.equal(row.invoke[field], undefined, `no ${field}`);
   assert.equal(row.invoke_with, undefined, 'no redirection to another row');
   assert.equal(row.stored, undefined, 'no stored rights');
   assert.deepEqual(Object.keys(row.invoke.files), ['package_files'], 'only the declared source files are mounted');

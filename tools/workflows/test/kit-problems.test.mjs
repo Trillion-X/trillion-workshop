@@ -59,7 +59,7 @@ test('the pour must use the pour tool, ask for at least 80% and pour one of the 
 });
 
 test('a tool\'s kit names the tool itself, and a kit with no lists says why', () => {
-  const tool = { id: 'tool:fixture', job: 'Do a fixture.', invoke: { argv: ['node', 'x.mjs'] } };
+  const tool = { id: 'tool:fixture', job: 'Do a fixture.', invoke: { run: ['node', 'x.mjs'] } };
   const kit = { ...whole(), lists: [], tools: [], workflows: [] };
   delete kit.pour;
   assert.deepEqual(kitProblems(kit, { tool }), [

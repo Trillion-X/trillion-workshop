@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-where-the-line-should-go row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs and its do-work/find-where-the-line-should-go.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:find-where-the-line-should-go row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs and its do-work/find-where-the-line-should-go.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Measure where the confidence line belongs for the claims-done question in /work/judge/rubrics.json, using my model.\" It runs the line finder and reads the measured line or why it cannot draw one.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads your rubrics file and asks the model on your known cases, then prints where the confidence line should go.",

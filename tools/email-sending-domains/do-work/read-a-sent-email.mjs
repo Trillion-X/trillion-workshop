@@ -1,10 +1,10 @@
 import { realpathSync } from 'node:fs';
 // tools/email-sending-domains/do-work/read-a-sent-email.mjs
 //
-// The container tool `tool:read-a-sent-email` (tool-rows.json): one email the person's email-sending account (Resend) sent,
+// The container tool `tool:read-a-sent-email` (what-this-tool-does-and-how-to-run-it.json): one email the person's email-sending account (Resend) sent,
 // by its id, and the last thing that happened to it (sent, delivered, bounced, opened, clicked, complained). It only reads.
 //
-// The account key reaches this one process on a private pipe, descriptor 3 (the row's invoke.credential_mounts { fd: 3 }),
+// The account key reaches this one process on a private pipe, descriptor 3 (the row's invoke.key { fd: 3 }),
 // never in the request, argv, a file or the environment. This command asks GET /emails/{email_id} once and answers the
 // email's id, sender, addressees, subject, when it was sent and its last event only: never the key, the email's body or the
 // provider's raw reply.

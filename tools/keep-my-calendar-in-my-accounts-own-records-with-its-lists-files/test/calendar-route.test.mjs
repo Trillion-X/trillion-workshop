@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { answerTheCalendarRoute } from '../src/calendar-route.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const route = (records, path, method = 'GET', query = {}, body = {}) => answerTheCalendarRoute({ path, method, query, body, browser: {}, records });
 

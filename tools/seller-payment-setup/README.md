@@ -9,7 +9,7 @@ It holds no code of its own. It runs `buildStripeHttpRequest` from `tools/shared
 | File | Purpose |
 |------|---------|
 | `part.json` | Which files other code may import (none: the code lives in take-payments) |
-| `tool-rows.json` | The row, mounting the take-payments package, with a sample that builds the onboarding link request for a made-up connected account |
+| `what-this-tool-does-and-how-to-run-it.json` | The row, mounting the take-payments package, with a sample that builds the onboarding link request for a made-up connected account |
 | `kits/` | The kit that shows the row's real answer |
 | `moved-from.json` | Where the files first came from |
 | `README.md` | This file |

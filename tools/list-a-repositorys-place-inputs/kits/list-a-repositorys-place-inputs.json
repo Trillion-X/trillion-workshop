@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:list-a-repositorys-place-inputs's own row (its words, invoke and output schema) in tools/list-a-repositorys-place-inputs/tool-rows.json and read-data/list_inputs.py; it has no sample run, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:list-a-repositorys-place-inputs's own row (its words, invoke and output schema) in tools/list-a-repositorys-place-inputs/what-this-tool-does-and-how-to-run-it.json and read-data/list_inputs.py; it has no sample run, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"List the environment and place-report inputs the repository in my granted folder /Work/demo-repo reads, without their values\", with {}. It runs tool:list-a-repositorys-place-inputs on your computer and answers each input name, the files that read it and whether it is set.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it reads one folder you grant and answers, and keeps no row.",

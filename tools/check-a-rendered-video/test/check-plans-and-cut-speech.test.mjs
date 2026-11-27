@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const tools = join(folder, '..');
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const probe = python('-c', 'import importlib.util as u, shutil, json; m = [n for n in ("numpy", "soundfile") if u.find_spec(n) is None] + [t for t in ("ffmpeg",) if shutil.which(t) is None]; print(json.dumps(m))');
 const missing = probe.status === 0 ? JSON.parse(probe.stdout.trim()) : ['python3'];

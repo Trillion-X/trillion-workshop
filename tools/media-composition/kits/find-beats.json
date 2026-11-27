@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-beats's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/detect-beats.mjs, and the script run on a synthetic 8 second clip with a click every half second",
+  "drafted_from": "tool:find-beats's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/detect-beats.mjs, and the script run on a synthetic 8 second clip with a click every half second",
   "start_here": "Say to your AI: \"Find the beats in the music of my video so I can cut on them.\" It runs tool:find-beats and hands back each beat time in seconds.",
   "lists": [],
   "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",

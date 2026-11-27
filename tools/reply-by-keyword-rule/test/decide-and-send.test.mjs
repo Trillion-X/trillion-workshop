@@ -7,7 +7,7 @@ import { decideTheReplies } from '../do-work/decide-the-replies.mjs';
 import { sendAReply } from '../do-work/send-a-reply.mjs';
 import { segment } from '../../pull-from-connected-accounts/read-data/snapshot.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const NOW = Date.parse('2026-11-12T12:00:00Z');
 const iso = ms => new Date(ms).toISOString();

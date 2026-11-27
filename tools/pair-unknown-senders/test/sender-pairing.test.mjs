@@ -8,7 +8,7 @@ import { makeSenderPairing } from '../read-data/sender-pairing.mjs';
 import { factsFrom } from '../read-data/pairing-tools.mjs';
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const rowOf = id => rows.find(row => row.id === id);
 const CODE = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/;
 
@@ -91,9 +91,9 @@ test('the rows keep nothing themselves: request, repeat, approve, list, revoke, 
 test('each row reaches nothing: no database door, no held value, no internet, no records right, and only the files it imports', () => {
   assert.equal(rows.filter(row => row.kind === 'ai-tool-descriptor').length, 4);
   for (const row of rows) {
-    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.invoke.may_reach, undefined, row.id);
     assert.equal(row.invoke.local_doors, undefined, row.id);
-    assert.equal(row.invoke.credential_mounts, undefined, row.id);
+    assert.equal(row.invoke.key, undefined, row.id);
     assert.equal(row.invoke.records, undefined, row.id);
     assert.equal(row.invoke.packages, undefined, row.id);
   }

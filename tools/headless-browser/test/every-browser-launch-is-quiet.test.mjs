@@ -66,8 +66,8 @@ test('the helpers and the cloud tools really put the switches on the browser', (
   assert.match(devtools, /spawn\(executable, \[\s*\.\.\.quietSwitches,/);
   // Each cloud tool that drives Chromium starts it through devtools.mjs and carries it, with the switch list, beside it.
   for (const [file, script, id] of [
-    [`${WORKSHOP}record-a-web-page/tool-rows.json`, `${WORKSHOP}record-a-web-page/do-work/record-a-web-demo.mjs`, 'tool:record-a-web-demo'],
-    [`${WORKSHOP}copy-a-site/tool-rows.json`, `${WORKSHOP}copy-a-site/do-work/copy-a-site.mjs`, 'tool:copy-a-site'],
+    [`${WORKSHOP}record-a-web-page/what-this-tool-does-and-how-to-run-it.json`, `${WORKSHOP}record-a-web-page/do-work/record-a-web-demo.mjs`, 'tool:record-a-web-demo'],
+    [`${WORKSHOP}copy-a-site/what-this-tool-does-and-how-to-run-it.json`, `${WORKSHOP}copy-a-site/do-work/copy-a-site.mjs`, 'tool:copy-a-site'],
   ]) {
     assert.match(readFileSync(resolve(root, script), 'utf8'), /from '\.\.\/\.\.\/headless-browser\/devtools\.mjs'/);
     const row = JSON.parse(readFileSync(resolve(root, file), 'utf8')).records.find(record => record.payload.id === id).payload;

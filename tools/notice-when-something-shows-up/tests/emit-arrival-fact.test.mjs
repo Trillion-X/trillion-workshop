@@ -420,7 +420,7 @@ test("handover and time flooring are the predecessor's guarantees, kept", () => 
 });
 
 test("a change fact names where it happened and carries the change when it fits, and leaves out what does not", () => {
-  const rows = JSON.parse(readFileSync(new URL("../tool-rows.json", import.meta.url), "utf8"));
+  const rows = JSON.parse(readFileSync(new URL("../what-this-tool-does-and-how-to-run-it.json", import.meta.url), "utf8"));
   const wake = rows.records[0].payload.wakes.find(w => w.id === "keep-noticing-row-changes");
   const waiter = wake.input.waiters[0];
   const transition = { condition: "became-reachable", observed_identity: {}, detail: { where: "d", place: "post", change: "added", at: "2026-11-18T00:00:00.000Z", key: "d:7:3", before: null, after: null, by: "may_change_rows_0a1b2c3d4e5f" } };

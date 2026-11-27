@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/tool-rows.json; do-work/train-voice-adapter.py (load_rows, main, the receipt); test/fixtures/training/wording16-train.jsonl and test/test_train_voice_provenance.py for the row shape",
+  "drafted_from": "tool row in tools/train-and-evaluate-a-writing-voice-classifier/what-this-tool-does-and-how-to-run-it.json; do-work/train-voice-adapter.py (load_rows, main, the receipt); test/fixtures/training/wording16-train.jsonl and test/test_train_voice_provenance.py for the row shape",
   "start_here": "Say to your AI: \"Train a writing-voice adapter from ~/voice/train.jsonl into the new folder ~/voice/adapter-1, with the decider frame in ~/decider/finetune.\" It reads the tool's row, runs the training script on your computer and hands back the receipt.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a JSONL file of training rows you name and writes an adapter folder with a receipt, both on your computer.",

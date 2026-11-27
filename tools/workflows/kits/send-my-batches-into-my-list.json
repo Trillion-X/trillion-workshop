@@ -66,5 +66,5 @@
       "hands_back": "state all_batches_sent, batches_done {\"orders-000.json\": 2}. Run it again with that batches_done as done: it sends nothing."
     }
   ],
-  "drafted_from": "tool:send-list-row-batches's own row (tools/export-records-as-list-rows/tool-rows.json, retired in this commit), do-work/send_list_rows.py, read-data/send_batches.py and kits/send-list-row-batches.json; the answers are the ones a scratch run of the recipe's prove attempts gave on PGlite and on a JSON folder, the same on both"
+  "drafted_from": "tool:send-list-row-batches's own row (tools/export-records-as-list-rows/what-this-tool-does-and-how-to-run-it.json, retired in this commit), do-work/send_list_rows.py, read-data/send_batches.py and kits/send-list-row-batches.json; the answers are the ones a scratch run of the recipe's prove attempts gave on PGlite and on a JSON folder, the same on both"
 }

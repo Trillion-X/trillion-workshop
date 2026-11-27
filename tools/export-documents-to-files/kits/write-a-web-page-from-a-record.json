@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/export-documents-to-files/tool-rows.json (tool:write-a-web-page-from-a-record), do-work/render-public-page-cli.mjs, test/write-a-web-page.test.mjs, and a run of the command on the envelope below",
+  "drafted_from": "tools/export-documents-to-files/what-this-tool-does-and-how-to-run-it.json (tool:write-a-web-page-from-a-record), do-work/render-public-page-cli.mjs, test/write-a-web-page.test.mjs, and a run of the command on the envelope below",
   "start_here": "Say to your AI: \"Write the web page for my rye loaf record at bakery.example.com from this envelope file, and save it as page.html.\" It writes the envelope from the record, runs the page writer on your computer and tells you the address and where the file is.",
   "lists": [],
   "no_lists_because": "It reads one record that arrives inside the envelope file and writes one HTML file, so it names no list of yours.",

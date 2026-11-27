@@ -17,5 +17,5 @@ Starting the run itself (the helper that wakes a session on a message) stays wit
 | `do-work/follow-runs.mjs` | The command line: `--allow-tools <folder> <Tool,Tool>`, `--tools [folder]`, `--clear-tools <folder>`, `--events <harness id> < stream`. |
 | `read-data/ai-command-lines.json` | `folder`, `settings_file`, `progress_folder` and one `harnesses` row per command line (`resume`, `allowed_tools`, `stream`). |
 | `test/session-runs.test.mjs` | The old tests' cases: both command lines' streams normalise the same, the progress file is bounded and never keeps thinking, the allow-list rides only a command line with the flag; and the command line. |
-| `tool-rows.json` | `tool:read-an-ai-command-line-run-as-events`, `tool:allow-my-ai-command-line-tools-in-a-folder` (`on-your-computer`). |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:read-an-ai-command-line-run-as-events`, `tool:allow-my-ai-command-line-tools-in-a-folder` (`on-your-computer`). |
 | `part.json` | Nothing here is imported by other code. |

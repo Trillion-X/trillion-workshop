@@ -41,5 +41,5 @@
       "hands_back": "Status 202 with {\"_treg\":{\"outcome\":\"pending\"},\"reserved_micro\":500000,\"charged_micro\":null}; headers x-treg-cost-micro 500000 (50 cents held, not yet charged), x-treg-call-id 0123456789abcdef0123456789abcdef, x-treg-served-by made-up.video.generate and an x-treg-async descriptor. Follow it with tool:read-a-treg-call."
     }
   ],
-  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs (the 202 pending call)"
+  "drafted_from": "tools/treg/what-this-tool-does-and-how-to-run-it.json (its row), its README and test/treg-rows.test.mjs (the 202 pending call)"
 }

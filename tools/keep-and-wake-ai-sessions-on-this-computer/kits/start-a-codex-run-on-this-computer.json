@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:start-a-codex-run-on-this-computer), harness/codex-runs.mjs (startCodexRun and its command line), test/codex-runs.test.mjs",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/what-this-tool-does-and-how-to-run-it.json (tool:start-a-codex-run-on-this-computer), harness/codex-runs.mjs (startCodexRun and its command line), test/codex-runs.test.mjs",
   "start_here": "Say to your AI: \"Start a Codex run in my folder ~/projects/demo with the prompt in the file ~/prompts/hello.txt.\" It starts Codex in that folder on this computer and answers a run id; read it with the read row.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it starts one Codex run in a folder you name, with a prompt you name in a file, and writes only its own run folder.",

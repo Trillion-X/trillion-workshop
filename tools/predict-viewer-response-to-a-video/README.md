@@ -6,7 +6,7 @@ A script a person's AI runs on the person's own computer. It runs a published br
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:predict-viewer-response-to-a-video`: `on-your-computer`, with the commands that fetch and run it, and what to tell the person about the licence. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:predict-viewer-response-to-a-video`: `on-your-computer`, with the commands that fetch and run it, and what to tell the person about the licence. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/predict_viewer_response.py` | The command: one JSON request on standard input, `curve.json` and `curve.png` in `out_dir`, a last line `{"result": ...}`. The pure readers (`response_curve`, `spikes`, `flat_zones`, `plot`) need only numpy and matplotlib; the model's imports happen inside `run`. |
 | `test/test_response_curve.py` | The curve, spikes and flat zones on synthetic predictions (no model, no video). |
@@ -45,4 +45,4 @@ None. `tools/media-composition` finds action, silence and beats from the sound a
 
 **Depends on:** Python 3.11+ with `tribev2`, `torch`, `pandas`, `numpy` and `matplotlib`; the model weights in the Hugging Face cache (the first run downloads them). Nothing is sent anywhere.
 
-**Depended on by:** `tool-rows.json` (`tool:predict-viewer-response-to-a-video`), run on the person's computer by their AI.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (`tool:predict-viewer-response-to-a-video`), run on the person's computer by their AI.

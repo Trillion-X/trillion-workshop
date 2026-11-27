@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-action-moments's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/find-action-moments.mjs, and its output measured by running that script on a synthetic 26 second clip (a tone that jumps to full volume at 8, 15 and 21 seconds)",
+  "drafted_from": "tool:find-action-moments's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/find-action-moments.mjs, and its output measured by running that script on a synthetic 26 second clip (a tone that jumps to full volume at 8, 15 and 21 seconds)",
   "start_here": "Say to your AI: \"Find the five strongest hit moments in my rally video 1f:\" followed by its identity. It runs tool:find-action-moments and hands back each moment's time in seconds, strongest first.",
   "lists": [],
   "no_lists_because": "It reads one video you name by its file identity and answers from that video alone, so it keeps no list of its own.",

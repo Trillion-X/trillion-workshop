@@ -26,7 +26,7 @@
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a GET to https://tidycal.com/api/booking-types with the vault key tidycal-api-token as a bearer header. Reads only.",
+      "given": "Reads tools/tidycal/what-this-tool-does-and-how-to-run-it.json: a GET to https://tidycal.com/api/booking-types with the vault key tidycal-api-token as a bearer header. Reads only.",
       "hands_back": "It answers the booking types, for example \"Private call, 30 minutes, booking address tidycal.com/<your-slug>/private-call\" with its numeric id."
     }
   ]

@@ -21,6 +21,6 @@ A list handed in is `{ id, row_type, fields, ...its definition, rows: [{ id, val
 | `read-data/list-settlements.mjs` | `makeSettlements` and `handleSettlementRequest`, moved unchanged from old trillion `src/list-settlements.mjs`. |
 | `read-data/list-settlements.json` | Its orders, fields, limits, outcomes, words, bases and line kinds, moved unchanged from old trillion `src/list-settlements.json`. |
 | `do-work/settle-over-records.mjs` | `settle({ action, list_id, lists, ... })`: the module over the lists handed in, for every row; answers `keep`. |
-| `tool-rows.json` | `tool:settle-amounts-between-lists`, `tool:reconcile-lines-against-a-statement`, `tool:post-balanced-entries`, `tool:total-quote-lines`, `tool:report-on-accrual-or-cash`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:settle-amounts-between-lists`, `tool:reconcile-lines-against-a-statement`, `tool:post-balanced-entries`, `tool:total-quote-lines`, `tool:report-on-accrual-or-cash`. |
 | `test/list-settlements.test.mjs` | Old trillion `test/list-settlements.test.mjs`, every settlement assertion as it was, over a store kept in memory that stands for the caller's, handed to each run as `lists`. |
 | `test/settle-over-records.test.mjs` | The seam: the changes made on the lists handed in and answered as `keep`, removal, and refusals answered as errors. |

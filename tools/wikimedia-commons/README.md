@@ -11,7 +11,7 @@ The assessor keeps original license, author, title, source and rights metadata, 
 | File | Purpose |
 |---|---|
 | `records.json` | Shared Workshop descriptors for search, one-file metadata and the local rights/credit check. |
-| `tool-rows.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
+| `what-this-tool-does-and-how-to-run-it.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
 | `part.json` | No public files: only the tool runs this code. |
 | `do-work/assess-commons-reuse.mjs` | Offline, conservative, file-specific license classification and credit preparation. |
 | `test/assess-commons-reuse.test.mjs` | The license policy, the credit text and the command as its row runs it. |

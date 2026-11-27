@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { findNearestPlaces, kmBetween, placesFrom, readSettings, routeButtons, stopWords } from '../read-data/get-there.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const settings = readSettings();
 
 test('route buttons open each maps app with the start and the stop on the way', () => {
@@ -86,8 +86,8 @@ test('what a caller may ask is bounded by the settings', async () => {
 test('the rows pack what the tools read and the pure one runs its own sample', () => {
   assert.deepEqual(rows.map(row => row.id), ['tool:route-buttons', 'tool:find-nearest-places']);
   for (const row of rows) assert.deepEqual(row.invoke.files.package_files.paths, ['do-work', 'read-data']);
-  assert.equal(rows[0].invoke.internet, false);
-  assert.equal(rows[1].invoke.internet, true);
+  assert.equal(rows[0].invoke.may_reach, undefined);
+  assert.ok(Array.isArray(rows[1].invoke.may_reach));
   const sample = rows[0].verify[0];
   assert.match(routeButtons(sample.input).buttons[0].url, new RegExp(sample.contains.replace('.', '\\.')));
 });

@@ -20,7 +20,7 @@ On the film's in-git library, concept files and titles file, the `catalog` outpu
 |------|---------|
 | `do-work/rank_formats.py` | The command. It reads the request on standard input (or `--request FILE`) and runs step `catalog` or `apply`. `--base FOLDER` is where relative paths are read and where the titles file is written. It prints its lines, then `{"result": {...}}` as its last line. |
 | `ports/rank-formats.json` | The port contract: the film tool's code, copied byte for byte first, then adapted. |
-| `tool-rows.json` | `tool:rank-library-formats-against-concepts`, a `computer` row with `change-a-folder`. It takes the settings row only as input (`settings_record`, the row itself) and declares no records door. It has two sample runs. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:rank-library-formats-against-concepts`, a `computer` row with `change-a-folder`. It takes the settings row only as input (`settings_record`, the row itself) and declares no records door. It has two sample runs. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/test_rank_formats.py` | Covers the readers, both steps, the refusals, request paths in the granted folder, and settings (including a retired row), on a made-up library, bank, concept files, package CSV and judged files. |
 | `test/rank-library-formats-against-concepts.test.mjs` | Checks the row and runs those tests. |
@@ -64,7 +64,7 @@ The settings (defaults are in `do-work/rank_formats.py`):
 
 **Depends on:** Python 3.10 or later and its standard library. It also needs `tools/settings` (`read-data/settings.py`), which its row packs.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Invariants
 

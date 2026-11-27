@@ -21,7 +21,7 @@ import { realpathSync } from 'node:fs';
 //   mechanism's state are kept there, one file per waiter address, written whole (a new file renamed over the old),
 //   only after the engine accepted the fact. Two waiters that emit at one address keep apart (each file is the waiter and its address). A restarted waiter resumes from it (its sequence, a repeat's next due
 //   time). Without one they are kept in memory for this run alone.
-// - Each wake keeps its own places: given `--wake <id>` (the row's argv fills it from the task's `cause.wake`, the id of
+// - Each wake keeps its own places: given `--wake <id>` (the row's run fills it from the task's `cause.wake`, the id of
 //   the wake that started the run, a copy's `<declared id>/<name>`), every kept key starts with that id
 //   (kept-places.mjs `keptKeyOf`), so the copies of one wake (keep-noticing-row-changes and a copy of it per pursuit
 //   database, each over its own database) keep apart in one kept folder and in one places_in database. A wake's
@@ -330,7 +330,7 @@ export function placesConnection(placesIn, fd = PLACES_FD) {
 }
 
 /** The first descriptor a waiter's own credential is held on: the row mounts each waiter's credential_name on this plus the
- *  waiter's place in the input's list (tool-rows.json credential_mounts, `waiters[].credential_name`). */
+ *  waiter's place in the input's list (what-this-tool-does-and-how-to-run-it.json key, `waiters[].credential_name`). */
 export const EACH_WAITER_FD = 5;
 
 /** The input's waiters, each that names its own credential_name told the descriptor the run holds it on, the engine's

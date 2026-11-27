@@ -24,7 +24,7 @@ test('a relative path, a package path and a package_files item each name a folde
   put('tools/a/show/x.tsx', "import b from '../../b/read-data/y.mjs';\n");
   put('tools/b/read-data/y.mjs', "import c from 'trillion-workshop/tools/c/read-data/z.mjs';\n");
   put('tools/c/read-data/z.mjs', 'export const z = 1;\n');
-  put('tools/d/tool-rows.json', JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', id: 'tool:d', invoke: { files: { package_files: [{ package: 'c', paths: ['read-data'], at: '/opt/c' }, { package: 'd', paths: ['x'], at: '/opt/d' }] } } } }] }));
+  put('tools/d/what-this-tool-does-and-how-to-run-it.json', JSON.stringify({ records: [{ payload: { kind: 'ai-tool-descriptor', id: 'tool:d', invoke: { files: { package_files: [{ package: 'c', paths: ['read-data'], at: '/opt/c' }, { package: 'd', paths: ['x'], at: '/opt/d' }] } } } }] }));
   put('tools/e/notes.md', 'see tools/a/show/x.tsx\n');
   put('tools/e/node_modules/p/index.mjs', "import '../../../a/show/x.tsx';\n");
   assert.deepEqual(toolClosures(root), { a: ['b', 'c'], b: ['c'], c: [], d: ['c'], e: [] });

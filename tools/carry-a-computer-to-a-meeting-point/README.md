@@ -16,7 +16,7 @@ The program is kept running by the init row for the computer's kind (`tools/star
 | `read-data/ways.json` | The way rows |
 | `read-data/ports.json` | The meeting-point port range |
 | `read-data/carrier-files.json` | What `install` copies beside the init row |
-| `tool-rows.json` | `tool:carry-a-computer-to-a-meeting-point`: what a host runs for the computers carried to it (renders the way's `server` half) |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:carry-a-computer-to-a-meeting-point`: what a host runs for the computers carried to it (renders the way's `server` half) |
 | `on-a-computer/carry-a-computer.service` | The systemd unit template a Linux computer's row names to run the carrier (see "On a Linux server"); start-a-computer reads its fields |
 | `kits/carry-a-computer-to-a-meeting-point.json` | How to ask for it and what comes back |
 | `part.json` | The public entry |

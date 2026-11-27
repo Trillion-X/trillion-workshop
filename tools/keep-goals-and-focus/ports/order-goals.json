@@ -42,7 +42,7 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/keep-goals-and-focus/tool-rows.json",
+   "path": "tools/keep-goals-and-focus/what-this-tool-does-and-how-to-run-it.json",
    "why": "Declares how to invoke this adapter and its sample; the descriptor does not implement the delegated algorithms or a second adapter."
   },
   {
@@ -106,7 +106,7 @@
    "capability_rows_scope": "Distinct near:true rows returned by the native capability search for the recorded phrasings. Complete unfiltered stdout and stderr were retained privately before this public projection."
   },
   "test_refs": [
-   "tools/keep-goals-and-focus/tool-rows.json sample run (tool:order-my-goals-under-the-goals-they-serve)"
+   "tools/keep-goals-and-focus/what-this-tool-does-and-how-to-run-it.json sample run (tool:order-my-goals-under-the-goals-they-serve)"
   ],
   "owner_boundary": "NO_PRIOR_OWNER applies only to the request adapter described by job. Existing algorithms are imported from the owners in distinct_from, whose historical source locations remain named there; no source-copy baseline is asserted for this separately authored adapter."
  }

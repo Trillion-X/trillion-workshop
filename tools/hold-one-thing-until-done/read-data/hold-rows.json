@@ -1,5 +1,5 @@
 {
-  "_what": "Where the hold reads and keeps the person's own rows, and how a row of their must-do list becomes a card the hold ranks. Every name here is a record kind or id the rows in tool-rows.json are granted; the hold's rules (what holds, for how long, the asides, the hand-back ways, the stakes and their words) are the person's own row, never shipped here.",
+  "_what": "Where the hold reads and keeps the person's own rows, and how a row of their must-do list becomes a card the hold ranks. Every name here is a record kind or id the rows in what-this-tool-does-and-how-to-run-it.json are granted; the hold's rules (what holds, for how long, the asides, the hand-back ways, the stakes and their words) are the person's own row, never shipped here.",
   "state": {
     "type": "setting",
     "id": "setting:needs_you_hold",

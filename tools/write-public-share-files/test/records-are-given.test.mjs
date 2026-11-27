@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const ROW = new URL('../tool-rows.json', import.meta.url);
+const ROW = new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url);
 const SHELL = new URL('../do-work/write-share-files.mjs', import.meta.url);
 
 test('the tool row names no records method and holds no stored records', async () => {
@@ -17,7 +17,7 @@ test('the tool row names no records method and holds no stored records', async (
   assert.deepEqual(row.stored.map(entry => entry.operations ?? []).flat().filter(op => op.startsWith('records:')), []);
   assert.equal(row.input_schema.properties.records.type, 'array');
   assert.deepEqual(row.input_schema.required, ['origin', 'row_kind', 'records']);
-  assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the plain function runner');
+  assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs', 'the row runs the plain function runner');
   assert.equal(row.invoke.files.package_files.some(entry => entry.package === 'records-door'), false, 'the records door is not mounted');
   assert.equal(row.uses_tools.includes('trillion-workshop/records-door'), false);
 });

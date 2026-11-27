@@ -33,5 +33,5 @@
       "hands_back": "{\"name\":\"main\",\"title\":\"Welcome\",\"address\":\"/welcome\",\"tours_address\":\"/tour\",\"keep_seconds\":3600,\"states\":{\"none\":{\"heading\":\"Welcome\",\"body\":\"Sign in.\",\"actions\":[]}}}"
     }
   ],
-  "drafted_from": "tool row in tools/welcome-a-buyer-back-after-checkout/tool-rows.json and reads/read-the-welcome-page.ts"
+  "drafted_from": "tool row in tools/welcome-a-buyer-back-after-checkout/what-this-tool-does-and-how-to-run-it.json and reads/read-the-welcome-page.ts"
 }

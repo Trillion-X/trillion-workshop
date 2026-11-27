@@ -15,8 +15,8 @@ const repo = resolve(import.meta.dirname, '..');
 const laidOut = JSON.parse(readFileSync(join(repo, PACKAGE_FILES), 'utf8'));
 const { results } = toolRowFindings({ repo, ref: 'HEAD' });
 
-// The program files a container row starts: its argv entries that are scripts, as absolute paths in the run's folder.
-const programFilesOf = ({ workdir, argv }) => argv
+// The program files a container row starts: its run words that are scripts, as absolute paths in the run's folder.
+const programFilesOf = ({ workdir, run }) => [run].flat()
   .filter(arg => typeof arg === 'string' && /\.(mjs|js|cjs)$/.test(arg))
   .map(arg => (arg.startsWith('/') ? arg : posix.join(workdir, arg)));
 

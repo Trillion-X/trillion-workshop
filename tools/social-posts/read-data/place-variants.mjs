@@ -15,7 +15,7 @@
 //   4. A place with no `check` has no check variant: asking it is refused naming the places that do.
 //
 // Use: `node tools/social-posts/read-data/place-variants.mjs --write` rewrites the variants in
-// tools/social-posts/tool-rows.json from the place rows; `--check` exits 1 when they differ (test/place-variants.test.mjs
+// tools/social-posts/what-this-tool-does-and-how-to-run-it.json from the place rows; `--check` exits 1 when they differ (test/place-variants.test.mjs
 // holds the same).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -37,7 +37,7 @@ const connectionOf = place => ({ vendor: place.connection_vendor, from_input: AC
 export function sendVariants(places = placeRows.places) {
   return Object.fromEntries(places.map(place => [slugOf(place), {
     connection: connectionOf(place),
-    credential_mounts: heldFields(place.options).map((field, at) => ({ field_id: field, fd: FIRST_HELD_DESCRIPTOR + at })),
+    key: heldFields(place.options).map((field, at) => ({ field_id: field, fd: FIRST_HELD_DESCRIPTOR + at })),
     ...(place.refresh ? { refresh: place.refresh } : {}),
   }]));
 }
@@ -51,16 +51,17 @@ export function checkVariants(places = placeRows.places) {
       url,
       timeout_seconds: timeoutSeconds,
       query: Object.fromEntries(Object.entries(query).map(([name, value]) => [name, { const: value }])),
-      credential_injections: [{ hosts: [new URL(url).host], field_id: fieldId, placement }],
+      credential_injections: [{ field_id: fieldId, placement }],
+      may_reach: [new URL(url).host],
       connection: connectionOf(place),
     }];
   }));
 }
 
-const ROWS = join(dirname(fileURLToPath(import.meta.url)), '..', 'tool-rows.json');
+const ROWS = join(dirname(fileURLToPath(import.meta.url)), '..', 'what-this-tool-does-and-how-to-run-it.json');
 const variantsFor = { [SEND_TOOL]: sendVariants, [CHECK_TOOL]: checkVariants };
 
-/** tool-rows.json's text with each place tool's variants made from the place rows. */
+/** what-this-tool-does-and-how-to-run-it.json's text with each place tool's variants made from the place rows. */
 export function withVariants(text) {
   const rows = JSON.parse(text);
   for (const record of rows.records) {
@@ -74,5 +75,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const current = readFileSync(ROWS, 'utf8');
   const made = withVariants(current);
   if (process.argv.includes('--write')) writeFileSync(ROWS, made);
-  else if (made !== current) { console.error('tool-rows.json variants differ from the place rows: run with --write'); process.exit(1); }
+  else if (made !== current) { console.error('what-this-tool-does-and-how-to-run-it.json variants differ from the place rows: run with --write'); process.exit(1); }
 }

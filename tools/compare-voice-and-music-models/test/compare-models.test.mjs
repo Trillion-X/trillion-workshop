@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const python = process.env.WORKSHOP_TEST_PYTHON;
 assert.ok(python, 'Run the owned Python test-environment setup and supply its verified WORKSHOP_TEST_PYTHON binding.');
 

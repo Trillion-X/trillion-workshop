@@ -10,7 +10,7 @@
 // copy kept one place in the kept folder (one folder per account and tool), and with places_in two copies that name one
 // database refused each other, and four databases were each given the same carried-in place. So the key starts with the
 // wake's own id, which the engine hands each run in its task (`cause.wake`, the copy id `<declared id>/<name>` for a
-// copy; trillion-rust src/wake.rs, the cause it hands the runner; the row's argv gives it as `--wake`):
+// copy; trillion-rust src/wake.rs, the cause it hands the runner; the row's run gives it as `--wake`):
 // "keep-noticing-row-changes/notes|waiter:row-changes@where::something-changed". A run that no wake started (a direct
 // tools:run) has no wake, and keeps under the key without one, as before.
 //
@@ -42,7 +42,7 @@
 // - With no `places_in`, the kept folder (`folderPlaces`): one file per kept key in the row's `invoke.kept_folder`, which
 //   the engine gives once per account and tool on each computer (trillion-rust src/tool_runs/tools/container.rs
 //   `kept_folder`). This is how every waiter kept its place before places_in, unchanged.
-// - With `places_in` (the vault name of a database of the person's, mounted on PLACES_FD by the row's credential_mounts),
+// - With `places_in` (the vault name of a database of the person's, mounted on PLACES_FD by the row's key),
 //   that database's PLACES_TABLE (`databasePlaces`): one row per tool and kept key, so the place belongs to the person and
 //   the tool, not to a computer, and a wake moved to another computer goes on from where the last computer stopped.
 //

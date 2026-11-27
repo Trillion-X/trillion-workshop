@@ -1,0 +1,185 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-package-files-current-tool-rows",
+  "what_this_is": "The Workshop row for tools/keep-package-files-current: every five minutes it keeps the Workshop's package-files.json at origin/main, landing only the changes it can explain.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-package-files-current",
+        "id": "tool:keep-package-files-current",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true
+        },
+        "label": "Keep the Workshop's package-files.json at origin/main",
+        "job": "Every five minutes, add to the Workshop's package-files.json whatever the generator finds that origin lacks, land it as a package-files-only commit, and record every origin item the generator does not find as a finding (never removed).",
+        "description": "One pass over the granted Workshop checkout (--root). It fetches origin, regenerates the file from an export of origin/main with the generator, and compares it with origin's current file. It only adds: a row or item the generator finds that origin lacks is added to origin's file. An origin item or row the generator does not find is kept and returned as a finding. Origin moving during the pass lands nothing and the next pass starts again. Landing is not wired yet (the checkout's owner must grant the write), so the pass reports what it would land. Returns outcome (nothing-to-do, landed, origin-moved or error), at, added, findings, commit and why.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "outcome"
+          ],
+          "properties": {
+            "outcome": {
+              "enum": [
+                "nothing-to-do",
+                "landed",
+                "origin-moved",
+                "error"
+              ]
+            },
+            "at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "added": {
+              "type": "integer"
+            },
+            "findings": {
+              "type": "array"
+            },
+            "commit": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "why": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "workdir": "/opt/keep-package-files-current",
+          "may_reach": [
+            "github.com"
+          ],
+          "stdout": "json",
+          "run": [
+            "node",
+            "--no-warnings",
+            "/opt/keep-package-files-current/do-work/keep-package-files-current.mjs",
+            "--root",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.use-git-in-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-package-files-current",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/keep-package-files-current"
+              },
+              {
+                "package": "keep-the-shared-checkout-current",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/keep-the-shared-checkout-current"
+              }
+            ]
+          },
+          "capabilities": [
+            "use-git-in-a-folder"
+          ]
+        },
+        "result_selector": "$",
+        "wakes": [
+          {
+            "id": "every-five-minutes",
+            "on": {
+              "fact": {
+                "kind": "due-time",
+                "from": [
+                  "run"
+                ],
+                "fold": true,
+                "match": {
+                  "schedule_id": "schedule:tool:keep-package-files-current:every-five-minutes"
+                },
+                "watch": {
+                  "schedules": [
+                    {
+                      "schedule_id": "schedule:tool:keep-package-files-current:every-five-minutes",
+                      "source_generation": 1,
+                      "schedule_revision": 1,
+                      "timezone": "UTC",
+                      "start_local_date": "1970-01-01",
+                      "local_window": {
+                        "start": "00:00",
+                        "duration_minutes": 1
+                      },
+                      "dst": {
+                        "gap": "next-valid",
+                        "fold": "earlier"
+                      },
+                      "action": {
+                        "operation": "tell-the-engine",
+                        "owner_ref": "tool:keep-package-files-current",
+                        "owner_dispatch": {
+                          "name": "tool:keep-package-files-current",
+                          "input": {}
+                        },
+                        "completion": {
+                          "mode": "synchronous-owner-return"
+                        }
+                      },
+                      "cadence": {
+                        "unit": "minute",
+                        "interval": 5
+                      }
+                    }
+                  ]
+                }
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 600000
+            }
+          }
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "stand_in_programs": {
+              "git": "exit 1"
+            }
+          }
+        ],
+        "provenance": {
+          "source": "Written for the Workshop: keeps the shared checkout current by a scheduled pass, replacing a hand-run reset that lost no work but could not run unattended"
+        }
+      }
+    }
+  ]
+}

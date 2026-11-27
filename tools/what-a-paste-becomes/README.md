@@ -10,7 +10,7 @@ What a paste becomes. In a composer (a message to the AIs, a hand-off, a note) a
 | `read-data/paste-policy.json` | The threshold, the file name, the image prefix, the tags whose bodies are never words, and the words the person reads. |
 | `show/paste-sources.ts` | Forwards `pasteSourceOf`, `pastedMarkdown` and `tableRows` to the existing converter in `tools/edit-a-document-together/read-data/paste-sources.ts`. No row runs it; the browser supplies `DOMParser`. |
 | `show/paste-sources.json` | The sources, their signatures and their rules, and the default rules. A new editor is one row. |
-| `tool-rows.json` | `tool:decide-what-a-paste-becomes`, a `container` row with no internet. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:decide-what-a-paste-becomes`, a `container` row with no internet. |
 | `part.json` | The code and its DATA are public. |
 | `test/paste-policy.test.mjs` | The original tests (short insert, threshold, long attachment and its words, image-only versus a copy with text, style bodies, `&nbsp;`) and the row's sample run. |
 | `test/paste-sources.test.mjs` | In Chromium (`test-helpers/chromium.mjs`): Google Docs, Word and Notion pastes keep their structure, an unknown editor falls to the default rules, an empty paste keeps the plain text, a pasted script is never run, a pasted table becomes rows. |
@@ -25,4 +25,4 @@ The narrow entry contracts describe only this forwarding and JSON invocation sea
 
 **Depends on:** the public paste-policy files in `tools/messages-screen` and paste-source files in `tools/edit-a-document-together`; Node's standard library; a browser's `DOMParser` for `show/paste-sources.ts`; Playwright's Chromium for its test.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

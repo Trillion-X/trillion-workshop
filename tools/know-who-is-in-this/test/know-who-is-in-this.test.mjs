@@ -11,7 +11,7 @@ import { fileURLToPath } from 'node:url';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const python = args => spawnSync('python3', ['-B', ...args], { encoding: 'utf8' });
 const skip = python(['--version']).status === 0 ? false : 'needs python3';
-const allRows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const allRows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const appearanceIds = ['tool:keep-who-appeared'];
 const rows = allRows.filter(row => !appearanceIds.includes(row.id));
 

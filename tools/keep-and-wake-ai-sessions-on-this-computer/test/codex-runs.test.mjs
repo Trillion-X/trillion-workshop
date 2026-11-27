@@ -129,7 +129,7 @@ test('a start is refused for a missing folder, an empty message, and a run read 
   assert.throws(() => readCodexRun({ run: 'codex-00000000-0000-0000-0000-000000000000', root }), /No such run/);
 });
 
-// The three tool rows run this file's command line (tool-rows.json `invoke.run`). Each refusal is checked before any run
+// The three tool rows run this file's command line (what-this-tool-does-and-how-to-run-it.json `invoke.run`). Each refusal is checked before any run
 // folder is made, so these tests write nothing under the person's home folder.
 const CLI = resolve(import.meta.dirname, '../harness/codex-runs.mjs');
 const runCli = args => {
@@ -170,7 +170,7 @@ test('the read and cancel rows refuse an unknown or malformed run id', async () 
 });
 
 test('each codex row declares its input and runs this command line', () => {
-  const rows = JSON.parse(readFileSync(resolve(import.meta.dirname, '../tool-rows.json'), 'utf8')).records.map(r => r.payload);
+  const rows = JSON.parse(readFileSync(resolve(import.meta.dirname, '../what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(r => r.payload);
   const byId = Object.fromEntries(rows.map(p => [p.id, p]));
   const start = byId['tool:start-a-codex-run-on-this-computer'];
   const read = byId['tool:read-a-codex-run-on-this-computer'];

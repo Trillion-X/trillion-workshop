@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { envelopesToConversations, readEnvelopeLines } from '../read-data/signal-envelopes.mjs';
 import { clientEnvironment, linkCode, linkedAccount, readSignalOnThisComputer, scrubbed } from '../do-work/signal-client.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const SELF = '11111111-1111-4111-8111-111111111111';
 const B = '22222222-2222-4222-8222-222222222222';
@@ -157,7 +157,7 @@ test('both client rows run on this computer from node, keep one folder between r
     assert.deepEqual(invoke.capabilities, [], 'it needs no grant: no person step but the scan');
     assert.equal(invoke.kept_folder, true);
     assert.deepEqual(invoke.stdin.client_folder, { fill: { from: 'task', field: 'kept_folder' } });
-    assert.equal(invoke.argv[0], 'node');
+    assert.equal(invoke.run[0], 'node');
     assert.deepEqual(Object.keys(invoke.programs).sort(), ['java', 'signal-cli']);
     for (const [system, [file, blake3, executable]] of Object.entries(JAVA)) {
       assert.deepEqual(invoke.programs.java.fetch[system], { url: `https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/${file}`,

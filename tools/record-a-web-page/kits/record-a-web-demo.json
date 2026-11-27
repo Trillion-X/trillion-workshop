@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:record-a-web-demo row in tools/record-a-web-page/tool-rows.json, do-work/record-a-web-demo.mjs and test/record-a-web-page.test.mjs",
+  "drafted_from": "tool:record-a-web-demo row in tools/record-a-web-page/what-this-tool-does-and-how-to-run-it.json, do-work/record-a-web-demo.mjs and test/record-a-web-page.test.mjs",
   "start_here": "Say to your AI: \"Record a demo of https://bakery.example/ where I hover Features, type Ada in the name box, click Say hello and scroll down, with a red click ripple and a caption on the hover and the click.\" It runs tool:record-a-web-demo and hands you an MP4, a GIF and one marked picture per step.",
   "lists": [],
   "no_lists_because": "It names no list: it takes a page address and steps, and answers a video, a GIF and step pictures kept in your files.",

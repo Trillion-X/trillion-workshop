@@ -10,7 +10,7 @@ import { resolve } from 'node:path';
 const toolsDir = resolve(import.meta.dirname, '../..');
 const ENGINE_WAKE_KEYS = ['id', 'on', 'budget', 'input', 'until', 'retry', 'skip_unchanged', 'rate', 'replay', 'needs_input', 'on_failure'];
 
-/** The wake rows a tool-rows.json declares: each object under a "wakes" list, at any depth. */
+/** The wake rows a what-this-tool-does-and-how-to-run-it.json declares: each object under a "wakes" list, at any depth. */
 function wakesIn(value, found = []) {
   if (Array.isArray(value)) {
     for (const item of value) wakesIn(item, found);
@@ -34,7 +34,7 @@ function objectsWith(value, key, expected, found = []) {
   return found;
 }
 
-const rowsOf = tool => JSON.parse(readFileSync(resolve(toolsDir, tool, 'tool-rows.json'), 'utf8'));
+const rowsOf = tool => JSON.parse(readFileSync(resolve(toolsDir, tool, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
 const keysOf = wakes => new Set(wakes.flatMap(wake => Object.keys(wake)));
 
 test('every wake row of this tool uses only keys the engine accepts', () => {
@@ -51,7 +51,7 @@ test('the keys this tool wake rows use are keys other tools wake rows use too', 
   const own = keysOf(wakesIn(rowsOf('keep-journey-steps-from-kept-rows')));
   const others = new Set();
   for (const tool of readdirSync(toolsDir)) {
-    if (tool === 'keep-journey-steps-from-kept-rows' || !existsSync(resolve(toolsDir, tool, 'tool-rows.json'))) continue;
+    if (tool === 'keep-journey-steps-from-kept-rows' || !existsSync(resolve(toolsDir, tool, 'what-this-tool-does-and-how-to-run-it.json'))) continue;
     for (const key of keysOf(wakesIn(rowsOf(tool)))) others.add(key);
   }
   const invented = [...own].filter(key => !others.has(key));
@@ -61,7 +61,7 @@ test('the keys this tool wake rows use are keys other tools wake rows use too', 
 test('every fact wake of this tool matches a field the row-changes waiter puts in its fact', () => {
   // The row-changes waiter (notice-when-something-shows-up, its keep-noticing-row-changes wake's input) names the fields of each
   // fact it tells: where, place, change, at, key, before, after, by. A wake's match names one of those; another name is never equal.
-  const noticer = JSON.parse(readFileSync(resolve(toolsDir, 'notice-when-something-shows-up/tool-rows.json'), 'utf8'));
+  const noticer = JSON.parse(readFileSync(resolve(toolsDir, 'notice-when-something-shows-up/what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
   const rowChanges = objectsWith(noticer, 'mechanism_leaf', 'row-changes.mjs');
   assert.equal(rowChanges.length, 1);
   const told = new Set([...rowChanges[0].emitted_record.payload_fields, 'kind']);

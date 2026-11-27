@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TELEMETRY_PRIVACY, classOf, pageSends, sends } from '../read-data/telemetry-gate.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 test('the class comes from the longest route, a declared class can only make it more private, and unknown is closed', () => {
   assert.equal(classOf({ surface: 'app', path: '/lists/x' }), 'own-account');

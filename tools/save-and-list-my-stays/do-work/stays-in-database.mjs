@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/save-and-list-my-stays/do-work/stays-in-database.mjs
 //
-// tool:save-a-stay and tool:list-my-stays, one container process each (tool-rows.json): a person's own stays, kept in the pursuit
+// tool:save-a-stay and tool:list-my-stays, one container process each (what-this-tool-does-and-how-to-run-it.json): a person's own stays, kept in the pursuit
 // database the request names (`database`), in this tool's own table `stays`. The person is the one the request names; a stay that
 // is not theirs is refused. Ported from the old Network's saveStay and the own-stays half of staysOf (src/network-stays.mjs at
 // b6ae0ebf815f). The connection string is a held value the engine hands this process on descriptor 3, named by `database`; it

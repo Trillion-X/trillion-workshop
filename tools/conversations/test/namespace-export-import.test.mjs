@@ -6,7 +6,7 @@ import * as importer from '../read-data/chat-import.mjs';
 import { heldStore, runKept } from './support/held-store.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records.map(r => r.payload)
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url))).records.map(r => r.payload)
   .find(r => r.id === 'tool:import-conversation-exports-from-my-files');
 const hash = bytes => makeHashCodeHexFromBytes(bytes);
 const page = { conversation_id: 'bakery-1', title: 'Bread', messages: [

@@ -10,7 +10,7 @@ Keeps categories of places (banking and finance, health, social networks, shoppi
 |------|---------|
 | `read-data/capture-exclusion.mjs` | `loadState`, `domainsIn`, `categoriesOn`, `domainsOf`, `excluded`, `applyDiff`, and `exclusion(input)`, the row's function. |
 | `read-data/capture-exclusion.json` | The categories with their defaults, the seed of domains per category, the starting cursor and every word said. |
-| `tool-rows.json` | `tool:capture-exclusion`: a `computer` row with `capabilities: []`, run by `tools/workflows`'s `do-work/run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:capture-exclusion`: a `computer` row with `capabilities: []`, run by `tools/workflows`'s `do-work/run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/capture-exclusion.test.mjs` | The original Trillion tests (the person's choice over the default, subdomains and look-alikes, diffs at the cursor, tombstones over the seed, a domain added back). |
 
@@ -35,4 +35,4 @@ Keeps categories of places (banking and finance, health, social networks, shoppi
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. Nothing imports this folder.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. Nothing imports this folder.

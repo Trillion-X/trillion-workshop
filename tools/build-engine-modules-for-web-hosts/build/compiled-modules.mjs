@@ -36,7 +36,7 @@ export const PAGE_COMPILED_MODULES = [
   { crate: 'composition-engine', folder: 'composition-engine' },
 ];
 // Run by the engine as a tool on any computer: a row naming a `target` built as a WASI component with no bindings, which a
-// tool row lays out from here and names as its component (tools/workflows/tool-rows.json `tool:run-workflow-definition`,
+// tool row lays out from here and names as its component (tools/workflows/what-this-tool-does-and-how-to-run-it.json `tool:run-workflow-definition`,
 // argv ["component", ...]; the engine's src/tool_runs/tools/component.rs).
 export const ENGINE_COMPONENTS = [
   { crate: 'workflow-component', target: 'wasm32-wasip2', folder: 'workflow-component' },

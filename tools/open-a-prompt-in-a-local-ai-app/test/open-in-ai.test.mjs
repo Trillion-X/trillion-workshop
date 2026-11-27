@@ -65,9 +65,9 @@ test('dry_run shows the argv without running it', async () => {
 });
 
 test('the Workshop row runs openInAi through the run-a-function command, on the person\'s computer', async () => {
-  const rows = (await import('../tool-rows.json', { with: { type: 'json' } })).default.records.map(row => row.payload);
+  const rows = (await import('../what-this-tool-does-and-how-to-run-it.json', { with: { type: 'json' } })).default.records.map(row => row.payload);
   const row = rows.find(each => each.id === 'tool:open-in-ai');
   assert.equal(row.invoke.kind, 'computer');
-  assert.deepEqual(row.invoke.argv.slice(-2), ['/opt/open-a-prompt-in-a-local-ai-app/read-data/open-in-ai.mjs', 'openInAi']);
+  assert.deepEqual(row.invoke.run.slice(-2), ['/opt/open-a-prompt-in-a-local-ai-app/read-data/open-in-ai.mjs', 'openInAi']);
   assert.deepEqual(row.input_schema.required, ['app', 'prompt']);
 });

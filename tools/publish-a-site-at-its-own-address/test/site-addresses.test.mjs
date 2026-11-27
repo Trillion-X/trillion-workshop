@@ -9,7 +9,7 @@ const PROOF = { suffix: SUFFIX, proof_label: '_verify-example', proof_value_pref
 const INSTALL = 'a'.repeat(32);
 const OTHER = 'c'.repeat(32);
 const ACCOUNT = 'b'.repeat(64);
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 
 // A made-up host: its files operations (list_files, find_file, read_file and pieces written under one upload id, as the engine's.
 function door(files = {}) {
@@ -136,7 +136,7 @@ test('every row runs the export it names, through the run\'s own door, with the 
   assert.deepEqual(rows.map(row => row.id), ['tool:publish_site', 'tool:name_site', 'tool:attach_domain', 'tool:let_go_of_site_address', 'tool:site_addresses']);
   for (const row of rows) {
     assert.equal(row.result_selector, '$.result');
-    assert.notEqual(row.invoke.internet, true);
+    assert.equal(row.invoke.may_reach, undefined);
     for (const right of rightsOf(row)) {
       if (right.operations.some(operation => operation.startsWith('write_file'))) assert.equal(right.files, '/installations/');
     }

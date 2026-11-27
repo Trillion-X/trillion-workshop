@@ -16,7 +16,7 @@ The cards, the grades and the spacing policy are no longer kept by this folder. 
 | `do-work/schedule-next-review.mjs` | `tool:schedule-next-review`: the next state and due time from one grade. |
 | `do-work/list-what-is-due.mjs` | `tool:list-what-is-due`: every item with whether it is due now, when it is next due and its state, due items first. |
 | `part.json` | The engine file is public. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder. |
 | `test/practice-and-review.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
 ## Key Types / Functions
@@ -38,7 +38,7 @@ Carried as generic mechanism: the next-record builder (`nextScheduleRecord`, wit
 
 **Depends on:** nothing (Node 24 in the tool container runs the scripts).
 
-**Depended on by:** `tool-rows.json` (the tool rows), Trillion's deploy (it bundles the files a row names), `test/practice-and-review.test.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json` (the tool rows), Trillion's deploy (it bundles the files a row names), `test/practice-and-review.test.mjs`.
 
 ## Quiz me on saved items
 

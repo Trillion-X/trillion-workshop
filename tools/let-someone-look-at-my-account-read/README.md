@@ -18,7 +18,7 @@ Verdict RETIRED for the look sign-in, its cookie and its banner. Ruling as relay
 - How a person who signs in as themselves is named in `people`. A share's people are a bearer digest or a team pass (`{principal, team, issuer}`), and a signed-in account has neither here. `letLook` (email to account) is not kept: its people form needs a ruling.
 - The owner's Privacy screen render. `sharingSections` is data; no screen renders it yet, and the tour `whats-new-2026-10-05-let-someone-look` still points at a Privacy section that does not exist.
 - The end runner: `tools/end-a-grant-whose-condition-failed` (in `tools/share-anything`) reads `ends` as `{until}`; a live check of it with a share from this tool is not done.
-- No `tool-rows.json` in this folder. Other tools' `uses_tools` lists name this tool, so the names resolve to no row until a row exists.
+- No `what-this-tool-does-and-how-to-run-it.json` in this folder. Other tools' `uses_tools` lists name this tool, so the names resolve to no row until a row exists.
 
 ## Tests
 

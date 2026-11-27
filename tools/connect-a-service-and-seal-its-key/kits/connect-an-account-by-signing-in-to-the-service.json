@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:connect-an-account-by-signing-in-to-the-service's row in tools/connect-a-service-and-seal-its-key/tool-rows.json, sign-in-settings.json, do-work/connect-by-signing-in.mjs, the real list:service-connections definition (read only) and test/connect-by-signing-in.test.mjs, whose made-up Gmail start and callback give the answers below",
+  "drafted_from": "tool:connect-an-account-by-signing-in-to-the-service's row in tools/connect-a-service-and-seal-its-key/what-this-tool-does-and-how-to-run-it.json, sign-in-settings.json, do-work/connect-by-signing-in.mjs, the real list:service-connections definition (read only) and test/connect-by-signing-in.test.mjs, whose made-up Gmail start and callback give the answers below",
   "start_here": "Say to your AI: \"Connect my Gmail by signing in, as someone@example.com, read only, and give me the address to open.\" It starts the sign-in with tool:connect-an-account-by-signing-in-to-the-service and hands you Google's own sign-in address.",
   "lists": [
     {

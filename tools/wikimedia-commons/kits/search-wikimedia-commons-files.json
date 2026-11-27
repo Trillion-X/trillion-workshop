@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/wikimedia-commons/tool-rows.json (invoke http GET to commons.wikimedia.org/w/api.php); the answer shown was observed from that exact request on 2026-11-13",
+  "drafted_from": "tool row in tools/wikimedia-commons/what-this-tool-does-and-how-to-run-it.json (invoke http GET to commons.wikimedia.org/w/api.php); the answer shown was observed from that exact request on 2026-11-13",
   "start_here": "Say to your AI: \"Search Wikimedia Commons for real photos of the Eiffel Tower at night, two results, and give me each file's title and page link.\" It runs tool:search-wikimedia-commons-files and hands back the file titles and canonical file-page URLs.",
   "lists": [],
   "no_lists_because": "It is a read-only search of Wikimedia Commons that takes a query and answers a page of file titles, and it keeps no list of yours.",

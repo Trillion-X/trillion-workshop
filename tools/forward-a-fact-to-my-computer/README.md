@@ -4,7 +4,7 @@ Tells a fact this computer heard to another of your own computers, so the work t
 
 ## How it works
 
-1. A fact this computer hears wakes one of this tool's wakes. There is one wake per fact kind, listed in `tool-rows.json`.
+1. A fact this computer hears wakes one of this tool's wakes. There is one wake per fact kind, listed in `what-this-tool-does-and-how-to-run-it.json`.
 2. The run gets the fact from the task's `cause.detail` and the wake's input `{to, door, forwarded_from}`. It reads this computer's own wakes of that kind (`wake:list` through its door on descriptor 4): while a wake of another tool here is switched on and hears the same kind from the same teller, it refuses, naming that wake, since the work would run on both computers.
 3. It calls `door` with the door's JSON-RPC `tools/call`: `do_one_thing_in_my_account {method: "wake:arrive", request_key: "fact:<event id>", input: {kind, event_id, payload}, pins: [to]}`, the payload carrying `forwarded_from`. The bearer is the key on descriptor 3.
 4. The meeting point at the gateway passes the call to `to`. That computer's door checks the key again and keeps the fact once per event id.
@@ -17,7 +17,7 @@ The fact goes as it came: the same kind, event id and payload, plus `forwarded_f
 
 ## Wakes
 
-A wake is a row in the tool's `wakes` list (`tool-rows.json`). The engine accepts only the keys its wake declaration has (`id`, `on`, `budget`, `input`, `until`, `retry`, `skip_unchanged`, `rate`, `replay`, `needs_input`, `on_failure`). Each wake here:
+A wake is a row in the tool's `wakes` list (`what-this-tool-does-and-how-to-run-it.json`). The engine accepts only the keys its wake declaration has (`id`, `on`, `budget`, `input`, `until`, `retry`, `skip_unchanged`, `rate`, `replay`, `needs_input`, `on_failure`). Each wake here:
 
 - is named `forward-<kind>` and hears that kind from its own teller;
 - is off until it is switched on, one kind at a time, when that kind's work moves to the other computer;

@@ -17,7 +17,7 @@ Output: `{ said, attachment: { id, guid, media_type, byte_length, transfer_name,
 - `read-data/attachment-read.mjs`: the reader (`readAttachment`), the path check, the request parse.
 - `read-data/words.json`: what each refusal says.
 - `do-work/read-a-message-attachment.mjs`: the program the Mac runs (stdin request, argv[2] the granted home folder, one JSON answer).
-- `tool-rows.json`: the tool's Workshop row.
+- `what-this-tool-does-and-how-to-run-it.json`: the tool's Workshop row.
 - `test/read-a-message-attachment.test.mjs`: fixture tests on a made-up home folder and a made-up `chat.db`.
 
 ## Rules it keeps

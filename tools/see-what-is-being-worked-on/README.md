@@ -6,8 +6,8 @@ The screens that show everything being worked on, by every AI and every person, 
 
 | File | Purpose |
 |------|---------|
-| `do-work/join-work-map.mjs` | `joinWorkMap({ answers, from? })` → `{ nodes, lines, counts }`: `read-data/join-records.mjs` (`joinRecords`, then `branchOf` for `from`) over the sources in `read-data/work-map-sources.json`, with the rows left out of the cards (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:join-what-is-being-worked-on-into-a-tree`, with a sample run where a goal holds a goal, a decision and the job an AI took for it |
+| `do-work/join-work-map.mjs` | `joinWorkMap({ answers, from? })` → `{ nodes, lines, counts }`: `read-data/join-records.mjs` (`joinRecords`, then `branchOf` for `from`) over the sources in `read-data/work-map-sources.json`, with the rows left out of the cards (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:join-what-is-being-worked-on-into-a-tree`, with a sample run where a goal holds a goal, a decision and the job an AI took for it |
 | `README.md` | This file |
 | `test/message-task-canvas.test.mjs` | The message task canvas projection. Moved byte for byte from trillion-apps `web/test/`. |
 | `test/message-tasks.test.mjs` | Message tasks filtered by the formula engine's rules. Moved byte for byte. |

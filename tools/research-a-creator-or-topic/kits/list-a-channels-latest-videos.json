@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/research-a-creator-or-topic/tool-rows.json (tool:list-a-channels-latest-videos), do-work/research-from-this-computer.mjs and sources.mjs, test/commands.test.mjs; the example was run here with the folder's stand-in yt-dlp",
+  "drafted_from": "tools/research-a-creator-or-topic/what-this-tool-does-and-how-to-run-it.json (tool:list-a-channels-latest-videos), do-work/research-from-this-computer.mjs and sources.mjs, test/commands.test.mjs; the example was run here with the folder's stand-in yt-dlp",
   "start_here": "Say to your AI: \"List the 5 latest videos of the channel @sourdough and tell me their titles and links.\" It runs the channel command on your computer with yt-dlp and reads the file it writes.",
   "lists": [],
   "no_lists_because": "It keeps no list: it asks yt-dlp for a channel's videos and writes them to one JSON file on your computer.",

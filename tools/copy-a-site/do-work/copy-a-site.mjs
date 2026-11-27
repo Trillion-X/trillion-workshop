@@ -12,7 +12,7 @@ import { realpathSync } from 'node:fs';
 //   - A kept page carries no script, no inline event handler and no frame: what it shows is its rendered markup.
 //   - A page or file that cannot be copied is listed under `skipped` with the reason; the rest still copy.
 //   - The browser is driven over the DevTools protocol (tools/headless-browser/devtools.mjs): no browser library.
-//   - Where it reaches is not decided here. The engine runs it as an internet:true tool, so its fetches (Node's own
+//   - Where it reaches is not decided here. The engine runs it as a tool with may_reach, so its fetches (Node's own
 //     fetch) and its browser go only through the engine's public-only proxy, which judges every address and redirect.
 //
 // Usage:

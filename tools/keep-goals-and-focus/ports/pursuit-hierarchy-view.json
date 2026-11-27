@@ -48,7 +48,7 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "tools/keep-goals-and-focus/tool-rows.json sample run (tool:order-my-goals-under-the-goals-they-serve)"
+   "tools/keep-goals-and-focus/what-this-tool-does-and-how-to-run-it.json sample run (tool:order-my-goals-under-the-goals-they-serve)"
   ]
  }
 }

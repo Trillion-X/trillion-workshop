@@ -312,7 +312,7 @@ It reads the computer row and the site's rows through `tool:run-sql-in-my-databa
 |---|---|
 | `tests/door.test.ts` | the door's refusals quoted |
 | `on-a-computer/serve-a-sites-pages.service` | the unit template a computer row names to run it |
-| `tool-rows.json` | the card: a program on your computer, `node do-work/serve.ts {settings}` |
+| `what-this-tool-does-and-how-to-run-it.json` | the card: a program on your computer, `node do-work/serve.ts {settings}` |
 | `do-work/serve.ts` | settings, the request order above, kept rows and answers, listening on each socket or port |
 | `do-work/actions.ts` | action rows checked, a request's values filled into a tool's input, the address a visitor is sent to |
 | `do-work/pages.ts` | page rows checked, path matching, `:name` values, the sitemap's slugs |

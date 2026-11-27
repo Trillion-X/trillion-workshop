@@ -20,7 +20,7 @@ Draws a person's Get started screen: which setup steps apply to their account, w
 | `read-data/setup-checks.mjs`, `harnesses.mjs`, `show-rules.mjs`, `sidebar-rules.mjs`, `rule-decisions.mjs`, `conflicts.mjs`, `failure.mjs`, `personal-hold.mjs`, `site-icon-url.mjs`, `ai-app-guides.mjs`, `ask-your-ai.mjs` | The modules those two import, moved with them |
 | `read-data/*.json` | The setup DATA, the show rules (`show-rules.json`) and the failure words |
 | `ports/` | One port contract per moved file, and the entry's `NO_PRIOR_OWNER` claim |
-| `tool-rows.json` | `tool:see-what-is-left-to-set-up` |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:see-what-is-left-to-set-up` |
 | `test/` | The trillion tests of the moved code (`setup-steps`, `setup-checks` without its profile-name tests, `setup-screen-plain`, with `setup-fixtures.mjs`), the row's own test, and the old tests carried in on Nov 19 2026: `setup-runtime` (the 13 held runtime tests and the connection-references-flat outcome), `setup-policy` (17), `setup-recovery` (2 of 26), `gemini-connect`, `harnesses` (6 of 10), `sidebar-rules` (2 of 3), `workspace-conflicts` (1 of 15), `show-types-space-scope`, and `setup-actions` |
 
 ## The row

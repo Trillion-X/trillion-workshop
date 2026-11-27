@@ -1,0 +1,1130 @@
+{
+  "kind": "package-set-records",
+  "record_set": "email-sending-domains-tool-rows",
+  "what_this_is": "The Workshop rows for the email-sending-domains folder: which domains the person's email-sending account (Resend) may send from, adding one, reading one and asking the account to check its DNS records again, and a sending-only key kept in the vault, listing those keys and removing one. The person's held key reaches the list's one process on a private pipe (credential_mounts fd 3) and the http rows' Authorization header only; none sends email or changes DNS.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-email-sending-domains",
+        "label": "List email sending domains",
+        "job": "See which domains my email-sending account can send from and whether each is verified",
+        "description": "Reads the domains of the person's connected email-sending account (Resend) with the key they connected, and answers each domain's name and status and how many there are. It never shows the key and sends no email.",
+        "status": "active",
+        "input_schema": { "type": "object", "additionalProperties": false, "required": ["key_name"], "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" } } },
+        "output_schema": {
+          "type": "object",
+          "required": ["domains", "count"],
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["name", "status"],
+                "properties": { "name": { "type": "string" }, "status": { "type": "string" } }
+              }
+            },
+            "count": { "type": "integer" }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "run": ["node", "/opt/email-sending-domains/do-work/list-email-sending-domains.mjs"],
+          "files": {
+            "package_files": { "package": "email-sending-domains", "paths": ["do-work"], "at": "/opt/email-sending-domains" }
+          },
+          "key": [{ "secret_name_from_input": "key_name", "fd": 3 }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/domains"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "name": "example.com",
+                      "status": "verified",
+                      "created_at": "2026-10-01 12:00:00.000000+00",
+                      "region": "us-east-1"
+                    },
+                    {
+                      "id": "00000000-0000-4000-8000-000000000002",
+                      "name": "mail.example.test",
+                      "status": "pending",
+                      "created_at": "2026-11-01 12:00:00.000000+00",
+                      "region": "us-east-1"
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-03"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-sending-key",
+        "label": "Make a sending key",
+        "job": "Make a new key that can only send email from my email-sending account, kept under its own name",
+        "description": "Asks the person's email-sending account (Resend), with the key they connected, for a new key that may only send email (from one domain when domain_id names one), and keeps the new key in the person's vault under keep_as. The new key is never shown: the answer holds its id and the held word in its place. A keep_as already held is never replaced, and then nothing is asked. Give the new key's name as Resend should show it.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key_name", "name", "keep_as"],
+          "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" }, 
+            "name": { "type": "string", "minLength": 1, "maxLength": 50 },
+            "keep_as": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+            "domain_id": { "type": "string" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["id", "token"],
+          "properties": { "id": { "type": "string" }, "token": { "type": "string" } }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/api-keys",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "body_template": {
+            "name": { "from": "name" },
+            "permission": { "const": "sending_access" },
+            "domain_id": { "from": "domain_id", "optional": true }
+          },
+          "credential_injections": [
+            { "secret_name_from_input": "key_name", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "may_reach": ["api.resend.com"],
+          "reply_holds_values": [{ "from": "token", "secret_name_from_input": "keep_as" }]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/create-api-key" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-sending-keys",
+        "label": "List sending keys",
+        "job": "See the keys my email-sending account has: each one's id, name and when it was made",
+        "description": "Lists the keys of the person's email-sending account (Resend), with the key they connected: each key's id, name and when it was made, never a key itself (the provider shows a key only once, when it is made). It only reads.",
+        "status": "active",
+        "input_schema": { "type": "object", "additionalProperties": false, "required": ["key_name"], "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" } } },
+        "output_schema": {
+          "type": "object",
+          "required": ["data"],
+          "properties": {
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": { "id": { "type": "string" }, "name": { "type": "string" }, "created_at": { "type": "string" } }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/api-keys",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name_from_input": "key_name", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "may_reach": ["api.resend.com"]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/list-api-keys" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:remove-a-sending-key",
+        "label": "Remove a sending key",
+        "job": "Turn off one key of my email-sending account, by its id, so it can never send again",
+        "description": "Removes one key of the person's email-sending account (Resend) by its id (the id tool:make-a-sending-key or tool:list-sending-keys answered), with the key they connected. Anything still holding the removed key can no longer send. The vault's copy is removed with the vault's own remove.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key_name", "api_key_id"],
+          "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" }, "api_key_id": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" } }
+        },
+        "output_schema": { "type": "object" },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/api-keys/{api_key_id}",
+          "method": "DELETE",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name_from_input": "key_name", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "may_reach": ["api.resend.com"]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/api-keys/delete-api-key" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:add-an-email-sending-domain",
+        "label": "Add an email sending domain",
+        "job": "Add a domain my email-sending account should send from, and see the DNS records it needs",
+        "description": "Asks the person's email-sending account (Resend), with the key they connected, to add a domain to send from, and answers the domain's id, status and the DNS records its owner must add (each record's kind, name, type, value and priority). Nothing is added to DNS here; tool:check-an-email-sending-domain asks the account to look again once the records are in.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key_name", "name"],
+          "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" }, 
+            "name": { "type": "string", "minLength": 3, "maxLength": 253 },
+            "region": { "type": "string", "enum": ["us-east-1", "eu-west-1", "sa-east-1", "ap-northeast-1"] }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["id", "name", "status"],
+          "properties": {
+            "id": { "type": "string" }, "name": { "type": "string" }, "status": { "type": "string" },
+            "records": { "type": "array", "items": {
+                "type": "object",
+                "properties": {
+                  "record": { "type": "string" }, "name": { "type": "string" }, "type": { "type": "string" },
+                  "value": { "type": "string" }, "ttl": { "type": "string" }, "priority": { "type": "integer" },
+                  "status": { "type": "string" }
+                }
+              } }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/domains",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "body_template": {
+            "name": { "from": "name" },
+            "region": { "from": "region", "optional": true }
+          },
+          "credential_injections": [
+            { "secret_name_from_input": "key_name", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "may_reach": ["api.resend.com"]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/domains/create-domain" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-an-email-sending-domain",
+        "label": "Read an email sending domain",
+        "job": "See whether a domain of my email-sending account is verified, and the state of each DNS record it needs",
+        "description": "Reads one domain of the person's email-sending account (Resend), by its id, with the key they connected: its name, status and each DNS record it needs with that record's own status. It only reads.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key_name", "domain_id"],
+          "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" }, "domain_id": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" } }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["id", "name", "status"],
+          "properties": {
+            "id": { "type": "string" }, "name": { "type": "string" }, "status": { "type": "string" },
+            "records": { "type": "array", "items": {
+                "type": "object",
+                "properties": {
+                  "record": { "type": "string" }, "name": { "type": "string" }, "type": { "type": "string" },
+                  "value": { "type": "string" }, "ttl": { "type": "string" }, "priority": { "type": "integer" },
+                  "status": { "type": "string" }
+                }
+              } }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/domains/{domain_id}",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name_from_input": "key_name", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "may_reach": ["api.resend.com"]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/domains/get-domain" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-an-email-sending-domain",
+        "label": "Check an email sending domain",
+        "job": "Ask my email-sending account to check a domain's DNS records again so it can be verified",
+        "description": "Asks the person's email-sending account (Resend), with the key they connected, to check one domain's DNS records again, by the domain's id. The check runs on the account's side; tool:read-an-email-sending-domain shows the result.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["key_name", "domain_id"],
+          "properties": { "key_name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" }, "domain_id": { "type": "string", "pattern": "^[A-Za-z0-9-]{1,64}$" } }
+        },
+        "output_schema": { "type": "object", "properties": { "id": { "type": "string" } } },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/domains/{domain_id}/verify",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            { "secret_name_from_input": "key_name", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+          ],
+          "may_reach": ["api.resend.com"]
+        },
+        "result_selector": "$",
+        "needs": { "expected_seconds": 5, "network_egress": true },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": { "provider": "Resend", "api": "https://resend.com/docs/api-reference/domains/verify-domain" }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-resend-webhooks",
+        "label": "List email event webhooks",
+        "job": "See which addresses my email-sending account sends its email events to, whether each is on, and which events it sends",
+        "description": "Reads the webhooks of the person's connected email-sending account (Resend) with the key they connected, and answers each webhook's id, address, state (enabled or disabled) and the events it sends, and how many there are. It never shows the key or a webhook's signing secret, and changes no webhook.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "webhooks",
+            "count"
+          ],
+          "properties": {
+            "webhooks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "url",
+                  "status",
+                  "events"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "events": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "count": {
+              "type": "integer"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/email-sending-domains/do-work/list-resend-webhooks.mjs"
+          ],
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "key": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/list-webhooks"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/webhooks"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000011",
+                      "created_at": "2026-11-01 12:00:00.000000+00",
+                      "status": "enabled",
+                      "endpoint": "https://example.com/webhooks/mail",
+                      "events": [
+                        "email.delivered",
+                        "email.bounced",
+                        "email.complained"
+                      ]
+                    },
+                    {
+                      "id": "00000000-0000-4000-8000-000000000012",
+                      "created_at": "2026-10-01 12:00:00.000000+00",
+                      "status": "disabled",
+                      "endpoint": "https://mail.example.test/hooks",
+                      "events": [
+                        "email.opened",
+                        "email.clicked"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-sent-email",
+        "label": "Read a sent email",
+        "job": "See whether one email my email-sending account sent was delivered, bounced, opened or clicked",
+        "description": "Reads one email the person's connected email-sending account (Resend) sent, by its id, with the key they connected, and answers its id, sender, addressees, subject, when it was sent and the last thing that happened to it (sent, delivered, bounced, opened, clicked or complained). It never shows the key or the email's body, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "email_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "email_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "from",
+            "to",
+            "subject",
+            "created_at",
+            "last_event"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "subject": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "last_event": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/email-sending-domains/do-work/read-a-sent-email.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "key": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/emails/retrieve-email"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "email_id": "00000000-0000-4000-8000-000000000031"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/emails/00000000-0000-4000-8000-000000000031"
+                },
+                "status": 200,
+                "body": {
+                  "object": "email",
+                  "id": "00000000-0000-4000-8000-000000000031",
+                  "from": "Sender <sender@example.com>",
+                  "to": [
+                    "delivered@example.org"
+                  ],
+                  "subject": "Hello",
+                  "created_at": "2026-11-25 14:45:46.162+00",
+                  "last_event": "delivered",
+                  "html": "<p>Hello</p>",
+                  "text": "Hello"
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-sent-emails",
+        "label": "List sent emails",
+        "job": "See which emails my email-sending account sent in the last few days, and whether each was delivered, bounced, opened or clicked",
+        "description": "Reads the emails the person's connected email-sending account (Resend) sent in the last 1 to 30 days, newest first, with the key they connected, and answers each one's id, addressees, subject, when it was sent and the last thing that happened to it, and how many there are. It never shows the key or a body, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "days"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 30
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "emails",
+            "count",
+            "complete"
+          ],
+          "properties": {
+            "emails": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "to",
+                  "subject",
+                  "created_at",
+                  "last_event"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "subject": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "last_event": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "count": {
+              "type": "integer"
+            },
+            "complete": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/email-sending-domains/do-work/list-sent-emails.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "key": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/emails/list-emails"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "days": 5
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/emails?limit=100"
+                },
+                "status": 200,
+                "body": {
+                  "object": "list",
+                  "has_more": false,
+                  "data": [
+                    {
+                      "id": "00000000-0000-4000-8000-000000000041",
+                      "to": [
+                        "delivered@example.org"
+                      ],
+                      "from": "Sender <sender@example.com>",
+                      "created_at": "2026-11-25 14:45:46.162+00",
+                      "subject": "Hello",
+                      "bcc": null,
+                      "cc": null,
+                      "reply_to": null,
+                      "last_event": "delivered",
+                      "scheduled_at": null
+                    },
+                    {
+                      "id": "00000000-0000-4000-8000-000000000042",
+                      "to": [
+                        "bounced@example.org"
+                      ],
+                      "from": "Sender <sender@example.com>",
+                      "created_at": "2026-11-23 09:00:00.000+00",
+                      "subject": "Hello again",
+                      "bcc": null,
+                      "cc": null,
+                      "reply_to": null,
+                      "last_event": "bounced",
+                      "scheduled_at": null
+                    }
+                  ]
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-webhook-events",
+        "label": "List a webhook's events",
+        "job": "See the email events my email-sending account sent to one of my webhooks, and whether each delivery succeeded or failed",
+        "description": "Reads the newest events (at most 100) the person's connected email-sending account (Resend) sent to one of its webhooks, by the webhook's id, with the key they connected: each event's id, type, when it happened and its delivery status (success, failed, attempting or pending), and whether there are more. It never shows the key or the webhook's signing secret, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "webhook_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "webhook_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "data"
+          ],
+          "properties": {
+            "has_more": {
+              "type": "boolean"
+            },
+            "data": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/webhooks/{webhook_id}/events?limit=100",
+          "method": "GET",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            {
+              "secret_name_from_input": "key_name",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ],
+          "may_reach": [
+            "api.resend.com"
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/list-events"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:replay-a-webhook-event",
+        "label": "Replay a webhook event",
+        "job": "Have my email-sending account send one email event to my webhook again, as it first sent it",
+        "description": "Asks the person's connected email-sending account (Resend) to deliver one event to one of its webhooks once more, by the webhook's id and the event's id (msg_...), with the key they connected: the same event, with its own id, time and signature, the same as the dashboard's Replay button. It answers the event's id. It never shows the key, and changes nothing else.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "webhook_id",
+            "event_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "webhook_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            },
+            "event_id": {
+              "type": "string",
+              "pattern": "^msg_[A-Za-z0-9]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "object": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "http",
+          "url": "https://api.resend.com/webhooks/{webhook_id}/events/{event_id}/replay",
+          "method": "POST",
+          "timeout_seconds": 30,
+          "credential_injections": [
+            {
+              "secret_name_from_input": "key_name",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer "
+              }
+            }
+          ],
+          "may_reach": [
+            "api.resend.com"
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/replay-event"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-webhook-event",
+        "label": "Read a webhook event",
+        "job": "See one email event my email-sending account sent to my webhook: its type, time, delivery status, the email, and whether a bounce was hard or soft",
+        "description": "Reads one event the person's connected email-sending account (Resend) sent to one of its webhooks, by the webhook's id and the event's id (msg_...), with the key they connected, and answers its type, time, delivery status (success, failed, attempting or pending), the email it is about and, for a bounce, the bounce's type (Permanent or Temporary) and sub-type. It never shows the key, the addressees or the subject, and changes nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "key_name",
+            "webhook_id",
+            "event_id"
+          ],
+          "properties": {
+            "key_name": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,62}$"
+            },
+            "webhook_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9-]{1,64}$"
+            },
+            "event_id": {
+              "type": "string",
+              "pattern": "^msg_[A-Za-z0-9]{1,64}$"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "type",
+            "created_at",
+            "status",
+            "email_id",
+            "bounce"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "email_id": {
+              "type": "string"
+            },
+            "bounce": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "sub_type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "may_reach": [],
+          "workdir": "/opt/email-sending-domains",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/email-sending-domains/do-work/read-a-webhook-event.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "email-sending-domains",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/email-sending-domains"
+            }
+          },
+          "key": [
+            {
+              "secret_name_from_input": "key_name",
+              "fd": 3
+            }
+          ]
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": true
+        },
+        "maker": "maker:email-sending-domains",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "provider": "Resend",
+          "api": "https://resend.com/docs/api-reference/webhooks/get-event"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "webhook_id": "00000000-0000-4000-8000-000000000011",
+              "event_id": "msg_1srOsB4mXhCqCVwAxYRNnpFZhb3"
+            },
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.resend.com/webhooks/00000000-0000-4000-8000-000000000011/events/msg_1srOsB4mXhCqCVwAxYRNnpFZhb3"
+                },
+                "status": 200,
+                "body": {
+                  "object": "webhook_event",
+                  "id": "msg_1srOsB4mXhCqCVwAxYRNnpFZhb3",
+                  "type": "email.bounced",
+                  "created_at": "2026-11-22T13:13:02.348Z",
+                  "status": "failed",
+                  "next_attempt_at": null,
+                  "payload": {
+                    "type": "email.bounced",
+                    "created_at": "2026-11-22T13:13:02.348Z",
+                    "data": {
+                      "email_id": "00000000-0000-4000-8000-000000000031",
+                      "to": [
+                        "bounced@example.org"
+                      ],
+                      "subject": "Hello",
+                      "bounce": {
+                        "message": "Mailbox does not exist",
+                        "subType": "General",
+                        "type": "Permanent"
+                      }
+                    }
+                  }
+                }
+              }
+            ],
+            "shape_read_at": "2026-11-25"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -7,7 +7,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { createJobs, job, jobSettings } from '../read-data/durable-job.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const place = () => path.join(tempFolder(path.join(os.tmpdir(), 'jobs-')), 'jobs.json');
 
 test('the row runs on the person\'s computer with only the granted folder', () => {

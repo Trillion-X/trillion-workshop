@@ -1,4 +1,4 @@
-// README.md's tool catalogue is the one generated from every folder's tool-rows.json. It fails when a row was added, changed
+// README.md's tool catalogue is the one generated from every folder's what-this-tool-does-and-how-to-run-it.json. It fails when a row was added, changed
 // or removed without running `node test-helpers/write-tool-catalogue.mjs`, and when a tool id is listed twice.
 import test from 'node:test';
 import assert from 'node:assert/strict';

@@ -2,8 +2,8 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/list-and-run-my-tools-for-any-ai/do-work/publish-tool-in-database.mjs
 //
-// tool:publish-tool, one container process (tool-rows.json): lists one saved tool in the database the request names (`database`).
-// The request is one JSON object on stdin; the connection string is a held value on descriptor 3 (the row's invoke.credential_mounts),
+// tool:publish-tool, one container process (what-this-tool-does-and-how-to-run-it.json): lists one saved tool in the database the request names (`database`).
+// The request is one JSON object on stdin; the connection string is a held value on descriptor 3 (the row's invoke.key),
 // never in the request, argv, a file or the environment. The publishing rules are publishTool's (publish-tool.mjs).
 import { readFileSync } from 'node:fs';
 import { publishTool } from './publish-tool.mjs';

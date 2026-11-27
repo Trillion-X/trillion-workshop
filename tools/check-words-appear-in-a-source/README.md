@@ -7,7 +7,7 @@ Check that exact words appear on the page they are quoted from, said by the pers
 | File | Purpose |
 |------|---------|
 | `do-work/check_words.py` | The check: one JSON request (a file named as the first argument, or standard input), one JSON answer as the last line. |
-| `tool-rows.json` | The row `tool:check-words-appear-in-a-source` (`on-your-computer`). |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:check-words-appear-in-a-source` (`on-your-computer`). |
 | `kits/check-words-appear-in-a-source.json` | How to start, the steps and one worked example. |
 | `test/test_check_words.py` | 9 tests on made-up pages: exact words under the right speaker, words another speaker said, words only inside a script, a paraphrase, curly quotes and dashes, a page with no speaker labels, a page that cannot be read, one read per page, the command's answer and refusal. |
 | `test/check-words-appear-in-a-source.test.mjs` | Runs the Python tests under `npm test` and checks the row names a script in this folder. |

@@ -1,6 +1,6 @@
 # tools/person-profile/
 
-Lays out one person's (or any record's) profile from a description of what to show: title and subtitle, fields with values, related lists, and the actions whose rules hold. Ported from bitfield-packages `person-profile`: its interpreter, reader-keyed materialization and action-request builder unchanged, and its member-profile save is now the person's own store's job (`workflow:keep-a-member-profile`). Its screens (`show/`, `show-ios-jscore/`) and the browser cache that followed a save came in later (see "Moved from the package, later"). The Workshop tools that run it in the tool container are rows in `tool-rows.json`.
+Lays out one person's (or any record's) profile from a description of what to show: title and subtitle, fields with values, related lists, and the actions whose rules hold. Ported from bitfield-packages `person-profile`: its interpreter, reader-keyed materialization and action-request builder unchanged, and its member-profile save is now the person's own store's job (`workflow:keep-a-member-profile`). Its screens (`show/`, `show-ios-jscore/`) and the browser cache that followed a save came in later (see "Moved from the package, later"). The Workshop tools that run it in the tool container are rows in `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Files
 
@@ -11,7 +11,7 @@ Lays out one person's (or any record's) profile from a description of what to sh
 | `read-data/described-record-materialization.ts` | The interpreter keyed by reader: the same source gives every reader the same laid-out profile. Carried unchanged but for its import. |
 | `do-work/described-record-action.ts` | Builds the request for a profile action from its description: the action's fixed input, the values given and values bound from named sources. Carried unchanged. |
 | `part.json` | The interpreter is public. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:lay-out-a-profile`. The member-profile read and save rows were deleted: their job is the person's store's own, now `workflow:keep-a-member-profile` (`tools/workflows/recipes/keep-a-member-profile.json`, kit `tools/workflows/kits/keep-a-member-profile.json`). |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row Trillion reads for this folder: `tool:lay-out-a-profile`. The member-profile read and save rows were deleted: their job is the person's store's own, now `workflow:keep-a-member-profile` (`tools/workflows/recipes/keep-a-member-profile.json`, kit `tools/workflows/kits/keep-a-member-profile.json`). |
 | `test/described-record-surface.test.ts` | The interpreter's tests, run by `npm test` at the top of the repository. |
 | `test/described-record-action.test.mjs`, `test/described-record-materialization.test.mjs` | The package's action and materialization tests. |
 | `test/person-profile-boundary.test.mjs` | The package's guard that the generic parts name no profile-specific family or field word, and its projection and descriptor-driven action tests. |
@@ -43,4 +43,4 @@ The two held tests are named in the receipt's `held` key. The screen's data laye
 
 **Depends on:** nothing for the layout tool (Node 24 in the tool container runs the `.ts` files by stripping their types). The member-profile save is `workflow:keep-a-member-profile`, run by the person's AI against their own store.
 
-**Depended on by:** `tool-rows.json`, Trillion's deploy (it bundles the files a row names), `test/described-record-surface.test.ts`, Trillion's `test/crm-tools.test.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`, Trillion's deploy (it bundles the files a row names), `test/described-record-surface.test.ts`, Trillion's `test/crm-tools.test.mjs`.

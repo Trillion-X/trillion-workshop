@@ -31,7 +31,7 @@ Which servers, models, jobs and offers there are is DATA: `read-data/models-on-t
 |------|---------|
 | `read-data/models-on-this-computer.mjs` | `ask` and `fit`, and what they are made of: `askLocal`, `firstAnswer`, `yesShare`, `thisMac`, `modelsForThisMac`, `localModelSettings`. |
 | `read-data/models-on-this-computer.json` | The model rows (`chat`, `jobs`, `classify`, `offer`, `wired`), the server's addresses, the limits and the words. |
-| `tool-rows.json` | The two `computer` rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The two `computer` rows. |
 | `test/models-on-this-computer.test.mjs` | Old trillion's `test/local-models.test.mjs` cases and the streaming case of `test/keyed-parts.test.mjs`, against stand-in servers, plus the rows and the shipped settings. |
 
 ## Dependencies

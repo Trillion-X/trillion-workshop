@@ -7,7 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { apply, newSession } from '../read-data/session-pairing.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 test('devices share one session id and one primary; wrong-session, unknown-device and rule-breaking messages are ignored with a reason', () => {
   let s = newSession('S1', ['idle', 'recording']);

@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { answerCatchUpRoute } from '../do-work/catch-up-routes.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const ROUTE = rowOf(ROWS, 'tool:answer-the-catch-up-here-route');
 const DEVICES = 'setting:catch_up_devices';
 const SAMPLE = { device_id: 'd-sample01', title: 'Sample laptop', kind: 'computer', state: 'caught-up', waiting: 0, at: '2026-01-10T11:00:00.000Z', seen_at: '2026-01-10T11:00:00.000Z' };
@@ -17,7 +17,7 @@ const NOW = '2026-01-10T12:00:00.000Z';
 const page = (path, method, body = {}, records = PERSON) => ({ path, method, query: {}, body, browser: { user_agent: 'Sample browser', origin: 'https://app.example', visitor: 'sample' }, now: NOW, stored: { records } });
 
 test('the route row runs the workflows runner and declares no records door', () => {
-  assert.equal(ROUTE.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(ROUTE.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.ok(!ROUTE.invoke.files.package_files.some(files => files.package === 'records-door'));
 });
 

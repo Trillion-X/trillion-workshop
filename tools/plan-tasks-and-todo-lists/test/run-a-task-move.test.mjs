@@ -8,7 +8,7 @@ import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identi
 import { readFor, runTaskMove } from '../run-a-task-move.mjs';
 import * as moves from '../task-moves.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 const NOW = Date.parse('2026-11-19T08:00:00.000Z') + 60000;
 const now = () => new Date(NOW);
 const CHANGED = 'original_command_conflict';
@@ -35,7 +35,7 @@ function fakeAccount(records, { pageSize = 2, beforeWrite = null } = {}) {
     if (address === '@tools' && method === 'tools:run') {
       const row = ROWS.find(one => one.id === input.tool);
       seen.runs.push({ tool: input.tool, records: input.input.records.length, key });
-      const result = await moves[row.invoke.argv.at(-1)]({ input: input.input, task: { request_key: key } }, { now });
+      const result = await moves[row.invoke.run.at(-1)]({ input: input.input, task: { request_key: key } }, { now });
       if (beforeWrite) beforeWrite(kept);
       return { state: 'completed', output: { result } };
     }

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/wordtime.py, test/test_wordtime.py, README.md (Word-time a recording)",
+  "drafted_from": "tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json, do-work/wordtime.py, test/test_wordtime.py, README.md (Word-time a recording)",
   "start_here": "Say to your AI: \"Time every word of take.wav from 2.5 s to 3.25 s and write the words to take.words.json.\" It runs tool:time-words-in-a-recording on your computer and writes each word with its start and end in source seconds.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one recording on your computer and writes one words file beside it.",

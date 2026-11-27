@@ -1,6 +1,6 @@
 // tools/start-a-computer/do-work/start-a-computer.mjs
 //
-// `tool:start-a-computer` and its siblings (tool-rows.json): make a machine into a computer that runs what its own row says.
+// `tool:start-a-computer` and its siblings (what-this-tool-does-and-how-to-run-it.json): make a machine into a computer that runs what its own row says.
 // The machine comes from the provider description the request names in machine.provider (a file the person keeps, rented
 // or one they already run over SSH); its public name from the one in name.provider. Then the computer's row
 // (`record:computer`, request.computer_row) is applied: set-up-the-machine.sh prepares it over SSH, each unit with a `source`

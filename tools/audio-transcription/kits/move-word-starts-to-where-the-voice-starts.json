@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/word_onsets.py, test/test_word_onsets.py (observed run)",
+  "drafted_from": "tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json, do-work/word_onsets.py, test/test_word_onsets.py (observed run)",
   "start_here": "Say to your AI: \"Move the word starts of my take /Takes/hello.wav to where the voice really starts, using the Whisper words in /Takes/words.json, and write /Takes/hello.onsets.json.\" It runs word_onsets.py on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a request file, a voice take and its word times, and writes one words file.",

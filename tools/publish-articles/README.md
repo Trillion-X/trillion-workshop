@@ -12,7 +12,7 @@ The published articles of one pursuit, their RSS feed, and a double opt-in newsl
 | `do-work/serve.ts` | The one main of the reads: `node serve.ts <reader name>`. It answers a read; it serves no page. |
 | `show/ArticleList.tsx`, `show/Article.tsx`, `show/Inline.tsx` | The screens; each `View(props)` is pure and its props are the answer of its read. |
 | `tests/` | Reads, feed, signup plans and the screens drawn to markup. |
-| `tool-rows.json` | The cards. |
+| `what-this-tool-does-and-how-to-run-it.json` | The cards. |
 
 ## Known gaps
 

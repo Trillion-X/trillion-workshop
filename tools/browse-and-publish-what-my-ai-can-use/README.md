@@ -9,11 +9,11 @@ The Marketplace shelf: everything a person's AI can use, theirs and everyone's (
 | `marketplace-kinds.json` | DATA: each kind, where its rows come from, which paths of a row fill each shelf fact, who-made-it words, what is the person's own, the verbs and badges |
 | `do-work/shelf-item.mjs` | Moved from Trillion `src/work-marketplace.mjs` lines 45-147 (`moved-from.json`, `ports/shelf-item.json`): `firstOf`, `shelfItem` |
 | `do-work/tool-title.mjs` | Moved from Trillion `src/work-workshop.mjs` lines 74-88 (`ports/tool-title.json`): `titleOf`, what a tool is called for a person |
-| `do-work/read-a-shelf.mjs` | `readAShelf({ kind, rows, published })`: rows of one kind as shelf items (what `tool-rows.json` runs) |
+| `do-work/read-a-shelf.mjs` | `readAShelf({ kind, rows, published })`: rows of one kind as shelf items (what `what-this-tool-does-and-how-to-run-it.json` runs) |
 | `moved-from.json` | Where the two moved parts came from, their line ranges and the identity of their source bytes |
 | `ports/` | The port contracts of the three do-work files |
 | `test/make-shelf-tiles.test.mjs` | Tiles against a made-up icons folder: own icons, an alias, the kind icon, machine titles left out, the job cut, the page file, icon files read and never run |
-| `tool-rows.json` | The rows `tool:read-rows-as-marketplace-shelf-items` and `tool:make-marketplace-tiles-with-their-icons` (on the person's computer) |
+| `what-this-tool-does-and-how-to-run-it.json` | The rows `tool:read-rows-as-marketplace-shelf-items` and `tool:make-marketplace-tiles-with-their-icons` (on the person's computer) |
 
 ## Screens
 

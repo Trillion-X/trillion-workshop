@@ -13,7 +13,7 @@ import { findProgram, keepChannelsLatestVideosAndCaptions as keep, pickCaptionFi
 import { readCaptionLines } from '../do-work/sources.mjs';
 
 const shipped = readSettings();
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const row = rows.find(payload => payload.id === 'tool:keep-channels-latest-videos-and-captions');
 const WATCH = 'https://videos.example/watch?v=';
 const LOAVES = 'https://videos.example/@loaf-lab';
@@ -373,7 +373,7 @@ test('the row packs what the tool reads, keeps its files by the settings\' bound
     ['captions', `${at.at}/out/captions.jsonl`, shipped.file_bytes_at_most],
     ['comments', `${at.at}/out/comments.jsonl`, shipped.file_bytes_at_most],
   ]);
-  assert.equal(invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.ok(!JSON.stringify(row).includes('records-door'), 'no records door is mounted or named');
   assert.deepEqual(row.output_schema.properties.keep.items.required, ['id', 'type', 'value', 'expected']);
   assert.equal(row.input_schema.properties.budget_seconds.maximum, shipped.budget_seconds.most);

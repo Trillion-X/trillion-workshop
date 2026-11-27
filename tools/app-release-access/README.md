@@ -1,6 +1,6 @@
 # tools/app-release-access/
 
-Checks with Apple how a released app can be installed right now. It also arranges the beta access a person's setup requires. Both run with the release owner's App Store Connect team key. Both are `container` rows with internet; the client refuses any origin other than `https://api.appstoreconnect.apple.com`. The key is the release owner's held value `app-store-connect-key`, JSON `{key_id, issuer_id, private_key}`, handed to the one process on a private pipe (`credential_mounts` descriptor 4). It is never in a file, argv, the environment, a log or an answer, and nothing reads a Keychain.
+Checks with Apple how a released app can be installed right now. It also arranges the beta access a person's setup requires. Both run with the release owner's App Store Connect team key. Both are `container` rows with `may_reach`; the client refuses any origin other than `https://api.appstoreconnect.apple.com`. The key is the release owner's held value `app-store-connect-key`, JSON `{key_id, issuer_id, private_key}`, handed to the one process on a private pipe (`key` descriptor 4). It is never in a file, argv, the environment, a log or an answer, and nothing reads a Keychain.
 
 ## Files
 
@@ -13,7 +13,7 @@ Checks with Apple how a released app can be installed right now. It also arrange
 | `read-data/testflight-readiness.mjs` | `readTestFlightAvailability`: Apple's current distribution facts for configured groups, read only. |
 | `read-data/distribution.mjs` | `distributionObservation`, `distributionSource`: the bounded public projection the engine reads back from `device-distribution:<source>`. |
 | `read-data/distribution.json` | The observation bounds and release sources, as the engine's `product/devices.json` `distribution` block holds them. Which app a source is comes from the input, never this file. |
-| `tool-rows.json` | `tool:read-app-distribution` and `tool:fulfill-setup-access`, run by `tools/records-door`'s `run-an-export.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:read-app-distribution` and `tool:fulfill-setup-access`, run by `tools/records-door`'s `run-an-export.mjs`. |
 | `test/` | The moved tests (TestFlight readiness, the provider adapter and its claim fence, the public projection) and new ones for the read tool and the held-key client. |
 
 ## Moved from Trillion

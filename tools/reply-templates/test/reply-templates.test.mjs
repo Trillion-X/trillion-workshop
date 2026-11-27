@@ -96,7 +96,7 @@ const run = (input) => new Promise((resolve) => {
 });
 
 test('the row\'s sample runs as the container runs it and gives the text it promises', async () => {
-  const [row] = JSON.parse(await readFile(join(folder, 'tool-rows.json'), 'utf8')).records.map((record) => record.payload);
+  const [row] = JSON.parse(await readFile(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map((record) => record.payload);
   const [sample] = row.verify;
   const { code, out } = await run(sample.input);
   assert.equal(code, 0);
@@ -113,5 +113,5 @@ test('bad JSON and a missing template print their reason and fail', async () => 
 });
 
 test('the folder holds no path of anyone\'s', async () => {
-  for (const file of ['read-data/expand.mjs', 'tool-rows.json', 'README.md']) assert.doesNotMatch(await readFile(join(folder, file), 'utf8'), /\/Users\//, file);
+  for (const file of ['read-data/expand.mjs', 'what-this-tool-does-and-how-to-run-it.json', 'README.md']) assert.doesNotMatch(await readFile(join(folder, file), 'utf8'), /\/Users\//, file);
 });

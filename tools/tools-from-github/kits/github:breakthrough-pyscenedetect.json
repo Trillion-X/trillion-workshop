@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:breakthrough-pyscenedetect's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs PySceneDetect.",
+  "drafted_from": "tool:github:breakthrough-pyscenedetect's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs PySceneDetect.",
   "start_here": "Say to your AI: \"Use PySceneDetect on my computer to find the cuts and scenes in a video and split it into clips: the file is tour.mp4.\" It reads the row, installs PySceneDetect if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: PySceneDetect is a program that runs on the person's own computer and works on the one file or address it is handed.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:breakthrough-pyscenedetect runs on your computer, so after tools:list the AI runs, in the folder it got PySceneDetect in, the command line: scenedetect -i tour.mp4 split-video  (synthetic input: a 90 second shop tour video with several cuts).",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:breakthrough-pyscenedetect runs on your computer, so after tools:list the AI runs, in the folder it got PySceneDetect in, the command line: scenedetect -i tour.mp4 split-video  (synthetic input: a 90 second shop tour video with several cuts).",
       "hands_back": "scenedetect prints how many scenes it found (a line such as \"Detected 6 scenes, average shot length 15.0 seconds.\") and splits tour.mp4 into one clip per scene named tour-Scene-001.mp4, tour-Scene-002.mp4 and so on."
     }
   ]

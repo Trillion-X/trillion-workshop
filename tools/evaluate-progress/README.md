@@ -28,7 +28,7 @@ This is taken from the progression evaluator package. Its measure reducer, op ca
 | `do-work/requests.mjs` | One function per row: checks the request, refuses with a sentence, calls the above |
 | `do-work/run-request.mjs` | `node do-work/run-request.mjs <function>`: the request on standard input, `{ result }` or `{ error }` out |
 | `part.json` | The one public module |
-| `tool-rows.json` | The eight Workshop rows |
+| `what-this-tool-does-and-how-to-run-it.json` | The eight Workshop rows |
 | `test/*.test.mjs` | Every op, the pipeline, bands, rules, the gates, scoring, stitching and each row's sample run in the container |
 
 ## The rows
@@ -80,6 +80,6 @@ A definition is `{ id, op, inputs: [{ match?, field? }], params?, window?, emit?
 
 ## Dependencies
 
-None outside the folder: plain TypeScript run by Node's type stripping, no packages. Records come to the tool in the request (`facts`), so it holds no records access, no credential and no network (`internet: false` on every row).
+None outside the folder: plain TypeScript run by Node's type stripping, no packages. Records come to the tool in the request (`facts`), so it holds no records access, no credential and no network (no `may_reach` on any row).
 
 The `measures` field `measure_id` picks one definition from `measures` and `params_override` merges params into the chosen ones; both are refused when a `pipeline` is sent.

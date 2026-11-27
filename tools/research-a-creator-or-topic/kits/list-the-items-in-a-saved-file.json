@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/research-a-creator-or-topic/tool-rows.json (tool:list-the-items-in-a-saved-file), do-work/research-from-this-computer.mjs (savedList) and sources.mjs, test/commands.test.mjs; the example was run here on synthetic files",
+  "drafted_from": "tools/research-a-creator-or-topic/what-this-tool-does-and-how-to-run-it.json (tool:list-the-items-in-a-saved-file), do-work/research-from-this-computer.mjs (savedList) and sources.mjs, test/commands.test.mjs; the example was run here on synthetic files",
   "start_here": "Say to your AI: \"Read my saved list in bookmarks.json into items I can research, and tell me what it holds.\" It runs the saved-list command on your computer and reads the items from the file it writes.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one JSON file you saved on your computer and writes its items to another JSON file.",

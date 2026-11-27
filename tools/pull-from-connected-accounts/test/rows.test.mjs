@@ -3,12 +3,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { answerOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import * as pulls from '../do-work/pull.mjs';
 import { loadSource, sourceIds } from '../read-data/sources.mjs';
 
 // The source a pull row runs: its function is named pull<Source>, the source id without its dashes.
-const sourceOfRow = row => sourceIds().find(id => id.replaceAll('-', '') === row.invoke.argv.at(-1).replace(/^pull/, '').toLowerCase());
+const sourceOfRow = row => sourceIds().find(id => id.replaceAll('-', '') === row.invoke.run.at(-1).replace(/^pull/, '').toLowerCase());
 const all = rows.records.map(record => record.payload);
 const pullRows = all.filter(row => row.id.startsWith('tool:pull-my-'));
 const handedRows = pullRows.filter(row => loadSource(sourceOfRow(row)).handed_in);
@@ -18,21 +18,21 @@ test('there is one pull row for each source, and each runs a function this folde
   assert.equal(pullRows.length, sourceIds().length);
   assert.equal(new Set(all.map(row => row.id)).size, all.length);
   for (const row of pullRows) {
-    const name = row.invoke.argv.at(-1);
+    const name = row.invoke.run.at(-1);
     assert.equal(typeof pulls[name], 'function', row.id);
-    assert.equal(row.invoke.argv.at(-2), '/opt/pull-from-connected-accounts/do-work/pull.mjs');
+    assert.equal(row.invoke.run.at(-2), '/opt/pull-from-connected-accounts/do-work/pull.mjs');
   }
 });
 
 test('a pull row that asks a service gets the public internet, its own held token on descriptor 4, and no records door', () => {
   const secrets = new Set();
   for (const row of askingRows) {
-    assert.equal(row.invoke.internet, true, row.id);
+    assert.ok(Array.isArray(row.invoke.may_reach), row.id);
     assert.equal(row.invoke.records, undefined, row.id);
-    assert.equal(row.invoke.credential_mounts.length, 1, row.id);
-    assert.equal(row.invoke.credential_mounts[0].fd, 4);
-    assert.match(row.invoke.credential_mounts[0].secret_name, /^[a-z]+(-[a-z]+)*-(token)$/);
-    secrets.add(row.invoke.credential_mounts[0].secret_name);
+    assert.equal(row.invoke.key.length, 1, row.id);
+    assert.equal(row.invoke.key[0].fd, 4);
+    assert.match(row.invoke.key[0].secret_name, /^[a-z]+(-[a-z]+)*-(token)$/);
+    secrets.add(row.invoke.key[0].secret_name);
     assert.equal(row.maker, 'maker:pull-from-connected-accounts');
     assert.equal(row.invoke.stdin.fill.from, 'input');
     assert.ok(!('account' in row.invoke) && !JSON.stringify(row.input_schema).includes('token'), row.id);
@@ -41,7 +41,7 @@ test('a pull row that asks a service gets the public internet, its own held toke
   // any other two sources hold separate tokens.
   const sharing = new Map();
   for (const row of askingRows) {
-    const name = row.invoke.credential_mounts[0].secret_name;
+    const name = row.invoke.key[0].secret_name;
     sharing.set(name, [...(sharing.get(name) ?? []), sourceOfRow(row)]);
   }
   assert.equal(secrets.size, sharing.size);
@@ -55,10 +55,10 @@ test('a pull row that asks a service gets the public internet, its own held toke
 test('a pull row for a source handed its document gets no records door, no internet and no secret, and takes the document as input', () => {
   assert.deepEqual(handedRows.map(row => row.id), ['tool:pull-my-signal-messages']);
   for (const row of handedRows) {
-    assert.equal(row.invoke.internet, false, row.id);
+    assert.equal(row.invoke.may_reach, undefined, row.id);
     assert.equal(row.needs.network_egress, false, row.id);
     assert.equal(row.invoke.records, undefined, row.id);
-    assert.equal(row.invoke.credential_mounts, undefined, row.id);
+    assert.equal(row.invoke.key, undefined, row.id);
     const document = loadSource(sourceOfRow(row)).handed_in.document;
     assert.deepEqual(row.input_schema.required, ['self_id', document], row.id);
     assert.equal(row.input_schema.properties[document].type, 'array', row.id);
@@ -83,13 +83,13 @@ test('no row carries a path on a computer or a maker that is not the folder (pro
   const text = JSON.stringify(all.map(({ provenance, ...row }) => row));
   assert.doesNotMatch(text, /\/Users\//);
   assert.doesNotMatch(text, /bitfield|trillion/i);
-  assert.ok(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8').length > 0);
+  assert.ok(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8').length > 0);
 });
 
 test('run as the container runs it with no token handed over, a pull says it needs a login and asks no one', async () => {
   for (const row of askingRows) {
     // The held token's descriptor is handed, empty: the run was given no token.
-    const held = Object.fromEntries(row.invoke.credential_mounts.map(mount => [mount.secret_name, '']));
+    const held = Object.fromEntries(row.invoke.key.map(mount => [mount.secret_name, '']));
     const ran = await answerOf(row, {}, { held });
     assert.equal(ran.status, 0, ran.error);
     assert.equal(ran.result.status, 'needs_login', row.id);

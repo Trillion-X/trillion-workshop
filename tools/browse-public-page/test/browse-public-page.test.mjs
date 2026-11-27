@@ -7,15 +7,15 @@ import { readPublicPage, readPublicPageOrArchive } from '../do-work/browse_publi
 import { checkedUrl, extractPage } from '../do-work/page-facts.mjs';
 
 const script = fileURLToPath(new URL('../do-work/browse_public_page.mjs', import.meta.url));
-const toolRecords = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const toolRecords = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const run = input => spawnSync('node', [script], { input: JSON.stringify(input), encoding: 'utf8', timeout: 5000 });
 
 test('shared browser tool uses the bundled Node reader in the network-enabled container', () => {
   const row = toolRecords.records[0].payload;
   assert.equal(row.id, 'tool:read-public-web-page');
   assert.equal(row.result_selector, '$');
-  assert.equal(row.invoke.internet, true);
-  assert.deepEqual(row.invoke.argv, ['/usr/local/bin/node', '/opt/browse-public-page/do-work/browse_public_page.mjs']);
+  assert.ok(Array.isArray(row.invoke.may_reach));
+  assert.deepEqual(row.invoke.run, ['/usr/local/bin/node', '/opt/browse-public-page/do-work/browse_public_page.mjs']);
   assert.deepEqual(row.invoke.files.package_files.paths, ['do-work/browse_public_page.mjs', 'do-work/page-facts.mjs', 'do-work/page-conventions.json', 'do-work/walk-archive.mjs', 'do-work/archive-facts.mjs']);
   assert.deepEqual(row.placements, ['placement:small-container']);
 });

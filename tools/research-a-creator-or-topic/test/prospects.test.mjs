@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { briefAProspect, keepAProspect, readProspectList } from '../do-work/prospects.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 const keepRow = rows.find(payload => payload.id === 'tool:keep-a-prospect');
 const briefRow = rows.find(payload => payload.id === 'tool:brief-a-prospect');
 const list = readProspectList();
@@ -110,7 +110,7 @@ test('read and remove are not the tool\'s: a store\'s own tools read and remove 
 });
 
 test('the row runs the function runner, mounts no records door and answers the row to keep', () => {
-  assert.equal(keepRow.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(keepRow.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.ok(!JSON.stringify(keepRow).includes('records-door'));
   assert.deepEqual(keepRow.input_schema.properties.action.enum, ['keep', 'mark']);
   assert.ok(keepRow.output_schema.required.includes('keep'));

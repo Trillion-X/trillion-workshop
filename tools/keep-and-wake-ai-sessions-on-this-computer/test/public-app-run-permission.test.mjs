@@ -5,7 +5,7 @@ import { checkedPublicRunPermission, publicRunEligible, publicRunPermissionFor }
 const fieldNote = {
   id: 'tool:field-note', show_on_public_site: true,
   input_schema: { type: 'object', required: ['note'], properties: { note: { type: 'string', maxLength: 1200 } } },
-  invoke: { kind: 'container', argv: ['python3', 'main.py', { from: 'note' }], stdout: 'json', files: '1f:4f54a70f996671f1f18c94f714235dff3e56d6aed1e58532dae61dc17fe4ef' },
+  invoke: { kind: 'container', run: ['python3', 'main.py', { from: 'note' }], stdout: 'json', files: '1f:4f54a70f996671f1f18c94f714235dff3e56d6aed1e58532dae61dc17fe4ef' },
 };
 
 test('public-run admission accepts a bounded safe container with the real default workdir', () => {
@@ -19,7 +19,7 @@ test('public-run admission rejects unbounded or externally effective tools', () 
     assert.throws(() => checkedPublicRunPermission(permission));
   }
   for (const tool of [
-    { ...fieldNote, invoke: { ...fieldNote.invoke, internet: true } },
+    { ...fieldNote, invoke: { ...fieldNote.invoke, may_reach: [] } },
     { ...fieldNote, invoke: { ...fieldNote.invoke, workdir: '/tmp' } },
     { ...fieldNote, invoke: { ...fieldNote.invoke, credential_injections: [{ secret_name: 'service-key' }] } },
     { ...fieldNote, invoke: { ...fieldNote.invoke, external_effect: { kind: 'send' } } },

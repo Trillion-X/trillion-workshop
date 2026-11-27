@@ -32,9 +32,9 @@
           }
         }
       },
-      "given": "Read from tools/treg/tool-rows.json: the row sends GET https://treg.to/catalog/endpoints/dataforseo.web.backlinks.summary with no token and returns treg's reply unchanged. Endpoint id from tools/treg/test/treg-rows.test.mjs.",
+      "given": "Read from tools/treg/what-this-tool-does-and-how-to-run-it.json: the row sends GET https://treg.to/catalog/endpoints/dataforseo.web.backlinks.summary with no token and returns treg's reply unchanged. Endpoint id from tools/treg/test/treg-rows.test.mjs.",
       "hands_back": "{\"endpoint\":{\"id\":\"dataforseo.web.backlinks.summary\",\"method\":\"POST\",\"cost\":{\"usd\":0.02,\"unit\":\"call\"},\"input\":{\"target\":{\"required\":true,\"note\":\"the domain, for example example.com\"}},\"async\":null,\"observed\":{\"success_rate\":0.97,\"calls\":1200}},\"siblings\":[],\"routing\":null}"
     }
   ],
-  "drafted_from": "tools/treg/tool-rows.json (its row), its README and test/treg-rows.test.mjs; the reply values are a worked sample of the shape its output_schema names"
+  "drafted_from": "tools/treg/what-this-tool-does-and-how-to-run-it.json (its row), its README and test/treg-rows.test.mjs; the reply values are a worked sample of the shape its output_schema names"
 }

@@ -37,7 +37,7 @@ Every candidate keeps its window, zoom, extent and `undetected_frames` (frames w
 |---|---|
 | `do-work/frame_the_movement.py` | the three commands |
 | `test/test_frame_the_movement.py` | 17 tests on synthetic boxes, no detection model: `python3 test/test_frame_the_movement.py` |
-| `tool-rows.json` | the Workshop row (`tool:frame-the-whole-movement-in-view`), on the person's computer |
+| `what-this-tool-does-and-how-to-run-it.json` | the Workshop row (`tool:frame-the-whole-movement-in-view`), on the person's computer |
 | `part.json` | nothing here is imported by other code |
 
 ## Limits

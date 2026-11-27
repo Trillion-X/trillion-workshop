@@ -65,7 +65,7 @@
    ]
   },
   "test_refs": [
-   "tools/serve-command-line-mcp-servers-on-the-web/tool-rows.json sample run (tool:ask-a-command-line-mcp-server-once)"
+   "tools/serve-command-line-mcp-servers-on-the-web/what-this-tool-does-and-how-to-run-it.json sample run (tool:ask-a-command-line-mcp-server-once)"
   ]
  }
 }

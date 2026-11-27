@@ -16,7 +16,7 @@ Keeps one secret value under a name in the person's own Trillion vault, through 
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `do-work/keep-a-secret.mjs` | The run: reads stdin, calls the door with the shell program's client. |
 | `test/keep-a-secret.test.mjs` | Made-up door answers only, through a stub door. |
 

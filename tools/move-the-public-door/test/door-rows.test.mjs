@@ -1,4 +1,4 @@
-// The rows, run the way the engine runs them: the files each row packs, its argv and its filled standard input
+// The rows, run the way the engine runs them: the files each row packs, its run and its filled standard input
 // (test-helpers/run-a-row.mjs). The three rows that act on a provider are handed no records door: they take the Service
 // connections rows (and the lease or receipt an earlier answer gave) as input and answer the lease or receipt they make.
 import test from 'node:test';
@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { connectionValues, DNS } from './door-world.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const sample = id => rowOf(rows, id).verify[0];
 const connections = connectionValues();
 
@@ -67,12 +67,12 @@ test('cut prepare answers the receipt, and status reads it back from the receipt
 
 test('every row that takes a held value mounts the secret its input names under a fixed variable, and no row prints one', () => {
   for (const { payload } of rows.records) {
-    for (const mount of payload.invoke.credential_mounts ?? []) {
+    for (const mount of payload.invoke.key ?? []) {
       assert.match(mount.secret_name_from_input, /^[a-z_]+(\.[a-z_]+)*$/, `${payload.id} names its secret by a path in its input`);
       assert.equal(mount.secret_name, undefined, `${payload.id} names no secret of its own`);
       assert.match(mount.env, /^(HOSTING|DNS)_API_TOKEN$/, payload.id);
     }
-    assert.ok(!payload.invoke.credential_mounts?.some(mount => mount.fd !== undefined || mount.mount_path !== undefined), `${payload.id} hands its key only in its own environment`);
+    assert.ok(!payload.invoke.key?.some(mount => mount.fd !== undefined || mount.mount_path !== undefined), `${payload.id} hands its key only in its own environment`);
   }
 });
 

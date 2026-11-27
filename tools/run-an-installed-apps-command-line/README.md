@@ -6,7 +6,7 @@ A launcher a person's AI runs on the person's own computer. Some desktop apps sh
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:run-an-installed-apps-command-line`: `on-your-computer`, with the command that runs it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:run-an-installed-apps-command-line`: `on-your-computer`, with the command that runs it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/run-installed-cli` | The launcher (POSIX `sh`). Node runs a `.mjs`, `.cjs` or `.js` entry; any other entry runs as itself. Arguments, output and exit code pass through. |
 | `test/run-installed-cli.test.mjs` | Builds a made-up app bundle and checks argument and exit-code passthrough, both kinds of entry, and the refusals. |

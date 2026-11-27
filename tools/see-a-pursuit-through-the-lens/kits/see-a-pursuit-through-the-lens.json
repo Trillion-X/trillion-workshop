@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:see-a-pursuit-through-the-lens row in tool-rows.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read from the person's own store by the caller",
+  "drafted_from": "tool:see-a-pursuit-through-the-lens row in what-this-tool-does-and-how-to-run-it.json, do-work/see-a-pursuit-through-the-lens.mjs, src/pursuit-lens.mjs, read-data/see-a-pursuit-through-the-lens.json and test/see-a-pursuit-through-the-lens.test.mjs; list:pursuit-lens fields read from the person's own store by the caller",
   "start_here": "Say to your AI: \"Tell me how to look at what I am pursuing through my pursuit lens, the short paragraph and the full setup with every part and its rows.\" Your AI reads your lens rows from your lists, hands them to tool:see-a-pursuit-through-the-lens and gets the paragraph every AI reads when it connects and the setup.",
   "lists": [
     {

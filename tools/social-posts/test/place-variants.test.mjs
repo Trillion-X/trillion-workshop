@@ -9,9 +9,9 @@ import places from '../read-data/post-places.json' with { type: 'json' };
 import { checkVariants, sendVariants, slugOf, withVariants } from '../read-data/place-variants.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const text = readFileSync(join(HERE, '..', 'tool-rows.json'), 'utf8');
+const text = readFileSync(join(HERE, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8');
 
-test('tool-rows.json holds the variants the place rows make (node read-data/place-variants.mjs --write)', () => {
+test('what-this-tool-does-and-how-to-run-it.json holds the variants the place rows make (node read-data/place-variants.mjs --write)', () => {
   assert.equal(withVariants(text), text);
 });
 
@@ -24,6 +24,7 @@ test('a place with no check has no check variant and every place has a send vari
 test('a new place row makes its variants with no code naming it', () => {
   const added = { id: 'post-place:example-place', connection_vendor: 'example-vendor', options: { auth: { token: { held: 'api_key' }, other: { held: 'secret' } } },
     check: { url: 'https://api.example.test/me', query: { fields: 'id' }, field_id: 'api_key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' }, timeout_seconds: 10 } };
-  assert.deepEqual(sendVariants([added])['example-place'], { connection: { vendor: 'example-vendor', from_input: 'account_id' }, credential_mounts: [{ field_id: 'api_key', fd: 4 }, { field_id: 'secret', fd: 5 }] });
-  assert.deepEqual(checkVariants([added])['example-place'].credential_injections, [{ hosts: ['api.example.test'], field_id: 'api_key', placement: added.check.placement }]);
+  assert.deepEqual(sendVariants([added])['example-place'], { connection: { vendor: 'example-vendor', from_input: 'account_id' }, key: [{ field_id: 'api_key', fd: 4 }, { field_id: 'secret', fd: 5 }] });
+  assert.deepEqual(checkVariants([added])['example-place'].credential_injections, [{ field_id: 'api_key', placement: added.check.placement }]);
+  assert.deepEqual(checkVariants([added])['example-place'].may_reach, ['api.example.test']);
 });

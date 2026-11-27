@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const here = join(folder, 'test');
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const python = (...argv) => spawnSync('python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const environment = JSON.parse(python(join(here, 'check_environment.py')).stdout.trim().split('\n').pop());
 const skip = environment.ok ? false : `needs python3 with numpy, soundfile, Pillow and blake3, and ffmpeg (${environment.reason}); run the row's get_it commands`;

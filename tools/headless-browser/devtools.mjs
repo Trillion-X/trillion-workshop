@@ -14,7 +14,7 @@
 //     failing the run.
 //   - How many browsers may run at once on a computer is the runner's to decide, not this file's: a tool opens one
 //     browser when it is run.
-//   - A run told a proxy (HTTPS_PROXY, as the engine tells every internet:true run) sends the browser's traffic through
+//   - A run told a proxy (HTTPS_PROXY, as the engine tells every run that holds may_reach) sends the browser's traffic through
 //     it (--proxy-server), loopback addresses included (--proxy-bypass-list=<-loopback>, since Chromium would
 //     otherwise go direct to them): Chromium does not read that setting itself, and the engine's sandbox lets the run
 //     reach nothing else. Which addresses are public is the engine's to judge, never this file's.

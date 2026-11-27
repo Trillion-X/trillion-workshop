@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/check-a-rendered-video/tool-rows.json, do-work/check_a_rendered_video.py and test/test_settings_row.py; the run was made on an ffmpeg test video with the test fixture limits; list:settings fields read from the account's list definition",
+  "drafted_from": "tool row in tools/check-a-rendered-video/what-this-tool-does-and-how-to-run-it.json, do-work/check_a_rendered_video.py and test/test_settings_row.py; the run was made on an ffmpeg test video with the test fixture limits; list:settings fields read from the account's list definition",
   "start_here": "Say to your AI: \"Check my finished video /work/film.mp4 against my limits for the film sample-film and tell me every FAIL and WARN with the seconds it happens at.\" It reads your limits row from list:settings, writes it to a file and runs check_a_rendered_video.py check on your computer.",
   "lists": [
     {

@@ -9,7 +9,7 @@ Several documents each claim to reflect one source (summaries, translations, cop
 | `do-work/check-documents-agree-with-their-source.mjs` | The engine: pure functions over a descriptor and a reader. It touches no disk, names no document, pattern or marker, and a test greps it for the words of the domain that motivated it. Copied unchanged. |
 | `do-work/check-my-documents.mjs` | `tool:check-documents-agree-with-their-source`: the granted folder in argv, `{ sets }` on standard input, `{ result }` on the last line. The disk half and nothing else: reads the documents the sets name inside the folder, reports a missing document as its own fact, refuses a path that leaves the folder and a run over no set. Replaces the package's runner, which read its sets from its own manifest. |
 | `part.json` | The engine is public, so another tool may import it. |
-| `tool-rows.json` | The row. It runs on the person's computer after they grant `read-a-folder`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. It runs on the person's computer after they grant `read-a-folder`. |
 | `test/a-document-that-fell-behind-its-source.test.mjs` | The package's test: unit extraction, numeric ordering, every refusal, falling behind, markers with a per-mirror override, and the same engine on a different subject. The sample identifiers are made up. |
 | `test/check-my-documents-row.test.mjs` | The row's shape, and the command run the way the engine runs it over a made-up folder. |
 | `scripts/generated-files.json` | Each generated file's output, inputs, check and write commands, and why. Read by trillion-apps `test/how-to-start-for-reviewers.test.mjs`. Moved byte for byte from `web/scripts/`. |
@@ -29,4 +29,4 @@ Several documents each claim to reflect one source (summaries, translations, cop
 
 **Depends on:** nothing (Node 24 in the engine's run).
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.

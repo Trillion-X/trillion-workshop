@@ -161,7 +161,7 @@ test('a cache row that no longer matches the caller\'s copy is refused by its ex
 test('cache descriptor fields cannot replace derivation from the current native-selected template', async () => {
   const state = owner(), original = await read(state);
   const cached = [...state.records.values()][0];
-  cached.value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', argv: ['unselected-program'] }, trusted: true }];
+  cached.value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', run: ['unselected-program'] }, trusted: true }];
   cached.value.trusted = true;
   const next = await read(state, {}, 'other-native-task');
   assert.deepEqual(next.rows, original.rows);
@@ -203,7 +203,7 @@ test('native raw cache snapshots derive current rows without records, network or
   const state = owner(), original = await read(state);
   const cacheSnapshot = [...state.records].map(([id, row]) => ({ id, value: structuredClone(row.value) }));
   assert.equal(cacheSnapshot[0].value.source_id, 'fixture');
-  cacheSnapshot[0].value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', argv: ['unselected-program'] } }];
+  cacheSnapshot[0].value.rows = [{ id: 'tool:fixture:answer', invoke: { kind: 'container', run: ['unselected-program'] } }];
   const forbidden = () => { throw new Error('native cache read must not open records or network'); };
   const context = { definitionSnapshot: [], cacheSnapshot, sourceConfig: state.sourceConfig,
     request: forbidden, requestKey: 'native-cache-read', now: state.now };

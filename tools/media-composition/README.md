@@ -8,7 +8,7 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The `tool-row-source` that lists this folder's `records.json` rows into the Workshop, and `tool:apply-a-pair-state-message`, a container row run by `tools/records-door`'s `run-an-export.mjs` (no records door). |
+| `what-this-tool-does-and-how-to-run-it.json` | The `tool-row-source` that lists this folder's `records.json` rows into the Workshop, and `tool:apply-a-pair-state-message`, a container row run by `tools/records-door`'s `run-an-export.mjs` (no records door). |
 | `records.json` | The 24 `ai-tool-descriptor` rows. Each is a `container` invoke that packs `do-work/` and `read-data/` here (`tool:suggest-media-cuts` packs only its six files), `tools/content-identity`, and `@noble/hashes`. |
 | `do-work/detect-events.mjs` | `tool:find-events-against-a-running-baseline`: runs the detector row `read-data/detect-events.json` names and answers `{ kind, time, confidence }` events in source seconds. A `stream` row walks `do-work/stream-features.mjs` frames (loudness rise and picture change) through `do-work/stream-core.mjs`, which carries a running baseline per feature and lets head rows say what stood out; a `program` row runs a module of this folder such as `find-action-moments.mjs`. |
 | `do-work/video-compose.mjs` | The one renderer: an edit (JSON) to a video with ffmpeg. Every tool that makes a video renders through it, by way of `do-work/render-an-edit.mjs`. |

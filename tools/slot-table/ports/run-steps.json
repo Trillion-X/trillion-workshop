@@ -54,7 +54,7 @@
    ]
   },
   "test_refs": [
-   "tools/slot-table/tool-rows.json sample run (tool:keep-keyed-things-in-a-fixed-memory-budget)"
+   "tools/slot-table/what-this-tool-does-and-how-to-run-it.json sample run (tool:keep-keyed-things-in-a-fixed-memory-budget)"
   ]
  }
 }

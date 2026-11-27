@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { resolvedInvoke } from './by-input.mjs';
 import { slugOf } from '../read-data/place-variants.mjs';
 
@@ -104,7 +104,7 @@ test('publish now queues the exact reviewed post through its existing wake and i
   const approved = await step('approve-a-post', { post_id: postId, expected_values: reviewed }, draft.records);
   const publishNow = row('publish-a-post-now');
   assert.deepEqual(publishNow.input_schema.required, ['post_id', 'expected_values', 'records']);
-  assert.equal(publishNow.invoke.internet, false, 'the queueing action sends no network request');
+  assert.equal(publishNow.invoke.may_reach, undefined, 'the queueing action sends no network request');
   assert.equal(publishNow.invoke.records, undefined, 'the queueing action is handed no records door');
 
   const queued = await ask(publishNow, { post_id: postId, expected_values: reviewed }, approved.records);
@@ -248,8 +248,8 @@ test('each connection check asks with the value its place signs with, over https
     const signed = JSON.stringify(place.options);
     for (const item of check.invoke.credential_injections) {
       assert.ok(signed.includes(`{"held":"${item.field_id}"}`), `${check.id} uses ${item.field_id}, which ${place.id} signs with`);
-      assert.deepEqual(item.hosts, [new URL(check.invoke.url).hostname], `${check.id} binds its credential to the checked host`);
     }
+    assert.deepEqual(check.invoke.may_reach, [new URL(check.invoke.url).hostname], `${check.id} binds its credential to the checked host`);
     assert.equal(check.invoke.method, 'GET');
     assert.equal(check.read_only, true);
     assert.ok(place.hosts.includes(new URL(check.invoke.url).hostname), `${check.id} asks one of ${place.id}'s own hosts`);

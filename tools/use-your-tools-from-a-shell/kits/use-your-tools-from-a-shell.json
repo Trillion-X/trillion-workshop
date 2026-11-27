@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:use-your-tools-from-a-shell's row in tools/use-your-tools-from-a-shell/tool-rows.json, do-work/command.mjs (render, jobLines, argumentsFor), do-work/command.json and test/command-cli.test.mjs",
+  "drafted_from": "tool:use-your-tools-from-a-shell's row in tools/use-your-tools-from-a-shell/what-this-tool-does-and-how-to-run-it.json, do-work/command.mjs (render, jobLines, argumentsFor), do-work/command.json and test/command-cli.test.mjs",
   "start_here": "Say to your AI: \"Use the {cli} command in a shell to hand the job 'Fix the build' to any of my AIs, then show me the job.\" It reads the tool's row and runs {cli} send any Fix the build on your computer, with no MCP connection of its own.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it is a command that makes one call of the engine's door per command, and the rows it moves belong to the tools it calls.",

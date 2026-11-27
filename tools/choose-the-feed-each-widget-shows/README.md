@@ -16,10 +16,10 @@ Ported from old trillion `ios/Activity/GlanceFeeds.swift`, `GlanceFeed.unpicked(
 |------|---------|
 | `do-work/choose-the-feed-each-widget-shows.mjs` | `tool:choose-the-feed-each-widget-shows`: one JSON input on standard input, `{ result }` or `{ error }` on the last line. |
 | `test/choose-the-feed-each-widget-shows.test.mjs` | Tests for the places, the rows-first order with wrap, picked feeds, and refusals. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 
 ## Dependencies
 
 **Depends on:** `read-glance-feeds/read-data/glance-feeds.json` (packed by the row).
 
-**Depended on by:** `tool-rows.json`, the test.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`, the test.

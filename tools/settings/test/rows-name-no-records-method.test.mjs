@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 test('no row of tools/settings names a records method, and the values reader row stays', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   assert.doesNotMatch(JSON.stringify(rows), /records:(read|write|list|search)\b/);
   assert.deepEqual(rows.map(row => row.id), ['tool:read-a-tool-setting']);
 });

@@ -8,7 +8,7 @@ The open-source counterpart of hosted "continual agent verification" services: t
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The rows Trillion reads: `tool:walk-through-an-app-like-its-users` (walk journeys, report), `tool:map-an-apps-screens-and-controls` (find screens and controls to write journeys from) and `tool:read-what-a-running-app-shows` (do steps, then report what is on the screen after each). All run `do-work/walk-through-an-app.mjs` on `placement:your-computer` or `placement:caller-sandbox`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The rows Trillion reads: `tool:walk-through-an-app-like-its-users` (walk journeys, report), `tool:map-an-apps-screens-and-controls` (find screens and controls to write journeys from) and `tool:read-what-a-running-app-shows` (do steps, then report what is on the screen after each). All run `do-work/walk-through-an-app.mjs` on `placement:your-computer` or `placement:caller-sandbox`. |
 | `do-work/walk-through-an-app.mjs` | The command: `node walk-through-an-app.mjs walk`, `... map` or `... observe`, one JSON request on standard input, one JSON line out (`{ "result" }` or `{ "error" }`). |
 | `do-work/walk.mjs` | `walkApp(request, conventions)` and `mapApp(request, conventions)`: the browser half. One browser context per journey, actions as real mouse and keyboard input, settling on network quiet, polled expectations, pictures, screencast frames and a video (ffmpeg, when present). |
 | `do-work/observe.mjs` | `observeApp(request, conventions)`: the observe job. Does each step's action with the same `act` as a walk, then takes the readings the step asks for, and never fails: a step that cannot complete is recorded and the run goes on. |
@@ -73,7 +73,7 @@ It starts the first Chromium-family browser it finds (`WALK_BROWSER`, `CHROME_PA
 
 **Depends on:** Node 22 or later (its own `WebSocket` and `fetch`), a Chromium-family browser, ffmpeg for journey videos (without it the screencast frames stay as the evidence).
 
-**Depended on by:** Trillion, through `tool-rows.json`.
+**Depended on by:** Trillion, through `what-this-tool-does-and-how-to-run-it.json`.
 
 ## Web surface observation (the Playwright observer)
 

@@ -1,0 +1,652 @@
+{
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/device-copy",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-my-records-on-this-device",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:pack-my-device-copys-settle-upload",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Pack my device copy's settle upload",
+        "job": "Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
+        "description": "Give account (the signed-in account name, 1 to 256 characters) and request (one settle batch as a JSON object, the shape record-sync.mjs sends: copy, root, took_through, rows). Answers location (the private-file-system directory the account's copy is kept under, the account name's bytes in hex so two accounts never share one, and the file name records.sqlite3), sends (frame or plain), headers (content type, the x-trillion-device-account header, and for a frame its dictionary BLAKE3 id and exact expanded size), plain_bytes, sent_bytes, body (plain text) or body_base64 (the deflate frame, compressed against the sample of settle JSON in do-work/frame-dictionaries.json) and expands_back (the frame expands to exactly the batch). A batch under 1024 bytes, or one that would not shrink, goes plain. Refuses an empty, non-text or over-long account and a request that is not an object. It reads only its input: it opens no database, keeps nothing on any device, sends nothing and settles nothing. The screen's other work (the SQLite copy in the browser's private file system that survives reloads and reads offline, the outbox of small writes, the settle itself with the hosted store and sealed records) needs a browser worker and @sqlite.org/sqlite-wasm and is not done by this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "account",
+            "request"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "request": {
+              "type": "object",
+              "properties": {
+                "copy": {
+                  "type": "string"
+                },
+                "root": {
+                  "type": "string"
+                },
+                "took_through": {},
+                "rows": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "location",
+            "sends",
+            "headers",
+            "plain_bytes",
+            "sent_bytes",
+            "expands_back"
+          ],
+          "properties": {
+            "location": {
+              "type": "object",
+              "required": [
+                "directory",
+                "name"
+              ],
+              "properties": {
+                "directory": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "sends": {
+              "type": "string",
+              "enum": [
+                "frame",
+                "plain"
+              ]
+            },
+            "headers": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "plain_bytes": {
+              "type": "integer"
+            },
+            "sent_bytes": {
+              "type": "integer"
+            },
+            "body": {
+              "type": "string"
+            },
+            "body_base64": {
+              "type": "string"
+            },
+            "expands_back": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/keep-my-records-on-this-device",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-my-records-on-this-device/do-work/pack-a-settle-upload.mjs",
+            "packSettleUpload"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-my-records-on-this-device",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/keep-my-records-on-this-device"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": ["node_modules/@noble/hashes"],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "packages": ["node_modules/fflate"],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "esm/index.mjs",
+                  "esm/browser.js"
+                ],
+                "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/log-position.mjs",
+                  "do-work/maintenance-pacing.json",
+                  "do-work/record-digest.mjs",
+                  "do-work/record-model.mjs",
+                  "do-work/record-stamps.mjs",
+                  "do-work/record-sync.mjs",
+                  "do-work/store-size.json",
+                  "do-work/erasable.mjs",
+                  "do-work/json-members.mjs",
+                  "do-work/kept-runs.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "parts/record-log/do-work/record-log-store.mjs",
+                  "parts/record-log/do-work/record-tables.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "slot-table",
+                "paths": [
+                  "do-work/slot-table.mjs"
+                ],
+                "at": "/opt/slot-table"
+              },
+              {
+                "package": "serialized-content",
+                "paths": [
+                  "do-work/base64.mjs"
+                ],
+                "at": "/opt/serialized-content"
+              },
+              {
+                "package": "keep-records-only-my-devices-can-read",
+                "paths": [
+                  "do-work/sealed-copy.mjs",
+                  "do-work/sealed-records.json",
+                  "do-work/sealed-records.mjs"
+                ],
+                "at": "/opt/keep-records-only-my-devices-can-read"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion tools/device-copy/do-work/account-copy.mjs and frame-compression.mjs (frame-compression.mjs brought in byte for byte from 4ffa1dc4a2^, see moved-from.json; the folder moved in a9ee258 (#76)); old capability row capabilities.json:134 at 4ffa1dc4a2^ (keep a working copy of my records on this device ... settles with the account later)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample-person",
+              "request": {
+                "copy": "device-1",
+                "root": "0123456789abcdef",
+                "took_through": null,
+                "rows": [
+                  {
+                    "id": "01a15709-3f0a-7019-81df-90cabc197099",
+                    "envelopes": [
+                      {
+                        "id": "note:0",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 0",
+                          "text": "Words of note 0 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:20.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000000",
+                        "floor": "01a157093f040000000",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:1",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 1",
+                          "text": "Words of note 1 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:21.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000001",
+                        "floor": "01a157093f040000001",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:2",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 2",
+                          "text": "Words of note 2 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:22.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000002",
+                        "floor": "01a157093f040000002",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:3",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 3",
+                          "text": "Words of note 3 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:23.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000003",
+                        "floor": "01a157093f040000003",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:4",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 4",
+                          "text": "Words of note 4 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:24.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000004",
+                        "floor": "01a157093f040000004",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:5",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 5",
+                          "text": "Words of note 5 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:25.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000005",
+                        "floor": "01a157093f040000005",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:6",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 6",
+                          "text": "Words of note 6 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:26.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000006",
+                        "floor": "01a157093f040000006",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:7",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 7",
+                          "text": "Words of note 7 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:27.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000007",
+                        "floor": "01a157093f040000007",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:8",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 8",
+                          "text": "Words of note 8 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:28.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000008",
+                        "floor": "01a157093f040000008",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:9",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 9",
+                          "text": "Words of note 9 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:29.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000009",
+                        "floor": "01a157093f040000009",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:10",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 10",
+                          "text": "Words of note 10 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:30.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000010",
+                        "floor": "01a157093f040000010",
+                        "prior": null
+                      },
+                      {
+                        "id": "note:11",
+                        "type": "note",
+                        "value": {
+                          "title": "Note 11",
+                          "text": "Words of note 11 about the plan for the week",
+                          "created_at": "2026-09-21T14:13:31.000Z",
+                          "space_id": "space-1",
+                          "status": "open",
+                          "tags": [
+                            "a"
+                          ]
+                        },
+                        "at": "01a157093f040000011",
+                        "floor": "01a157093f040000011",
+                        "prior": null
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.sends",
+            "contains": "frame"
+          }
+        ]
+      }
+    }
+  ]
+}

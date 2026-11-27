@@ -67,12 +67,12 @@ test('(d) a row holding its own definition runs as that definition', async () =>
   assert.equal(done.run.status, 'completed');
 });
 
-const toolRow = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const toolRow = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 
 test('the tool row runs its sample runs through runAsTheTool, as definitions and as a recipe', async () => {
   assert.equal(toolRow.id, 'tool:run-workflow-definition');
-  assert.equal(toolRow.invoke.argv.at(-1), 'runAsTheTool');
-  assert.ok(toolRow.invoke.argv.includes('/opt/workflows/do-work/run-a-function.mjs'), 'it runs through run-a-function, which hands the run its host actions');
+  assert.equal(toolRow.invoke.run.at(-1), 'runAsTheTool');
+  assert.ok(toolRow.invoke.run.includes('/opt/workflows/do-work/run-a-function.mjs'), 'it runs through run-a-function, which hands the run its host actions');
   for (const sample of toolRow.verify) {
     const result = await runAsTheTool({ run: sample.input }, {});
     assert.equal(result.status, 'paused');
@@ -100,7 +100,7 @@ test('the tool row packs every file its module imports', () => {
   };
   // Every module the command names, where the row packs it, and what each imports.
   const placed = toolRow.invoke.files.package_files.filter(item => item.package && item.at);
-  const modules = toolRow.invoke.argv.flatMap(word => {
+  const modules = toolRow.invoke.run.flatMap(word => {
     const item = placed.find(item => typeof word === 'string' && word.startsWith(`${item.at}/`));
     return item ? [resolve(root, item.package, word.slice(item.at.length + 1))] : [];
   });

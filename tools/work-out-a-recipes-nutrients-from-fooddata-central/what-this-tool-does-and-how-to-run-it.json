@@ -1,0 +1,539 @@
+{
+  "kind": "package-set-records",
+  "record_set": "work-out-a-recipes-nutrients-from-fooddata-central-tool-rows",
+  "what_this_is": "The Workshop row for the work-out-a-recipes-nutrients-from-fooddata-central folder: works out a recipe's nutrients from the person's USDA FoodData Central downloads, one JSON request in, one JSON answer out.",
+  "records": [
+    {
+      "payload": {
+        "uses_tools": [
+          "trillion-workshop/account-dashboard",
+          "trillion-workshop/account-session",
+          "trillion-workshop/addressed-marks",
+          "trillion-workshop/agents-hub",
+          "trillion-workshop/ai-execution-history",
+          "trillion-workshop/ai-guided-work",
+          "trillion-workshop/ai-memory",
+          "trillion-workshop/ai-records-producer",
+          "trillion-workshop/ai-tool-catalog",
+          "trillion-workshop/ambience",
+          "trillion-workshop/arrange-screens-in-panes",
+          "trillion-workshop/ask-a-small-model-for-a-verdict",
+          "trillion-workshop/audio-transcription",
+          "trillion-workshop/away-summary",
+          "trillion-workshop/background-runner-control",
+          "trillion-workshop/bring-in-new-items-from-this-computer",
+          "trillion-workshop/browse-and-upload-my-files",
+          "trillion-workshop/browse-inspiration-clips",
+          "trillion-workshop/browse-public-page",
+          "trillion-workshop/build-a-screen-from-patches",
+          "trillion-workshop/build-engine-modules-for-web-hosts",
+          "trillion-workshop/calibrate-a-camera-frame",
+          "trillion-workshop/chat",
+          "trillion-workshop/check-a-packages-declared-permissions",
+          "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+          "trillion-workshop/check-bundle-package-boundaries",
+          "trillion-workshop/check-consent-to-an-introduction",
+          "trillion-workshop/choose-and-publish-screen-looks",
+          "trillion-workshop/command-palette",
+          "trillion-workshop/composition-scene-renderer",
+          "trillion-workshop/computer-programs",
+          "trillion-workshop/connect-a-service-and-seal-its-key",
+          "trillion-workshop/content-identity",
+          "trillion-workshop/content-media-evidence",
+          "trillion-workshop/conversations",
+          "trillion-workshop/copy-a-site",
+          "trillion-workshop/decide-when-things-show",
+          "trillion-workshop/decide-with-a-method",
+          "trillion-workshop/delight-moments",
+          "trillion-workshop/describe-the-workshop",
+          "trillion-workshop/documents",
+          "trillion-workshop/documents-as-list-rows",
+          "trillion-workshop/draw-lists-on-a-canvas",
+          "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+          "trillion-workshop/drive-the-screen",
+          "trillion-workshop/edit-a-document-together",
+          "trillion-workshop/edit-a-site-visually",
+          "trillion-workshop/feel",
+          "trillion-workshop/file-content-renderer",
+          "trillion-workshop/fill-a-list-from-a-feed",
+          "trillion-workshop/find-anything-from-one-box",
+          "trillion-workshop/formula-engine",
+          "trillion-workshop/founder-growth-engine-screens",
+          "trillion-workshop/funnel-offer-graph",
+          "trillion-workshop/funnels-screen",
+          "trillion-workshop/graph-canvas",
+          "trillion-workshop/guided-overlay",
+          "trillion-workshop/hand-off-jobs-between-agents",
+          "trillion-workshop/hand-work-to-ais",
+          "trillion-workshop/headless-browser",
+          "trillion-workshop/hold-one-thing-until-done",
+          "trillion-workshop/http-client",
+          "trillion-workshop/introduce-two-people",
+          "trillion-workshop/judge-words",
+          "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+          "trillion-workshop/keep-copies-in-step",
+          "trillion-workshop/keep-lists-of-rows",
+          "trillion-workshop/keep-records-only-my-devices-can-read",
+          "trillion-workshop/know-the-projects-on-this-computer",
+          "trillion-workshop/know-who-is-in-this",
+          "trillion-workshop/learn-a-workflow-from-a-job",
+          "trillion-workshop/learn-from-everyones-results",
+          "trillion-workshop/leave-a-makers-private-starting-values-out",
+          "trillion-workshop/lessons-and-learning-paths",
+          "trillion-workshop/let-someone-look-at-my-account-read",
+          "trillion-workshop/list-tools-for-an-ai",
+          "trillion-workshop/listen-for-a-while",
+          "trillion-workshop/live-namespace",
+          "trillion-workshop/local-files",
+          "trillion-workshop/look-at-screen",
+          "trillion-workshop/make-a-video-playable-at-ingest",
+          "trillion-workshop/make-screen-layouts-and-controls",
+          "trillion-workshop/make-things-feel-good",
+          "trillion-workshop/marketplace-defaults",
+          "trillion-workshop/media-composition",
+          "trillion-workshop/media-identity",
+          "trillion-workshop/media-playback",
+          "trillion-workshop/messages-screen",
+          "trillion-workshop/model-response",
+          "trillion-workshop/models-on-this-computer",
+          "trillion-workshop/move-records-through-declared-states",
+          "trillion-workshop/native-space-source-release",
+          "trillion-workshop/network-people",
+          "trillion-workshop/operation-records",
+          "trillion-workshop/organize-my-files",
+          "trillion-workshop/organize-the-sidebar",
+          "trillion-workshop/outside-conversations",
+          "trillion-workshop/paid-access",
+          "trillion-workshop/pair-unknown-senders",
+          "trillion-workshop/permission-lease",
+          "trillion-workshop/person-list",
+          "trillion-workshop/pick-a-screen-as-you-type",
+          "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+          "trillion-workshop/pin-files-by-content",
+          "trillion-workshop/plan-tasks-and-todo-lists",
+          "trillion-workshop/process-session",
+          "trillion-workshop/query-and-change-list-rows",
+          "trillion-workshop/quote-untrusted-words",
+          "trillion-workshop/read-and-write-mail",
+          "trillion-workshop/recently-deleted-and-storage",
+          "trillion-workshop/record-audio",
+          "trillion-workshop/record-graph",
+          "trillion-workshop/record-log",
+          "trillion-workshop/record-video",
+          "trillion-workshop/record-video-with-teleprompter",
+          "trillion-workshop/record-voice-and-meetings",
+          "trillion-workshop/records-door",
+          "trillion-workshop/refuse-requests-to-private-addresses",
+          "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+          "trillion-workshop/review-what-a-list-says",
+          "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+          "trillion-workshop/run-experiments",
+          "trillion-workshop/run-on-a-persons-computer",
+          "trillion-workshop/run-sql-in-my-database",
+          "trillion-workshop/run-tools-in-my-signed-in-browser",
+          "trillion-workshop/run-work-later-or-on-a-repeat",
+          "trillion-workshop/screen-arrangement",
+          "trillion-workshop/screen-look",
+          "trillion-workshop/screen-looks",
+          "trillion-workshop/screen-ready-records",
+          "trillion-workshop/screen-recording",
+          "trillion-workshop/sealed-records",
+          "trillion-workshop/see-a-pursuit-through-the-lens",
+          "trillion-workshop/see-what-is-being-worked-on",
+          "trillion-workshop/see-what-my-ais-did",
+          "trillion-workshop/selected-agent",
+          "trillion-workshop/send-requests-to-an-engine",
+          "trillion-workshop/send-to-trillion-from-my-browser",
+          "trillion-workshop/serialized-content",
+          "trillion-workshop/set-storage-release-rules",
+          "trillion-workshop/set-up-my-account",
+          "trillion-workshop/set-up-my-devices-and-cameras",
+          "trillion-workshop/settings",
+          "trillion-workshop/settle-amounts-and-reconcile",
+          "trillion-workshop/shared-code",
+          "trillion-workshop/show-any-file-as-itself",
+          "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+          "trillion-workshop/show-ideas-as-records",
+          "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+          "trillion-workshop/sidebar",
+          "trillion-workshop/slot-table",
+          "trillion-workshop/social-posts",
+          "trillion-workshop/start-from-any-landing-page",
+          "trillion-workshop/starting-set",
+          "trillion-workshop/stream-an-answer-in-keyed-parts",
+          "trillion-workshop/take-pictures-out-of-a-zip-archive",
+          "trillion-workshop/tell-one-person-something-through-every-way-they",
+          "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+          "trillion-workshop/tours-screen",
+          "trillion-workshop/transcript-reader",
+          "trillion-workshop/turn-a-list-column-that-holds-names-into",
+          "trillion-workshop/turn-frames-into-slides",
+          "trillion-workshop/tweak-live-controls",
+          "trillion-workshop/ui",
+          "trillion-workshop/view-as",
+          "trillion-workshop/walk-a-new-person-through-first-setup",
+          "trillion-workshop/walk-nested-input-within-limits",
+          "trillion-workshop/watch-my-sources",
+          "trillion-workshop/what-is-waiting-on-me",
+          "trillion-workshop/where-a-person-stands",
+          "trillion-workshop/who-does-each-step",
+          "trillion-workshop/work-map",
+          "trillion-workshop/workflow-canvas",
+          "trillion-workshop/workflow-interruptions",
+          "trillion-workshop/workflows",
+          "trillion-workshop/workspace-pieces",
+          "trillion-workshop/workspace-screens",
+          "trillion-workshop/write-a-job-done-in-several-steps-have",
+          "trillion-workshop/write-a-post-for-each-place"
+        ],
+        "kind": "ai-tool-descriptor",
+        "id": "tool:work-out-a-recipes-nutrients-from-fooddata-central",
+        "status": "active",
+        "label": "Work out a recipe's nutrients from USDA FoodData Central",
+        "job": "Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
+        "description": "Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value. Nutrient ids fall back in order (energy 1008 then 2047, sugars 2000 then 1063, and so on). An ingredient can be scaled so one nutrient matches its pack label. It answers the profile, the recipe with the person's own words kept, and a printed table; with write_to it also writes <id>.profile.json and <id>.recipe.json. It reads only the CSVs it is given and makes no calls. The recipe can come from the person's list:settings row (settings_record, read through tools/settings) instead of the request.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "datasets"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "string"
+            },
+            "built": {
+              "type": "string",
+              "description": "The time stamped on the answer (default: now)"
+            },
+            "yield_note": {
+              "type": "string",
+              "description": "Kept in the recipe; {mix_g:.0f} is replaced by the mix mass"
+            },
+            "datasets": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "description": "One FoodData Central download (SR Legacy, Foundation or another in the same CSV layout): {\"dir\": \"<the unzipped folder>\"} when it runs on the person's computer, or the CSV texts themselves (food_nutrient and food_portion needed; nutrient and food optional).",
+                "properties": {
+                  "dir": {
+                    "type": "string"
+                  },
+                  "food_nutrient": {
+                    "type": "string",
+                    "description": "food_nutrient.csv: fdc_id, nutrient_id, amount (per 100 g)"
+                  },
+                  "food_portion": {
+                    "type": "string",
+                    "description": "food_portion.csv: fdc_id, amount, modifier, portion_description, gram_weight"
+                  },
+                  "nutrient": {
+                    "type": "string"
+                  },
+                  "food": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "ingredients": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "A short word for the ingredient, unique in the recipe"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "description": "The amount in the person's words"
+                  },
+                  "fdc_id": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ],
+                    "description": "The FoodData Central food id; leave out to count the ingredient as nothing (it is still listed)"
+                  },
+                  "dataset": {
+                    "type": "string",
+                    "description": "Which of datasets holds fdc_id"
+                  },
+                  "grams": {
+                    "type": "number"
+                  },
+                  "portion": {
+                    "type": "object",
+                    "required": [
+                      "unit_contains"
+                    ],
+                    "description": "Grams from a portion instead: count x the grams of one portion of fdc_id in dataset (both default to the ingredient's own) whose modifier or description contains unit_contains",
+                    "properties": {
+                      "dataset": {
+                        "type": "string"
+                      },
+                      "fdc_id": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "unit_contains": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "scale": {
+                    "type": "number",
+                    "description": "Multiply every nutrient by this (default 1)"
+                  },
+                  "scale_to_label": {
+                    "type": "object",
+                    "required": [
+                      "nutrient",
+                      "amount"
+                    ],
+                    "description": "Scale every nutrient so this nutrient's amount for the ingredient equals a pack label's (e.g. protein 45)",
+                    "properties": {
+                      "nutrient": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "base": {
+                    "type": "boolean",
+                    "description": "A main ingredient: where FoodData Central has no value for it, the nutrient is flagged unknown_lower_bound_only, not a gap"
+                  },
+                  "amount_status": {},
+                  "evidence": {},
+                  "modelling_note": {
+                    "type": "string",
+                    "description": "Kept in the recipe; {scale:.3f} is replaced by the label scale"
+                  }
+                }
+              }
+            },
+            "nutrient_caveats": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "A caveat to show on a nutrient's row, by nutrient key"
+            },
+            "cross_check": {
+              "type": "object",
+              "description": "Other counts to show beside this one (e.g. what the person said); this_model is added"
+            },
+            "recipe_notes": {
+              "type": "object",
+              "description": "More fields kept in the recipe as given (method, open questions)"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "A folder on the person's computer to write the two JSON files into"
+            },
+            "settings_record": {
+              "description": "The person's saved recipe: their list:settings row(s) as records:read gives them ({id, type, value}, id record:setting:work-out-a-recipes-nutrients-from-fooddata-central~piece~<piece-id>, value.settings the request fields without datasets), read through tools/settings. A field the request gives itself wins."
+            },
+            "piece": {
+              "type": "string",
+              "description": "Which saved recipe (the piece id) to read from settings_record"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "profile",
+            "recipe",
+            "summary_lines",
+            "written"
+          ],
+          "properties": {
+            "profile": {
+              "type": "object",
+              "required": [
+                "id",
+                "mix_mass_g",
+                "nutrients"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "built": {
+                  "type": "string"
+                },
+                "basis": {
+                  "type": "string"
+                },
+                "mix_mass_g": {
+                  "type": "number"
+                },
+                "cross_check": {
+                  "type": "object"
+                },
+                "nutrients": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "nutrient",
+                      "unit",
+                      "per_batch",
+                      "per_100g",
+                      "ingredients_without_data"
+                    ]
+                  }
+                },
+                "per_ingredient_contribution_per_batch": {
+                  "type": "object"
+                },
+                "dri_source": {
+                  "type": "string"
+                },
+                "food_data_sources": {
+                  "type": "object"
+                },
+                "scale_factors": {
+                  "type": "object"
+                }
+              }
+            },
+            "recipe": {
+              "type": "object",
+              "required": [
+                "id",
+                "ingredients"
+              ]
+            },
+            "summary_lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "written": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "work-out-a-recipes-nutrients-from-fooddata-central",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/work-out-a-recipes-nutrients-from-fooddata-central"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          },
+          "workdir": "/opt/work-out-a-recipes-nutrients-from-fooddata-central",
+          "stdout": "json",
+          "run": [
+            "python3",
+            "-I",
+            "do-work/work_out_recipe_nutrients.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false,
+          "memory_mb": 512
+        },
+        "maker": "maker:work-out-a-recipes-nutrients-from-fooddata-central",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container",
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A one-off recipe profile script in Trillion-X/source-repo-a (tools/tofu_ice_cream_profile.py at 5a9ba39), with its recipe moved out of the code into the request",
+          "data": "USDA FoodData Central (public domain) downloads the person gives; adult 19-30 DRIs transcribed from the NASEM Dietary Reference Intakes summary tables (read-data/nutrients.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "id": "made-up-smoothie",
+              "title": "Made-up smoothie",
+              "built": "2026-01-01T00:00:00+00:00",
+              "datasets": {
+                "made_up": {
+                  "food_nutrient": "id,fdc_id,nutrient_id,amount\n1,101,1008,60\n2,101,1003,3\n3,101,1087,120\n4,102,2047,90\n5,102,1003,1\n6,102,1093,\n",
+                  "food_portion": "id,fdc_id,seq_num,amount,measure_unit_id,portion_description,modifier,gram_weight\n1,101,1,1,1,,cup,240\n",
+                  "food": "fdc_id,description\n101,Made-up drink\n102,Made-up fruit\n"
+                }
+              },
+              "ingredients": [
+                {
+                  "id": "drink",
+                  "name": "Made-up drink",
+                  "amount": "1 cup",
+                  "fdc_id": "101",
+                  "dataset": "made_up",
+                  "portion": {
+                    "unit_contains": "cup",
+                    "count": 1
+                  },
+                  "base": true
+                },
+                {
+                  "id": "fruit",
+                  "name": "Made-up fruit",
+                  "amount": "100 g",
+                  "fdc_id": "102",
+                  "dataset": "made_up",
+                  "grams": 100
+                }
+              ]
+            },
+            "output_selector": "$.profile.mix_mass_g",
+            "contains": "340"
+          }
+        ]
+      }
+    }
+  ]
+}
+

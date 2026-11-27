@@ -1,7 +1,7 @@
 // tools/tools-from-github/index-github-tools.mjs
 //
 // Purpose
-//   Makes tool-rows.json from sources.json (both beside this file): one Workshop tool row per open-source GitHub
+//   Makes what-this-tool-does-and-how-to-run-it.json from sources.json (both beside this file): one Workshop tool row per open-source GitHub
 //   repository, placed on placement:caller-sandbox, so an AI that asks find_tool_for_job for a job (captions,
 //   transcription, a cutout) finds the repository, and run_tool hands it back (for_you_to_run) with how to clone,
 //   install and run it on the person's own computer. Trillion runs none of this code and keeps none of it.
@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PLACEMENT = 'placement:caller-sandbox';
-const OUT = resolve(here, 'tool-rows.json');
+const OUT = resolve(here, 'what-this-tool-does-and-how-to-run-it.json');
 const readJson = path => JSON.parse(readFileSync(resolve(here, path), 'utf8'));
 
 /** The row a repository's GitHub facts and its sources row make. `classes` are licence-class payloads. */
@@ -116,6 +116,6 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exitCode = same ? 0 : 1;
   } else {
     writeFileSync(OUT, text);
-    process.stdout.write(`${made.records.length} rows written to tools/tools-from-github/tool-rows.json\n`);
+    process.stdout.write(`${made.records.length} rows written to tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json\n`);
   }
 }

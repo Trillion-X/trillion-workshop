@@ -6,14 +6,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const read = (path) => readFile(new URL(path, import.meta.url), 'utf8');
-const row = JSON.parse(await read('../tool-rows.json')).records[0].payload;
+const row = JSON.parse(await read('../what-this-tool-does-and-how-to-run-it.json')).records[0].payload;
 const recipe = JSON.parse(await read('../../workflows/recipes/read-cost-measurements.json')).records[0].payload;
 const kit = JSON.parse(await read('../../workflows/kits/read-cost-measurements.json'));
 const screen = await read('../screen.mjs');
 const data = JSON.parse(await read('../DATA.json'));
 
 test('the tool row and its DATA names no records method and no records door', async () => {
-  const texts = [JSON.stringify(row), JSON.stringify(data), await read('../tool-rows.json'), await read('../DATA.json')];
+  const texts = [JSON.stringify(row), JSON.stringify(data), await read('../what-this-tool-does-and-how-to-run-it.json'), await read('../DATA.json')];
   for (const text of texts) {
     assert.equal(/records:(read|write|list)/.test(text), false);
     assert.equal(text.includes('/records-door'), false);

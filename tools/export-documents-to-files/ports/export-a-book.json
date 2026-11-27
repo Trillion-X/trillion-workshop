@@ -54,7 +54,7 @@
   },
   {
    "repository": "trillion-workshop",
-   "path": "tools/export-documents-to-files/tool-rows.json",
+   "path": "tools/export-documents-to-files/what-this-tool-does-and-how-to-run-it.json",
    "why": "This tool's own row tool:export-a-markdown-book-to-word, whose run line calls do-work/export-a-book.mjs exportABook; the row that declares this entry, not a second owner."
   },
   {

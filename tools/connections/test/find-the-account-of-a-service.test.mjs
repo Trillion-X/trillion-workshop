@@ -34,11 +34,11 @@ test('a request of another shape is refused in words', async () => {
 });
 
 test('the row runs this function, reads only, and packs what it reads', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
   const row = rows.find(payload => payload.id === 'tool:find-the-account-of-a-service');
-  assert.deepEqual(row.invoke.argv.slice(2), ['/opt/connections/do-work/find-the-account-of-a-service.mjs', 'findTheAccountOfAService']);
+  assert.deepEqual(row.invoke.run.slice(2), ['/opt/connections/do-work/find-the-account-of-a-service.mjs', 'findTheAccountOfAService']);
   assert.equal(row.read_only, true);
-  assert.equal(row.invoke.internet, false);
+  assert.equal(row.invoke.may_reach, undefined);
   const packed = JSON.parse(readFileSync(new URL('../../../package-files.json', import.meta.url), 'utf8'))['tool:find-the-account-of-a-service'];
   assert.deepEqual(packed, row.invoke.files.package_files);
 });

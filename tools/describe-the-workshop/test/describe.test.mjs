@@ -28,7 +28,7 @@ test('a saved screen replaces the shared row, takes listed_on from saved_at and 
 });
 
 test('no saved row given means none: the tool reads no store, and the row holds no records door', async () => {
-  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(one => one.payload).find(one => one.id === 'tool:describe-a-tool');
+  const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(one => one.payload).find(one => one.id === 'tool:describe-a-tool');
   assert.equal(row.invoke.records, undefined);
   const shared = [{ kind: 'ai-tool-descriptor', id: 'tool:foo', screen: { kind: 'parts' }, label: 'Shared' }];
   const value = await describe({ tool_id: 'tool:foo', shared });

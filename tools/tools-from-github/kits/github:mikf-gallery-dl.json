@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:mikf-gallery-dl's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs gallery-dl.",
+  "drafted_from": "tool:github:mikf-gallery-dl's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic input filled in. What it prints or writes is read from the repository's own README; the folder test test/index-github-tools.test.mjs only checks the row, never runs gallery-dl.",
   "start_here": "Say to your AI: \"Use gallery-dl on my computer: download the images, videos and post details of a public profile, gallery or post from a web address such as Instagram, TikTok, Pinterest or Reddit, with https://example.com/user/demo-profile.\" It reads the row, installs gallery-dl if it is missing, runs it and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: gallery-dl is a program that runs on the person's own computer and works on what it is handed there.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:mikf-gallery-dl runs on your computer, so after tools:list the AI runs, in the folder it got gallery-dl in, the command line: gallery-dl https://example.com/user/demo-profile",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:mikf-gallery-dl runs on your computer, so after tools:list the AI runs, in the folder it got gallery-dl in, the command line: gallery-dl https://example.com/user/demo-profile",
       "hands_back": "gallery-dl prints one line per file it saves (\"./gallery-dl/example/demo-profile/1001_01.jpg\") and leaves the profile's images and videos, with each post's details beside them when asked with --write-metadata, in a gallery-dl folder where it ran."
     }
   ]

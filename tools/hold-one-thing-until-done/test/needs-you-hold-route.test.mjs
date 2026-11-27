@@ -13,7 +13,7 @@ import { makeTellThePerson } from '../../tell-one-person-something-through-every
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
 import { keptAfter } from './kept-rows.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const ROUTE = rowOf(ROWS, 'tool:answer-the-needs-you-hold-route');
 const NOW = Date.parse('2026-01-10T12:00:00.000Z');
 const HELD_ID = 'setting:needs_you_held';
@@ -49,7 +49,7 @@ const heldOf = kept => kept.find(record => record.id === HELD_ID)?.value?.value;
 
 test('the row declares no records door, and the route reads only the records it is handed', async () => {
   assert.equal(ROUTE.invoke.records, undefined);
-  assert.equal(ROUTE.invoke.argv[1], '/opt/hold-one-thing-until-done/do-work/run-given.mjs');
+  assert.equal(ROUTE.invoke.run[1], '/opt/hold-one-thing-until-done/do-work/run-given.mjs');
   const run = await answer(page('GET'), []);
   assert.equal(run.status, 503, 'with no setting handed in there are no rules to read, so the read is busy');
   assert.deepEqual(run.keep, []);

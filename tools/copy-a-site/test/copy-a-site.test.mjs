@@ -1,7 +1,7 @@
-// The site copier (tools/copy-a-site, tool:copy-a-site in tool-rows.json): every flag the row passes is one the script
+// The site copier (tools/copy-a-site, tool:copy-a-site in what-this-tool-does-and-how-to-run-it.json): every flag the row passes is one the script
 // reads, its naming rules, and the script run from its folder as the container runs it from /opt/copy-a-site, on a
 // small site (test/site.mjs) whose name resolves nowhere: it is reached only through a proxy named the way the engine
-// names its public-only proxy to an internet:true run (HTTP_PROXY, HTTPS_PROXY, NODE_USE_ENV_PROXY), so the copy
+// names its public-only proxy to a run with may_reach (HTTP_PROXY, HTTPS_PROXY, NODE_USE_ENV_PROXY), so the copy
 // proves that the copier's own fetches and its browser both go through that proxy. Checks that a page keeps what its
 // script drew and loses the script, a linked page is kept as a folder index, a picture a style sheet uses is kept,
 // every address points at the copy, and another site stays linked. Needs Chromium (Playwright's, from devDependencies).
@@ -20,7 +20,7 @@ import { assetFile, omittedPages, pageFile, reportedSkipped, rewrite, sitemapPag
 import { pages } from './site.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const [tool] = JSON.parse(readFileSync(resolve(root, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const [tool] = JSON.parse(readFileSync(resolve(root, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const HOST = 'copy-a-site.example';
 
 // The site, on this computer, and a proxy in front of it that carries only the site's name: a tunnel (CONNECT, as
@@ -78,10 +78,10 @@ async function runTool(input, out, proxy) {
 
 test('every flag the row passes is one the script reads, and the row packs no address code', () => {
   const script = readFileSync(resolve(root, 'do-work/copy-a-site.mjs'), 'utf8');
-  for (const flag of tool.invoke.argv.filter(part => typeof part === 'string' && part.startsWith('--'))) {
+  for (const flag of tool.invoke.run.filter(part => typeof part === 'string' && part.startsWith('--'))) {
     assert.ok(script.includes(`args['${flag.slice(2)}']`) || script.includes(`args.${flag.slice(2)}`), `the script reads ${flag}`);
   }
-  assert.equal(tool.invoke.internet, true);
+  assert.ok(Array.isArray(tool.invoke.may_reach));
   assert.deepEqual(tool.invoke.files.package_files.map(item => item.package), ['copy-a-site', 'headless-browser']);
 });
 

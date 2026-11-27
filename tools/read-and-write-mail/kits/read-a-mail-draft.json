@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:read-a-mail-draft's own row in tools/read-and-write-mail/tool-rows.json and the neutral rows of read-data/neutral.mjs; the answer is the shape the Gmail adapter and the stand-in test of test/mail-adapters.test.mjs produce for this sample input",
+  "drafted_from": "tool:read-a-mail-draft's own row in tools/read-and-write-mail/what-this-tool-does-and-how-to-run-it.json and the neutral rows of read-data/neutral.mjs; the answer is the shape the Gmail adapter and the stand-in test of test/mail-adapters.test.mjs produce for this sample input",
   "start_here": "Say to your AI: \"Read my draft r-7301442210. Use my Gmail account connection service_connection:google-account:sam-bakery.\" It runs tool:read-a-mail-draft as that account on the provider gmail and hands back the neutral row.",
   "lists": [],
   "no_lists_because": "It keeps no list: it calls the mail provider for one account the connection names and answers the neutral row.",

@@ -1,0 +1,128 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-the-last-good-answer",
+        "id": "tool:ask-a-web-address-or-give-the-last-answer",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true,
+          "memory_mb": 128
+        },
+        "label": "Ask a web address, or give me the last answer it gave",
+        "job": "Ask a web address for its answer; when the address cannot answer, give back the last answer it gave, so a feed or service that is down does not leave the person with nothing",
+        "description": "Give address (a web address that starts with http:// or https://) and key (a short name for this answer: lower-case letters, digits and hyphens, so the last answer can be found again); wait_seconds (1 to 120, default 20) is how long to wait for the address; last_answer is the answer given back last time (the to_keep record this tool returned, or its value), which the person's own write kept. The answer is JSON when the address says it is JSON and text otherwise, up to 256 KiB. When the address answers, the answer is returned with origin from-the-source, the time, and to_keep, the one record that keeps it under the key; the tool keeps nothing itself. When it fails (an error status, no answer in time, an unreadable or too large body) or answers with nothing, last_answer is returned with origin from-what-was-kept and when it was kept; an empty answer never replaces a good one. With no last_answer the origin is nothing-to-give and the answer is null. Failures are returned in words (source_failure), never raised. When the address answers 429 or 503 with a Retry-After header, retry_after_seconds says how long it asked to be left alone (seconds or a date, held to a day); the tool itself never waits or asks again. The engine keeps this to public web addresses.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "address",
+            "key"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "address": {
+              "type": "string",
+              "description": "The web address to ask"
+            },
+            "key": {
+              "type": "string",
+              "pattern": "^[a-z0-9][a-z0-9-]{0,63}$",
+              "description": "A short name for this answer, so the last good one can be found again"
+            },
+            "wait_seconds": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 120
+            },
+            "last_answer": {
+              "type": "object",
+              "description": "The answer given back last time: the to_keep record this tool returned, or its value { address, answer, kept_at }"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "origin",
+            "answer",
+            "said"
+          ],
+          "properties": {
+            "origin": {
+              "type": "string",
+              "enum": [
+                "from-the-source",
+                "from-what-was-kept",
+                "nothing-to-give"
+              ]
+            },
+            "answer": {},
+            "kept_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "to_keep": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "description": "When the address answered: the kept-answer record that keeps this answer under the key, for the person's own write; null otherwise"
+            },
+            "source_failure": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "retry_after_seconds": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "minimum": 0,
+              "description": "When the address answered 429 or 503 with a Retry-After header: how many seconds it asked to be left alone (at most a day); null otherwise"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": {
+              "package": "keep-the-last-good-answer",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/keep-the-last-good-answer"
+            }
+          },
+          "workdir": "/opt/keep-the-last-good-answer",
+          "may_reach": [], "public_read": true,
+          "stdout": "json",
+          "run": [
+            "node",
+            "do-work/ask-a-web-address.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "shape_read_at": "2026-11-03", "input": {"address": "https://feeds.example.test/daily-prices.json", "key": "daily-prices"}, "replies": [{"request": {"method": "GET", "url": "https://feeds.example.test/daily-prices.json"}, "status": 200, "headers": {"content-type": "application/json"}, "body": "{\"items\": [{\"name\": \"Sample loaf\", \"price\": 4.5}]}"}]}]
+      }
+    }
+  ]
+}

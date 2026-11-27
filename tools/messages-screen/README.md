@@ -7,8 +7,8 @@ The Messages screen: the person's conversations (what their apps told them, and 
 | File | Purpose |
 |------|---------|
 | `show/build-chat-conversation-list.ts` | The list helpers the screen's sidebar uses: newest first, filter by words, participant or project, group by date |
-| `show/list-conversations.mjs` | `listConversations({ conversations, search, participant, project })`: the list as one run (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:list-my-conversations-newest-first`, with a sample run that finds one conversation by a word of its title |
+| `show/list-conversations.mjs` | `listConversations({ conversations, search, participant, project })`: the list as one run (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:list-my-conversations-newest-first`, with a sample run that finds one conversation by a word of its title |
 | `README.md` | This file |
 | `web/src/workspace/messages-screen-mount.tsx` | The screen's module entry, the file its row (`tool:screen-messages`) names: `mount` is the screen's own mount function. |
 | `web/src/workspace/messages-screen.tsx` | The screen: the conversation list (search, newest first, app picture or initials) beside the open conversation; the conversation's messages as bubbles (the person's on the right), grouped by day, by who is talking and by time; a photo as a tile with its name; forgetting a told message on hover; the composer, disabled with the words saying replying is not built yet. Every word comes from `messages-words.json`. |

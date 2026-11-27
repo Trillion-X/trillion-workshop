@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/workflows/tool-rows.json row, do-work/measure-citation-coverage.mjs, read-data/citation-coverage.mjs and test/citation-coverage.test.mjs",
+  "drafted_from": "tools/workflows/what-this-tool-does-and-how-to-run-it.json row, do-work/measure-citation-coverage.mjs, read-data/citation-coverage.mjs and test/citation-coverage.test.mjs",
   "start_here": "Say to your AI: \"Run tool:measure-page-citation-coverage for https://example.com/a on engine-one and engine-two with these recorded answers, and tell me which cells cited the page.\" It builds the full page by question by engine grid and counts only exact page citations.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the plan and the recorded answers handed in the call and answers the counts and cells straight back.",

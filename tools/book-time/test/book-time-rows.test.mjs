@@ -4,7 +4,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { changeABookingStatus, checkWhenIAmBusy, findOpenTimes, makeACalendarInvite, moveABookingOnMyCalendar, putABookingOnMyCalendar, requestABooking } from '../do-work/book-time.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 // The tools are called as the runner calls them: fn(input, { credential?, fetch? }), handed no records door.
 const attempt = fn => input => { try { return { status: 0, result: fn(input) }; } catch (error) { return { status: 1, error: error.message }; } };

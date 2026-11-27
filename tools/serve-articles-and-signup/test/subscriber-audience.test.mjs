@@ -97,11 +97,11 @@ test('the audience command reads its key from descriptor 3 and never prints it',
 });
 
 test('the audience tool mounts the named site key only on descriptor 3 and sends nothing', () => {
-  const { records: [{ payload: tool }] } = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url)));
+  const { records: [{ payload: tool }] } = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url)));
   assert.equal(tool.id, 'tool:prepare-a-newsletter-audience');
-  assert.equal(tool.invoke.internet, false);
+  assert.equal(tool.invoke.may_reach, undefined);
   assert.equal(tool.read_only, true);
-  assert.deepEqual(tool.invoke.credential_mounts, [{ secret_name_from_input: 'key_name', fd: 3 }]);
+  assert.deepEqual(tool.invoke.key, [{ secret_name_from_input: 'key_name', fd: 3 }]);
   assert.ok(tool.input_schema.required.includes('key_name'));
   assert.equal(tool.input_schema.properties.secret, undefined);
 });

@@ -29,7 +29,7 @@ export function mountsFor(channel) {
 }
 
 /** A row's credential mounts in the same fixed order. */
-export const mountsOf = row => [...row.invoke.credential_mounts].sort(byName);
+export const mountsOf = row => [...row.invoke.key].sort(byName);
 
 it('every adapter provider names its keys, and no two providers of a channel share a key name or an id', () => {
   for (const channel of ['email', 'text']) {

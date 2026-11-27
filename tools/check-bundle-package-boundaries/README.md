@@ -13,7 +13,7 @@ It judges the bundler's own report (an esbuild-shaped metafile), so what is judg
 | `do-work/check-bundle-package-boundaries.mjs` | The check: `checkBundlePackageBoundaries({ metafile, bundleRoot, packagesRoot, declaration })`. Changed from the package in one way: the declaration file's name, its entry list and entry kind were fixed words of the old runtime and are now the `declaration` input. The command-line entry is gone; the row's command replaces it. |
 | `do-work/check-my-bundle.mjs` | `tool:check-a-bundle-against-package-boundaries`: the granted folder in argv, the input on standard input, `{ result }` on the last line; every path stays inside the granted folder. |
 | `part.json` | The check is public, so another tool may import it. |
-| `tool-rows.json` | The row. It runs on the person's computer after they grant `read-a-folder`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row. It runs on the person's computer after they grant `read-a-folder`. |
 | `test/check-bundle-package-boundaries.test.mjs` | The package's three tests on made-up packages (public files, same-package and unowned edges, private reaches, namespaced absolute paths, unreadable declarations) and the required declaration. |
 | `test/check-my-bundle-row.test.mjs` | The row's shape, and the command run the way the engine runs it over a made-up folder. |
 | `scripts/check-bundle-part-boundaries.mjs` | Judges a finished bundle's real import graph and reports every edge where code outside a part reaches a file that part has not declared public (the form the Send to Trillion extension build uses). Moved byte for byte from trillion-apps `web/scripts/`. |
@@ -36,4 +36,4 @@ It judges the bundler's own report (an esbuild-shaped metafile), so what is judg
 
 **Depends on:** Node's `fs` and `path` only.
 
-**Depended on by:** `tool-rows.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. The local engine runs the row on the person's computer (`computer` kind) for its owner, with nothing more to allow (installing it or switching its job on is the one yes); the folder it works on is named in its run input at `computer.read-a-folder`.

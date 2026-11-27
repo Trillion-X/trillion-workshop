@@ -44,7 +44,7 @@ In a template `{field}` is the row's field or a computed one (`family`, `creator
 | `read-data/device_rows.py` | Pure readers: exact caption starts, the quote check, the counts, cells from templates, the family file, the index addition. |
 | `test/test_device_rows.py` | The pure readers on made-up rows and captions. |
 | `test/turn-quotes-into-device-rows.test.mjs` | The command end to end on made-up files. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 
 ## Moved from
 

@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { answerOf, rowOf, said, rightsOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { encryptPrivateObjectCtr } from '../read-data/encrypt-private-object.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
@@ -32,16 +32,16 @@ const offer = { id: 'offer:class', access_refs: ['access:course-a'], price_optio
 const paid = { event_id: 'evt_1', event_kind: 'payment.confirmed', occurred_at: '2026-03-01T00:00:00.000Z', attributes: { provider_event_id: 'evt_1', customer_email: ANA, offer_id: 'offer:class', payment_intent_ref: 'pi_1', payment_status: 'paid' } };
 const refund = { event_id: 'evt_2', event_kind: 'payment.refunded', occurred_at: '2026-03-02T00:00:00.000Z', attributes: { provider_event_id: 'evt_2', provider_object_ref: 'ch_1', payment_intent_ref: 'pi_1' } };
 
-// Runs the seal row's argv the way the container does: the key (when given) on the row's credential descriptor, and
+// Runs the seal row's run the way the container does: the key (when given) on the row's credential descriptor, and
 // --out in a scratch folder instead of /opt.
 async function runSeal(input, { key } = {}) {
   const scratch = tempFolder(join(tmpdir(), 'seal-a-paid-file-'));
   // descriptor 4 carries the key, or nothing when none is handed; descriptor 3 (where a records door would be) is empty
   writeFileSync(join(scratch, 'key'), key ?? '');
   const stdio = ['pipe', 'pipe', 'pipe', 'ignore'];
-  stdio[seal.invoke.credential_mounts[0].fd] = openSync(join(scratch, 'key'), 'r');
+  stdio[seal.invoke.key[0].fd] = openSync(join(scratch, 'key'), 'r');
   const out = join(scratch, 'sealed.bin');
-  const argv = seal.invoke.argv.map(word => (word === seal.invoke.outputs[0].path ? out
+  const argv = seal.invoke.run.map(word => (word === seal.invoke.outputs[0].path ? out
     : word.startsWith('/opt/') ? join(tools, word.slice('/opt/'.length)) : word));
   const answer = await new Promise((done, fail) => {
     const child = spawn(process.execPath, argv.slice(1), { stdio });
@@ -141,12 +141,12 @@ test('no row reads or writes stored records, and no row holds a key or a person'
   const all = rows.records.map(item => item.payload);
   assert.deepEqual(all.filter(row => rightsOf(row).length), []);
   for (const row of all) {
-    for (const mount of row.invoke.credential_mounts ?? []) assert.equal(mount.secret_name, 'paid-files-key');
+    for (const mount of row.invoke.key ?? []) assert.equal(mount.secret_name, 'paid-files-key');
     assert.doesNotMatch(JSON.stringify(row), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/);
     assert.doesNotMatch(row.maker, /trillion|bitfield/i);
   }
-  assert.deepEqual(all.filter(row => row.invoke.credential_mounts).map(row => row.id), ['tool:seal-a-paid-file']);
-  assert.deepEqual(all.filter(row => row.invoke.internet).map(row => row.id), ['tool:seal-a-paid-file']);
+  assert.deepEqual(all.filter(row => row.invoke.key).map(row => row.id), ['tool:seal-a-paid-file']);
+  assert.deepEqual(all.filter(row => Array.isArray(row.invoke.may_reach)).map(row => row.id), ['tool:seal-a-paid-file']);
 });
 
 // One test per tool: its answer holds the whole result, from a run with no records door.

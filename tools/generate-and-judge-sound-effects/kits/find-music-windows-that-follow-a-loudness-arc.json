@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-music-windows-that-follow-a-loudness-arc row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:find-music-windows-that-follow-a-loudness-arc row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Find the 10 second stretch of /work/music/track.wav whose loudness follows my film's arc in BRIEF.json and cut it as an excerpt.\" It runs the window finder and reads which window won.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads BRIEF.json and music tracks on this computer and writes windows.json and excerpt files into the folder it is given.",

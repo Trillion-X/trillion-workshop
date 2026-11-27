@@ -147,11 +147,11 @@ function pendingInputFields(problems, schema) {
 // `query` ({ name: leaf }) is read the same way and added to the address as its query string, a list as repeated
 // names; a name whose leaf is left out is not sent.
 // (`body_template` is the notes' own name for the body and is read the same way.)
-// and `credential_injections` and `credential_mounts` become the names the locked box holds: `secret_name` (or
+// and `credential_injections` and `key` become the names the locked box holds: `secret_name` (or
 // `vault_key`) as written, else the service-connections name for `connection_id` + `field_id`.
-// `argv` (a container tool's command) reads the same `{ from }` leaves, but its text is passed as written: a braced
+// `run` (a container tool's command) reads the same `{ from }` leaves, but its text is passed as written: a braced
 // word in a command is the command's, never a hole.
-const REQUEST_FIELDS = { url: 'address', headers: 'text', body: 'text', body_template: 'text', query: 'text', argv: 'as-written' };
+const REQUEST_FIELDS = { url: 'address', headers: 'text', body: 'text', body_template: 'text', query: 'text', run: 'as-written' };
 const OMIT = Symbol('left out');
 const TIME_STEPS = { days: 86_400_000, hours: 3_600_000, minutes: 60_000 };
 function timeFrom(started, { as, ...moves }) {
@@ -194,10 +194,10 @@ const heldItems = (invoke, field) => (invoke?.before_you_have_a_secret === true 
 export function credentialInjections(invoke) {
   return heldItems(invoke, 'credential_injections').map(item => ({ secret_name: heldName(invoke, item), placement: item.placement }));
 }
-// Values a container tool reads as files (`invoke.credential_mounts: [{ field_id | secret_name, mount_path }]`, the
+// Values a container tool reads as files (`invoke.key: [{ field_id | secret_name, mount_path }]`, the
 // credentials vault's `resolve-one-credential-mount` input shape), named the same way.
 export function credentialMounts(invoke) {
-  return heldItems(invoke, 'credential_mounts').map(item => ({ secret_name: heldName(invoke, item), mount_path: item.mount_path }));
+  return heldItems(invoke, 'key').map(item => ({ secret_name: heldName(invoke, item), mount_path: item.mount_path }));
 }
 const FETCHES = {
   base64: bytes => {
@@ -250,7 +250,7 @@ export async function buildInvocation(template, { input, task, extra = {}, needs
   return {
     ...built,
     ...(template.credential_injections === undefined ? {} : { credential_injections: credentialInjections(template) }),
-    ...(template.credential_mounts === undefined ? {} : { credential_mounts: credentialMounts(template) }),
+    ...(template.key === undefined ? {} : { key: credentialMounts(template) }),
   };
 }
 
@@ -520,7 +520,7 @@ function connectionsOf(tools) {
 
 
 // What a saved container tool that asked for the network is told: it runs sealed, and needs no network for its files.
-const SEALED_WORDS = 'A tool saved here runs without the network, so invoke.internet is not used; leave it out. It needs no network for files: each file input (format "namespace-file") is placed inside the container before it runs and the input holds that local path, like /inputs/<hex>/clip.mp4, and each file it leaves at a path in invoke.outputs with "keep_in": "files" is kept in your files under /Made by tools/<the tool\'s label>/, named from the input when the output has keep_as: { "name_from": [input field names] }, otherwise in a folder named for when the run started.';
+const SEALED_WORDS = 'A tool saved here runs without the network, so invoke.may_reach is not used; leave it out. It needs no network for files: each file input (format "namespace-file") is placed inside the container before it runs and the input holds that local path, like /inputs/<hex>/clip.mp4, and each file it leaves at a path in invoke.outputs with "keep_in": "files" is kept in your files under /Made by tools/<the tool\'s label>/, named from the input when the output has keep_as: { "name_from": [input field names] }, otherwise in a folder named for when the run started.';
 const RUN_HINT = { input: '(an object matching input_schema)', request_key: '(any unique text; reuse it only to repeat this exact call)' };
 
 // What a caller sees about one tool. Its words are shown as data, never as instructions.
@@ -1296,7 +1296,7 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
     const onlyScreen = screenOnly(row);
     if (!onlyScreen && (!object(invoke) || !nonempty(invoke.kind))) problems.push('invoke: how the tool runs, an object with a kind: "container" (your own code, sent in files), "model" (a hosted model with a fixed prompt) or "http" (a request to a web address that answers JSON).');
     else if (invoke?.kind === 'container') {
-      if (!Array.isArray(invoke.argv) || !invoke.argv.length) problems.push('invoke.argv: the command that runs the tool, as a list, run in /work without a shell, for example ["python3", "main.py", {"from": "text"}], where {"from": "text"} is replaced by input.text.');
+      if (!Array.isArray(invoke.run) || !invoke.run.length) problems.push('invoke.run: the command that runs the tool, as a list, run in /work without a shell, for example ["python3", "main.py", {"from": "text"}], where {"from": "text"} is replaced by input.text.');
       if (!sent && !nonempty(invoke.files)) problems.push('files: a container tool needs its code. Send files as {"main.py": "<the file text>"}; they are placed in /work.');
       // A saved tool's files leave its container only into the caller's own namespace.
       if (invoke.outputs !== undefined && !Array.isArray(invoke.outputs)) problems.push('invoke.outputs: a list of the files the tool leaves, each {"name": "video", "path": "/work/out.mp4", "keep_in": "files", "media_type": "video/mp4"}, or {"name": "pages", "folder": "/work/out", "keep_in": "files"} for every file in a folder.');
@@ -1512,7 +1512,7 @@ export function makeWorkshop({ data, store, pool, executors, host, handedToCalle
     const replyOf = context => ({
       tool_id: tool.id, ...(tool.bytes_fingerprint ? { bytes_fingerprint: tool.bytes_fingerprint } : {}),
       visible_to: 'only the account that saved it', replaced: tools.some(item => item.id === tool.id),
-      ...(tool.invoke?.internet === true ? { network: SEALED_WORDS } : {}),
+      ...(Array.isArray(tool.invoke?.may_reach) ? { network: SEALED_WORDS } : {}),
       next_call: { tool: 'run_tool', arguments: { tool_id: tool.id, ...RUN_HINT } },
       ...(screenFixes.length ? { screen_fixes: screenFixes } : {}),
       ...((screenArchive && tool.screen?.kind === 'module' || tool.screen?.kind === PARTS_SCREEN) && open_now !== false ? { 'trillion/screen': {

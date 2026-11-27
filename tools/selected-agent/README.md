@@ -16,4 +16,4 @@ The person's choice of AI is a row in the person's own store, kept by the recipe
 
 ## Removed (lane w33-3b)
 
-The run harness (`run/`: `plan-selected-agent.mjs`, `requests-kept-here.mjs`, `package.json`), the tool row (`tool-rows.json`, `tool:choose-which-ai-answers-me`) and its kit (`kits/choose-which-ai-answers-me.json`, now `tools/workflows/kits/choose-which-ai-answers-me.json`). What they did: `planSelectedAgent` built the request that keeps the choice, unsent, and a stand-in for `#workspace-records` kept each request in a run. The choice is kept by the recipe above, so the request has no store to build for.
+The run harness (`run/`: `plan-selected-agent.mjs`, `requests-kept-here.mjs`, `package.json`), the tool row (`what-this-tool-does-and-how-to-run-it.json`, `tool:choose-which-ai-answers-me`) and its kit (`kits/choose-which-ai-answers-me.json`, now `tools/workflows/kits/choose-which-ai-answers-me.json`). What they did: `planSelectedAgent` built the request that keeps the choice, unsent, and a stand-in for `#workspace-records` kept each request in a run. The choice is kept by the recipe above, so the request has no store to build for.

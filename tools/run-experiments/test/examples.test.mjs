@@ -15,9 +15,9 @@ const row = JSON.parse(readFileSync(resolve(folder, 'records.json'), 'utf8')).th
   .find(item => item.id === 'tool:choose-what-a-visitor-sees');
 const example = name => JSON.parse(readFileSync(resolve(folder, 'data', name), 'utf8'));
 
-/** Run the command by its row: the whole input fills argv; the row's workdir is this folder as the container lays it out. */
+/** Run the command by its row: the whole input fills its run; the row's workdir is this folder as the container lays it out. */
 function runByRow(input) {
-  const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
+  const argv = row.invoke.run.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   assert.equal(ran.status, 0, ran.stderr);
   return JSON.parse(ran.stdout.trim().split('\n').at(-1));

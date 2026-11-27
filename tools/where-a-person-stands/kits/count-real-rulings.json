@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/where-a-person-stands/tool-rows.json (tool:count-real-rulings), do-work/ruling-status.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
+  "drafted_from": "tools/where-a-person-stands/what-this-tool-does-and-how-to-run-it.json (tool:count-real-rulings), do-work/ruling-status.mjs, test/rulings-from-the-verdict-log.test.mjs; the example was run here",
   "start_here": "Say to your AI: \"Count my real bad rulings on lines and tell me whether that is enough to let a model row fail lines.\" It runs tool:count-real-rulings with my settings and reads back the count and the lines to check.",
   "lists": [
     {

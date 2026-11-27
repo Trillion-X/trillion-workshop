@@ -8,8 +8,8 @@ Recording every camera and microphone on a device without anyone pressing record
 |------|---------|
 | `always-recording.ts` | The recorder: opens every input, cuts each on the clock, keeps every piece on the device and sends it while recording, reopens an input that stops (browser only; imports files this folder does not hold) |
 | `rolling-segments.mjs` | The arithmetic of recording that never stops: the clock window a moment falls in, an input's name, where a piece is kept and the session list |
-| `plan-recording-pieces.mjs` | `planRecordingPieces({ started_at, until, segment_seconds, folder, inputs, device, list_name, time_zone })`: every input's pieces for a stretch, named and placed, and the session list (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:plan-clock-aligned-recording-pieces`, with a sample run whose first piece starts at 16.23.10 and is cut at 16.25.00 |
+| `plan-recording-pieces.mjs` | `planRecordingPieces({ started_at, until, segment_seconds, folder, inputs, device, list_name, time_zone })`: every input's pieces for a stretch, named and placed, and the session list (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:plan-clock-aligned-recording-pieces`, with a sample run whose first piece starts at 16.23.10 and is cut at 16.25.00 |
 | `README.md` | This file |
 | `show/always-recording-screen-mount.tsx` | `tool:screen-always-recording` as a screen module: its one export, `mount`, is the Always recording screen below |
 | `web/src/workspace/always-recording-screen.tsx` | The Always recording screen: every camera and microphone on this device with its own switch, what each is recording, the pieces still to send and a menu of show rules; moved here byte for byte from the web client (`moved-from.json`) |

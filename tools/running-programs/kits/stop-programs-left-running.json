@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:stop-programs-left-running's own row (its words and input schema) in tools/running-programs/tool-rows.json; read it before relying on it",
+  "drafted_from": "tool:stop-programs-left-running's own row (its words and input schema) in tools/running-programs/what-this-tool-does-and-how-to-run-it.json; read it before relying on it",
   "start_here": "Say to your AI: \"Stop the programs you picked as left running.\" with the picked list. It runs tool:stop-programs-left-running, which asks each to end, waits up to ten seconds, and answers one stop per program and one notice when any ended.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",

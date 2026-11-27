@@ -58,7 +58,7 @@
   ],
   "test_refs": [
    "tools/research-a-creator-or-topic/test/fetch-forum-posts.test.mjs",
-   "tools/research-a-creator-or-topic/tool-rows.json sample run (tool:keep-forum-posts-from-a-public-archive)"
+   "tools/research-a-creator-or-topic/what-this-tool-does-and-how-to-run-it.json sample run (tool:keep-forum-posts-from-a-public-archive)"
   ],
   "render_refs": [],
   "originality_ref": null

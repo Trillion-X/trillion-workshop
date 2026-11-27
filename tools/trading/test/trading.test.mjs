@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { checkPaperOrders, lookUpLiveInstruments, lookUpPaperInstruments, placeLiveOrders, placePaperOrders } from '../read-data/trading.mjs';
 import { HELD, LIVE_ROUTE, PAPER_ROUTE, fakeBroker, order, policy } from './fixtures.mjs';
 
@@ -191,11 +191,11 @@ test('each broker row holds only its own mode\'s credentials, the account read h
   const modules = { 'read-data/trading.mjs': await import('../read-data/trading.mjs'), 'read-data/account-board.ts': await import('../read-data/account-board.ts') };
   for (const { payload } of rows.records) {
     const mode = payload.id.includes('-live-') ? 'live' : 'paper';
-    if (payload.id === 'tool:read-my-trading-account-board') assert.equal(payload.invoke.credential_mounts, undefined, payload.id);
-    else assert.deepEqual(payload.invoke.credential_mounts, [{ secret_name: `${mode}-broker-credentials`, fd: 4 }], payload.id);
+    if (payload.id === 'tool:read-my-trading-account-board') assert.equal(payload.invoke.key, undefined, payload.id);
+    else assert.deepEqual(payload.invoke.key, [{ secret_name: `${mode}-broker-credentials`, fd: 4 }], payload.id);
     assert.equal(payload.invoke.records, undefined, `${payload.id} declares no records door`);
-    const file = payload.invoke.argv.find(arg => arg.startsWith('/opt/trading/')).replace('/opt/trading/', '');
-    assert.equal(typeof modules[file][payload.invoke.argv.at(-1)], 'function', payload.id);
+    const file = payload.invoke.run.find(arg => arg.startsWith('/opt/trading/')).replace('/opt/trading/', '');
+    assert.equal(typeof modules[file][payload.invoke.run.at(-1)], 'function', payload.id);
     assert.equal(payload.maker, 'maker:trading');
   }
 });

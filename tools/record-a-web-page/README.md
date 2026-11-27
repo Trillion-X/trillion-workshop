@@ -7,7 +7,7 @@ Records a web page as a demo for an article or post: a headless Chromium plays a
 | File | Purpose |
 |------|---------|
 | `part.json` | The files other parts may name. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:record-a-web-demo`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row Trillion reads for this folder: `tool:record-a-web-demo`. |
 | `test/` | The recorder run on `test/menu-page.html` (Playwright's Chromium, `test-helpers/chromium.mjs`), in real-time and deterministic modes. |
 | `do-work/record-a-web-demo.mjs` | Opens the page in Chromium over the DevTools protocol (Node's own WebSocket, no browser library), plays the steps, keeps every painted frame with its time, a picture after each step that has a target or caption, and one timed list (`events.json`); then runs the drawing script and prints its result line. Chromium starts with `tools/headless-browser/quiet-switches.json` first (the tool row places it at `/opt/headless-browser`), a DevTools call that gets no answer in 60 s ends the run, and the browser is killed however the run ends. |
 | `do-work/capture-settings.json` | DATA: the frames a second a deterministic recording takes unless `--capture-fps` says otherwise. |
@@ -37,7 +37,7 @@ Command line: `node do-work/record-a-web-demo.mjs --url <address> --steps '<json
 
 **Depends on:** `tools/headless-browser/quiet-switches.json`, Chromium, Node 24, Python 3 with Pillow, ffmpeg; the computer that runs the tool supplies them (`placement:deployed-container`).
 
-**Depended on by:** `tool:record-a-web-demo` (`tool-rows.json`, which packs `do-work` and `tools/headless-browser`'s `devtools.mjs`, `quiet-switches.json`, `virtual-clock.mjs` and `deterministic-switches.json`); tested by `test/record-a-web-page.test.mjs` and `test/deterministic.test.mjs`.
+**Depended on by:** `tool:record-a-web-demo` (`what-this-tool-does-and-how-to-run-it.json`, which packs `do-work` and `tools/headless-browser`'s `devtools.mjs`, `quiet-switches.json`, `virtual-clock.mjs` and `deterministic-switches.json`); tested by `test/record-a-web-page.test.mjs` and `test/deterministic.test.mjs`.
 
 ## Invariants
 

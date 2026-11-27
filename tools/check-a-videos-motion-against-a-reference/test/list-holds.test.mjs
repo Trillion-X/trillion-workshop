@@ -13,7 +13,7 @@ import { measureMotion } from '../read-data/measure-motion.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const command = join(folder, 'do-work', 'list-holds.mjs');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload)
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:list-the-longest-still-holds-of-my-video');
 const work = tempFolder(join(tmpdir(), 'list-holds-'));
 const run = (...argv) => spawnSync('node', [command, ...argv], { encoding: 'utf8' });
@@ -22,7 +22,7 @@ const ffmpegThere = spawnSync('ffmpeg', ['-version']).status === 0 && spawnSync(
 const skip = ffmpegThere ? false : 'needs ffmpeg and ffprobe on the PATH; run the row\'s get_it steps';
 
 test('the row runs on the person\'s computer and names the command that exists', () => {
-  assert.ok(row, 'tool:list-the-longest-still-holds-of-my-video is in tool-rows.json');
+  assert.ok(row, 'tool:list-the-longest-still-holds-of-my-video is in what-this-tool-does-and-how-to-run-it.json');
   assert.equal(row.invoke.kind, 'on-your-computer');
   assert.match(row.invoke.run, /do-work\/list-holds\.mjs --video \{video\}/);
   assert.ok(existsSync(command));

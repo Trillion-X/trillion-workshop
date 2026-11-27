@@ -151,7 +151,7 @@
      },
      "workdir": "/opt/parts/legal-document-builder",
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/write-legal-documents.mjs",
       {
@@ -336,9 +336,8 @@
       }
      },
      "workdir": "/opt/parts/legal-document-builder",
-     "internet": false,
      "stdout": "json",
-     "argv": [
+     "run": [
       "node",
       "do-work/make-a-sales-contract.mjs"
      ],

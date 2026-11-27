@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/social-posts/tool-rows.json (tool:read-youtube-comments), tools/social-posts/test/youtube-connection.test.mjs and the row's request and fields mask; the answer is worked out from the row, not observed",
+  "drafted_from": "tools/social-posts/what-this-tool-does-and-how-to-run-it.json (tool:read-youtube-comments), tools/social-posts/test/youtube-connection.test.mjs and the row's request and fields mask; the answer is worked out from the row, not observed",
   "start_here": "Say to your AI: \"Read the comments on my YouTube video vid-aaa, newest first, and tell me which ask a question.\" It runs tool:read-youtube-comments with my YouTube connection and that video id.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one video's comment threads through your YouTube connection and posts, rates and moderates nothing.",
@@ -32,7 +32,7 @@
           }
         }
       },
-      "given": "Read from tools/social-posts/tool-rows.json (the row's http request and its fields mask), not run live: the engine sends GET https://www.googleapis.com/youtube/v3/commentThreads with videoId=vid-aaa, order=time, maxResults=100, textFormat=plainText and the fields mask nextPageToken,items(id,snippet(totalReplyCount,topLevelComment(snippet(textDisplay,likeCount,publishedAt,authorChannelId)))); the connection's token goes only to www.googleapis.com. The video (synthetic) has two comments.",
+      "given": "Read from tools/social-posts/what-this-tool-does-and-how-to-run-it.json (the row's http request and its fields mask), not run live: the engine sends GET https://www.googleapis.com/youtube/v3/commentThreads with videoId=vid-aaa, order=time, maxResults=100, textFormat=plainText and the fields mask nextPageToken,items(id,snippet(totalReplyCount,topLevelComment(snippet(textDisplay,likeCount,publishedAt,authorChannelId)))); the connection's token goes only to www.googleapis.com. The video (synthetic) has two comments.",
       "hands_back": "{\"items\":[{\"id\":\"Ugx1\",\"snippet\":{\"totalReplyCount\":0,\"topLevelComment\":{\"snippet\":{\"textDisplay\":\"what is the price\",\"likeCount\":1,\"publishedAt\":\"2030-11-12T11:00:00Z\",\"authorChannelId\":{\"value\":\"UCfan\"}}}}},{\"id\":\"Ugx2\",\"snippet\":{\"totalReplyCount\":0,\"topLevelComment\":{\"snippet\":{\"textDisplay\":\"Love this loaf\",\"likeCount\":3,\"publishedAt\":\"2030-11-12T09:30:00Z\",\"authorChannelId\":{\"value\":\"UCother\"}}}}}]} (values synthetic; the fields are exactly the ones the mask keeps). This is the shape tool:decide-the-replies reads for YouTube comments."
     }
   ]

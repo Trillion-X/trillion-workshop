@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json, do-work/score_held_out_lines.py and test/test_fine_tune.py (ScoreAgain.test_reports_again_from_kept_scores), which I ran; a scoring run with a model needs torch and a decider and is not run",
+  "drafted_from": "tool row in tools/fine-tune-a-small-model-on-a-persons-rules/what-this-tool-does-and-how-to-run-it.json, do-work/score_held_out_lines.py and test/test_fine_tune.py (ScoreAgain.test_reports_again_from_kept_scores), which I ran; a scoring run with a model needs torch and a decider and is not run",
   "start_here": "Say to your AI: \"Report again on the held-out lines of /work/out/items.json from my earlier scores in /work/kept.json, as run 'again', for set good-set.\" It writes a request file and runs score_held_out_lines.py on your computer; with a model it scores with and without your adapter.",
   "tools": [
     "tool:score-held-out-lines-with-a-small-model",

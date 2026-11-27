@@ -90,8 +90,8 @@ test('tool:hear-sources refuses a request with no model before any recording is 
 });
 
 test('the tool:hear-sources row runs the exported function of the listen module', () => {
-  const rows = JSON.parse(readJson(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+  const rows = JSON.parse(readJson(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
   const row = rows.find(entry => entry.payload.id === 'tool:hear-sources').payload;
-  assert.equal(row.invoke.argv.at(-1), 'hearSourcesTool');
-  assert.equal(row.invoke.argv.at(-2), '/opt/listen-for-a-while/read-data/hearing-sources.mjs');
+  assert.equal(row.invoke.run.at(-1), 'hearSourcesTool');
+  assert.equal(row.invoke.run.at(-2), '/opt/listen-for-a-while/read-data/hearing-sources.mjs');
 });

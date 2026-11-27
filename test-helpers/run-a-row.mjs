@@ -1,8 +1,8 @@
 // Runs a Workshop row that runs a program the way the engine's container runner does, on this computer: the files its
-// invoke.files.package_files packs are laid at their `at` places under one folder that stands for `/`, its argv,
+// invoke.files.package_files packs are laid at their `at` places under one folder that stands for `/`, its run,
 // workdir and stdin are filled from the request (and a task no page started), a row that reads records gets the
 // stand-in records door (tools/records-door/test/fake-door.mjs) with exactly its rights and the records the sample
-// seeds, a row with internet: true reaches only the stand-in egress (stand-in-egress.mjs) answering from the sample's
+// seeds, a row with may_reach reaches only the stand-in egress (stand-in-egress.mjs) answering from the sample's
 // recorded replies, and each held value a row mounts is a made-up one (on a descriptor, on a pipe, as the engine hands
 // it). Answers the exit code, the output, the parsed
 // last line of standard output that is JSON (what a row's result_selector picks from), the records the door holds
@@ -135,14 +135,14 @@ function placed(word, specs, there) {
 // Why this row cannot run here, or null.
 export function cannotRun(row) {
   const invoke = row.invoke ?? {};
-  if (!Array.isArray(invoke.argv) || !invoke.argv.length) return 'it runs no program';
-  const command = invoke.argv[0];
+  if (!Array.isArray(invoke.run) || !invoke.run.length) return 'it runs no program';
+  const command = invoke.run[0];
   if (command === COMPONENT) return spawnSync('which', [COMPONENT_HOST]).status === 0 ? null : `no WebAssembly component host (${COMPONENT_HOST}) is on this computer`;
   if (typeof command === 'string' && !/(^|\/)node$/.test(command) && spawnSync('which', [command]).status !== 0) return `${command} is not on this computer`;
   return null;
 }
 
-// The made-up value of one credential_mounts item: the sample's `held` by its secret_name or field_id, else the canary.
+// The made-up value of one `key` item: the sample's `held` by its secret_name or field_id, else the canary.
 // A held value that is an object is held as its JSON text, and an object { made_up_private_key: 'ec-p256' } inside it is
 // a private key (PKCS#8 PEM) made now for this run, so a sample never carries a key block (the public push rewrites a
 // private key block in any file it carries).
@@ -280,7 +280,7 @@ export async function runRow(row, sampleInput, sample = {}) {
     for (const [name, script] of Object.entries(standIns)) writeFileSync(join(standInFolder, name), `#!/bin/sh\n${script}\n`, { mode: 0o755 });
     let argv, stdin, rights;
     try {
-      argv = fill(invoke.argv, { input, task }).map(word => placed(word, specs, there));
+      argv = fill(invoke.run, { input, task }).map(word => placed(word, specs, there));
       // `stdin` hands the program a standard input verbatim instead of the row's own fill: only for a test that proves
       // the program refuses what the engine's fill would never build.
       stdin = 'stdin' in sample ? placedGrants(sample.stdin) : invoke.stdin === undefined ? undefined : fill(invoke.stdin, { input, task });
@@ -290,9 +290,9 @@ export async function runRow(row, sampleInput, sample = {}) {
       throw error;
     }
     if (invoke.records) fake = await startFakeDoor({ ...doorOptions, runs: Array.isArray(invoke.records.runs) ? invoke.records.runs : [], toolRuns: sample.tool_runs ?? {}, fileAnswers: sample.file_answers ?? {}, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records, files: doorFiles });
-    if (invoke.internet === true) outside = await startStandInEgress(replies);
+    if (Array.isArray(invoke.may_reach)) outside = await startStandInEgress(replies);
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
-    const mounts = invoke.credential_mounts ?? [];
+    const mounts = invoke.key ?? [];
     const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
     // A sample may require the declared Python dependency environment. Keep its stand-in (which creates made-up
     // inputs) and hand it the verified interpreter explicitly; never put a dependency runtime into PATH.
@@ -372,7 +372,7 @@ function keptAfter(records, keep, fake) {
 export const said = result => (result && typeof result === 'object' && !Array.isArray(result) && 'keep' in result
   ? Object.fromEntries(Object.entries(result).filter(([name]) => name !== 'keep')) : result);
 
-/** The row with this id in a tool-rows.json file. */
+/** The row with this id in a what-this-tool-does-and-how-to-run-it.json file. */
 export const rowOf = (file, id) => file.records.find(record => record.payload.id === id).payload;
 
 // A tool folder's own test reads one run as the answer it gives: the exit code as `status`, the fields of the parsed

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/audio-transcription/tool-rows.json, do-work/read_transcript_files.py, test/test_transcript_files.py (observed run)",
+  "drafted_from": "tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json, do-work/read_transcript_files.py, test/test_transcript_files.py (observed run)",
   "start_here": "Say to your AI: \"Read my transcript file /Transcripts/day1.srt into timed words and write /Transcripts/day1.words.json.\" It runs read_transcript_files.py read-file on your computer.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads transcript files from the person's computer and writes words files beside them.",

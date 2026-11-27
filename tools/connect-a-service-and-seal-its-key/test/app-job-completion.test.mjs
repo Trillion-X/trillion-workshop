@@ -3,7 +3,7 @@ import test from 'node:test';
 import { completedAppResult, useAnAppHere } from '../../media-composition/do-work/use-an-app-here.mjs';
 import { runOnAgent } from '../../hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
 import { buildInvocation, schemaProblems } from '../../keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs';
-import records from '../../media-composition/tool-rows.json' with { type: 'json' };
+import records from '../../media-composition/what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const answer = value => ({ structuredContent: value });
 const rule = { status_field: 'status', done: 'completed', failed: ['failed', 'cancelled'], timeout_seconds: 1, interval_ms: 100,

@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:fill-a-list-from-a-feed's own row (its words, input schema and sample run) in tools/fill-a-list-from-a-feed/tool-rows.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:fill-a-list-from-a-feed's own row (its words, input schema and sample run) in tools/fill-a-list-from-a-feed/what-this-tool-does-and-how-to-run-it.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Fill my list sample-feed from https://feeds.example/news, one row per entry with its title\", with {\"list_id\": \"sample-feed\", \"row_kind\": \"record:sample-feed\", \"feed\": \"https://feeds.example/news\", \"values\": {\"title\": \"$.title\"}}. It runs tool:fill-a-list-from-a-feed and adds a row for each new entry.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it fills the list you name in list_id, and your edits to rows already there stay unless you ask for update_existing.",

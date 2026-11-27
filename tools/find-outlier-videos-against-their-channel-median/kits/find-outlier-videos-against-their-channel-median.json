@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:find-outlier-videos-against-their-channel-median's row in tool-rows.json, do-work/find_outliers.py and test/test_find_outliers.py",
+  "drafted_from": "tool:find-outlier-videos-against-their-channel-median's row in what-this-tool-does-and-how-to-run-it.json, do-work/find_outliers.py and test/test_find_outliers.py",
   "start_here": "Say to your AI: \"Find the videos in my videos.tsv that did at least 5 times better than their own channel usually does, and write them to outliers.tsv.\" It reads the row, runs the script on your computer and shows you the outliers, highest ratio first, with each channel's median.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads one tab-separated file of videos and writes one tab-separated file of outliers.",

@@ -2,9 +2,9 @@
 
 What a person's Trillion does by itself: rules and schedules, the tools an AI sets them with, the setting a rule or schedule stands behind, and which of a reading's numbers got worse.
 
-Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/older-repository-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. It is not a tool yet (no `tool-rows.json`): its files are imported by path.
+Moved byte for byte from Trillion-X/trillion at tag `old-trillion-before-worker-retire` (b6ae0ebf81) by `tools/move-code-between-trees` (move row `move-rows/older-repository-tools-a-l-round-3.json`). `moved-from.json` names each file's source path and commit and the identity of its bytes there and here; only import paths differ. The folder keeps the source tree's own paths under it, so the files import each other as they did. It is not a tool yet (no `what-this-tool-does-and-how-to-run-it.json`): its files are imported by path.
 
-Update (Nov 19 2026): the folder now declares one tool, `tool:say-what-got-worse` (`tool-rows.json`, with its kit in `kits/`). The sentence above that says the folder is not a tool predates it; the other files are still imported by path.
+Update (Nov 19 2026): the folder now declares one tool, `tool:say-what-got-worse` (`what-this-tool-does-and-how-to-run-it.json`, with its kit in `kits/`). The sentence above that says the folder is not a tool predates it; the other files are still imported by path.
 
 ## Files
 
@@ -13,7 +13,7 @@ Update (Nov 19 2026): the folder now declares one tool, `tool:say-what-got-worse
 | `src/automation-guards.json` | `src/automation-guards.json` |
 | `src/automation-health-looks.json` | `src/automation-health-looks.json` |
 | `src/automation-tools.mjs` | `src/automation-tools.mjs` |
-| `do-work/compare-readings.mjs`, `do-work/say-what-got-worse.mjs` | `tool:say-what-got-worse` (`tool-rows.json`): say which measures got worse. The comparison is `compare-readings.mjs` (moved from `src/`, unchanged bytes); the command reads a reading on standard input and writes the answer. Its test is `test/say-what-got-worse.test.mjs`, which keeps every capability the old module had. |
+| `do-work/compare-readings.mjs`, `do-work/say-what-got-worse.mjs` | `tool:say-what-got-worse` (`what-this-tool-does-and-how-to-run-it.json`): say which measures got worse. The comparison is `compare-readings.mjs` (moved from `src/`, unchanged bytes); the command reads a reading on standard input and writes the answer. Its test is `test/say-what-got-worse.test.mjs`, which keeps every capability the old module had. |
 | `test/events-continuity.test.mjs` | `test/events-continuity.test.mjs` |
 
 The job's other moved files are kept once in a shared place, because more than one group imports them:

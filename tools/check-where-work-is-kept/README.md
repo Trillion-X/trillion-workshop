@@ -48,7 +48,7 @@ The record id is the list's `id_prefix` (default `<type>:`) and the file's name 
 | `test/check-where-work-is-kept.test.mjs` | Throwaway checkouts and a made-up home: the passing fixtures (tracked source, an Edit, new source, a README, the scratch, `git archive \| tar -x` into it, the list-copy sync, `/dev/null`, a plain command), the refusing fixtures (`/tmp`, home, `.ai-orchestra`, its `data`, a Claude memory file, a new `.md` note, a list copy, `mktemp`), the refusal's words and row shape, the command reader, the classifier deciding and failing, the real model tool timing out against a server that never answers, and the Workshop tool. |
 | `test/run-by-the-check-list.test.mjs` | `read-data/hook-guard-row.json` run by `tools/check-every-tool-call` `check_switches.py run` against a made-up door: a Write to `/tmp` and a Claude memory write refused naming their lists, source writes, an Edit, the scratch and a Read passing. |
 | `ports/check-where-work-is-kept.json` | The claim that no older owner did this job. `tools/keep-and-wake-ai-sessions-on-this-computer` `harness/keep-written-files.mjs` copies written files into Trillion after a turn, and `tools/check-declared-places-keep-what-is-written-there` reports declared places that keep nothing; neither refuses a write. |
-| `tool-rows.json` | `tool:check-where-work-is-kept`: `{ rules, call }` in, `{ valid, judged, passed, refused, warnings }` out. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:check-where-work-is-kept`: `{ rules, call }` in, `{ valid, judged, passed, refused, warnings }` out. |
 
 ## Dependencies
 

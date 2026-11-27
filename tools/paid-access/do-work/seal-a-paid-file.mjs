@@ -12,7 +12,7 @@ import { realpathSync } from 'node:fs';
 //   input: { file, object_key, required_access_refs, mime?, ttl_seconds?, object_store_ref? }
 //
 // The key is never in the request, argv, a file, a record or the answer: the person's held key reaches this one
-// process on a private pipe, descriptor 4 (the row's invoke.credential_mounts), as 64 hex digits. The answer is the row (which names the key) and the ciphertext's size: never the key.
+// process on a private pipe, descriptor 4 (the row's invoke.key), as 64 hex digits. The answer is the row (which names the key) and the ciphertext's size: never the key.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { text } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';

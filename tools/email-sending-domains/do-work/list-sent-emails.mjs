@@ -1,10 +1,10 @@
 import { realpathSync } from 'node:fs';
 // tools/email-sending-domains/do-work/list-sent-emails.mjs
 //
-// The container tool `tool:list-sent-emails` (tool-rows.json): the emails the person's email-sending account (Resend) sent in
+// The container tool `tool:list-sent-emails` (what-this-tool-does-and-how-to-run-it.json): the emails the person's email-sending account (Resend) sent in
 // the last few days, newest first, each with the last thing that happened to it. It only reads.
 //
-// The account key reaches this one process on a private pipe, descriptor 3 (the row's invoke.credential_mounts { fd: 3 }),
+// The account key reaches this one process on a private pipe, descriptor 3 (the row's invoke.key { fd: 3 }),
 // never in the request, argv, a file or the environment. This command asks GET /emails a page at a time (at most MOST_PAGES
 // pages of 100) until it reaches an email older than the window, and answers each email's id, addressees, subject, when it
 // was sent and its last event, and the count: never the key, a body or the provider's raw reply.

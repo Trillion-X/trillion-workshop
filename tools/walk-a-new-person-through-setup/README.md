@@ -8,9 +8,9 @@ What a person's own devices report about themselves (which cameras a computer se
 |------|---------|
 | `device-facts.mjs` | `deviceFacts(store)` (report, all) and `passedOnSomeDevice`, unchanged from the old tree |
 | `device-facts.json` | The bounds (devices, sources, facts, name pattern, lengths) and refusal words (from old trillion `src/device-facts.json`) |
-| `report-device-facts.mjs` | `reportDeviceFacts({ devices?, reports, now? })`: reports applied in order over a store kept for the run, the devices as kept answered (what `tool-rows.json` runs) |
+| `report-device-facts.mjs` | `reportDeviceFacts({ devices?, reports, now? })`: reports applied in order over a store kept for the run, the devices as kept answered (what `what-this-tool-does-and-how-to-run-it.json` runs) |
 | `moved-from.json` | Where `device-facts.json` came from, and both identities |
-| `tool-rows.json` | The row `tool:keep-what-my-devices-report-about-themselves`, with a sample run over a made-up computer and phone |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:keep-what-my-devices-report-about-themselves`, with a sample run over a made-up computer and phone |
 | `README.md` | This file |
 
 ## The row

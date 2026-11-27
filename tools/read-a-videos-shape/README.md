@@ -7,7 +7,7 @@ aspect and length. It reads the container only; nothing is decoded.
 |------|---------|
 | `do-work/read_videos_shape.py` | The probe. Prints `{"result": {...}}` or `{"error": ...}`. |
 | `test/test_read_videos_shape.py` | Makes a 1080x1920, 30 fps, 2 s clip with ffmpeg and checks the reading and the refusals. |
-| `tool-rows.json` | The one Workshop row, `tool:read-a-videos-shape`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The one Workshop row, `tool:read-a-videos-shape`. |
 | `part.json` | Nothing here is imported by other code. |
 
 The file must be on the person's computer: a span read of the Files identity writes it first, so the Files session never

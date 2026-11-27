@@ -6,14 +6,14 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
 function runByRow(toolId, input, { stdio } = {}) {
   const row = rows.find(item => item.id === toolId);
-  assert.ok(row, `${toolId} is a row in tool-rows.json`);
+  assert.ok(row, `${toolId} is a row in what-this-tool-does-and-how-to-run-it.json`);
   assert.equal(row.invoke.workdir, row.invoke.files.package_files.at);
   assert.deepEqual(row.invoke.stdin, { fill: { from: 'input' } });
-  const ran = spawnSync(process.execPath, row.invoke.argv.slice(1), { cwd: folder, encoding: 'utf8', input: JSON.stringify(input), ...(stdio ? { stdio } : {}) });
+  const ran = spawnSync(process.execPath, row.invoke.run.slice(1), { cwd: folder, encoding: 'utf8', input: JSON.stringify(input), ...(stdio ? { stdio } : {}) });
   if (ran.status !== 0) return { refused: ran.stderr.trim() };
   return JSON.parse(ran.stdout.trim().split('\n').at(-1));
 }

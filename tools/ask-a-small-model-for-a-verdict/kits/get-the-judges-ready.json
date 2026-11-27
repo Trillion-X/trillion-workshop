@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:get-the-judges-ready row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:get-the-judges-ready row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Get my judges ready: calibrate every rubric in /work/judge/rubrics.json and keep the settled choice in /work/judge/kept.json.\" It runs calibration and tells you which questions are ready.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads your rubrics file, scores each model on every rubric and writes the choice it settles on to the remember file you name.",

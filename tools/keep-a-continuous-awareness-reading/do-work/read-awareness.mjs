@@ -1,7 +1,7 @@
 // do-work/read-awareness.mjs
 //
 // Purpose: the tool's answer for the reading's pure reads, run in a small container (tool:keep-a-continuous-awareness-reading,
-// tool-rows.json). The caller hands in the state the reading keeps (its picture, cursor, pending request, the pursuits the
+// what-this-tool-does-and-how-to-run-it.json). The caller hands in the state the reading keeps (its picture, cursor, pending request, the pursuits the
 // person recorded, the map's rows and whether the plan keeps records) and gets back what Progress and read_awareness show,
 // or when the next reading is due. Nothing here reads a store or asks a model: those reads are the engine's SQL and the
 // routing owner's road, which the reader calls with the store's own adapters.

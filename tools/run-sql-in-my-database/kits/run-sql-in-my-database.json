@@ -39,5 +39,5 @@
       "hands_back": "{\"columns\":[\"total\"],\"rows\":[{\"total\":5}],\"row_count\":1}"
     }
   ],
-  "drafted_from": "tools/run-sql-in-my-database/tool-rows.json and test/run-sql.test.mjs"
+  "drafted_from": "tools/run-sql-in-my-database/what-this-tool-does-and-how-to-run-it.json and test/run-sql.test.mjs"
 }

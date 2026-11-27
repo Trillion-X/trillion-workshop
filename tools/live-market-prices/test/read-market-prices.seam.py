@@ -109,16 +109,16 @@ class Seam(unittest.TestCase):
         self.assertEqual(wrapper.main(["x", "markets"], stdin=io.StringIO("[1]")), 1)
 
     def test_every_row_runs_a_command_the_wrapper_has_and_only_the_bars_row_holds_a_credential(self):
-        rows = json.load(open(os.path.join(HERE, "..", "tool-rows.json")))["records"]
+        rows = json.load(open(os.path.join(HERE, "..", "what-this-tool-does-and-how-to-run-it.json")))["records"]
         commands = set()
         for record in rows:
             invoke = record["payload"]["invoke"]
-            command = invoke["argv"][-1]
+            command = invoke["run"][-1]
             if command == "bars":
-                self.assertEqual(invoke["credential_mounts"], [{"secret_name": "market-data-credentials", "fd": wrapper.CREDENTIAL_DESCRIPTOR}])
+                self.assertEqual(invoke["key"], [{"secret_name": "market-data-credentials", "fd": wrapper.CREDENTIAL_DESCRIPTOR}])
             else:
-                self.assertNotIn("credential_mounts", invoke)
-            self.assertTrue(invoke["internet"])
+                self.assertNotIn("key", invoke)
+            self.assertIsInstance(invoke["may_reach"], list)
             commands.add(command)
         self.assertEqual(commands, set(wrapper.COMMANDS))
 

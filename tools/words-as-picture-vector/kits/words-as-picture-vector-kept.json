@@ -1,5 +1,5 @@
 {
- "drafted_from": "tools/words-as-picture-vector/tool-rows.json (tool:words-as-picture-vector-kept, landed 659a23b9d by group 9); called on the Mac Nov 21 2026 at 1.2-2.2 s per call",
+ "drafted_from": "tools/words-as-picture-vector/what-this-tool-does-and-how-to-run-it.json (tool:words-as-picture-vector-kept, landed 659a23b9d by group 9); called on the Mac Nov 21 2026 at 1.2-2.2 s per call",
  "start_here": "Say to your AI: \"Turn the words tennis serve into a picture vector, quickly\". It calls tool:words-as-picture-vector-kept, whose model stays loaded between calls.",
  "lists": [],
  "no_lists_because": "It keeps nothing: it answers one vector per text, for the caller to compare with picture vectors it keeps.",

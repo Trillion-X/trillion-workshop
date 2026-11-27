@@ -6,7 +6,7 @@ Scripts a person's AI runs on the person's own computer to try a candidate voice
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | Seven Workshop rows, all `on-your-computer`: `tool:say-lines-in-a-candidate-voice-model`, `tool:score-how-alike-lines-sound-to-a-reference-voice`, `tool:render-music-note-events-to-a-test-wav`, and for one narration line `tool:say-a-narration-line-in-a-kokoro-voice`, `tool:say-a-narration-line-in-a-cloned-voice-model`, `tool:measure-narration-takes`, `tool:make-and-measure-every-voice-take-of-a-line`. |
+| `what-this-tool-does-and-how-to-run-it.json` | Seven Workshop rows, all `on-your-computer`: `tool:say-lines-in-a-candidate-voice-model`, `tool:score-how-alike-lines-sound-to-a-reference-voice`, `tool:render-music-note-events-to-a-test-wav`, and for one narration line `tool:say-a-narration-line-in-a-kokoro-voice`, `tool:say-a-narration-line-in-a-cloned-voice-model`, `tool:measure-narration-takes`, `tool:make-and-measure-every-voice-take-of-a-line`. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/say_lines.py` | Evaluation only: says lines in a voice-cloning model mlx-audio loads (Apple silicon), cloned from a reference recording; one WAV per line. |
 | `do-work/speaker_similarity.py` | Scores each line in one or more folders against the reference recording with the WeSpeaker ResNet34 speaker model (cosine of voice embeddings). |

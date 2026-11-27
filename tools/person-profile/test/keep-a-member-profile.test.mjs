@@ -8,7 +8,7 @@ import { recipeProblems } from '../../workflows/read-data/recipe-problems.mjs';
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const recipe = read('../../workflows/recipes/keep-a-member-profile.json').records[0].payload;
 const kit = read('../../workflows/kits/keep-a-member-profile.json');
-const rows = read('../tool-rows.json');
+const rows = read('../what-this-tool-does-and-how-to-run-it.json');
 
 test('the member-profile recipe passes the recipe validator and its prove step checks the example attempts', () => {
   assert.deepEqual(recipeProblems(recipe), []);

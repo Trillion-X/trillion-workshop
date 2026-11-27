@@ -11,7 +11,7 @@ The `read-data/demonstration.mjs` entry forwards its exports to the same-directo
 | `do-work/demonstration-recorder.swift` | The recorder, a standalone command line: one JSON request on standard input (`{ seconds, max_events, stop_key_code }`), one JSON answer on standard output (`{ events, ended, secrets_skipped, ax_trusted }`). Without Input Monitoring it answers `ended: needs_input_monitoring` and records nothing. |
 | `read-data/demonstration.mjs` | `draftFromEvents` (steps in words: typing folded, secrets never present, extra steps dropped and said), `makeDemonstrationTools`, and `record(input)`, the row's function, which runs the recorder with `/usr/bin/swift`. |
 | `read-data/demonstration.json` | The recorder program, the bounds (`default_seconds`, `most_seconds`, `most_events`, `most_steps`, `text_chars`, `stop_key_code`), every step's words, the draft's shape and every word said. |
-| `tool-rows.json` | `tool:record-a-demonstration`: a `computer` row with `capabilities: ["watch-the-keyboard-and-pointer"]` and a run ceiling of 330 seconds. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:record-a-demonstration`: a `computer` row with `capabilities: ["watch-the-keyboard-and-pointer"]` and a run ceiling of 330 seconds. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/demonstration.test.mjs` | The original Trillion tests (steps in words, bounds, the missing Mac permission, an empty recording), and the real recorder on a Mac. |
 
@@ -36,4 +36,4 @@ The `read-data/demonstration.mjs` entry forwards its exports to the same-directo
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), Node's standard library, `/usr/bin/swift` (Xcode command line tools) on the Mac.
 
-**Depended on by:** `tool-rows.json`. Nothing imports this folder.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. Nothing imports this folder.

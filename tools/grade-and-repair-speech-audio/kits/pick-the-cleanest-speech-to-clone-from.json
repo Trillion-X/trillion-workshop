@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/grade-and-repair-speech-audio/tool-rows.json (tool:pick-the-cleanest-speech-to-clone-from), do-work/choose_clone_reference.py, read-data/measure.py and settings.py, test/settings-for-synthetic-speech.json",
+  "drafted_from": "tools/grade-and-repair-speech-audio/what-this-tool-does-and-how-to-run-it.json (tool:pick-the-cleanest-speech-to-clone-from), do-work/choose_clone_reference.py, read-data/measure.py and settings.py, test/settings-for-synthetic-speech.json",
   "start_here": "Say to your AI: \"From my recordings in /Work/demo/recordings.json, which I and the speaker agreed to, pick the cleanest stretch of continuous speech to clone the voice from, using my settings in /Work/settings.json.\" It runs tool:pick-the-cleanest-speech-to-clone-from on your computer and gives you the best windows.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it reads a recordings file on your computer and writes candidate wavs and reference-candidates.json into a folder you name.",

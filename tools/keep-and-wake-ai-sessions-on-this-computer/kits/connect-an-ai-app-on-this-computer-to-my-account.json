@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json (tool:connect-an-ai-app-on-this-computer-to-my-account), harness/mcp-registration.mjs, harness/setup.json, test/harness-guidance-mcp-and-runs.test.mjs; the answer was produced by running registerMcp in an empty temporary home",
+  "drafted_from": "tools/keep-and-wake-ai-sessions-on-this-computer/what-this-tool-does-and-how-to-run-it.json (tool:connect-an-ai-app-on-this-computer-to-my-account), harness/mcp-registration.mjs, harness/setup.json, test/harness-guidance-mcp-and-runs.test.mjs; the answer was produced by running registerMcp in an empty temporary home",
   "start_here": "Say to your AI: \"Show me what changes in my Cursor config if you add the Trillion connection, and do not write anything until I say yes.\" It previews the change with action mcp-preview and client cursor.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it reads and edits only the config files of the AI apps you name on this computer.",

@@ -12,7 +12,7 @@ What every AI connected to a person's account did, kept so the person can see it
 | `do-work/activity-row-from-a-call.mjs` | `rowFromCall(call, access)`: one raw tool call turned into its row by the marks, or why it left none |
 | `read-data/activity-generations.mjs` | The rules over the store: checked rows, links, generations (keep and roll), the list read and the trace read |
 | `moved-from.json` | Where `activity-marks.json` came from, with the identity of its bytes |
-| `tool-rows.json` | The rows `tool:keep-an-ai-activity-row` and `tool:read-ai-activity` |
+| `what-this-tool-does-and-how-to-run-it.json` | The rows `tool:keep-an-ai-activity-row` and `tool:read-ai-activity` |
 | `test/activity-trace-bounds.test.mjs` | The bounds on the activity trace. Moved byte for byte from trillion-apps `web/test/`. |
 
 ## The row

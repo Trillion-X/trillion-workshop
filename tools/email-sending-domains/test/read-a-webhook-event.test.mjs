@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { readWebhookEvent } from '../do-work/read-a-webhook-event.mjs';
 
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload)
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload)
   .find(payload => payload.id === 'tool:read-a-webhook-event');
 const canary = 'held-key-canary-0123456789';
 const webhook = '00000000-0000-4000-8000-000000000011';
@@ -22,8 +22,8 @@ const bounced = {
 };
 
 test('the row hands the held key on a private pipe, the input on stdin, reads only, and runs on the person\'s computer', () => {
-  assert.ok(row, 'tools/email-sending-domains/tool-rows.json has tool:read-a-webhook-event');
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name_from_input: 'key_name', fd: 3 }]);
+  assert.ok(row, 'tools/email-sending-domains/what-this-tool-does-and-how-to-run-it.json has tool:read-a-webhook-event');
+  assert.deepEqual(row.invoke.key, [{ secret_name_from_input: 'key_name', fd: 3 }]);
   assert.deepEqual(row.invoke.stdin, { fill: { from: 'input' } });
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.deepEqual(row.input_schema.required, ['key_name', 'webhook_id', 'event_id']);

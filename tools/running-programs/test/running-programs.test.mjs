@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { listRunningPrograms, readPrograms, readProcessTable } from '../read-data/running-programs.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 
 // A pretend reader: three programs, one of another user's with no memory readable.
 const programs = [
@@ -28,7 +28,7 @@ test('the rows run on the person\'s computer with only the capabilities each nee
   for (const row of rows) {
     assert.equal(row.invoke.kind, 'computer');
     assert.equal(row.invoke.records, undefined, 'no door: it reads only the computer it runs on');
-    assert.notEqual(row.invoke.internet, true);
+    assert.equal(row.invoke.may_reach, undefined);
     assert.equal(row.result_selector, '$.result');
   }
 });

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/reply-by-keyword-rule/tool-rows.json (tool:decide-the-replies), do-work/decide-the-replies.mjs, read-data/reply-rules.mjs and reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture",
+  "drafted_from": "tools/reply-by-keyword-rule/what-this-tool-does-and-how-to-run-it.json (tool:decide-the-replies), do-work/decide-the-replies.mjs, read-data/reply-rules.mjs and reply-places.json, test/decide-and-send.test.mjs; the example was run on the test fixture",
   "start_here": "Say to your AI: \"Decide which Instagram messages my reply rules answer now.\" It runs tool:decide-the-replies with place reply-place:instagram and tells you each reply to send, and which it leaves and why. It sends nothing.",
   "lists": [
     {

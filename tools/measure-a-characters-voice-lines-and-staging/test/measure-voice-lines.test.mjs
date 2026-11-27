@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
-const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 
 for (const file of ['test_measures.py', 'test_word_rules.py']) {
   test(`${file} passes`, () => {
@@ -20,7 +20,7 @@ for (const file of ['test_measures.py', 'test_word_rules.py']) {
 
 test('every row runs a script of this folder and reads settings only through tools/settings', () => {
   for (const row of rows) {
-    const script = row.invoke.kind === 'computer' ? row.invoke.argv.at(-1).replace('/opt/measure-a-characters-voice-lines-and-staging/', '')
+    const script = row.invoke.kind === 'computer' ? row.invoke.run.at(-1).replace('/opt/measure-a-characters-voice-lines-and-staging/', '')
       : row.invoke.run.match(/measure-a-characters-voice-lines-and-staging\/(\S+\.py)/)[1];
     assert.ok(existsSync(join(folder, script)), `${row.id} runs ${script}`);
     assert.equal(row.licence_class, 'licence:maker-own');

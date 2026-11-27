@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-a-videos-motion-against-a-reference's row in tools/check-a-videos-motion-against-a-reference/tool-rows.json, do-work/check-motion.mjs, read-data/motion-bar.mjs, read-data/measure-motion.mjs and test/check-motion.test.mjs; the answers were observed by running the command on ffmpeg test clips",
+  "drafted_from": "tool:check-a-videos-motion-against-a-reference's row in tools/check-a-videos-motion-against-a-reference/what-this-tool-does-and-how-to-run-it.json, do-work/check-motion.mjs, read-data/motion-bar.mjs, read-data/measure-motion.mjs and test/check-motion.test.mjs; the answers were observed by running the command on ffmpeg test clips",
   "start_here": "Say to your AI: \"Check that clips/draft.mp4 moves as much as clips/reference.mp4, which I am copying; its end card starts at 5 seconds, and my bar is in bar.json.\" It measures both videos on your computer and tells you whether the draft passed each row of your bar.",
   "lists": [],
   "no_lists_because": "It names no list: the bar is a JSON file of kind motion-bar that your AI writes from your own records, and the videos are files on your computer.",

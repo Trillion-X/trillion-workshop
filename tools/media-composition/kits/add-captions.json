@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:add-captions's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/cut-and-caption.mjs (the script this tool runs), tools/media-composition/read-data/caption-styles.json, and the script run on a synthetic 7 second clip",
+  "drafted_from": "tool:add-captions's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/cut-and-caption.mjs (the script this tool runs), tools/media-composition/read-data/caption-styles.json, and the script run on a synthetic 7 second clip",
   "start_here": "Say to your AI: \"Burn captions into my video from its transcript, with the words lighting up as they are said.\" It runs tool:add-captions and saves the captioned video in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

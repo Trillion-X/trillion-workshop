@@ -134,5 +134,5 @@ distinct guarantees.
 
 | File | Purpose |
 |------|---------|
-| `do-work/open-a-shared-document.mjs` | `openASharedDocument({ pages })`: which document each page of Write opens, by `show/write-screen-input.mjs` (what `tool-rows.json` runs) |
-| `tool-rows.json` | The row `tool:open-the-document-a-pursuit-edits-together`, with a sample where two members of one pursuit open the same room and a personal page keeps its own |
+| `do-work/open-a-shared-document.mjs` | `openASharedDocument({ pages })`: which document each page of Write opens, by `show/write-screen-input.mjs` (what `what-this-tool-does-and-how-to-run-it.json` runs) |
+| `what-this-tool-does-and-how-to-run-it.json` | The row `tool:open-the-document-a-pursuit-edits-together`, with a sample where two members of one pursuit open the same room and a personal page keeps its own |

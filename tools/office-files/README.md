@@ -15,7 +15,7 @@ Reads a spreadsheet, a Word document or a presentation as data, changes cells or
 | `test/test_presentation_order.py` | New: slides come back in the deck's declared order, not file-name order. |
 | `test/apply-presentation-edits.test.mjs` | New: the presentation editor over a stand-in runtime and a made-up deck (the package had no test). |
 | `test/office-files.test.mjs` | Runs the Python tests under `python3 -I`. |
-| `tool-rows.json` | The four tool rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The four tool rows. |
 | `part.json` | No public files. |
 
 ## Request shape (presentation edits)
@@ -60,4 +60,4 @@ Every edit names an ORIGINAL slide number; `slide_order` is applied last and mus
 
 **Depends on:** Python 3 standard library (`zipfile`, `xml.etree`, `json`, `argparse`) for the two Python programs; Node 24 for the presentation editor, plus a presentation runtime module the request names (any module exporting `FileBlob.load` and `PresentationFile.importPptx` / `exportPptx`).
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.

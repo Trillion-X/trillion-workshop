@@ -39,7 +39,7 @@ export const say = (name, parts = {}) => fill(WORDS[name], Object.fromEntries(Ob
 export const refuse = (name, parts) => { throw new Error(say(name, parts)); };
 
 // A call's fields are the ones its tool row declares (input_schemas of read-data/decide-with-a-method.json, a copy of each
-// row's input_schema: the installed tool ships no tool-rows.json); a field it does not declare is refused by name.
+// row's input_schema: the installed tool ships no what-this-tool-does-and-how-to-run-it.json); a field it does not declare is refused by name.
 export function refuseUnknownFields(toolId, input) {
   const fields = Object.keys(decide.input_schemas[toolId].properties);
   for (const name of Object.keys(object(input) ? input : {})) if (!fields.includes(name)) refuse('field_unknown', { name, fields: fields.join(', ') });

@@ -11,7 +11,7 @@ import { evaluatePresentationReadiness } from '../do-work/evaluate-presentation-
 
 const owner = fileURLToPath(new URL('..', import.meta.url));
 const repository = resolve(owner, '../..');
-const rows = JSON.parse(readFileSync(join(owner, 'tool-rows.json'))).records.map(row => row.payload);
+const rows = JSON.parse(readFileSync(join(owner, 'what-this-tool-does-and-how-to-run-it.json'))).records.map(row => row.payload);
 const material = { id: 'source:sample', title: 'Observed example', revision: 2,
   claims: [{ id: 'claim:one', text: 'The sample was observed.', evidence_refs: ['span:one'] }],
   fields: { spoken: 'The sample was observed.' }, source_refs: ['source:one'] };
@@ -24,7 +24,7 @@ const now = 1_000_000;
 const observation = { value: true, method: 'sensor', observed_at_ms: now };
 
 function runRow(row, input, root = repository) {
-  const argv = row.invoke.argv.slice(1).map(arg => arg.startsWith('/opt/') ? join(root, arg.slice(5)) : arg);
+  const argv = row.invoke.run.slice(1).map(arg => arg.startsWith('/opt/') ? join(root, arg.slice(5)) : arg);
   const cwd = row.invoke.workdir.startsWith('/opt/') ? join(root, row.invoke.workdir.slice(5)) : root;
   return spawnSync(process.execPath, argv, { cwd, input: JSON.stringify(input), encoding: 'utf8', timeout: 10_000 });
 }
@@ -59,7 +59,7 @@ test('compiled plan and readiness reach the existing teleprompter consumer witho
   assert.match(plan.id, /^PLAN-1f:[0-9a-f]{64}$/);
   const observations = { [plan.requirements[0].key]: observation };
   const ready = evaluatePresentationReadiness(plan, ['capture.video'], observations, now);
-  const consumer = JSON.parse(readFileSync(join(repository, 'tools/record-video-with-teleprompter/tool-rows.json'))).records[0].payload;
+  const consumer = JSON.parse(readFileSync(join(repository, 'tools/record-video-with-teleprompter/what-this-tool-does-and-how-to-run-it.json'))).records[0].payload;
   packaged(consumer, root => {
     const outcome = runRow(consumer, { plan, readiness: ready, nowMs: now }, root);
     assert.equal(outcome.status, 0, outcome.stderr);

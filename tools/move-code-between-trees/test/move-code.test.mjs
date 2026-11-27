@@ -244,7 +244,7 @@ test('a lane adds only the packages the files it moves import; a group that wait
 
 test('a destination tool folder holds a group, unless its row says in joins_tool what it brings; its files land inside that tool', () => {
   const source = repository(sourceFiles());
-  const destination = repository({ ...destinationFiles(), 'tools/count-beans/tool-rows.json': json({ records: [] }), 'tools/count-beans/README.md': '# count-beans\n' });
+  const destination = repository({ ...destinationFiles(), 'tools/count-beans/what-this-tool-does-and-how-to-run-it.json': json({ records: [] }), 'tools/count-beans/README.md': '# count-beans\n' });
   try {
     const held = moveCode({ step: 'plan', row, source_folder: source, destination_folder: destination });
     assert.match(held.groups.find(item => item.id === 'count-beans').held.join(' '), /tools\/count-beans is already a tool in the destination.*joins_tool/);
@@ -407,7 +407,7 @@ test('a test whose code an earlier move carried elsewhere lands beside it and im
   const earlierOne = { from: 'src/one.mjs', commit, to: 'tools/add-numbers/read-data/one.mjs', source_identity: idOf('export const one = 1;\n'), identity: idOf('export const one = 1;\n') };
   const destination = repository({
     'package.json': json({ name: 'tool-box', type: 'module' }),
-    'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+    'tools/add-numbers/what-this-tool-does-and-how-to-run-it.json': json({ rows: [] }),
     'tools/add-numbers/do-work/sum.mjs': sumHere,
     'tools/add-numbers/read-data/one.mjs': 'export const one = 1;\n',
     'tools/add-numbers/moved-from.json': json({ about: 'made up', source: 'old-app', package: 'tool-box', calls: [], files: [earlier, earlierOne] }),
@@ -441,7 +441,7 @@ test('a module the runtime provides (node:, cloudflare:), or a request a templat
     'src/probe.mjs': "export const probeSource = `import { DurableObject } from 'cloudflare:workers';\\nexport class Probe extends DurableObject {}`;\nexport const pageSource = root => `import look from '${root}parts/look.mjs';`;\n",
     'test/probe.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { probeSource } from '../src/probe.mjs';\ntest('probe', () => { assert.ok(probeSource.includes('Probe')); });\n",
   });
-  const destination = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/probe/tool-rows.json': json({ rows: [] }) });
+  const destination = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/probe/what-this-tool-does-and-how-to-run-it.json': json({ rows: [] }) });
   const row = { id: 'move:old-app-probe', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
     groups: [{ id: 'probe', owner: ['src/probe.mjs'], to: 'tools/probe', joins_tool: 'the probe it holds' }] };
   try {
@@ -459,7 +459,7 @@ test('a file its row names as an adapted copy is home there: the test lands besi
   });
   const destination = repository({
     'package.json': json({ name: 'tool-box', type: 'module' }),
-    'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+    'tools/add-numbers/what-this-tool-does-and-how-to-run-it.json': json({ rows: [] }),
     'tools/add-numbers/do-work/add.mjs': "// adds two numbers, in this tool's own shape\nexport function sum(a, b) { return [a, b].reduce((x, y) => x + y, 0); }\n",
   });
   const row = { id: 'move:old-app-adapted', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
@@ -482,7 +482,7 @@ test('a file its row names as an adapted copy is home there: the test lands besi
     assert.deepEqual(checked.folders[0].problems, []);
     assert.equal(checked.folders[0].tests.pass, 1);
     // An adapted copy at the very place the file would land is its home too, not a path taken.
-    const atPlace = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+    const atPlace = repository({ 'package.json': json({ name: 'tool-box', type: 'module' }), 'tools/add-numbers/what-this-tool-does-and-how-to-run-it.json': json({ rows: [] }),
       'tools/add-numbers/src/sum.mjs': "export function sum(a, b) { return [a, b].reduce((x, y) => x + y, 0); }\n" });
     try {
       const there = moveCode({ step: 'plan', row: { ...row, adapted_homes: [{ from: 'src/sum.mjs', home: 'tools/add-numbers/src/sum.mjs', why: 'adapted in place' }] }, source_folder: source, destination_folder: atPlace });

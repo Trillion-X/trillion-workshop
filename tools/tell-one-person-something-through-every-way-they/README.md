@@ -12,7 +12,7 @@ Old trillion's owner of this, `src/tell-the-person.mjs` (tag `old-trillion-befor
 | `read-data/tell-the-person.json` | The channels, kinds, actions and words (old `records/tell-the-person.json`) |
 | `read-data/tell-quiet-hours.json`, `read-data/glance-feeds.json`, `read-data/run-progress.json` | Old `src/tell-quiet-hours.json`, `records/glance-feeds.json`, `records/run-progress.json` |
 | `do-work/tell-routes.mjs` | `answerTellNoticesRoute`, `tool:answer-the-tell-notices-route`: the page route GET /work/api/tell/notices as a route tool, the moved route over the `told-the-person` rows given as `stored.records` (the AI reads them from the person's own store and gives them; the row reads no store and holds no door, and reads them in place as the moved owner did). Contract `ports/tell-routes.json` |
-| `tool-rows.json` | The route row |
+| `what-this-tool-does-and-how-to-run-it.json` | The route row |
 | `test/tell-the-person.test.mjs` | Old trillion's test, its assertions unchanged (paths only) |
 | `test/tell-routes.test.mjs` | The route row over made-up `stored.records`, checked against the moved owner |
 

@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { askAndKeep, KIND, retryAfterSeconds } from '../read-data/ask-and-keep.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const row = rowOf(rows, 'tool:ask-a-web-address-or-give-the-last-answer');
 
@@ -23,7 +23,7 @@ async function source(t) {
 const reply = (type, body, init = {}) => async () => new Response(body, { headers: { 'content-type': type }, ...init });
 
 test('the row asks the public web and is handed no records door: it keeps nothing', () => {
-  assert.equal(row.invoke.internet, true);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.equal(row.invoke.records, undefined);
   assert.equal(KIND, 'kept-answer');
 });

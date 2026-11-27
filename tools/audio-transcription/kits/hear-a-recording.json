@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/audio-transcription/tool-rows.json, read-data/hear-here.mjs, test/hear-a-recording.test.mjs",
+  "drafted_from": "tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json, read-data/hear-here.mjs, test/hear-a-recording.test.mjs",
   "start_here": "Say to your AI: \"Hear my recording /Recordings/sample-talk.wav on this computer with the whisper model I granted and give me its words with times.\" It runs tool:hear-a-recording and hands back the text and timed segments.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it reads one recording from the person's files and answers the words it heard.",
@@ -33,7 +33,7 @@
           }
         }
       },
-      "given": "From the sample-run in tools/audio-transcription/tool-rows.json (verify) and tools/audio-transcription/test/hear-a-recording.test.mjs: the file holds made-up sound bytes and the stand-in whisper-cli writes two segments (0 to 2500 ms and 2500 to 5000 ms). The answer was worked out from read-data/hear-here.mjs (hearARecording, hearFile), not run here.",
+      "given": "From the sample-run in tools/audio-transcription/what-this-tool-does-and-how-to-run-it.json (verify) and tools/audio-transcription/test/hear-a-recording.test.mjs: the file holds made-up sound bytes and the stand-in whisper-cli writes two segments (0 to 2500 ms and 2500 to 5000 ms). The answer was worked out from read-data/hear-here.mjs (hearARecording, hearFile), not run here.",
       "hands_back": "{\"text\":\"Welcome to the sample meeting, said Ada Example. The next item is the garden budget.\",\"segments\":[{\"start\":0,\"end\":2.5,\"text\":\"Welcome to the sample meeting, said Ada Example.\"},{\"start\":2.5,\"end\":5,\"text\":\"The next item is the garden budget.\"}],\"language\":\"en\",\"produced_by\":\"whisper-cli on this computer\",\"heard_whole\":true}"
     }
   ]

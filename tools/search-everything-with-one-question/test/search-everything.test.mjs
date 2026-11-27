@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { searchEverything } from '../do-work/search-everything.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { judgedTree, withEnv } from '../../../test-helpers/judged-tree.mjs';
 
@@ -83,7 +83,7 @@ test('the rows declare the records and files they are handed, no store right, no
       assert.deepEqual(runs, ['tool:words-as-picture-vector'], `${id} may run only the picture query encoder`);
     } else {
       assert.equal(row.invoke.records, undefined, `${id} is handed no door`);
-      assert.equal(row.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs', `${id} runs the function runner`);
+      assert.equal(row.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs', `${id} runs the function runner`);
       assert.ok(row.invoke.files.package_files.every(files => files.package !== 'records-door'), `${id} does not pack the records door`);
       assert.ok(!(reached[id] ?? []).some(item => item.package === 'records-door'), `${id} does not reach the records door when it runs`);
     }

@@ -3,7 +3,7 @@
 // picture is not in this row: it is a separate computer row, because it needs the Mac's own window server.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const row = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:check-live-screens');
 const signed = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:check-live-screens-signed-in');
@@ -12,25 +12,25 @@ const packed = package_ => row.invoke.files.package_files.find(files => files.pa
 test('the live row runs checkLiveScreens through the plain function runner, in a container on this Mac', () => {
   assert.equal(row.invoke.kind, 'container');
   assert.deepEqual(row.placements, ['placement:your-computer']);
-  assert.equal(row.invoke.argv[2], '/opt/check-every-screen-at-every-width/check-live-screens.mjs');
-  assert.equal(row.invoke.argv[3], 'checkLiveScreens');
+  assert.equal(row.invoke.run[2], '/opt/check-every-screen-at-every-width/check-live-screens.mjs');
+  assert.equal(row.invoke.run[3], 'checkLiveScreens');
   assert.equal(row.invoke.programs['chrome-headless-shell'].fetch['macos-aarch64'].version, '153.0.8010.12');
 });
 
 test('the live row holds no key, so it reaches any public address, and takes no sign-in', () => {
-  assert.equal(row.invoke.credential_mounts, undefined);
-  assert.equal(row.invoke.internet, true);
+  assert.equal(row.invoke.key, undefined);
+  assert.ok(Array.isArray(row.invoke.may_reach));
   assert.equal(row.invoke.public_read, true);
   assert.equal(row.input_schema.properties.pages.items.properties.sign_in, undefined);
 });
 
 test('the signed-in row holds only the proof session on descriptor 4, and its sign_in carries no cookie', () => {
-  assert.deepEqual(signed.invoke.credential_mounts, [{ secret_name: 'proof-sessions', fd: 4 }]);
+  assert.deepEqual(signed.invoke.key, [{ secret_name: 'proof-sessions', fd: 4 }]);
   assert.equal(signed.invoke.public_read, undefined);
   assert.deepEqual(signed.input_schema.properties.pages.items.properties.sign_in.properties, { kind: { const: 'held-session' } });
   // The same program, entered where every page must sign in.
-  assert.deepEqual(signed.invoke.argv, [...row.invoke.argv.slice(0, -1), 'checkLiveScreensSignedIn']);
-  assert.equal(row.invoke.argv.at(-1), 'checkLiveScreens');
+  assert.deepEqual(signed.invoke.run, [...row.invoke.run.slice(0, -1), 'checkLiveScreensSignedIn']);
+  assert.equal(row.invoke.run.at(-1), 'checkLiveScreens');
   assert.deepEqual(signed.invoke.files, row.invoke.files);
 });
 
@@ -66,9 +66,9 @@ test('both live rows take read-only finds with exactly one kind of match', () =>
 
 test('the expiry row mounts the proof session, reaches nothing, and runs heldSessionExpiries', () => {
   const expiry = rows.records.map(record => record.payload).find(payload => payload.id === 'tool:read-when-the-proof-session-ends');
-  assert.deepEqual(expiry.invoke.credential_mounts, [{ secret_name: 'proof-sessions', fd: 4 }]);
-  assert.equal(expiry.invoke.internet, false);
-  assert.equal(expiry.invoke.argv[3], 'heldSessionExpiries');
+  assert.deepEqual(expiry.invoke.key, [{ secret_name: 'proof-sessions', fd: 4 }]);
+  assert.equal(expiry.invoke.may_reach, undefined);
+  assert.equal(expiry.invoke.run[3], 'heldSessionExpiries');
 });
 
 test('every row that packs held-session.mjs packs the proof-accounts.json it reads', () => {
@@ -83,11 +83,11 @@ test('the three refresh rows hold only what their step needs: no key, the mailbo
   const ask = of('tool:ask-the-proof-accounts-for-sign-in-codes');
   const keep = of('tool:keep-the-proof-accounts-sign-in-codes');
   const sign = of('tool:sign-the-proof-accounts-in-with-their-kept-codes');
-  assert.equal(ask.credential_mounts, undefined);
+  assert.equal(ask.key, undefined);
   assert.equal(ask.records, undefined);
-  assert.deepEqual(keep.credential_mounts, [{ secret_name: 'agentmail-api-key', fd: 4 }]);
+  assert.deepEqual(keep.key, [{ secret_name: 'agentmail-api-key', fd: 4 }]);
   assert.deepEqual(keep.records.rights, [{ at: '@secrets', id: 'proof-sign-in-code', operations: ['secrets:put'] }]);
-  assert.deepEqual(sign.credential_mounts, [{ secret_name: 'proof-sign-in-code', fd: 4 }, { secret_name: 'proof-sessions', fd: 5 }]);
+  assert.deepEqual(sign.key, [{ secret_name: 'proof-sign-in-code', fd: 4 }, { secret_name: 'proof-sessions', fd: 5 }]);
   assert.deepEqual(sign.records.rights.map(right => right.id), ['proof-sign-in-code', 'proof-sessions']);
   assert.ok(sign.records.rights.every(right => right.at === '@secrets' && right.operations.join() === 'secrets:put'));
 });

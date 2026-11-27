@@ -8,7 +8,7 @@ Judges a public page against the saved craft rules at every width they name, and
 |------|---------|
 | `part.json` | What other parts and tools may use from this part. |
 | `do-work/critique-a-page.mjs` | Opens the page in a headless browser at each width, scrolls it once so lazy pictures and frames load, measures it in the page (and again inside each embedded frame, of any origin, for the rules that say `in_frames`), watches embedded live demos for up to `wait_seconds`, forces each control's hover look through DevTools, asks each link once, boxes every finding and photographs the whole page; prints one JSON line. |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder: `tool:critique-a-public-page`, which packs `do-work`, `read-data` and `tools/headless-browser`'s `devtools.mjs` and `quiet-switches.json`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row Trillion reads for this folder: `tool:critique-a-public-page`, which packs `do-work`, `read-data` and `tools/headless-browser`'s `devtools.mjs` and `quiet-switches.json`. |
 | `test/` | The critic run against planted local pages (Playwright's Chromium, `test-helpers/chromium.mjs`). |
 | `read-data/page-craft-rules.json` | The craft rules as DATA: the widths, each rule's words and thresholds, and the selectors each rule reads. |
 
@@ -47,7 +47,7 @@ Accessible names are `control_name` above. Text touching the browser edge is `ed
 
 **Depends on:** `tools/headless-browser` (`devtools.mjs`, a Chromium spoken to over DevTools, `quiet-switches.json`).
 
-**Depended on by:** `tool:critique-a-public-page` (`tool-rows.json`), and any check that imports `do-work/measure-page-craft.mjs` (`part.json`).
+**Depended on by:** `tool:critique-a-public-page` (`what-this-tool-does-and-how-to-run-it.json`), and any check that imports `do-work/measure-page-craft.mjs` (`part.json`).
 
 ## Invariants
 

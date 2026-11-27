@@ -7,7 +7,7 @@ import { rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { DEFAULT_COVER_KEY, requiredCover, requiredCoverOfRows, setupScreenComplete } from '../read-data/required-cover.mjs';
 import { changeWhatHoldsMe, seeWhatHoldsMe } from '../do-work/hold.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const SEE = rowOf(ROWS, 'tool:see-what-holds-me');
 const CHANGE = rowOf(ROWS, 'tool:change-what-holds-me');
 const NOW = '2026-01-10T12:00:00.000Z';

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:put-a-picked-option-into-a-filmcraft-project's row (tools/put-picked-options-into-a-filmcraft-project/tool-rows.json), do-work/pick_gate.py and test/pick-gate.test.mjs",
+  "drafted_from": "tool:put-a-picked-option-into-a-filmcraft-project's row (tools/put-picked-options-into-a-filmcraft-project/what-this-tool-does-and-how-to-run-it.json), do-work/pick_gate.py and test/pick-gate.test.mjs",
   "start_here": "Say to your AI: \"I agreed to option x05-r4-1 for my film in /films/made-up-film; put it into my protected FilmCraft project cut.fcproj with the ops file ops.jsonl.\" It checks your own stand first and only then runs the ops headless.",
   "lists": [
     {

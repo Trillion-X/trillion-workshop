@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:keep-a-local-file-in-my-files's row in tools/sync-files-between-my-computers/tool-rows.json, do-work/keep-a-local-file.mjs and test/keep-a-local-file.test.mjs",
+  "drafted_from": "tool:keep-a-local-file-in-my-files's row in tools/sync-files-between-my-computers/what-this-tool-does-and-how-to-run-it.json, do-work/keep-a-local-file.mjs and test/keep-a-local-file.test.mjs",
   "start_here": "Say to your AI: \"Keep /tmp/shoot/clip.mp4 on this computer in my Files as /site/clip.mp4, type video/mp4.\" It runs tool:keep-a-local-file-in-my-files, which reads the file in place and answers what was kept and what was refused.",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it takes file paths and names as input and writes the files themselves into the person's Files.",

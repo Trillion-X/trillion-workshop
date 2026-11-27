@@ -17,7 +17,7 @@ async function fixture(t) {
   const meterBook = path.join(base, 'meters.json');
   const meter = { id: 'vendor.request_ms', unit: 'ms', aggregation: 'duration', required_for_all_operations: true };
   await writeFile(meterBook, JSON.stringify([meter]));
-  const catalogPath = path.join(source, 'tool-rows.json');
+  const catalogPath = path.join(source, 'what-this-tool-does-and-how-to-run-it.json');
   await writeFile(catalogPath, JSON.stringify({ kind: 'tool-rows', records: [{ payload: { kind: 'ai-tool-descriptor', id: 'tool:sample-operation' } }] }));
   await writeFile(path.join(receipts, 'run.json'), JSON.stringify({
     schema: 'execution-observation/1', id: 'run-1', operation: 'tool:sample-operation', source: 'local',
@@ -112,7 +112,7 @@ test('a vanished configured root is reported as incomplete discovery, not a comp
 
 test('the keep-measurements-current row declares no records door and its answer holds the collection made from the config in the request', async t => {
   const f = await fixture(t);
-  const row = (await import('../tool-rows.json', { with: { type: 'json' } })).default.records.find(r => r.payload.id === 'tool:keep-measurements-current').payload;
+  const row = (await import('../what-this-tool-does-and-how-to-run-it.json', { with: { type: 'json' } })).default.records.find(r => r.payload.id === 'tool:keep-measurements-current').payload;
   assert.equal(row.invoke.records, undefined);
   assert.ok(row.input_schema.required.includes('config'));
   assert.deepEqual(row.input_schema.properties.action.enum, ['collect_from_config']);

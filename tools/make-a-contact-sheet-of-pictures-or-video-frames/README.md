@@ -56,7 +56,7 @@ python3 tools/make-a-contact-sheet-of-pictures-or-video-frames/do-work/make_cont
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:make-a-contact-sheet-of-pictures-or-video-frames`: `on-your-computer`, with the commands that fetch it and run it. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row `tool:make-a-contact-sheet-of-pictures-or-video-frames`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/make_contact_sheet.py` | The command: reads the request, makes `pictures` and `frames-at-a-rate` sheets, hands `frames-at-times` to the file below, prints the answer. Also takes the older command line `out.jpg cols cellw "label\|path" ...`. |
 | `do-work/frames_at_times.py` | `frames-at-times`: one ffmpeg frame per time, stamped, laid `columns` to a row. Also a command of its own: `frames_at_times.py out.jpg video t [t ...] [--width 640]`. |

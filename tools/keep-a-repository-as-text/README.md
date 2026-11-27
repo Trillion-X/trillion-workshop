@@ -4,7 +4,7 @@ Pulls one outside git repository onto the person's computer as ONE text bundle, 
 
 - `keep-a-repository-as-text.mjs`: the command. It reads one JSON input on standard input and prints one JSON line. It also exports the steps (`checkInput`, `cloneShallow`, `listFiles`, `licenceOf`, `readFilesForBundle`, `bundleText`, `pullAndBundle`).
 - `read-data/limits.json`: the DATA. The default root for future pulls (`~/Library/Application Support/pulled-files/repos`), the per-file cap, the total cap on file contents, the binary sniff size, the time limits, and the licence phrases that name MIT, Apache-2.0 and GPL-3.0-only from a licence file.
-- `tool-rows.json`: the Workshop row for `tool:keep-a-repository-as-text`.
+- `what-this-tool-does-and-how-to-run-it.json`: the Workshop row for `tool:keep-a-repository-as-text`.
 - `test/keep-a-repository-as-text.test.mjs`: unit tests on a fixture repository made in a temp folder, including equal bundle bytes and BLAKE3 on repeat pulls, and one live test on https://github.com/TheMattBerman/ad-spy-kit.
 - `kits/keep-a-repository-as-text.json`: the instructions and worked example; marked draft until a real run through the installed Workshop row is observed.
 

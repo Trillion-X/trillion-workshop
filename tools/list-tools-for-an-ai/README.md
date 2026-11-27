@@ -15,7 +15,7 @@ What an AI is told about a list of tools: the list shrunk to fit a character bud
 | `read-data/tool-releases.mjs` | `compareVersions`, `compatibleRelease(row, hostVersion)`, `oldestNeeded`, `withEarlierReleases`. Moved from `src/tool-releases.mjs` with one change: the `../server.json` import and the `HOST_VERSION` export it fed are dropped, and `compatibleRelease` takes the host version as its argument with no default (the old Worker read its own version; here the caller says it). Everything else is byte for byte, the header comments included. |
 | `read-data/tool-releases.json` | `keep_earlier`. Moved byte for byte. |
 | `read-data/listing-tools.mjs` | The four rows' functions, each handing its input to one moved module. |
-| `tool-rows.json` | `tool:fit-a-tool-list-in-a-budget`, `tool:say-a-tools-hints-in-its-description`, `tool:tell-if-a-tool-changes-anything`, `tool:pick-the-release-a-host-runs`; container rows run by `tools/records-door`'s `run-an-export.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:fit-a-tool-list-in-a-budget`, `tool:say-a-tools-hints-in-its-description`, `tool:tell-if-a-tool-changes-anything`, `tool:pick-the-release-a-host-runs`; container rows run by `tools/records-door`'s `run-an-export.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/tool-listing-budget.test.mjs` | Trillion's `test/tool-listing-budget.test.mjs`, the test that needs no caller, assertions unchanged. |
 | `test/tool-behavior-notes.test.mjs` | Trillion's `test/tool-behavior-notes.test.mjs`, its first three tests, assertions unchanged. |
@@ -44,4 +44,4 @@ Tests left with their callers in trillion: `test/tool-listing-budget.test.mjs`'s
 
 **Depends on:** `tools/records-door` (`run-an-export.mjs` only; no door is opened), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. In Trillion-X/trillion these still import their own copies: `src/tools.mjs` (listing budget, behavior notes), `src/person-spaces.mjs` and `src/person-store.mjs` (write class), `src/workshop.mjs` (releases, with `HOST_VERSION` from `server.json`).
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. In Trillion-X/trillion these still import their own copies: `src/tools.mjs` (listing budget, behavior notes), `src/person-spaces.mjs` and `src/person-store.mjs` (write class), `src/workshop.mjs` (releases, with `HOST_VERSION` from `server.json`).

@@ -4,7 +4,7 @@
 // Every value here is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import introductionStates from '../../introduce-two-people/src/introduction-states.json' with { type: 'json' };
 import { cosine, findNetworkPeople, KNOWN_STATES, networkProfile, onMyPath, readNetworkContact, RELEASED } from '../do-work/network-people.mjs';
 import { runNetworkAction, WANTED } from '../do-work/network-profile-sql.mjs';
@@ -139,8 +139,8 @@ test('the four tool rows run the one process with their function named', () => {
   for (const [id, fn] of Object.entries(expect)) {
     const row = rows.records.find(record => record.payload.id === id);
     assert.ok(row, `${id} exists`);
-    assert.equal(row.payload.invoke.argv.at(-1), fn);
-    assert.ok(row.payload.invoke.credential_mounts.some(mount => mount.fd === 3));
+    assert.equal(row.payload.invoke.run.at(-1), fn);
+    assert.ok(row.payload.invoke.key.some(mount => mount.fd === 3));
   }
 });
 

@@ -17,7 +17,7 @@ import * as rowChanges from "../do-work/mechanisms/row-changes.mjs";
 import { tempFolder } from "../../../test-helpers/temp-folder.mjs";
 
 const packageRoot = fileURLToPath(new URL("..", import.meta.url));
-const ROWS = JSON.parse(readFileSync(path.join(packageRoot, "tool-rows.json"), "utf8"));
+const ROWS = JSON.parse(readFileSync(path.join(packageRoot, "what-this-tool-does-and-how-to-run-it.json"), "utf8"));
 const WAKE = ROWS.records.map((record) => record.payload).find((row) => row?.id === "tool:notice-when-something-shows-up").wakes
   .find((wake) => wake.id === "keep-noticing-row-changes");
 const ROW_CHANGES_WAITER = WAKE.input.waiters[0];

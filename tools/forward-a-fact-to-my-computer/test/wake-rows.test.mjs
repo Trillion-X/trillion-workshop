@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs';
 import { SETTINGS } from '../do-work/forward-a-fact.mjs';
 
 const ENGINE_WAKE_KEYS = ['id', 'on', 'budget', 'input', 'until', 'retry', 'skip_unchanged', 'rate', 'replay', 'needs_input', 'on_failure'];
-const [{ payload: row }] = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records;
+const [{ payload: row }] = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records;
 
 test('every wake uses only keys the engine accepts and hears one kind from its teller, needing to, door and forwarded_from', () => {
   assert.ok(row.wakes.length > 0);
@@ -26,10 +26,9 @@ test('every wake uses only keys the engine accepts and hears one kind from its t
 });
 
 test('the row mounts the held key by name on descriptor 3, its own door on descriptor 4, gives the run its fact and input, and names no host itself', () => {
-  assert.deepEqual(row.invoke.credential_mounts, [{ secret_name: SETTINGS.key_name, fd: 3 }]);
+  assert.deepEqual(row.invoke.key, [{ secret_name: SETTINGS.key_name, fd: 3 }]);
   assert.deepEqual(row.invoke.stdin, { input: { fill: { from: 'input' } }, fact: { fill: { from: 'task', field: 'cause.detail' } } });
-  assert.equal(row.invoke.internet, true);
-  assert.equal(row.invoke.hosts, undefined, "the key's own hosts fence the run");
+  assert.deepEqual(row.invoke.may_reach, [], "the key's own hosts fence the run");
   assert.deepEqual(row.input_schema.required, ['to', 'door', 'forwarded_from']);
   // The run reads this computer's wakes of each kind it forwards, and nothing else, on its door.
   assert.equal(row.invoke.records.fd, SETTINGS.door_descriptor);

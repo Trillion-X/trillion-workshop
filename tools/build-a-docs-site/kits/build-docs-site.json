@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:build-docs-site (tools/build-a-docs-site/tool-rows.json); its input and sample from the held descriptor in run-rules from-an-older-version/records/workshop-engine-tool-records.json",
+  "drafted_from": "tool:build-docs-site (tools/build-a-docs-site/what-this-tool-does-and-how-to-run-it.json); its input and sample from the held descriptor in run-rules from-an-older-version/records/workshop-engine-tool-records.json",
   "start_here": "Say to your AI: \"Make my docs site files from this manifest.\" It runs tool:build-docs-site with the manifest and saves the files it returns.",
   "lists": [],
   "no_lists_because": "It keeps nothing: the manifest comes in the request and the files come back in the answer.",

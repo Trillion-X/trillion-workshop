@@ -16,7 +16,7 @@ import { listConnections } from '../do-work/list-connections.mjs';
 import { needingYouOf, connectedVendorsOf } from '../../find-and-keep-my-connections/src/connection-summaries.mjs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 
-const ROW = rowOf(JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')), 'tool:list-connections');
+const ROW = rowOf(JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')), 'tool:list-connections');
 const AT = '2026-10-01T09:00:00.000Z';
 const recordOf = value => ({ id: `connection:${encodeURIComponent(value.connection_id)}`, type: 'connection', value });
 const stripe = (extra = {}) => recordOf({ connection_id: 'service_connection:stripe', service: 'Stripe', vendor: 'stripe', status: 'connected', can_send: true, connected_at: AT, grant_scopes_known: false, ...extra });
@@ -112,7 +112,7 @@ test('the row runs the way the engine runs it, over its sample', async () => {
 
 test('the row runs the workflows runner over this module, with no records door and no records right', async () => {
   assert.equal(ROW.invoke.records, undefined, 'the row declares no records door');
-  assert.equal(ROW.invoke.argv[1], '/opt/workflows/do-work/run-a-function.mjs');
+  assert.equal(ROW.invoke.run[1], '/opt/workflows/do-work/run-a-function.mjs');
   assert.ok(!JSON.stringify(ROW).includes('records-door'), 'no records-door mount or use is left in the row');
   const { connections } = await listWith({ records: [stripe()], held: heldOf('service_connection:stripe') });
   assert.equal(connections.length, 1);

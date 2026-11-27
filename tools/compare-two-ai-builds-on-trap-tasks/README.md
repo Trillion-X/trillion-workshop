@@ -20,6 +20,6 @@ Moved byte for byte from Trillion-X/trillion (commit b92aa549f2) by `tools/move-
 | `do-work/compare-two-builds.mjs` | The row's run: `{ left, right, battery? }` to `compareArms`, with refusals in words. |
 | `test/behavior-compare.test.mjs` | The original test: scoring, a self-reported success scores nothing, the script. |
 | `test/compare-two-builds.test.mjs` | The row's run and its refusals. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `moved-from.json` | Where each moved file came from and its identities. |
 | `part.json` | Public files. |

@@ -9,7 +9,7 @@ import { answerOf } from '../../../test-helpers/run-a-row.mjs';
 import { readAnswerLines, readAnswerProgress, readFormResults, saveForm, submitFormAnswers } from '../do-work/form-tools.mjs';
 
 const rowOf = (file, id) => file.records.find(record => record.payload.id === id).payload;
-const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const ids = ['tool:save-a-form', 'tool:submit-form-answers', 'tool:read-form-results', 'tool:read-answer-progress', 'tool:read-latest-answers-as-lines'];
 
 let kept;
@@ -133,9 +133,9 @@ test('each shipped row reaches nothing: no records door, no database door, no he
   for (const id of ids) {
     const { invoke } = rowOf(rows, id);
     assert.equal(invoke.records, undefined, `${id} declares no records door`);
-    assert.equal(invoke.internet, false, id);
+    assert.equal(invoke.may_reach, undefined, id);
     assert.equal(invoke.local_doors, undefined, id);
-    assert.equal(invoke.credential_mounts, undefined, id);
+    assert.equal(invoke.key, undefined, id);
     assert.equal(invoke.packages, undefined, id);
     assert.ok(!invoke.files.package_files.some(spec => spec.package === 'records-door' || spec.packages), `${id} packs no door and no package`);
   }

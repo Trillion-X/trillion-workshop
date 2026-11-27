@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { answerOf, rowOf, rightsOf } from '../../../test-helpers/run-a-row.mjs';
-import rows from '../tool-rows.json' with { type: 'json' };
+import rows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 
 const choiceRow = rowOf(rows, 'tool:my-notification-choice');
 const chooseRow = rowOf(rows, 'tool:choose-my-notification-choice');

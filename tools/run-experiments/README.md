@@ -21,7 +21,7 @@ Experiments and personalization over what each visitor did: choose which version
 | `data/one-price-test.example.json` | An example price test with one price in it: one candidate offer with all the weight; a second price is one more candidate and one more weight. |
 | `data/personalize-by-where-they-came-from.example.json` | An example of one headline per visitor: who they are (an enrichment fact), then where they came from (`visit.utm_source`), then an A/B split between the defaults. |
 | `records.json` | The three tool rows. |
-| `tool-rows.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
+| `what-this-tool-does-and-how-to-run-it.json` | The tool-row source that lists `records.json`'s rows into the Workshop. |
 | `test/` | The package's tests of the files above, `run-experiments-tools.test.mjs`, which runs each tool the way its row runs it, and `examples.test.mjs`, which runs the examples in `data/`, and `observer-bucket.test.mjs`. |
 | `part.json` | No public files: only the tool runs this code. |
 

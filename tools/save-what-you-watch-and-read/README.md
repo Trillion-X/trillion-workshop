@@ -77,7 +77,7 @@ the export file is the seam it calls.
 | `read-data/sources.json` | One row for each kind of saved-items export (`x-bookmarks`, `pinterest-saved`); read by the reader in `tools/conversations`. A new site is a new row. |
 | `read-data/observe_activity.py` | `observe`: one thing seen becomes one observation; its id is the BLAKE3 identity of source, item and revision. |
 | `read-data/observe_files.py` | `observe`: the entries under a granted folder matched by a glob, by state (`<mtime_ns>:<size>`), newest first, never following a link out of the folder. |
-| `tool-rows.json` | The three rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | The three rows. |
 | `test/python/` | The Python tests, with made-up exports and folders; `test/python.test.mjs` runs each as a node test. |
 | `test/rows.test.mjs` | Each row's command run the way the engine runs it. |
 

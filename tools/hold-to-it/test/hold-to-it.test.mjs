@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { aroundNow, armAt, evidenceFromHeard, holdToIt, isTimed, marksFor, presentAmong, readSettings, tally } from '../read-data/hold-to-it.mjs';
 
 const settings = readSettings();
-const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:hold-to-it');
+const row = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload).find(payload => payload.id === 'tool:hold-to-it');
 const policy = {
   defaults: { minutes: 30, time_zone: 'UTC', remind_minutes: 10, check_after_minutes: 30 },
   evidence_before_minutes: 10, evidence_after_minutes: 15, unnamed_prefixes: ['Someone (', 'Unsure ('],

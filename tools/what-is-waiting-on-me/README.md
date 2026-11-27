@@ -12,7 +12,7 @@ The tool names no source, kind of record or thing that can wait. A source row is
 | `read-data/waiting-words.json` | The default sentences; a request may bring its own. |
 | `do-work/what-is-waiting-on-me.mjs` | The command of the tool. |
 | `do-work/waiting-run.mjs` | The command of the three record tools: `read`, `finish` or `verify`, one JSON request on standard input. Nothing here reaches a store. |
-| `tool-rows.json` | The row, with a sample run. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row, with a sample run. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/waiting.test.mjs` | Made-up sources and records: what waits, order, skipped, unread, most, sentences, the same answer in any order, refused rows, and the row. |
 
@@ -27,7 +27,7 @@ The tool names no source, kind of record or thing that can wait. A source row is
 
 **Depends on:** Node 24 only.
 
-**Depended on by:** `tool-rows.json`; the workflows that name `tool:what-is-waiting-on-me`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; the workflows that name `tool:what-is-waiting-on-me`.
 
 ## Screens
 

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
-const row = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 
 function run(granted, input) {
   const ran = spawnSync(process.execPath, [resolve(folder, 'do-work', 'check-my-documents.mjs'), granted], { input: JSON.stringify(input), encoding: 'utf8' });
@@ -30,10 +30,10 @@ const SET = { set_id: 'guide-translations', source: 'guide.en.md', unit_pattern:
 test('the row runs on the person\'s computer with only the folder capability, and reaches no internet', () => {
   assert.equal(row.invoke.kind, 'computer');
   assert.deepEqual(row.invoke.capabilities, ['read-a-folder']);
-  assert.notEqual(row.invoke.internet, true);
+  assert.equal(row.invoke.may_reach, undefined);
   assert.deepEqual(row.placements, ['placement:your-computer']);
   assert.equal(row.result_selector, '$.result');
-  assert.deepEqual(row.invoke.argv.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
+  assert.deepEqual(row.invoke.run.at(-1), { fill: { from: 'task', field: 'grants.read-a-folder.folder' } });
 });
 
 test('a mirror that lacks the source\'s newest unit is behind; a shorter one that has it is not', t => {

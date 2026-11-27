@@ -18,6 +18,6 @@ Moved byte for byte from Trillion-X/trillion (commit b92aa549f2) by `tools/move-
 | `do-work/suggest-connections.mjs` | The row's run. |
 | `test/connection-links.test.mjs` | The original test of the module. |
 | `test/suggest-connections.test.mjs` | The row's run. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `moved-from.json` | Where each moved file came from and its identities. |
 | `part.json` | Public files. |

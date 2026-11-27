@@ -44,7 +44,7 @@ A record line (keyed by the folder's name):
 
 The card is `what-this-tool-does-and-how-to-run-it.json` and nothing else; its top-level `prepare` and `needs_tools` are
 the two facts read. A folder whose card still has the old name `tool-rows.json` is refused (`old-card-name`), naming the
-folder. (This tool's own card is still `tool-rows.json` until the Workshop renames every card in one change.)
+folder.
 
 ## Invariants
 

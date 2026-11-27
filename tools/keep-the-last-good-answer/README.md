@@ -10,7 +10,7 @@ Ask a live source. If it answers, return that answer and the record that keeps i
 | `read-data/ask-and-keep.mjs` | `tool:ask-a-web-address-or-give-the-last-answer`: the live read (a web address, JSON or text, up to 256 KiB), the last answer handed in as `last_answer`, the record to keep (`to_keep`, one `kept-answer` record per key) and the words of the answer. |
 | `do-work/ask-a-web-address.mjs` | The row's program: one JSON request on standard input, the answer as JSON on the last line. |
 | `part.json` | The primitive is public, so another tool may import it. |
-| `tool-rows.json` | The row: a container run with `internet: true` and no records door. |
+| `what-this-tool-does-and-how-to-run-it.json` | The row: a container run with `may_reach` and no records door. |
 | `test/keep-the-last-good-answer.test.mjs` | The package's 28 checks, every one a way a naive version gets it wrong. Touches no file, socket or clock. Copied unchanged. |
 | `test/ask-and-keep.test.mjs` | The row as the container runs it, with no records door and a source on this computer's loopback; the function with its web handed in for the failures a real address rarely gives. |
 
@@ -35,4 +35,4 @@ Ask a live source. If it answers, return that answer and the record that keeps i
 
 **Depends on:** Node 24.
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

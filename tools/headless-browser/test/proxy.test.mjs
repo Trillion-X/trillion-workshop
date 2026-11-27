@@ -1,4 +1,4 @@
-// A browser started for a run that is told a proxy (HTTPS_PROXY, as the engine tells every internet:true run) loads
+// A browser started for a run that is told a proxy (HTTPS_PROXY, as the engine tells every run that holds may_reach) loads
 // pages only through that proxy, loopback and private addresses included. The proxy here stands in for the engine's:
 // it carries one public-looking name (site.example) to a page on this computer and refuses every other address, as
 // the engine refuses this computer and private networks. Needs Chromium (Playwright's, from devDependencies).

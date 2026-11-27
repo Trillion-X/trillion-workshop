@@ -1,0 +1,439 @@
+{
+ "kind": "tool-rows",
+ "record_set": "copy-a-site-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/copy-a-site: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "payload": {
+    "uses_tools": [
+      "trillion-workshop/account-dashboard",
+      "trillion-workshop/account-session",
+      "trillion-workshop/addressed-marks",
+      "trillion-workshop/agents-hub",
+      "trillion-workshop/ai-execution-history",
+      "trillion-workshop/ai-guided-work",
+      "trillion-workshop/ai-memory",
+      "trillion-workshop/ai-records-producer",
+      "trillion-workshop/ai-tool-catalog",
+      "trillion-workshop/ambience",
+      "trillion-workshop/arrange-screens-in-panes",
+      "trillion-workshop/ask-a-small-model-for-a-verdict",
+      "trillion-workshop/audio-transcription",
+      "trillion-workshop/away-summary",
+      "trillion-workshop/background-runner-control",
+      "trillion-workshop/bring-in-new-items-from-this-computer",
+      "trillion-workshop/browse-and-upload-my-files",
+      "trillion-workshop/browse-inspiration-clips",
+      "trillion-workshop/browse-public-page",
+      "trillion-workshop/build-a-screen-from-patches",
+      "trillion-workshop/build-engine-modules-for-web-hosts",
+      "trillion-workshop/calibrate-a-camera-frame",
+      "trillion-workshop/chat",
+      "trillion-workshop/check-a-packages-declared-permissions",
+      "trillion-workshop/check-against-a-persons-rules-and-verdicts",
+      "trillion-workshop/check-bundle-package-boundaries",
+      "trillion-workshop/check-consent-to-an-introduction",
+      "trillion-workshop/choose-and-publish-screen-looks",
+      "trillion-workshop/command-palette",
+      "trillion-workshop/composition-scene-renderer",
+      "trillion-workshop/computer-programs",
+      "trillion-workshop/connect-a-service-and-seal-its-key",
+      "trillion-workshop/content-identity",
+      "trillion-workshop/content-media-evidence",
+      "trillion-workshop/conversations",
+      "trillion-workshop/decide-when-things-show",
+      "trillion-workshop/decide-with-a-method",
+      "trillion-workshop/delight-moments",
+      "trillion-workshop/describe-the-workshop",
+      "trillion-workshop/documents",
+      "trillion-workshop/documents-as-list-rows",
+      "trillion-workshop/draw-lists-on-a-canvas",
+      "trillion-workshop/draw-the-apps-icon-in-every-size-from",
+      "trillion-workshop/drive-the-screen",
+      "trillion-workshop/edit-a-document-together",
+      "trillion-workshop/edit-a-site-visually",
+      "trillion-workshop/feel",
+      "trillion-workshop/file-content-renderer",
+      "trillion-workshop/fill-a-list-from-a-feed",
+      "trillion-workshop/find-anything-from-one-box",
+      "trillion-workshop/formula-engine",
+      "trillion-workshop/founder-growth-engine-screens",
+      "trillion-workshop/funnel-offer-graph",
+      "trillion-workshop/funnels-screen",
+      "trillion-workshop/graph-canvas",
+      "trillion-workshop/guided-overlay",
+      "trillion-workshop/hand-off-jobs-between-agents",
+      "trillion-workshop/hand-work-to-ais",
+      "trillion-workshop/headless-browser",
+      "trillion-workshop/hold-one-thing-until-done",
+      "trillion-workshop/http-client",
+      "trillion-workshop/introduce-two-people",
+      "trillion-workshop/judge-words",
+      "trillion-workshop/keep-and-wake-ai-sessions-on-this-computer",
+      "trillion-workshop/keep-copies-in-step",
+      "trillion-workshop/keep-lists-of-rows",
+      "trillion-workshop/keep-records-only-my-devices-can-read",
+      "trillion-workshop/know-the-projects-on-this-computer",
+      "trillion-workshop/know-who-is-in-this",
+      "trillion-workshop/learn-a-workflow-from-a-job",
+      "trillion-workshop/learn-from-everyones-results",
+      "trillion-workshop/leave-a-makers-private-starting-values-out",
+      "trillion-workshop/lessons-and-learning-paths",
+      "trillion-workshop/let-someone-look-at-my-account-read",
+      "trillion-workshop/list-tools-for-an-ai",
+      "trillion-workshop/listen-for-a-while",
+      "trillion-workshop/live-namespace",
+      "trillion-workshop/local-files",
+      "trillion-workshop/look-at-screen",
+      "trillion-workshop/make-a-video-playable-at-ingest",
+      "trillion-workshop/make-screen-layouts-and-controls",
+      "trillion-workshop/make-things-feel-good",
+      "trillion-workshop/marketplace-defaults",
+      "trillion-workshop/media-composition",
+      "trillion-workshop/media-identity",
+      "trillion-workshop/media-playback",
+      "trillion-workshop/messages-screen",
+      "trillion-workshop/model-response",
+      "trillion-workshop/models-on-this-computer",
+      "trillion-workshop/move-records-through-declared-states",
+      "trillion-workshop/native-space-source-release",
+      "trillion-workshop/network-people",
+      "trillion-workshop/operation-records",
+      "trillion-workshop/organize-my-files",
+      "trillion-workshop/organize-the-sidebar",
+      "trillion-workshop/outside-conversations",
+      "trillion-workshop/paid-access",
+      "trillion-workshop/pair-unknown-senders",
+      "trillion-workshop/permission-lease",
+      "trillion-workshop/person-list",
+      "trillion-workshop/pick-a-screen-as-you-type",
+      "trillion-workshop/pick-where-one-piece-of-work-runs-the-device",
+      "trillion-workshop/pin-files-by-content",
+      "trillion-workshop/plan-tasks-and-todo-lists",
+      "trillion-workshop/process-session",
+      "trillion-workshop/query-and-change-list-rows",
+      "trillion-workshop/quote-untrusted-words",
+      "trillion-workshop/read-and-write-mail",
+      "trillion-workshop/recently-deleted-and-storage",
+      "trillion-workshop/record-audio",
+      "trillion-workshop/record-graph",
+      "trillion-workshop/record-log",
+      "trillion-workshop/record-video",
+      "trillion-workshop/record-video-with-teleprompter",
+      "trillion-workshop/record-voice-and-meetings",
+      "trillion-workshop/records-door",
+      "trillion-workshop/refuse-requests-to-private-addresses",
+      "trillion-workshop/require-that-a-workflow-steps-ai-answer-comes",
+      "trillion-workshop/review-what-a-list-says",
+      "trillion-workshop/run-a-workflow-definition-on-the-workflow-engine-in-one-call",
+      "trillion-workshop/run-experiments",
+      "trillion-workshop/run-on-a-persons-computer",
+      "trillion-workshop/run-sql-in-my-database",
+      "trillion-workshop/run-tools-in-my-signed-in-browser",
+      "trillion-workshop/run-work-later-or-on-a-repeat",
+      "trillion-workshop/screen-arrangement",
+      "trillion-workshop/screen-look",
+      "trillion-workshop/screen-looks",
+      "trillion-workshop/screen-ready-records",
+      "trillion-workshop/screen-recording",
+      "trillion-workshop/sealed-records",
+      "trillion-workshop/see-a-pursuit-through-the-lens",
+      "trillion-workshop/see-what-is-being-worked-on",
+      "trillion-workshop/see-what-my-ais-did",
+      "trillion-workshop/selected-agent",
+      "trillion-workshop/send-requests-to-an-engine",
+      "trillion-workshop/send-to-trillion-from-my-browser",
+      "trillion-workshop/serialized-content",
+      "trillion-workshop/set-storage-release-rules",
+      "trillion-workshop/set-up-my-account",
+      "trillion-workshop/set-up-my-devices-and-cameras",
+      "trillion-workshop/settings",
+      "trillion-workshop/settle-amounts-and-reconcile",
+      "trillion-workshop/shared-code",
+      "trillion-workshop/show-any-file-as-itself",
+      "trillion-workshop/show-each-setup-step-with-the-real-things-found",
+      "trillion-workshop/show-ideas-as-records",
+      "trillion-workshop/show-one-shelf-of-everything-a-person-or-their-ai-can",
+      "trillion-workshop/sidebar",
+      "trillion-workshop/slot-table",
+      "trillion-workshop/social-posts",
+      "trillion-workshop/start-from-any-landing-page",
+      "trillion-workshop/starting-set",
+      "trillion-workshop/stream-an-answer-in-keyed-parts",
+      "trillion-workshop/take-pictures-out-of-a-zip-archive",
+      "trillion-workshop/tell-one-person-something-through-every-way-they",
+      "trillion-workshop/tell-the-person-something-on-all-of-their-own-phones-computers",
+      "trillion-workshop/tours-screen",
+      "trillion-workshop/transcript-reader",
+      "trillion-workshop/turn-a-list-column-that-holds-names-into",
+      "trillion-workshop/turn-frames-into-slides",
+      "trillion-workshop/tweak-live-controls",
+      "trillion-workshop/ui",
+      "trillion-workshop/view-as",
+      "trillion-workshop/walk-a-new-person-through-first-setup",
+      "trillion-workshop/walk-nested-input-within-limits",
+      "trillion-workshop/watch-my-sources",
+      "trillion-workshop/what-is-waiting-on-me",
+      "trillion-workshop/where-a-person-stands",
+      "trillion-workshop/who-does-each-step",
+      "trillion-workshop/work-map",
+      "trillion-workshop/workflow-canvas",
+      "trillion-workshop/workflow-interruptions",
+      "trillion-workshop/workflows",
+      "trillion-workshop/workspace-pieces",
+      "trillion-workshop/workspace-screens",
+      "trillion-workshop/write-a-job-done-in-several-steps-have",
+      "trillion-workshop/write-a-post-for-each-place"
+    ],
+    "kind": "ai-tool-descriptor",
+    "id": "tool:copy-a-site",
+    "listed_on": "2026-10-05T08:00:00Z",
+    "label": "Copy a website",
+    "status": "active",
+    "job": "Copy an existing live website, its pages as visitors see them plus its pictures, styles and fonts, into the files a public app is published from",
+    "description": "Opens each page of the site in a headless browser, waits for it to finish drawing, and keeps it as a visitor sees it with its scripts taken out; follows the site's own links up to the page limit and fetches same-site pictures, styles and fonts. Copied addresses point at the copy; omitted pages and files keep their original addresses. Returns site.json in your files: { files: { path: contents } }, which publish_public_app_definition takes as its files, and a list of what could not be copied and why. Works on public web sites: the engine lets it reach nothing else.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "The site's first page, like https://example.com/"
+      },
+      "max_pages": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 200,
+       "description": "The most pages to copy (default 60)"
+      },
+      "paths": {
+       "type": "array",
+       "maxItems": 200,
+       "items": {
+        "type": "string"
+       },
+       "description": "Pages to copy that no link reaches, like [\"/pricing\"]"
+      },
+      "exclude_paths": {
+       "type": "array",
+       "maxItems": 200,
+       "items": {
+        "type": "string"
+       },
+       "description": "Paths already copied in an earlier batch; they are not copied again"
+      },
+      "width": {
+       "type": "integer",
+       "minimum": 320,
+       "maximum": 2560,
+       "description": "Browser width in pixels the pages are drawn at (default 1280)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result",
+      "files"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "origin",
+        "pages",
+        "viewports",
+        "files",
+        "bytes",
+        "skipped"
+       ],
+       "properties": {
+        "origin": {
+         "type": "string"
+        },
+        "pages": {
+         "type": "array",
+         "minItems": 1
+        },
+        "viewports": {
+         "type": "array",
+         "minItems": 1,
+         "items": {
+          "type": "object",
+          "required": ["path", "width", "height", "device_scale_factor"],
+          "properties": {
+           "path": { "type": "string" },
+           "width": { "type": "integer", "minimum": 1 },
+           "height": { "type": "integer", "minimum": 1 },
+           "device_scale_factor": { "type": "number", "exclusiveMinimum": 0 }
+          }
+         },
+         "description": "Each copied page's measured CSS viewport, read from the browser, not echoed from the input."
+        },
+        "remaining_paths": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "redirects": {
+         "type": "array"
+        },
+        "asset_paths": {
+         "type": "array"
+        },
+        "all_skipped": {
+         "type": "array"
+        },
+        "files": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "bytes": {
+         "type": "integer",
+         "minimum": 1
+        },
+        "skipped": {
+         "type": "array"
+        }
+       }
+      },
+      "files": {
+       "type": "object",
+       "required": [
+        "site"
+       ],
+       "properties": {
+        "site": {
+         "type": "object",
+         "required": [
+          "identity",
+          "bytes",
+          "media_type",
+          "name"
+         ]
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "programs": {
+      "chrome-headless-shell": {
+       "fetch": {
+        "macos-aarch64": {
+         "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/mac-arm64/chrome-headless-shell-mac-arm64.zip",
+         "version": "153.0.8010.12",
+         "archive": "zip",
+         "blake3": "f9daf3404db01b9bd1434183a6a49f1f3e6961ceb921ad2d113d5212c476194a",
+         "executable": "chrome-headless-shell-mac-arm64/chrome-headless-shell",
+         "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+        },
+        "linux-x86_64": {
+         "url": "https://storage.googleapis.com/chrome-for-testing-public/153.0.8010.12/linux64/chrome-headless-shell-linux64.zip",
+         "version": "153.0.8010.12",
+         "archive": "zip",
+         "blake3": "abccf17437cf7bd491fa423539d416a14ef08a4624215341684bdc3aefc72a47",
+         "executable": "chrome-headless-shell-linux64/chrome-headless-shell",
+         "checked_against": "https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json"
+        }
+       }
+      }
+     },
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "copy-a-site",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/copy-a-site"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json",
+         "devtools.mjs",
+         "browser-places.json"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "workdir": "/opt/copy-a-site",
+     "may_reach": [], "public_read": true,
+     "stdout": "json",
+     "run": [
+      "node",
+      "do-work/copy-a-site.mjs",
+      "--url",
+      {
+       "from": "url"
+      },
+      "--out",
+      "/opt/copy-a-site/out",
+      "--max-pages",
+      {
+       "from": "max_pages",
+       "otherwise": {
+        "const": 60
+       }
+      },
+      "--paths",
+      {
+       "from": "paths",
+       "otherwise": {
+        "const": []
+       }
+      },
+      "--exclude-paths",
+      {
+       "from": "exclude_paths",
+       "otherwise": {
+        "const": []
+       }
+      },
+      "--width",
+      {
+       "from": "width",
+       "otherwise": {
+        "const": 1280
+       }
+      }
+     ],
+     "outputs": [
+      {
+       "name": "site",
+       "path": "/opt/copy-a-site/out/site.json",
+       "keep_in": "files",
+       "media_type": "application/json",
+       "max_bytes": 200000000
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 240,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:copy-a-site",
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.files",
+      "at_least": 1
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,7 +1,7 @@
 import { realpathSync } from 'node:fs';
 // tools/tell-ais-how-to-act/do-work/read-how-ais-are-told.mjs
 //
-// The container tool `tool:read-how-ais-are-told` (tool-rows.json): reads the rows an AI is told when it first
+// The container tool `tool:read-how-ais-are-told` (what-this-tool-does-and-how-to-run-it.json): reads the rows an AI is told when it first
 // connects (../rows.json). With no id it answers every row's id, order, whether it is on, where it reaches and how
 // long it is; with an id it answers that row whole. It changes nothing: a person changes what their own AIs are
 // told with their own setting records, never by editing this file's answer.

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/name-voices-from-the-call/tool-rows.json (tool:guess-voice-suggestions) and read-data/guess-voices.mjs; the rules come from the Waiting on you DATA; no live call was made",
+  "drafted_from": "tools/name-voices-from-the-call/what-this-tool-does-and-how-to-run-it.json (tool:guess-voice-suggestions) and read-data/guess-voices.mjs; the rules come from the Waiting on you DATA; no live call was made",
   "start_here": "Say to your AI: \"Guess who the unnamed voices from my calls are, and show me the likeliest person for each.\" The Waiting on you card opens with each voice's likeliest person and the reason beside it.",
   "lists": [],
   "no_lists_because": "It reads no list itself: the caller hands in the people rows and the evidence, and the tool only answers the guesses. Nothing is written.",

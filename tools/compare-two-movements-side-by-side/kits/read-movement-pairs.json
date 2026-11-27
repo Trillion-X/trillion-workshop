@@ -33,5 +33,5 @@
       "hands_back": "{\"pairs\":[{\"id\":\"a\",\"place\":0,\"title\":\"Turn\",\"caption\":\"\",\"featured\":false,\"video\":{\"label\":\"\",\"video\":\"a-both.mp4\",\"start_s\":0}}]}"
     }
   ],
-  "drafted_from": "tool row in tools/compare-two-movements-side-by-side/tool-rows.json and tools/compare-two-movements-side-by-side/do-work/pair.ts"
+  "drafted_from": "tool row in tools/compare-two-movements-side-by-side/what-this-tool-does-and-how-to-run-it.json and tools/compare-two-movements-side-by-side/do-work/pair.ts"
 }

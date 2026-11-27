@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/tool-rows.json, do-work/ingest_channel_intake.py and test/test_channel_intake_append_new.py (run on its fixture)",
+  "drafted_from": "tool row in tools/keep-a-video-packaging-ledger/what-this-tool-does-and-how-to-run-it.json, do-work/ingest_channel_intake.py and test/test_channel_intake_append_new.py (run on its fixture)",
   "start_here": "Say to your AI: \"Add the two videos I reviewed in admission/batch to my packaging ledger under source key ch-example-videos, as a later batch (append new), working in /work/example-channel.\" It reads the tool's row, then runs ingest_channel_intake.py on your computer and tells you how many rows the ledger has now.",
   "lists": [],
   "no_lists_because": "It keeps no Trillion list: the ledger is a JSON Lines file in the person's own working folder, one row per video, and the tool reads and writes files there.",

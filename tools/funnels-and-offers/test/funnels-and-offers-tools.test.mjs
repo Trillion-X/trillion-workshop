@@ -1,5 +1,5 @@
 // tools/funnels-and-offers/test/funnels-and-offers-tools.test.mjs
-// Each tool runs the way its row runs it: its argv, in the folder its workdir stands for.
+// Each tool runs the way its row runs it: its run, in the folder its workdir stands for.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -14,7 +14,7 @@ function runByRow(toolId, input) {
   assert.ok(row, `${toolId} is a row in records.json`);
   // The tool's own folder is the first packed; a tool that runs the list engine packs its files after it.
   assert.equal(row.invoke.workdir, [row.invoke.files.package_files].flat()[0].at);
-  const argv = row.invoke.argv.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
+  const argv = row.invoke.run.map(item => (typeof item === 'string' ? item : JSON.stringify(input)));
   const ran = spawnSync(process.execPath, argv.slice(1), { cwd: folder, encoding: 'utf8' });
   if (ran.status !== 0) return { refused: ran.stderr.trim() };
   return JSON.parse(ran.stdout.trim().split('\n').at(-1));

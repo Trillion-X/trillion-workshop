@@ -46,7 +46,7 @@ if (process.argv[2] === 'profile-readback') {
       for (const name of helpers) copy(join('test-helpers', name));
       for (const file of ['tools/content-identity/read-data/identity.mjs', 'tools/content-identity/read-data/blake3.mjs',
         'tools/process-session/do-work/place-cache-folder.mjs', 'test-helpers/tool-rows.mjs']) copy(file);
-      const rows = JSON.parse(readFileSync(join(root, 'tools/check-a-port-against-its-source/tool-rows.json'), 'utf8'));
+      const rows = JSON.parse(readFileSync(join(root, 'tools/check-a-port-against-its-source/what-this-tool-does-and-how-to-run-it.json'), 'utf8'));
       const tool = rows.records.find(row => row.payload.id === 'tool:check-a-reference-adaptation-contract').payload;
       const dependency = tool.invoke.files.package_files.find(row => row.module === '@noble/hashes');
       for (const file of dependency.paths) copy(join('node_modules', dependency.module, file));

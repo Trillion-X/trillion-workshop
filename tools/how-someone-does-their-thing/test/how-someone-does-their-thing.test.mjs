@@ -93,11 +93,11 @@ const run = (script, input) => new Promise((resolve) => {
 });
 
 test('each row runs as the container runs it and its sample gives the text it promises', async () => {
-  const rows = JSON.parse(await readFile(join(folder, 'tool-rows.json'), 'utf8')).records.map((record) => record.payload).filter((row) => row.invoke.argv[1].startsWith('do-work/'));
+  const rows = JSON.parse(await readFile(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map((record) => record.payload).filter((row) => row.invoke.run[1].startsWith('do-work/'));
   assert.equal(rows.length, 6);
   for (const row of rows) {
     const [sample] = row.verify;
-    const script = row.invoke.argv[1].replace('do-work/', '');
+    const script = row.invoke.run[1].replace('do-work/', '');
     const { code, out } = await run(script, sample.input);
     assert.equal(code, 0, row.id);
     const path = sample.output_selector.replace('$.', '').split('.');
@@ -113,7 +113,7 @@ test('a refused request prints its reason and fails', async () => {
 });
 
 test('the folder names no one: no real subject, no path, no house list', async () => {
-  for (const file of ['read-data/profile.mjs', 'tool-rows.json', 'README.md']) {
+  for (const file of ['read-data/profile.mjs', 'what-this-tool-does-and-how-to-run-it.json', 'README.md']) {
     const body = await readFile(join(folder, file), 'utf8');
     assert.doesNotMatch(body, /\/Users\//, file);
     assert.doesNotMatch(body, /@[a-z0-9-]+\.[a-z]{2,}/i, file);

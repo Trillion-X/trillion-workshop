@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { resolvedInvoke } from './by-input.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const rows = JSON.parse(readFileSync(join(HERE, '..', 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(join(HERE, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const row = id => rows.find(payload => payload.id === id);
 const checkOf = slug => { const check = row('tool:check-a-connection'); return { ...check, invoke: resolvedInvoke(check, { place: slug }) }; };
 const PLACE_HOSTS = ['www.googleapis.com', 'youtube.googleapis.com'];
@@ -25,8 +25,8 @@ test('the YouTube connection check asks for the channel the connection signs in 
   assert.deepEqual(check.invoke.connection, { vendor: 'youtube', from_input: 'account_id' });
   assert.deepEqual(check.input_schema.required, ['place', 'account_id']);
   assert.equal(check.invoke.credential_injections[0].field_id, 'access_token');
+  assert.deepEqual(check.invoke.may_reach, ['www.googleapis.com']);
   for (const inj of check.invoke.credential_injections) {
-    assert.deepEqual(inj.hosts, ['www.googleapis.com']);
     assert.deepEqual(inj.placement, { kind: 'header', name: 'Authorization', prefix: 'Bearer ' });
   }
 });
@@ -48,9 +48,7 @@ test('the list of the channel videos reads the uploads playlist, unlisted and pr
 test('neither new row names a secret value or a host outside the place hosts', () => {
   for (const [id, rowFor] of [['the youtube check', () => checkOf('youtube')], ['tool:list-my-youtube-videos', () => row('tool:list-my-youtube-videos')]]) {
     assert.doesNotMatch(JSON.stringify(rowFor()), /ya29\.|refresh_token=|client_secret/);
-    for (const inj of rowFor().invoke.credential_injections) {
-      for (const host of inj.hosts) assert.ok(PLACE_HOSTS.includes(host));
-    }
+    for (const host of rowFor().invoke.may_reach) assert.ok(PLACE_HOSTS.includes(host));
   }
 });
 
@@ -70,9 +68,7 @@ test('the comment reader asks for one video\'s top-level threads, read only, pag
   assert.deepEqual(read.invoke.connection, { vendor: 'youtube', from_input: 'account_id' });
   assert.deepEqual(read.input_schema.required, ['account_id', 'video_id']);
   assert.equal(read.invoke.credential_injections[0].field_id, 'access_token');
-  for (const inj of read.invoke.credential_injections) {
-    assert.deepEqual(inj.hosts, ['www.googleapis.com']);
-  }
+  assert.deepEqual(read.invoke.may_reach, ['www.googleapis.com']);
   assert.doesNotMatch(JSON.stringify(read), /ya29\.|refresh_token=|client_secret=|\bkey=/);
   assert.match(read.description, /posts, rates and moderates nothing/i);
 });

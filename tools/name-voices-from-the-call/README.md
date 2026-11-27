@@ -8,7 +8,7 @@ Names the voices of a recorded call from what the call app showed on screen, so 
 |------|---------|
 | `read-data/name-from-the-call.mjs` | `rowFor`, `namesSpeaking`, `intervalsOf`, `reconcile`, `callTools.name`, and the named export `name` that `run-a-function.mjs` calls. |
 | `read-data/name-from-the-call.json` | Which element field marks a speaker, how a name is cut from it, the app's lag, the label of an unnamed voice, the thresholds, the evidence sentence and every sentence said. |
-| `tool-rows.json` | `tool:name-voices-from-the-call`, a `computer` row with no capability, run by `tools/workflows`'s `run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:name-voices-from-the-call`, a `computer` row with no capability, run by `tools/workflows`'s `run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/name-from-the-call.test.mjs` | The old app's tests, repointed to this folder. |
 | `test/tool-rows.test.mjs` | The row, and `apply` answering each name as a name_speaker write. |
@@ -35,4 +35,4 @@ Names the voices of a recorded call from what the call app showed on screen, so 
 
 **Depends on:** `tools/workflows` (`run-a-function.mjs`) and Node's standard library. The samples come from the caller, for example `tools/read-what-is-on-screen`. The turns come from `tool:who-is-in-this` (`tools/know-who-is-in-this`).
 
-**Depended on by:** `tool-rows.json`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`.

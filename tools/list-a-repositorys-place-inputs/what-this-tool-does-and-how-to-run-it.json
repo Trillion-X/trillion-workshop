@@ -1,0 +1,104 @@
+{
+  "kind": "package-set-records",
+  "record_set": "list-a-repositorys-place-inputs-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-a-repositorys-place-inputs",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:list-a-repositorys-place-inputs",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "label": "List the inputs a repository needs from this computer",
+        "job": "Find named environment and place-report inputs read by tracked code, without revealing their values",
+        "description": "Scans tracked Python, shell and JavaScript source for the original environment and place-report patterns. Lists names, reader files, presence, and run switches. Does not execute repository code.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "inputs"
+          ],
+          "properties": {
+            "inputs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "files",
+                  "run_switch",
+                  "set"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "run_switch": {
+                    "type": "boolean"
+                  },
+                  "set": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program",
+            "read-a-folder"
+          ],
+          "workdir": "/opt/list-a-repositorys-place-inputs",
+          "stdout": "json",
+          "run": [
+            "python3",
+            "-I",
+            "/opt/list-a-repositorys-place-inputs/read-data/list_inputs.py",
+            "--root",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            },
+            "--json"
+          ],
+          "files": {
+            "package_files": [
+              {
+                "package": "list-a-repositorys-place-inputs",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/list-a-repositorys-place-inputs"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved one to one from a film repository's place-capabilities input scanner."
+        }
+      }
+    }
+  ]
+}

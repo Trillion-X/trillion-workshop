@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:enroll-someone's own row (its words and input schema) in tools/know-who-is-in-this/tool-rows.json; it runs as a tool of the person's own computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:enroll-someone's own row (its words and input schema) in tools/know-who-is-in-this/what-this-tool-does-and-how-to-run-it.json; it runs as a tool of the person's own computer and has no sample run here, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Teach my computer Sam Example's voice from /Work/demo/sam.wav; Sam said yes in the 3 Oct standup\", with {\"name\": \"Sam Example\", \"kind\": \"voice\", \"consent\": \"Sam said yes in the 3 Oct standup\", \"path\": \"/Work/demo/sam.wav\"}. It runs tool:enroll-someone on your computer and keeps Sam's voice print there.",
   "lists": [],
   "no_lists_because": "It keeps no list of yours: it keeps one voice or face print on your computer, with the consent words it was given.",

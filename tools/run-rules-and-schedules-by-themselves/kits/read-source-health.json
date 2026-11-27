@@ -1,5 +1,5 @@
 {
-  "drafted_from": "the tool row in tool-rows.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
+  "drafted_from": "the tool row in what-this-tool-does-and-how-to-run-it.json (its words, input schema and status) and the code it points to in this folder; read it before relying on it",
   "start_here": "Say to your AI: \"Show how each source my automations use is doing today\". Once this row is on, it reads each source's arrivals, runs and last error, and says whether it is working, quiet, failing or not connected. It is off (status inactive) until the scheduling owner accepts the call shape; while it is off, the AI says so and does not pretend a schedule was kept.",
   "lists": [],
   "no_lists_because": "The health is read from the sources given; the row keeps nothing.",

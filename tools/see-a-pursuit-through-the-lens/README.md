@@ -29,5 +29,5 @@ in a small container and keeps nothing:
 | `do-work/see-a-pursuit-through-the-lens.mjs` | The tool's run: the lens handed in, answered by the module. |
 | `read-data/see-a-pursuit-through-the-lens.json` | Every refusal's words. |
 | `test/see-a-pursuit-through-the-lens.test.mjs` | A made-up lens: the module, the tool with the lens handed in, refusals, and the row run with no records door. |
-| `tool-rows.json` | The Workshop row. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row. |
 | `part.json` | Public files, and the tree that imports them. |

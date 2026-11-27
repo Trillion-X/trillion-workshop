@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:make-a-frame-contact-sheet-of-a-video-section row in tool-rows.json, do-work/make_contact_sheet.py and test/make-contact-sheet.test.mjs",
+  "drafted_from": "tool:make-a-frame-contact-sheet-of-a-video-section row in what-this-tool-does-and-how-to-run-it.json, do-work/make_contact_sheet.py and test/make-contact-sheet.test.mjs",
   "start_here": "Say to your AI: \"Show me what happens from second 10 to second 50 of https://video.example/watch/abc as one picture, a frame every 4 seconds, and put it in the folder work/sheets.\" It runs the command on your computer and opens the sheet it makes.",
   "lists": [],
   "no_lists_because": "It names no list: it makes a clip, a sheet and a log in the folder you give it and keeps no rows.",

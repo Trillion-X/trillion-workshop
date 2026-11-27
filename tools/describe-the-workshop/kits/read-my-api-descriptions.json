@@ -1,6 +1,6 @@
 {
   "draft": true,
-  "drafted_from": "tool:read-my-api-descriptions's own row (its words, input schema and sample run) in tools/describe-the-workshop/tool-rows.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
+  "drafted_from": "tool:read-my-api-descriptions's own row (its words, input schema and sample run) in tools/describe-the-workshop/what-this-tool-does-and-how-to-run-it.json; its sample run did not end well in the landing check, so this kit is a draft until a real run's answer is put in",
   "start_here": "Say to your AI: \"Read the tools my connected API descriptions offer right now\", with {\"wait\": false}. It runs tool:read-my-api-descriptions and answers each connected source with the tools it offers.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it reads your connected sources and answers, and keeps no row.",

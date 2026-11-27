@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import { realpathSync } from 'node:fs';
 // tools/list-and-run-my-tools-for-any-ai/do-work/unpublish-tool-in-database.mjs
 //
-// tool:unpublish-tool, one container process (tool-rows.json): withdraws one listing from the database the request names. The
+// tool:unpublish-tool, one container process (what-this-tool-does-and-how-to-run-it.json): withdraws one listing from the database the request names. The
 // connection and the request are read as tool:publish-tool's are (publish-tool-in-database.mjs); the withdrawal rules are unpublishTool's.
 import { unpublishTool } from './publish-tool.mjs';
 import { runInDatabase } from './publish-tool-in-database.mjs';

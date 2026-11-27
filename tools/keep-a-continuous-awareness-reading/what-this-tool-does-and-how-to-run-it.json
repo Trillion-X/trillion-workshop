@@ -1,0 +1,150 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-a-continuous-awareness-reading-tool-rows",
+  "what_this_is": "The Workshop row for reading what the continuous awareness reading has figured out about a person and when its next reading is due. Its pure reads run in a small container; the reading that writes the picture runs in the engine with the person's own SQL and routing.",
+  "records": [
+    {
+      "id": "package::keep-a-continuous-awareness-reading::tool::keep-a-continuous-awareness-reading",
+      "address": "package::keep-a-continuous-awareness-reading::tool::keep-a-continuous-awareness-reading",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-continuous-awareness-reading",
+        "label": "Read the picture of a person and when the next reading is due",
+        "status": "active",
+        "job": "Show what the continuous reading has figured out about a person (their picture, what it is still reading, their map) and when the next reading is due, from the state the caller hands in",
+        "description": "Give action ('read' for the picture, reading state and map; 'next_due' for when the next reading is due), settings (the awareness rows), state ({ allowed, picture, reading, pending, stated, unread, map_rows }), and now (milliseconds) and, with map_rows, map_list_id and mapSettings. Returns the picture view with its reading state and the map's placement, or { next_due }. Pure: reads no store and asks no model; the caller reads its own rows and hands them in. The reading that writes the picture runs in the engine with the store's SQL and the routing owner's model road.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "action",
+            "settings",
+            "state"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "read",
+                "next_due"
+              ]
+            },
+            "settings": {
+              "type": "object"
+            },
+            "mapSettings": {
+              "type": "object"
+            },
+            "map_list_id": {
+              "type": "string"
+            },
+            "now": {
+              "type": "number"
+            },
+            "state": {
+              "type": "object",
+              "properties": {
+                "allowed": {
+                  "type": "boolean"
+                },
+                "picture": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "reading": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "pending": {
+                  "type": [
+                    "object",
+                    "null"
+                  ]
+                },
+                "stated": {
+                  "type": "array"
+                },
+                "unread": {
+                  "type": "boolean"
+                },
+                "map_rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/keep-a-continuous-awareness-reading",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/workflows/do-work/run-a-function.mjs",
+            "/opt/keep-a-continuous-awareness-reading/do-work/read-awareness.mjs",
+            "readAwareness"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-a-continuous-awareness-reading",
+                "paths": [
+                  "do-work",
+                  "src"
+                ],
+                "at": "/opt/keep-a-continuous-awareness-reading"
+              },
+              {
+                "package": "place-pursuits-on-a-life-map",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/place-pursuits-on-a-life-map"
+              },
+              {
+                "package": "workflows",
+                "paths": [
+                  "do-work/run-a-function.mjs"
+                ],
+                "at": "/opt/workflows"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-a-continuous-awareness-reading",
+        "provenance": {
+          "source": "the old repository, src/awareness.mjs at commit b6ae0ebf8 (awarenessReader ported; see README)"
+        }
+      }
+    }
+  ]
+}

@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
 const folder = resolve(import.meta.dirname, '..');
-const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+const rows = JSON.parse(readFileSync(resolve(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
 const row = id => rows.find(item => item.id === id);
 
 function run(command, granted, input) {
@@ -37,10 +37,10 @@ test('both folder rows run on the person\'s computer with only the folder capabi
   assert.deepEqual(folderRows.map(item => item.invoke.capabilities), [['read-a-folder'], ['change-a-folder']]);
   for (const item of folderRows) {
     assert.equal(item.invoke.kind, 'computer');
-    assert.notEqual(item.invoke.internet, true);
+    assert.equal(item.invoke.may_reach, undefined);
     assert.deepEqual(item.placements, ['placement:your-computer']);
     assert.equal(item.result_selector, '$.result');
-    assert.deepEqual(item.invoke.argv.at(-1), { fill: { from: 'task', field: `grants.${item.invoke.capabilities[0]}.folder` } });
+    assert.deepEqual(item.invoke.run.at(-1), { fill: { from: 'task', field: `grants.${item.invoke.capabilities[0]}.folder` } });
   }
 });
 

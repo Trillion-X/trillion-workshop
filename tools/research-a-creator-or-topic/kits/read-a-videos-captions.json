@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/research-a-creator-or-topic/tool-rows.json (tool:read-a-videos-captions), do-work/research-from-this-computer.mjs (videoCaptions) and sources.mjs, test/commands.test.mjs",
+  "drafted_from": "tools/research-a-creator-or-topic/what-this-tool-does-and-how-to-run-it.json (tool:read-a-videos-captions), do-work/research-from-this-computer.mjs (videoCaptions) and sources.mjs, test/commands.test.mjs",
   "start_here": "Say to your AI: \"Get the words spoken in the video vid-aaa from its captions and tell me what it teaches.\" It runs the captions command on your computer with yt-dlp and reads the transcript from the file it writes.",
   "lists": [],
   "no_lists_because": "It keeps no list: it asks yt-dlp for one video's captions and writes the words to one JSON file on your computer.",

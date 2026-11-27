@@ -96,7 +96,7 @@ test('the sender is wrapped so that any request that is not a GET is refused bef
 });
 
 test('every read row names a GET operation of the operation map, and an input the tool row also names', () => {
-  const rows = JSON.parse(readFileSync(fileURLToPath(new URL('../tool-rows.json', import.meta.url)), 'utf8')).records.map(record => record.payload ?? record);
+  const rows = JSON.parse(readFileSync(fileURLToPath(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url)), 'utf8')).records.map(record => record.payload ?? record);
   for (const read of readShapes.reads) {
     const operation = operationMap.operations.find(candidate => candidate.operation_id === read.operation_id);
     assert.equal(operation?.method, 'GET', `${read.read_id} must be a GET operation`);
@@ -104,7 +104,7 @@ test('every read row names a GET operation of the operation map, and an input th
   for (const id of ['tool:read-stripe-promotion-codes', 'tool:read-stripe-promotion-codes-in-test-mode']) {
     const row = rows.find(candidate => candidate.id === id);
     assert.deepEqual(Object.keys(row.input_schema.properties).filter(name => name !== 'seller_connection' && name !== 'secret_name').sort(), Object.keys(readShapes.reads[0].inputs).sort(), id);
-    assert.equal(row.invoke.credential_mounts.length, id.endsWith('-in-test-mode') ? 1 : 3);
+    assert.equal(row.invoke.key.length, id.endsWith('-in-test-mode') ? 1 : 3);
   }
 });
 

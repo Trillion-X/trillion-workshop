@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:make-a-login-on-every-computer's row in tool-rows.json, do-work/make-a-login.mjs and test/make-a-login.test.mjs",
+  "drafted_from": "tool:make-a-login-on-every-computer's row in what-this-tool-does-and-how-to-run-it.json, do-work/make-a-login.mjs and test/make-a-login.test.mjs",
   "start_here": "Say to your AI: \"Make this computer's login for my pursuit's database, and give it the post writer's rights.\" It runs the script on this computer with the input on stdin: the login name, the database, its address, this computer's short name, the operator login, and the grants recipe. It tells you only the held name, the role, and whether the role was made.",
   "lists": [],
   "no_lists_because": "It keeps no list: it writes one named connection value into this computer's vault and makes one database role, and it answers only the held name, the role and what was made.",

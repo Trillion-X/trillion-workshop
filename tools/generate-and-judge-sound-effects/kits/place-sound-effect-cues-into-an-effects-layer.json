@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:place-sound-effect-cues-into-an-effects-layer row in tools/generate-and-judge-sound-effects/tool-rows.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
+  "drafted_from": "tool:place-sound-effect-cues-into-an-effects-layer row in tools/generate-and-judge-sound-effects/what-this-tool-does-and-how-to-run-it.json, its script in tools/generate-and-judge-sound-effects/do-work/ and tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py (run for real on made-up tones)",
   "start_here": "Say to your AI: \"Place the cues in /work/sfx/cues.json from palette /work/sfx/a into one effects-only track at /work/sfx/a-layer.wav and tell me its loudness.\" It runs the placer and reads the layer's LUFS.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads CUES.json and the palette's WAV files on this computer and writes one WAV layer.",

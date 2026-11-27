@@ -33,5 +33,5 @@
       "hands_back": "{\"courses\":[{\"slug\":\"first-principles\",\"title\":\"First principles\",\"short_description\":\"How the stroke works.\",\"category\":\"Technique\",\"image\":\"abc123\"}]}"
     }
   ],
-  "drafted_from": "tool row in tools/lessons-and-learning-paths/tool-rows.json and do-work/courses.ts"
+  "drafted_from": "tool row in tools/lessons-and-learning-paths/what-this-tool-does-and-how-to-run-it.json and do-work/courses.ts"
 }

@@ -16,7 +16,7 @@ import { globCovers, isJudged, judgeDeletions, pathIdentity } from '../do-work/c
 
 const RUNNER = resolve(import.meta.dirname, '..', '..', 'check-every-tool-call', 'do-work', 'check_switches.py');
 const ROW = JSON.parse(readFileSync(new URL('../read-data/check-row.json', import.meta.url), 'utf8'));
-const TOOL = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records[0].payload;
+const TOOL = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records[0].payload;
 
 async function door(t, records) {
   const server = createServer((request, response) => {
@@ -221,7 +221,7 @@ test('the tool row judges a range in the checkout the person granted, and answer
   old.commit('drop a');
   // The row's own argv, with /opt/<package> read as this tree's tools folder and the grant as the checkout.
   const tools = resolve(import.meta.dirname, '..', '..');
-  const argv = TOOL.invoke.argv.map((one) => typeof one === 'string' ? one.replace(/^\/opt\//, `${tools}/`) : old.root);
+  const argv = TOOL.invoke.run.map((one) => typeof one === 'string' ? one.replace(/^\/opt\//, `${tools}/`) : old.root);
   const run = (input) => spawnSync(argv[0], argv.slice(1), { input: JSON.stringify(input), encoding: 'utf8' });
 
   const refused = run({ range: `${start}..HEAD` });

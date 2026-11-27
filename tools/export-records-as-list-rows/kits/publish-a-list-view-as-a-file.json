@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:publish-a-list-view-as-a-file row (tools/export-records-as-list-rows/tool-rows.json), do-work/publish_view_file.py, read-data/view_publish.py and test/test_view_publish.py; the answers are what the script printed on made-up bakery news rows",
+  "drafted_from": "tool:publish-a-list-view-as-a-file row (tools/export-records-as-list-rows/what-this-tool-does-and-how-to-run-it.json), do-work/publish_view_file.py, read-data/view_publish.py and test/test_view_publish.py; the answers are what the script printed on made-up bakery news rows",
   "start_here": "Say to your AI: \"Publish what my news view shows into site/news.json so my website can render it, and tell me whether the file changed.\"",
   "lists": [],
   "no_lists_because": "It keeps no list of its own: it takes one read of a saved view from a file and writes the rows into one file for a site.",

@@ -17,7 +17,7 @@ const hash = bytes => makeHashCodeHexFromBytes(bytes).split(':')[1];
 const repositoryRoot = fileURLToPath(new URL('../../../', import.meta.url));
 
 test('the owned tool descriptor exposes the same purpose, job and non-delivery result as the normal caller', () => {
-  const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
   const descriptor = rows.records.find(row => row.payload.id === TOOL_ID).payload;
   assert.deepEqual(descriptor.input_schema.properties.purpose.enum, ['final_delivery', 'private_layout_proof']);
   assert.equal(descriptor.input_schema.properties.purpose.default, 'final_delivery');

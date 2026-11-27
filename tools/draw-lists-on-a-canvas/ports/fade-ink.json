@@ -51,7 +51,7 @@
    ]
   },
   "test_refs": [
-   "tools/draw-lists-on-a-canvas/tool-rows.json sample run (tool:fade-live-ink-marks)"
+   "tools/draw-lists-on-a-canvas/what-this-tool-does-and-how-to-run-it.json sample run (tool:fade-live-ink-marks)"
   ]
  }
 }

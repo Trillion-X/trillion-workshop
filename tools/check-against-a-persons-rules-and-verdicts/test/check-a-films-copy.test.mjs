@@ -188,7 +188,7 @@ test('declared plans refuse a missing plan, missing recordings never soften a ru
 });
 
 test('the film descriptor declares the plans and recordings request used by the origin check', async () => {
-  const row = JSON.parse(readFileSync(join(here, 'tool-rows.json'), 'utf8')).records.find(record => record.payload.id === 'tool:check-a-films-copy').payload;
+  const row = JSON.parse(readFileSync(join(here, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.find(record => record.payload.id === 'tool:check-a-films-copy').payload;
   const input = { branch: 'made-up-video', settings_record: settingRecord(),
     files: [{ name: 'SCRIPT.md', text: script(['Three zorblax.', 'Moment zorblax.']) }], plan: 'public.json',
     plans: { 'public.json': { segments: [{ clip: 'C1', from: 2, to: 3 }, { clip: 'C2', from: 2, to: 3 }] } },

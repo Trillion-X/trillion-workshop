@@ -29,7 +29,7 @@
           }
         }
       },
-      "given": "Reads tools/tidycal/tool-rows.json: a POST to https://tidycal.com/api/booking-types with the vault key tidycal-api-token. The body is always private, free (price 0), not in the public directory (in_gallery_at null) and 30 days of availability; the caller gives only title, description, duration and url slug.",
+      "given": "Reads tools/tidycal/what-this-tool-does-and-how-to-run-it.json: a POST to https://tidycal.com/api/booking-types with the vault key tidycal-api-token. The body is always private, free (price 0), not in the public directory (in_gallery_at null) and 30 days of availability; the caller gives only title, description, duration and url slug.",
       "hands_back": "It answers the new booking type with its id and url slug, for example id 9999999 with url slug test-pipeline-7k2q. Real values come from the live TidyCal answer."
     }
   ]

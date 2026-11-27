@@ -48,7 +48,7 @@
    ]
   },
   "test_refs": [
-   "tools/transcript-reader/tool-rows.json sample run (tool:edit-a-transcript)"
+   "tools/transcript-reader/what-this-tool-does-and-how-to-run-it.json sample run (tool:edit-a-transcript)"
   ]
  }
 }

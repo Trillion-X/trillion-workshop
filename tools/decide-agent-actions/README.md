@@ -27,7 +27,7 @@ The verdicts, the behaviours a rule may name in `then`, the default verdict, the
 | `do-work/requests.mjs` | One function per row; the core refuses a bad request with a sentence that says what to send |
 | `do-work/run-request.mjs` | `node do-work/run-request.mjs <function>`: the request on standard input, `{ result }` or `{ error }` out |
 | `part.json` | The one public module |
-| `tool-rows.json` | The two Workshop rows |
+| `what-this-tool-does-and-how-to-run-it.json` | The two Workshop rows |
 | `test/*.test.mjs` | The decision order, grants, declines, the dry run and the policy check; each row's sample run in the container shape and the refusals |
 
 ## The rows
@@ -49,4 +49,4 @@ The verdicts, the behaviours a rule may name in `then`, the default verdict, the
 
 ## Dependencies
 
-`tools/formulas` (`filterRecords`, to evaluate a rule's `when`) and `tools/content-identity` (the BLAKE3 identity, with the `@noble/hashes` module), both packed into the row's container. No records access, no credential and no network (`internet: false` on every row).
+`tools/formulas` (`filterRecords`, to evaluate a rule's `when`) and `tools/content-identity` (the BLAKE3 identity, with the `@noble/hashes` module), both packed into the row's container. No records access, no credential and no network (no row holds `may_reach`).

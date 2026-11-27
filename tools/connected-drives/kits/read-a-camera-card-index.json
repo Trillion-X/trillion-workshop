@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row tool:read-a-camera-card-index in tools/connected-drives/tool-rows.json, read-data/camera-card-index.mjs and read-data/camera-card-index.json, test/camera-card-index.test.mjs",
+  "drafted_from": "tool row tool:read-a-camera-card-index in tools/connected-drives/what-this-tool-does-and-how-to-run-it.json, read-data/camera-card-index.mjs and read-data/camera-card-index.json, test/camera-card-index.test.mjs",
   "start_here": "Say to your AI: \"Read the clips on my camera card, /Volumes/1TB SSD, as recording sessions.\" It runs tool:read-a-camera-card-index with path /Volumes/1TB SSD and hands back one seed per recording session: its words (pending), where it came from, and its clip list with times. Nothing on the card changes.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the card's own index and changes nothing. The seeds it describes are kept as rows of the person's seeds table by workflow:keep-each-camera-session-as-a-seed.",

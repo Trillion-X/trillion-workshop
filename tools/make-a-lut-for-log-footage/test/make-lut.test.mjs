@@ -15,7 +15,7 @@ import { fileURLToPath } from 'node:url';
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'make_lut.py');
 const fixture = join(folder, 'test', 'fixture');
-const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[0].payload;
+const row = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records[0].payload;
 const work = tempFolder(join(tmpdir(), 'make-lut-'));
 const python = (...argv) => spawnSync('python3', ['-I', ...argv], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const numpy = python('-c', 'import numpy');

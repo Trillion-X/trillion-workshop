@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/documents-as-list-rows/tool-rows.json (tool:split-a-document-into-item-documents), read-data/split.mjs, do-work/documents.mjs and test/documents-as-list-rows.test.mjs (the JSON list split); run on a made-up folder",
+  "drafted_from": "tools/documents-as-list-rows/what-this-tool-does-and-how-to-run-it.json (tool:split-a-document-into-item-documents), read-data/split.mjs, do-work/documents.mjs and test/documents-as-list-rows.test.mjs (the JSON list split); run on a made-up folder",
   "start_here": "Say to your AI: \"Split my garden notes in /tmp/garden-notes into one document per plant using the mapping file mapping.json, and check it first.\" It reads the tool row, runs the split with --check, then into an empty folder, and shows you the item documents.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it reads a mapping and documents in a folder and writes item documents and a leftover folder, keeping no rows.",

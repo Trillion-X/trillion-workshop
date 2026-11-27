@@ -8,7 +8,7 @@ Four scripts, run by the person's AI on the person's own computer. Python 3 with
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The four Workshop rows: `tool:add-reviewed-videos-to-a-packaging-ledger`, `tool:project-a-packaging-ledger-into-template-source`, `tool:check-a-packaging-intake-against-the-ledger`, `tool:check-a-compiled-packaging-template-against-the-ledger`. All `on-your-computer`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The four Workshop rows: `tool:add-reviewed-videos-to-a-packaging-ledger`, `tool:project-a-packaging-ledger-into-template-source`, `tool:check-a-packaging-intake-against-the-ledger`, `tool:check-a-compiled-packaging-template-against-the-ledger`. All `on-your-computer`. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/ingest_channel_intake.py` | Adds or reconciles explicitly admitted rows in the ledger (JSON Lines), and keeps its coverage summaries. |
 | `do-work/project_packaging_ledger.py` | Projects one source key into an HTML file holding one inert JSON records block, plus a `word-template-spec@1` spec that points at it. |

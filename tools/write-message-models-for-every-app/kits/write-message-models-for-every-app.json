@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:write-message-models-for-every-app's row in tools/write-message-models-for-every-app/tool-rows.json, do-work/write-message-models.mjs, read-data/sample-models.json and test/write-message-models.test.mjs; the answers were observed by running the script on a copy of the sample models file",
+  "drafted_from": "tool:write-message-models-for-every-app's row in tools/write-message-models-for-every-app/what-this-tool-does-and-how-to-run-it.json, do-work/write-message-models.mjs, read-data/sample-models.json and test/write-message-models.test.mjs; the answers were observed by running the script on a copy of the sample models file",
   "start_here": "Say to your AI: \"Check whether the Swift and TypeScript message models under my app folder are behind my models.json, and if they are, write them.\" It runs write-message-models.mjs on your computer, first with --check, then with --write.",
   "lists": [],
   "no_lists_because": "It keeps no account list: its models are rows in one JSON file on the person's computer, and it writes source files from that file.",

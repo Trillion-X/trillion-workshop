@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:hear-sources row in tools/listen-for-a-while/tool-rows.json and hearSourcesTool in read-data/hearing-sources.mjs (the old tool:hear-sources, computer/mac-tools.json:241-244 at b7dc53d08a)",
+  "drafted_from": "tool:hear-sources row in tools/listen-for-a-while/what-this-tool-does-and-how-to-run-it.json and hearSourcesTool in read-data/hearing-sources.mjs (the old tool:hear-sources, computer/mac-tools.json:241-244 at b7dc53d08a)",
   "start_here": "Say to your AI: \"Hear my call: the microphone recording /Recordings/me.wav and the system-audio recording /Recordings/others.wav, starting at 2026-11-20T09:00:00-08:00, with the Whisper model I keep at ~/models/ggml-base.bin.\" It runs tool:hear-sources and tells you each turn in time order, labelled by source.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it hears the recordings handed in and answers the words and the session record; it writes no row and no file, and keeps no recording.",

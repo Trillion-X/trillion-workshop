@@ -186,11 +186,11 @@ const run = (mode, input) => new Promise(resolve => {
 });
 
 test('the rows\' commands answer their samples with { result } and refuse with { error }', async () => {
-  const rows = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
+  const rows = JSON.parse(readFileSync(join(folder, 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.map(record => record.payload);
   for (const [id, mode] of [['tool:pace-sends-from-an-inbox', 'plan'], ['tool:sort-bounces-and-replies', 'sort']]) {
     const row = rows.find(payload => payload.id === id);
-    assert.deepEqual(row.invoke.argv.slice(-1), [mode], id);
-    assert.equal(row.invoke.internet, false, id);
+    assert.deepEqual(row.invoke.run.slice(-1), [mode], id);
+    assert.equal(row.invoke.may_reach, undefined, id);
     const sample = row.verify[0];
     const ok = await run(mode, sample.input);
     assert.equal(ok.code, 0, id);

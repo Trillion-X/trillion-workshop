@@ -1,7 +1,7 @@
 import { realpathSync } from 'node:fs';
 // tools/put-an-object-in-an-s3-store/do-work/put-object.mjs
 //
-// The computer tool `tool:put-an-object-in-an-s3-store` (tool-rows.json): puts one file from the folder the person granted
+// The computer tool `tool:put-an-object-in-an-s3-store` (what-this-tool-does-and-how-to-run-it.json): puts one file from the folder the person granted
 // this run into one key of an S3-compatible store the person holds in their vault (Backblaze B2, Cloudflare R2, any store
 // that speaks S3 PutObject). A key that is already there is replaced, so a fixed key (a download's stable name, an update
 // feed) always answers the newest bytes.

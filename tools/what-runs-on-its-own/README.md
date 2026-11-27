@@ -12,7 +12,7 @@ The tool only reads. The engine keeps the causes (`src/wake.rs` in the engine) a
 |------|---------|
 | `do-work/what-runs-on-its-own.mjs` | `tool:see-what-runs-on-its-own`: one row per wake:list row, red first, then switched-on ones. |
 | `read-data/states.json` | The states (words, red or not), which state wins when several hold, and the steps between states. A new state is one row. |
-| `tool-rows.json` | The Workshop row the engine reads. The container holds this folder alone. |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop row the engine reads. The container holds this folder alone. |
 | `part.json` | The tool and its states are public. |
 | `test/what-runs-on-its-own.test.mjs` | What each kind of wake waits for, every state and why it holds, off winning, red first with counts, the state graph (every state reachable, each with a way out, at most 20 arrows), and the sample run as the container runs it. |
 

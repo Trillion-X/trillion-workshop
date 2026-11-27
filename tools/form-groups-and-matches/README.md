@@ -25,7 +25,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 | `read-data/matchmaker.mjs` | A community's matchmaker, pure, over a book of its records at one time: settings checks, profiles and cited scores, inverted-index shortlists, rounds, groups formed by the leaves above, proposals, double opt-in with the consent of what each person is shown, the one-to-one group, topics, follow-ups, experiment arms, views and erasure. |
 | `read-data/matchmaker-records.mjs` | The matchmaker's record kinds and ids, and the book one run loads and changes. |
 | `do-work/community-matchmaker.mjs` | The commands of the five matchmaker rows: take the community's records as input (`records`), run the matchmaker, and answer the changed records as `write` (each with the value it expected). No records door. |
-| `tool-rows.json` | The twelve tool rows. Every row runs with `tools/records-door/do-work/run-an-export.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | The twelve tool rows. Every row runs with `tools/records-door/do-work/run-an-export.mjs`. |
 | `part.json` | No module here is offered to other tools. |
 | `test/group-graph.test.mjs` | The membership gauntlet: every operation, nesting and the cycle rule (the original graph's twenty cases, and ids that are object property names). |
 | `test/group-records.test.mjs` | Record ids, the fold (later wins, removed, misplaced and malformed records) and the minimal writes. |
@@ -90,7 +90,7 @@ Keeps groups of anything in a person's records (lists, collections, folders, boa
 
 **Not carried:** the old group read and write targets' engine framing (identity-text read-current frames, write batches, host partition labels, producer requests), the interaction-program storage key and its ten ref addresses (retired, see below), the interaction-program screens and process mounts (see below), the subject-participant hosted join doorway (access-rule admission, signed owner events, engine CAS writes: joining a group is `add-member` here), the board surfaces and screens (screens), and the group package's board features (layouts, connectors, exports and imports, board analytics), which belong to a board tool.
 
-**Depended on by:** Trillion, which reads `tool-rows.json` when it deploys.
+**Depended on by:** Trillion, which reads `what-this-tool-does-and-how-to-run-it.json` when it deploys.
 
 ## Carried from interaction-program
 

@@ -71,7 +71,7 @@ export function bindAdmittedTool(tool, id, binding) {
     const { secret_name, vault_key, ...kept } = item;
     return { ...kept, field_id: field };
   });
-  if (tool.invoke.credential_mounts?.length) return fail('This tool’s credential mounts cannot be rebound.');
+  if (tool.invoke.key?.length) return fail('This tool’s credential mounts cannot be rebound.');
   return { ...tool, id, invoke: { ...tool.invoke, ...(tool.invoke.credential_injections ? { credential_injections: injections } : {}), connection_id: binding.connection_id, source_connection: binding },
     provenance: { ...tool.provenance, bound_from: tool.id, bound_connection: base, connection_id: binding.connection_id } };
 }

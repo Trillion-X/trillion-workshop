@@ -12,7 +12,7 @@ import { clickOnThisMacsScreen, driveTheScreen, findOnTheScreen, lookAtTheScreen
 import { makePlaces } from '../read-data/work-places.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const rows = JSON.parse(readFileSync(join(HERE, '..', 'tool-rows.json'), 'utf8')).records.filter(record => record.payload?.invoke);
+const rows = JSON.parse(readFileSync(join(HERE, '..', 'what-this-tool-does-and-how-to-run-it.json'), 'utf8')).records.filter(record => record.payload?.invoke);
 const exports = { lookAtTheScreen, findOnTheScreen, screenActions, driveTheScreen, clickOnThisMacsScreen };
 
 // The person is away from this Mac, so a drive reaches its own refusals instead of waiting for them to leave it.

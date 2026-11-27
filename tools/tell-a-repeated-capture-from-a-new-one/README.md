@@ -8,7 +8,7 @@ Says whether a captured text (screen words, a transcript) was already seen, exac
 |------|---------|
 | `read-data/capture-dedupe.mjs` | `normalise`, `exactOf` (BLAKE3 of the normalised text), `simhash` (64-bit SimHash from BLAKE3 words), `distance`, `createDedupe` (the bounded two-tier memory), and `dedupe(input)`, the row's function. |
 | `read-data/capture-dedupe.json` | Normalisation, shingle size, `near_bits`, `least_words_for_near`, `most_entries` and `remember_seconds`. |
-| `tool-rows.json` | `tool:capture-dedupe`: a `computer` row with `capabilities: []`, run by `tools/workflows`'s `do-work/run-a-function.mjs`. |
+| `what-this-tool-does-and-how-to-run-it.json` | `tool:capture-dedupe`: a `computer` row with `capabilities: []`, run by `tools/workflows`'s `do-work/run-a-function.mjs`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/capture-dedupe.test.mjs` | The original Trillion tests (exact, near, short texts, erase, age, bound, SimHash distance, the memory surviving a restart as JSON). |
 
@@ -31,4 +31,4 @@ Says whether a captured text (screen words, a transcript) was already seen, exac
 
 **Depends on:** `tools/workflows` (`do-work/run-a-function.mjs`), `@noble/hashes` (BLAKE3), Node's standard library.
 
-**Depended on by:** `tool-rows.json`. Nothing imports this folder.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`. Nothing imports this folder.

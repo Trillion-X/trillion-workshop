@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:cut-and-caption's own row in tools/media-composition/tool-rows.json, tools/media-composition/do-work/cut-and-caption.mjs, and the script run on a synthetic 7 second clip",
+  "drafted_from": "tool:cut-and-caption's own row in tools/media-composition/what-this-tool-does-and-how-to-run-it.json, tools/media-composition/do-work/cut-and-caption.mjs, and the script run on a synthetic 7 second clip",
   "start_here": "Say to your AI: \"Cut seconds 3.5 to 6 out of my video and caption it with the words spoken there.\" It runs tool:cut-and-caption and saves the clip in your files.",
   "lists": [],
   "no_lists_because": "It makes a new video in your files from the video you name and keeps no list of its own.",

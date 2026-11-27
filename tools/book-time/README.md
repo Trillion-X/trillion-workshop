@@ -23,7 +23,7 @@ Booking time with a person: the times they can be booked, booking one, moving a 
 | `do-work/external-calendar-busy-and-changes.ts` | Reads busy intervals, moves and cancels an event. Unchanged but for its path line. |
 | `do-work/calendar-invite-file.ts` | The RFC 5545 file for a request or a cancel. Changed: the producer id and a comment. |
 | `do-work/book-time.mjs` | The tool seam, run by `tools/records-door/do-work/run-an-export.mjs`. |
-| `tool-rows.json` | Eight rows. |
+| `what-this-tool-does-and-how-to-run-it.json` | Eight rows. |
 | `part.json` | No public files. |
 | `test/derive-open-slots.test.mjs`, `test/external-calendar.test.mjs` | The package's cases, plus busy, move and cancel. |
 | `test/calendar-invite-file.test.mjs`, `test/booking-lifecycle.test.mjs` | The file's shape; the lifecycle's soundness. |
@@ -47,4 +47,4 @@ Booking time with a person: the times they can be booked, booking one, moving a 
 
 **Depends on:** `tools/records-door`'s `run-an-export.mjs` as the runner every row names (packed at `/opt/records-door`); no tool here opens a records door. Node 24 in the tool container runs the `.ts` files by stripping their types.
 
-**Depended on by:** Trillion's deploy reads `tool-rows.json`.
+**Depended on by:** Trillion's deploy reads `what-this-tool-does-and-how-to-run-it.json`.

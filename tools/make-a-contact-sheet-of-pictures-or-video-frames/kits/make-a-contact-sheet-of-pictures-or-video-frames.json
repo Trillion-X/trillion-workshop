@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:make-a-contact-sheet-of-pictures-or-video-frames row in tool-rows.json, do-work/make_contact_sheet.py and test/test_make_contact_sheet.py",
+  "drafted_from": "tool:make-a-contact-sheet-of-pictures-or-video-frames row in what-this-tool-does-and-how-to-run-it.json, do-work/make_contact_sheet.py and test/test_make_contact_sheet.py",
   "start_here": "Say to your AI: \"Lay out the four cake photos in pictures/ as one contact sheet, three to a row, each 300 pixels wide with its name under it, and save it as sheet.jpg.\" It writes a request file, runs make_contact_sheet.py on your computer and tells you the sheet it made.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one JSON request file and writes sheet pictures, keeping nothing between runs.",

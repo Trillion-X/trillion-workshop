@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:resolve-a-look row in tools/screen-looks/tool-rows.json, do-work/resolve-a-look.mjs and test/resolve-a-look.test.mjs",
+  "drafted_from": "tool:resolve-a-look row in tools/screen-looks/what-this-tool-does-and-how-to-run-it.json, do-work/resolve-a-look.mjs and test/resolve-a-look.test.mjs",
   "start_here": "Say to your AI: \"Resolve my Harbour look from request.json into its real colours and fonts and write the stylesheet to look.css, with my own Tidewater Serif font file.\" It runs the resolver on your computer and tells you the main colours, the fonts and any font file that was missing.",
   "lists": [],
   "no_lists_because": "It names no list: it reads one request file holding a look and your font files, and writes one stylesheet.",

@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:github:coreyhaines31-marketingskills's row in tools/tools-from-github/tool-rows.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs marketingskills.",
+  "drafted_from": "tool:github:coreyhaines31-marketingskills's row in tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json (job, run, get_it, needs) and its sources row in sources.json; the command is the row's own run line with synthetic names filled in. What it prints or writes is read from the tool's documented behavior; the folder test test/index-github-tools.test.mjs only checks the row, never runs marketingskills.",
   "start_here": "Say to your AI: \"Use marketingskills on my computer to collect free: the file is example.com.\" It reads the row, installs marketingskills if it is missing, runs it on that one file and shows you what it made.",
   "lists": [],
   "no_lists_because": "It keeps no list: marketingskills is a program that runs on the person's own computer and works on the one file or address it is handed.",
@@ -27,7 +27,7 @@
           }
         }
       },
-      "given": "Read from tools/tools-from-github/tool-rows.json: tool:github:coreyhaines31-marketingskills runs on your computer, so after tools:list the AI runs, in the folder it got marketingskills in, the command line: node skills/reverse-engineer-marketing/scripts/teardown.mjs example.com  (synthetic input: the web address of a company, here the made-up example.com).",
+      "given": "Read from tools/tools-from-github/what-this-tool-does-and-how-to-run-it.json: tool:github:coreyhaines31-marketingskills runs on your computer, so after tools:list the AI runs, in the folder it got marketingskills in, the command line: node skills/reverse-engineer-marketing/scripts/teardown.mjs example.com  (synthetic input: the web address of a company, here the made-up example.com).",
       "hands_back": "The teardown script gathers the public, dated evidence named in the job (sitemap page families and when each appeared, the month each ad, analytics, testing, referral or email tool first showed, pricing and headline changes, email senders, subdomains by first certificate date, open roles, app reviews by month) for example.com and reports it; run it from the folder cloned in get_it."
     }
   ]

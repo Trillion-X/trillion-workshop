@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/pin-files-by-content/tool-rows.json (tool:pin-files-by-content), do-work/pin-files.mjs, read-data/pins.mjs and pin-shape.json, test/pin-files-by-content.test.mjs",
+  "drafted_from": "tools/pin-files-by-content/what-this-tool-does-and-how-to-run-it.json (tool:pin-files-by-content), do-work/pin-files.mjs, read-data/pins.mjs and pin-shape.json, test/pin-files-by-content.test.mjs",
   "start_here": "Say to your AI: \"Check whether the pins in pins.json still match the files in my settings folder, and tell me which are stale.\" It runs pin-files.mjs check on your computer and names every file whose pin is added, changed or gone.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads a folder of files and one pin file on your computer and answers which pins differ.",

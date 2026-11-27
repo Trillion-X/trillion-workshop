@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:choose-programs-left-running's own row (its words and input schema) in tools/running-programs/tool-rows.json; read it before relying on it",
+  "drafted_from": "tool:choose-programs-left-running's own row (its words and input schema) in tools/running-programs/what-this-tool-does-and-how-to-run-it.json; read it before relying on it",
   "start_here": "Say to your AI: \"Which programs were left running by sessions that ended?\" with the programs list and your rule rows. It runs tool:choose-programs-left-running and answers which to stop and why, and which a never-stop row kept, changing nothing.",
   "lists": [],
   "no_lists_because": "It names no list of yours: it takes its input and answers, and keeps no row.",

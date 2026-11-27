@@ -1,5 +1,5 @@
 {
- "drafted_from": "tool:hear-for-a-device row in tools/listen-for-a-while/tool-rows.json, hearForADevice and hearPieces in read-data/listen-for-a-while.mjs, and the test in test/listen-for-a-while.test.mjs",
+ "drafted_from": "tool:hear-for-a-device row in tools/listen-for-a-while/what-this-tool-does-and-how-to-run-it.json, hearForADevice and hearPieces in read-data/listen-for-a-while.mjs, and the test in test/listen-for-a-while.test.mjs",
  "start_here": "Say to your AI: \"Hear the recording /Recordings/phone-piece.m4a that my Phone made at 2026-10-31T12:00:00Z, call the listening p1, and use the Whisper model I keep at ~/models/ggml-base.bin.\" It runs tool:hear-for-a-device and tells you the turns it heard.",
  "lists": [],
  "no_lists_because": "It names no list of yours: it reads the one recording through the files door and answers the heard turns; it writes no row and no file.",

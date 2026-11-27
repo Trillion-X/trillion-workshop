@@ -31,5 +31,5 @@
       "hands_back": "Exit 1: {\"stale\": [\"derived/plants.json\", \"derived/tasks.tsv\"], \"current\": [], \"not_checked\": [], \"all_passed\": false}. After rebuild-data: {\"written\": \"<the garden folder>\", \"files\": {\"derived/plants.json\": 543, \"derived/tasks.tsv\": 35}, \"not_written\": []}; derived/plants.json holds count 3 and P-01 Basil (Herbs, tags sun and warm), and derived/tasks.tsv is \"title<TAB>who\", \"water<TAB>Ana\", \"weed<TAB>anyone\". The next --check exits 0 with stale []. After a Thyme row is added to plants.md, --check exits 1 again with stale [\"derived/plants.json\"] and current [\"derived/tasks.tsv\"]."
     }
   ],
-  "drafted_from": "tool:rebuild-files-derived-from-my-records's row in tools/keep-a-record-library-valid/tool-rows.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
+  "drafted_from": "tool:rebuild-files-derived-from-my-records's row in tools/keep-a-record-library-valid/what-this-tool-does-and-how-to-run-it.json, do-work/keep_a_record_library.py and read-data/*.py, and the fixtures and tests in tools/keep-a-record-library-valid/test/; the worked run was executed here on the made-up greenhouse fixtures"
 }

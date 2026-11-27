@@ -1,0 +1,154 @@
+{
+  "kind": "tool-rows",
+  "record_set": "hash-content-with-blake3-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:hash-content-with-blake3",
+        "status": "active",
+        "label": "Hash content with BLAKE3",
+        "job": "Return the BLAKE3 hex identity of exact text or a named Files path",
+        "description": "Give exactly one of text (UTF-8, no normalization) or path (a regular file relative to the granted Files folder, raw bytes). Returns blake3 (64 lowercase hex digits), identity (1f: plus that hex), and bytes. Reads only; no network. Uses the declared content-identity owner. Files are read into memory.",
+        "uses_tools": [
+          "trillion-workshop/content-identity"
+        ],
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "oneOf": [
+            {
+              "required": [
+                "text"
+              ]
+            },
+            {
+              "required": [
+                "path"
+              ]
+            }
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "blake3",
+            "identity",
+            "bytes"
+          ],
+          "properties": {
+            "blake3": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "identity": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$"
+            },
+            "bytes": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/work",
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/hash-content-with-blake3/do-work/hash-content.mjs",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "hash-content-with-blake3",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/hash-content-with-blake3"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "maker": "maker:hash-content-with-blake3",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "text": "abc"
+            }
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "sample.txt"
+            },
+            "files": [
+              {
+                "grant": "read-a-folder",
+                "path": "sample.txt",
+                "text": "abc"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

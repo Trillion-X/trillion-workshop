@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { name } from '../read-data/name-from-the-call.mjs';
 
-const [row] = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
+const [row] = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8')).records.map(record => record.payload);
 
 test('the row reads only what it is handed and runs the name export', () => {
-  assert.deepEqual([row.id, row.invoke.kind, row.invoke.argv.at(-1)], ['tool:name-voices-from-the-call', 'computer', 'name']);
+  assert.deepEqual([row.id, row.invoke.kind, row.invoke.run.at(-1)], ['tool:name-voices-from-the-call', 'computer', 'name']);
   assert.deepEqual(row.invoke.capabilities, []);
   assert.equal(row.invoke.records, undefined);
 });

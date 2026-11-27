@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/work-on-connected-drives/tool-rows.json, code in read-data/file-places.mjs, test/file-places.test.mjs",
+  "drafted_from": "tool row in tools/work-on-connected-drives/what-this-tool-does-and-how-to-run-it.json, code in read-data/file-places.mjs, test/file-places.test.mjs",
   "start_here": "Say to your AI: \"Find every other place the file /Volumes/Card/DCIM/clip.mov is, on my other drives and in my own files.\" It runs tool:media-file-places with that path and your files handed in, and tells you each drive path and file name that holds the same bytes.",
   "lists": [],
   "no_lists_because": "It reads the person's connected drives and the files it is handed in stored.files, and keeps nothing.",

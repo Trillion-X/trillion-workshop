@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/compare-voice-and-music-models/tool-rows.json, do-work/say_a_line_in_a_cloned_voice.py and tools/compare-voice-and-music-models/test/test_voice_ab.py",
+  "drafted_from": "tool row in tools/compare-voice-and-music-models/what-this-tool-does-and-how-to-run-it.json, do-work/say_a_line_in_a_cloned_voice.py and tools/compare-voice-and-music-models/test/test_voice_ab.py",
   "start_here": "Say to your AI: \"Try the qwen3 voice-cloning model on my narration line in line.json, cloned from ref.wav and ref.txt, keeping the best of 3 tries per sentence.\"",
   "lists": [
     {

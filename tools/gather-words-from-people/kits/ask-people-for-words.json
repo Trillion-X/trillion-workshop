@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/gather-words-from-people/tool-rows.json, do-work/gather-words.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
+  "drafted_from": "tool row in tools/gather-words-from-people/what-this-tool-does-and-how-to-run-it.json, do-work/gather-words.mjs, read-data/gathered-words.mjs and test/gather-words.test.mjs",
   "start_here": "Say to your AI: \"Ask Sam Example and Bo Sample for their own words about the cake order cake-2026 on list:praise; their good words are message:made-up-1 and message:made-up-2.\" It runs tool:ask-people-for-words, keeps one asked row for each and hands you each draft to send; it sends nothing.",
   "lists": [
     {

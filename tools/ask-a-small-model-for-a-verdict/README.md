@@ -72,7 +72,7 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 | `ports/*.json` | The port claims for the two files above. |
 | `do-work/answer-state-questions.mjs` | Typed questions about a state in one request, every answer checked against its type. |
 | `part.json` | `do-work/ask-for-a-verdict.mjs` is public, so another tool may import the same core. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder (eleven tools). |
+| `what-this-tool-does-and-how-to-run-it.json` | The Workshop rows Trillion reads for this folder (eleven tools). |
 | `test/answer-with-a-downloaded-model.test.mjs`, `test/answer_with_a_downloaded_model_probe.py` | The answerer and its rows on made-up settings, rows and lines with stand-in models and a made-up answer cache: answers, cache keys, prompts, the hosted route's bounds and parsing, the place, calibrate in both line shapes, the door reads and refusals, and which ask rows a unit reaches. |
 | `test/*.test.mjs` | The core, shapes, bands, calibration memory and adapters (synthetic cases only), plus the tool run end to end against a stand-in model server, the typed-question checks, `fit-lines` on made-up scores and the fresh connection. |
 
@@ -91,4 +91,4 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 
 **Depends on:** `tools/settings` (reads the setting row the caller passes, for the two answering rows), Python 3 (and on the person's computer torch, peft and blake3 for decider-2b, mlx and mlx_lm for an MLX model), `tools/content-identity` (the one BLAKE3 identity of bytes, through its public `read-data/identity.mjs`, which needs the checkout's `npm install`), Node, and a model server on the person's computer or a hosted classifier whose key is in a file the person names.
 
-**Depended on by:** `tool-rows.json`; any tool that needs a calibrated yes or no may import `do-work/ask-for-a-verdict.mjs`.
+**Depended on by:** `what-this-tool-does-and-how-to-run-it.json`; any tool that needs a calibrated yes or no may import `do-work/ask-for-a-verdict.mjs`.

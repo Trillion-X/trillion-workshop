@@ -7,7 +7,7 @@ import { seeWhatIsLeftToSetUp } from '../do-work/see-what-is-left-to-set-up.mjs'
 import { pendingSetup, provenSetup } from './setup-fixtures.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
-const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
+const ROWS = JSON.parse(readFileSync(new URL('../what-this-tool-does-and-how-to-run-it.json', import.meta.url), 'utf8'));
 const NOW = '2026-10-08T12:00:00.000Z';
 const ORIGIN = 'https://app.example.test';
 const everySource = { shared_rules: { rules: [] }, rules: { rules: [] }, context: null, personal_context: null };

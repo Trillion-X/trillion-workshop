@@ -398,7 +398,7 @@ export function placed(settings, ports = {}) {
   return { ...settings, server, chat: (settings.chat ?? []).map(row), classify: (settings.classify ?? []).map(row), embed: (settings.embed ?? []).map(row), ...(answerers ? { answerers } : {}) };
 }
 
-/** What a row hands in: { input, local_ports } (tool-rows.json stdin); a call with no ports reaches no server. */
+/** What a row hands in: { input, local_ports } (what-this-tool-does-and-how-to-run-it.json stdin); a call with no ports reaches no server. */
 const given = (handed = {}) => handed && typeof handed === 'object' && 'local_ports' in handed
   ? { input: handed.input ?? {}, ports: handed.local_ports ?? {} } : { input: handed ?? {}, ports: {} };
 

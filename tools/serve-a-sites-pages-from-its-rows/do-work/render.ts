@@ -83,7 +83,7 @@ export const FORM_OUTCOME_PART = 'serve-a-sites-pages-from-its-rows/show/FormOut
 export function screensOfTools(tools: string): Map<string, Screen> {
   const screens = new Map<string, Screen>();
   for (const folder of readdirSync(tools, { withFileTypes: true }).filter(entry => entry.isDirectory()).map(entry => entry.name).sort()) {
-    const card = join(tools, folder, 'tool-rows.json');
+    const card = join(tools, folder, 'what-this-tool-does-and-how-to-run-it.json');
     if (!existsSync(card)) continue;
     let records: { payload?: { id?: unknown; screen?: { kind?: unknown; entry?: unknown; export?: unknown } } }[];
     try { records = JSON.parse(readFileSync(card, 'utf8')).records ?? []; } catch { continue; }

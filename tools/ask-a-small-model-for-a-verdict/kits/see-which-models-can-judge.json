@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:see-which-models-can-judge row in tools/ask-a-small-model-for-a-verdict/tool-rows.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
+  "drafted_from": "tool:see-which-models-can-judge row in tools/ask-a-small-model-for-a-verdict/what-this-tool-does-and-how-to-run-it.json, its code in tools/ask-a-small-model-for-a-verdict/do-work/ and tools/ask-a-small-model-for-a-verdict/test/tool.test.mjs; the answers were produced by running the tool against a stand-in model server",
   "start_here": "Say to your AI: \"Score my local model against the claims-done question in /work/judge/rubrics.json and tell me whether it can judge it.\" It runs the scoreboard and reads which models can and cannot judge each question.",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads your rubrics file and asks each model you name its known cases, writing nothing.",

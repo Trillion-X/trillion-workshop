@@ -3,7 +3,7 @@
 // come from this folder's spend-rails.json instead of the old package manifest, an invoke names a Workshop tool id
 // instead of an old workflow action, and the "no workflow names x402" check reads this folder's tool rows.
 import shipped from '../read-data/spend-rails.json' with { type: 'json' };
-import toolRows from '../tool-rows.json' with { type: 'json' };
+import toolRows from '../what-this-tool-does-and-how-to-run-it.json' with { type: 'json' };
 import { GUARD_TOOL, LEDGER_TOOL, readPaymentRail, readPaymentRails } from '../read-data/spend-rails.ts';
 import { describe, expect, it } from '../../../test-helpers/vitest-shim.mjs';
 

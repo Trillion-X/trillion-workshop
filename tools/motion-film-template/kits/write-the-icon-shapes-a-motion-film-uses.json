@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tools/motion-film-template/tool-rows.json (tool:write-the-icon-shapes-a-motion-film-uses), do-work/write-icon-shapes.mjs and the test \"icon shapes are read from lucide modules\" in test/motion-film-template.test.mjs; the answers were produced by running the script on that test's made-up icons folder",
+  "drafted_from": "tools/motion-film-template/what-this-tool-does-and-how-to-run-it.json (tool:write-the-icon-shapes-a-motion-film-uses), do-work/write-icon-shapes.mjs and the test \"icon shapes are read from lucide modules\" in test/motion-film-template.test.mjs; the answers were produced by running the script on that test's made-up icons folder",
   "start_here": "Say to your AI: \"Write the check and dot icon shapes my film uses from lucide-react into the film's assets/js/icons.js, and tell me which icons were written.\"",
   "lists": [],
   "no_lists_because": "It keeps no list: it reads the icon files of lucide-react on your computer and writes one icons file for the film.",

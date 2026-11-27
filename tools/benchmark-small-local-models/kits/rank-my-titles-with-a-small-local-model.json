@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool row in tools/benchmark-small-local-models/tool-rows.json, do-work/rank_titles_with_decider.py and test/test_benchmark.py (Decider, Settings)",
+  "drafted_from": "tool row in tools/benchmark-small-local-models/what-this-tool-does-and-how-to-run-it.json, do-work/rank_titles_with_decider.py and test/test_benchmark.py (Decider, Settings)",
   "start_here": "Say to your AI: \"Rank my two title ideas by how strongly the decider someone/decider-small says yes to: would a viewer click this?\"",
   "lists": [
     {

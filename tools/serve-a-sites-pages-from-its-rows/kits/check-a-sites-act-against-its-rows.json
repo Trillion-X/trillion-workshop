@@ -1,5 +1,5 @@
 {
-  "drafted_from": "tool:check-a-sites-act-against-its-rows's own row (tool-rows.json) and do-work/check-a-sites-act.ts",
+  "drafted_from": "tool:check-a-sites-act-against-its-rows's own row (what-this-tool-does-and-how-to-run-it.json) and do-work/check-a-sites-act.ts",
   "start_here": "Say to your AI: \"Does my site's key still have exactly the tools its pages ask for?\" It runs tool:check-a-sites-act-against-its-rows for the computer and the site's account, and says what the rows now ask for that the applied act does not give, and what it gives that they no longer ask for.",
   "lists": [],
   "no_lists_because": "It keeps nothing: it reads the computer's row and the site's own rows (its runs settings row, pages and action rows) and answers how the act they make differs from the one applied.",

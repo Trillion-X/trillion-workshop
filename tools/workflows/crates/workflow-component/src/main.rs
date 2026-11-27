@@ -328,7 +328,7 @@ static KEEPING: Mutex<Keeping> = Mutex::new(Keeping { run: None, keep: Vec::new(
 
 /// The text a key stands for, handed on this pass's input (`kept`), read when it is the key's. The engine adds `kept` to
 /// the run's input (trillion-rust wake.rs `with_kept`), and the tool row's stdin carries that input as `input`
-/// (tool-rows.json `tool:run-a-workflow` invoke.stdin), so it is read at `input.kept`. Nov 24 2026, 8:54 to 9:08 PM CST on
+/// (what-this-tool-does-and-how-to-run-it.json `tool:run-a-workflow` invoke.stdin), so it is read at `input.kept`. Nov 24 2026, 8:54 to 9:08 PM CST on
 /// the Mac: this read `kept` at the top of stdin, where nothing puts it, so 28 runs whose answers the engine held ended
 /// "its answers kept by the engine under <key> were not handed back" while the engine held every one of those keys.
 fn kept_text(given: &Value, key: &str) -> Option<Value> {
@@ -1646,18 +1646,18 @@ mod tests {
     }
 
     // A listed workflow row (a recipe a wake names as its tool) runs on this component: the row source in
-    // tools/workflows/tool-rows.json hands each listed row's run this component and its reader (`listed_input`), naming no
+    // tools/workflows/what-this-tool-does-and-how-to-run-it.json hands each listed row's run this component and its reader (`listed_input`), naming no
     // database; the person's own switch names it (kept_in.database, as the asked-row starter does), and the engine adds the
     // row's id as `row`. So a woken run reads its definition from the person's row in that database and hands its first
     // tool ask back as a wake effect the engine runs (a-piece-to-run, 9:40:51 PM CST Nov 21 2026, failed on the JS walker).
     #[test]
     fn a_listed_workflow_rows_wake_run_is_driven_by_this_component() {
-        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let rows: Value = serde_json::from_str(include_str!("../../../what-this-tool-does-and-how-to-run-it.json")).unwrap();
         let payloads: Vec<&Value> = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"]).collect();
         let source = payloads.iter().find(|row| row["kind"] == "tool-row-source" && row["list"]["records"]["kind"] == "workflow-recipe")
             .expect("the workflow-recipe row source");
         let runner = payloads.iter().find(|row| row["id"] == source["invoke_with"]).expect("the tool it runs as");
-        assert!(runner["invoke"]["argv"].as_array().unwrap().iter().any(|arg| arg.as_str().is_some_and(|arg| arg.ends_with("workflow_component.wasm"))),
+        assert!(runner["invoke"]["run"].as_array().unwrap().iter().any(|arg| arg.as_str().is_some_and(|arg| arg.ends_with("workflow_component.wasm"))),
             "{} runs this component", source["invoke_with"]);
         assert!(!source["listed_input"].to_string().contains("_for_who_"), "the shared row names no person's database");
         let mut input = source["listed_input"].as_object().cloned().expect("listed_input");
@@ -1692,7 +1692,7 @@ mod tests {
     // a wake that hears no chosen fact (a-piece-to-run): read with kept_in, refused in words without it.
     #[test]
     fn every_switched_on_wake_shape_reads_or_runs_its_definition() {
-        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let rows: Value = serde_json::from_str(include_str!("../../../what-this-tool-does-and-how-to-run-it.json")).unwrap();
         let source = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"])
             .find(|row| row["kind"] == "tool-row-source" && row["list"]["records"]["kind"] == "workflow-recipe").unwrap().clone();
         let start = |row: &str, switch: Value, fact: Value| {
@@ -1784,7 +1784,7 @@ mod tests {
     #[test]
     fn a_pass_takes_the_kept_answers_the_engine_hands_on_its_input() {
         let _one = keeping_alone();
-        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let rows: Value = serde_json::from_str(include_str!("../../../what-this-tool-does-and-how-to-run-it.json")).unwrap();
         let row = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"])
             .find(|row| row["id"] == "tool:run-a-workflow").expect("the row that runs this component");
         assert_eq!(row["invoke"]["stdin"]["input"], json!({ "fill": { "from": "input" } }), "the run's input (with `kept`) is stdin's `input`");
@@ -1882,7 +1882,7 @@ mod tests {
     // component and every fact of the ones switched with no kept_in failed in about 100 ms and was let go.
     #[test]
     fn every_listed_wake_that_hears_no_chosen_fact_needs_its_database() {
-        let rows: Value = serde_json::from_str(include_str!("../../../tool-rows.json")).unwrap();
+        let rows: Value = serde_json::from_str(include_str!("../../../what-this-tool-does-and-how-to-run-it.json")).unwrap();
         let source = rows["records"].as_array().unwrap().iter().map(|record| &record["payload"])
             .find(|row| row["kind"] == "tool-row-source" && row["list"]["records"]["kind"] == "workflow-recipe").unwrap().clone();
         let switchable: Vec<String> = source["listed_input"]["read_definition"]["with"]["database"].as_array().unwrap().iter()

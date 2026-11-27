@@ -20,7 +20,7 @@ Whether every copy of a person's things is in step, as their own store knows it:
 | `do-work/catch-up-routes.mjs` | `answerCatchUpRoute`: the page route POST /work/api/catch-up/here as a route tool (`{ path, method, query, body, browser }` in, `{ status, body }` out), answering as old trillion's `handleCatchUpRequest` did |
 | `ports/catch-up.json` | The port contract for the move |
 | `part.json` | The public modules |
-| `tool-rows.json` | The four Workshop rows |
+| `what-this-tool-does-and-how-to-run-it.json` | The four Workshop rows |
 | `test/catch-up.test.mjs` | The original trillion tests, assertions unchanged |
 | `test/catch-up-routes.test.mjs` | The route tool over the device row the request carries: a report (200), the same report again (not written), refused reports (400), other paths (404), a report decided on the row it is handed, the other device rows kept |
 | `test/copies.test.mjs` | Each row over made-up rows handed in as input: the read, a report, keep one, keep both, a conflict, a resent report |

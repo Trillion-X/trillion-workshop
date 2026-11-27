@@ -65,7 +65,7 @@
    ]
   },
   "test_refs": [
-   "tools/show-any-file-as-itself/tool-rows.json sample run (tool:choose-how-each-file-is-shown)"
+   "tools/show-any-file-as-itself/what-this-tool-does-and-how-to-run-it.json sample run (tool:choose-how-each-file-is-shown)"
   ]
  }
 }
