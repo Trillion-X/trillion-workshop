@@ -31,7 +31,7 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 ## The tools
 
 <!-- tool-catalogue:start -->
-Generated from each folder's `what-this-tool-does-and-how-to-run-it.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1700 tools in 392 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
+Generated from each folder's `what-this-tool-does-and-how-to-run-it.json` by `node test-helpers/write-tool-catalogue.mjs`; do not edit it by hand. 1696 tools in 390 folders. A tool's job, inputs, outputs and sample run are in its row. `test/tool-catalogue-is-current.test.mjs` fails when this table is stale.
 
 | Folder | Tools |
 |---|---|
@@ -343,7 +343,6 @@ Generated from each folder's `what-this-tool-does-and-how-to-run-it.json` by `no
 | `send-a-report-or-a-note-to-the-people-who-make` | `tool:tell-the-makers-of-a-product` |
 | `send-messages` | `tool:check-texting-works-on-this-mac`, `tool:pace-sends-from-an-inbox`, `tool:save-interest-in-an-email-update`, `tool:send-a-message-on-this-mac`, `tool:send-a-text`, `tool:send-an-email`, `tool:send-due-email-lessons`, `tool:sign-someone-up-for-an-email-course`, `tool:sort-bounces-and-replies`, `tool:stop-an-email-course`, `tool:who-agreed-to-get-which-emails`, `tool:write-a-message-body-from-a-document` |
 | `send-to-a-place` | `tool:add-to-notion`, `tool:post-to-slack`, `tool:send-to-a-webhook` |
-| `serve-a-sites-pages-from-its-rows` | `tool:check-a-sites-act-against-its-rows`, `tool:keep-a-site-write`, `tool:serve-a-sites-pages-from-its-rows` |
 | `serve-articles-and-signup` | `tool:keep-a-newsletter-signup`, `tool:prepare-a-newsletter-audience` |
 | `serve-command-line-mcp-servers-on-the-web` | `tool:ask-a-command-line-mcp-server-once` |
 | `set-storage-release-rules` | `tool:plan-storage-release`, `tool:set-release-rules` |

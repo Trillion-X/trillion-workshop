@@ -556,8 +556,8 @@ export function sayWithout(error, ...connections) {
 export const refusal = (message, status) => Object.assign(new Error(message), { status });
 
 // What a failed run leaves on standard error, its words without any held value (sayWithout): a refusal that names 400 to 499
-// leaves one JSON line { "error": <its words>, "status": <its status> }, which the site's door (serve-a-sites-pages-from-its-rows
-// door.ts refusalOf) answers with that very status; anything else leaves its plain words, and the door answers 502.
+// leaves one JSON line { "error": <its words>, "status": <its status> }, which the site's door
+// answers with that very status; anything else leaves its plain words, and the door answers 502.
 export function refusalLine(error, ...connections) {
   const words = sayWithout(error, ...connections);
   const status = error?.status;

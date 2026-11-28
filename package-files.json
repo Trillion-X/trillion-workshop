@@ -8118,46 +8118,6 @@
  "tool:check-a-rendered-video": [],
  "tool:check-a-sign-up": [],
  "tool:check-a-site-build-in-a-browser": [],
- "tool:check-a-sites-act-against-its-rows": [
-  {
-   "package": "serve-a-sites-pages-from-its-rows",
-   "paths": [
-    "do-work/check-a-sites-act.ts"
-   ],
-   "at": "/opt/serve-a-sites-pages-from-its-rows"
-  },
-  {
-   "package": "records-door",
-   "paths": [
-    "read-data"
-   ],
-   "at": "/opt/records-door"
-  },
-  {
-   "package": "browse-and-upload-my-files",
-   "paths": [
-    "do-work/send-a-file-to-a-namespace.mjs",
-    "do-work/send-retry.mjs",
-    "do-work/send-window.mjs",
-    "send-settings.json"
-   ],
-   "at": "/opt/browse-and-upload-my-files"
-  },
-  {
-   "package": "content-identity",
-   "paths": [
-    "read-data/blake3.mjs",
-    "read-data/identity.mjs"
-   ],
-   "at": "/opt/content-identity"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
-  }
- ],
  "tool:check-a-sound-effect-palette": [],
  "tool:check-a-spoken-line-reads-back": [],
  "tool:check-a-stage-move": [
@@ -24593,121 +24553,6 @@
     "src"
    ],
    "at": "/opt/node_modules/trillion-workshop/tools/query-and-change-list-rows"
-  }
- ],
- "tool:keep-a-site-write": [
-  {
-   "package": "serve-a-sites-pages-from-its-rows",
-   "paths": [
-    "do-work/keep-a-site-write.ts",
-    "read-data/site-writes.json"
-   ],
-   "at": "/opt/serve-a-sites-pages-from-its-rows"
-  },
-  {
-   "package": "run-sql-in-my-database",
-   "paths": [
-    "do-work/run-sql.mjs",
-    "do-work/through-the-run-proxy.mjs",
-    "read-data/role-recipes.json",
-    "read-data/time-limits.json",
-    "what-this-tool-does-and-how-to-run-it.json"
-   ],
-   "at": "/opt/run-sql-in-my-database"
-  },
-  {
-   "packages": [
-    "pg"
-   ],
-   "at": "/opt/node_modules/pg"
-  },
-  {
-   "packages": [
-    "pg-connection-string"
-   ],
-   "at": "/opt/node_modules/pg-connection-string"
-  },
-  {
-   "packages": [
-    "pg-pool"
-   ],
-   "at": "/opt/node_modules/pg-pool"
-  },
-  {
-   "packages": [
-    "pg-protocol"
-   ],
-   "at": "/opt/node_modules/pg-protocol"
-  },
-  {
-   "packages": [
-    "pg-types"
-   ],
-   "at": "/opt/node_modules/pg-types"
-  },
-  {
-   "packages": [
-    "pg-int8"
-   ],
-   "at": "/opt/node_modules/pg-int8"
-  },
-  {
-   "packages": [
-    "postgres-array"
-   ],
-   "at": "/opt/node_modules/postgres-array"
-  },
-  {
-   "packages": [
-    "postgres-bytea"
-   ],
-   "at": "/opt/node_modules/postgres-bytea"
-  },
-  {
-   "packages": [
-    "postgres-date"
-   ],
-   "at": "/opt/node_modules/postgres-date"
-  },
-  {
-   "packages": [
-    "postgres-interval"
-   ],
-   "at": "/opt/node_modules/postgres-interval"
-  },
-  {
-   "packages": [
-    "xtend"
-   ],
-   "at": "/opt/node_modules/xtend"
-  },
-  {
-   "packages": [
-    "pgpass"
-   ],
-   "at": "/opt/node_modules/pgpass"
-  },
-  {
-   "packages": [
-    "split2"
-   ],
-   "at": "/opt/node_modules/split2"
-  },
-  {
-   "packages": [
-    "node_modules/@noble/hashes"
-   ],
-   "paths": [
-    "LICENSE",
-    "package.json",
-    "blake3.js",
-    "blake2.js",
-    "_blake.js",
-    "_md.js",
-    "_u64.js",
-    "utils.js"
-   ],
-   "at": "/opt/node_modules/@noble/hashes"
   }
  ],
  "tool:keep-a-stripe-event": [
@@ -61470,7 +61315,6 @@
   }
  ],
  "tool:send-to-a-webhook": [],
- "tool:serve-a-sites-pages-from-its-rows": [],
  "tool:serve-the-task-pages": [
   {
    "package": "see-what-is-being-worked-on",
