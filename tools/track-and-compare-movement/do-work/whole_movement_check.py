@@ -145,7 +145,7 @@ def fitted(x0: float, y0: float, x1: float, y1: float, width: int, height: int, 
         return {"refusal": "the fitted crop still lets a box cross its edge after rounding to whole pixels"}
     scale = min(cell[0] / width, cell[1] / height)
     w, h = 2 * int(width * scale / 2), 2 * int(height * scale / 2)
-    inner = {"w": w, "h": h, "x": (cell[0] - w) // 2, "y": (cell[1] - h) // 2}
+    inner = {"w": w, "h": h, "x": (cell[0] - w) // 4 * 2, "y": (cell[1] - h) // 4 * 2}   # even: yuv420p places on 2s
     return {"crop": crop, "fit": {"fill": "blur", "cell": list(cell), "inner": inner}}
 
 

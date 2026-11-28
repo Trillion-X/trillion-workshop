@@ -124,7 +124,7 @@ class Widen(unittest.TestCase):
         self.assertTrue(got["x"] >= 0 and got["y"] >= 0 and got["x"] + got["w"] <= 640 and got["y"] + got["h"] <= 360)
         self.assertEqual((fit["fill"], fit["cell"]), ("blur", [640, 320]))
         inner = fit["inner"]
-        self.assertTrue(inner["w"] % 2 == 0 and inner["h"] % 2 == 0)
+        self.assertTrue(all(inner[k] % 2 == 0 for k in ("w", "h", "x", "y")))      # yuv420p places on even pixels
         self.assertTrue(inner["x"] + inner["w"] <= 640 and inner["y"] + inner["h"] <= 320)
         self.assertAlmostEqual(inner["w"] / inner["h"], got["w"] / got["h"], delta=0.02)   # shown whole, not stretched
         self.assertTrue(inner["w"] == 640 or inner["h"] == 320)                             # as large as the cell allows

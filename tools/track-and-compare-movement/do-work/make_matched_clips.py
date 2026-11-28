@@ -627,7 +627,7 @@ def hold_reference_crop(segments, video, width, height, layout):
         if abs(w / h - aspect) > 1e-3:
             scale = min(cell[0] / w, cell[1] / h)
             iw, ih = 2 * int(w * scale / 2), 2 * int(h * scale / 2)
-            fit = {"fill": "blur", "cell": cell, "inner": {"w": iw, "h": ih, "x": (cell[0] - iw) // 2, "y": (cell[1] - ih) // 2}}
+            fit = {"fill": "blur", "cell": cell, "inner": {"w": iw, "h": ih, "x": (cell[0] - iw) // 4 * 2, "y": (cell[1] - ih) // 4 * 2}}
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     crop = {"w": int(w), "h": int(h), "x": int(max(0, min(cx - w / 2, video["width"] - w))),
             "y": int(max(0, min(cy - h / 2, video["height"] - h)))}
