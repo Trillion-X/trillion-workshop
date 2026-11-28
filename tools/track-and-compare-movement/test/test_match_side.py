@@ -48,6 +48,21 @@ class MatchBySide(unittest.TestCase):
         self.assertEqual(out["pairs"][0]["reference"], m.key(self.r2))
         self.assertEqual(out["pairs"][0]["reference_window"], 1)
 
+    def test_each_choice_takes_a_different_partner_by_its_own_order(self):
+        self.job["partner_choices"] = [{"name": "best"}, {"name": "footwork", "channels": ["approach", "stance_width"]}]
+        card = lambda a, s: {"channels": {"approach": {"dist": a}, "stance_width": {"dist": s}}}  # noqa: E731
+        m.run_json = lambda cmd, env=None: {"no_match": False, "partner_clip": "/r1.mp4", "partner_window": 0, "target_t": [0, 2], "pairs": [
+            {"partner_clip": "/r1.mp4", "partner_window": 0, "partner_t": [0, 2], "scorecard": card(0.7, 0.1)},
+            {"partner_clip": "/r2.mp4", "partner_window": 0, "partner_t": [0, 2], "scorecard": card(0.1, 0.05)},
+            {"partner_clip": "/r2.mp4", "partner_window": 1, "partner_t": [3, 5], "scorecard": card(0.2, 0.2)}]}
+        self.strokes = {(self.kp(self.t), 1.0): "forehand", (self.kp(self.r1), 1.0): "forehand", (self.kp(self.r2), 1.0): "forehand",
+                        (self.kp(self.r2), 4.0): "forehand"}
+        out = json.load(open(m.match(self.job)["file"]))["pairs"]
+        self.assertEqual([(p["choice"], p["reference"], p["reference_window"]) for p in out],
+                         [("best", m.key(self.r1), 0), ("footwork", m.key(self.r2), 0)])
+        self.assertEqual((out[0]["tops"], out[1]["tops"], out[0]["admitted"]), (["best"], ["footwork"], 3))
+        self.assertNotEqual(m.clip_name(self.job, out[0]), m.clip_name(self.job, out[1]))
+
     def test_an_unclear_target_is_refused(self):
         got = m.match(self.job)
         self.assertEqual(got["pairs"], 0)

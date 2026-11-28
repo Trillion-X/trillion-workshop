@@ -30,7 +30,9 @@ class PureParts(unittest.TestCase):
                "references": [{"path": "/r.mp4", "identity": "1f:" + "d" * 64, "people": ["Bo Reyes"], "year": "unknown-year"}],
                "movement": "forehand", "view": "back"}
         pair = {"target": m.key(job["targets"][0]), "reference": m.key(job["references"][0]), "target_peak": 40.6, "reference_window": 3}
-        self.assertEqual(m.clip_name(job, pair), "ada-lane-2026-09-10-41s_vs_bo-reyes-unknown-year-3_forehand-back.mp4")
+        self.assertEqual(m.clip_name(job, pair), "ada-lane-2026-09-10-41s_vs_bo-reyes-unknown-year-dddddd-3_forehand-back.mp4")
+        self.assertEqual(m.clip_name(job, {**pair, "choice": "footwork"}),
+                         "ada-lane-2026-09-10-41s_vs_bo-reyes-unknown-year-dddddd-3_forehand-back_footwork.mp4")
 
     def test_a_failed_stage_prints_one_error_line(self):
         with tempfile.TemporaryDirectory() as d:

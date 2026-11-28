@@ -107,7 +107,12 @@ def by_key(job, side):
 
 
 def match(job):
-    """Every window of every target against the reference index; keep the matcher's admitted best pair."""
+    """Every window of every target against the reference index. The matcher returns every admitted partner in its
+    own order; each of job.partner_choices (DATA, default one "best") picks a different one of them:
+      {"name": "best"}                                   the matcher's order
+      {"name": "footwork", "channels": ["approach", ...]} the scorecard channels named, closest first (each channel's
+                                                         rank among the admitted partners, summed: no units to weigh)
+    Only partners whose own takeback is the movement count. Each pair says its choice and which orderings it tops."""
     t_index, r_index = (os.path.join(job["work"], f"{s}-index") for s in ("targets", "references"))
     refs_by_src = {os.path.realpath(c["path"]): c for c in job["references"]}
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
@@ -132,7 +137,8 @@ def match(job):
         desc = read(desc_path)
         for w, window in enumerate(desc.get("windows", [])):
             got = run_json([sys.executable, os.path.join(MATCH, "select_partner.py"), "--target-desc", f"{desc_path}:{w}",
-                            "--target-kp", os.path.join(t_index, "_work", f"{k}.kp.json"), "--index", r_index] + labelled, env)
+                            "--target-kp", os.path.join(t_index, "_work", f"{k}.kp.json"), "--index", r_index,
+                            "--top", str(int(job.get("partner_pool", 50)))] + labelled, env)
             if got.get("no_match", True) or not got.get("partner_clip"):
                 refused.append({"target": k, "window": w, "reason": got.get("reason") or got.get("error"),
                                 "class_check": got.get("class_check")})
@@ -144,8 +150,8 @@ def match(job):
                     refused.append({"target": k, "window": w, "reason": f"takeback side says {side_check['stroke'] or 'unclear'}",
                                     "stroke_side": side_check, "class_check": got.get("class_check")})
                     continue
-            ref, pdesc, pw, partner_side = None, None, None, None
-            for option in got.get("pairs") or [got]:      # the best partner whose own takeback is the movement too
+            options = []
+            for option in got.get("pairs") or [got]:      # every admitted partner whose own takeback is the movement too
                 r_ = refs_by_src.get(os.path.realpath(option.get("partner_clip") or ""))
                 d_ = read(os.path.join(r_index, f"{key(r_)}.desc.json")) if r_ else None
                 if d_ is None:
@@ -156,22 +162,46 @@ def match(job):
                     ps = stroke_of_window(os.path.join(r_index, "_work", f"{key(r_)}.kp.json"), w_, r_["forehand_side"], job)
                     if ps["stroke"] != job.get("movement"):
                         continue
-                ref, pdesc, pw, partner_side, got = r_, d_, w_, ps, {**got, **option}
-                break
-            if pdesc is None:
+                options.append({"ref": r_, "pw": w_, "side": ps, "got": {**got, **option}})
+            if not options:
                 refused.append({"target": k, "window": w, "reason": "no admitted partner is the movement by its takeback side",
                                 "stroke_side": side_check})
                 continue
-            pairs.append({"target": k, "target_window": w, "target_peak": window["peak_t"], "target_t": got["target_t"],
-                          "reference": key(ref), "reference_window": got["partner_window"], "reference_peak": pw["peak_t"],
-                          "reference_t": got["partner_t"], "parity": got.get("parity"), "dist": got.get("dist"),
-                          "heading_dist": got.get("heading_dist"), "scorecard": got.get("scorecard"),
-                          "motion_dist": got.get("motion_dist"), "class_check": got.get("class_check"),
-                          "stroke_side": {"target": side_check, "reference": partner_side}})
+            orders = {c["name"]: order_options(options, c.get("channels")) for c in job.get("partner_choices") or [{"name": "best"}]}
+            taken = set()
+            for name, order in orders.items():
+                pick = next((o for o in order if (key(o["ref"]), o["got"]["partner_window"]) not in taken), None)
+                if pick is None:
+                    continue
+                taken.add((key(pick["ref"]), pick["got"]["partner_window"]))
+                ref, pw, g = pick["ref"], pick["pw"], pick["got"]
+                pairs.append({"target": k, "target_window": w, "target_peak": window["peak_t"], "target_t": g["target_t"],
+                              "reference": key(ref), "reference_window": g["partner_window"], "reference_peak": pw["peak_t"],
+                              "reference_t": g["partner_t"], "parity": g.get("parity"), "dist": g.get("dist"),
+                              "heading_dist": g.get("heading_dist"), "scorecard": g.get("scorecard"),
+                              "motion_dist": g.get("motion_dist"), "class_check": g.get("class_check"),
+                              "choice": name, "tops": [n for n, o in orders.items() if o[0] is pick],
+                              "admitted": len(options), "stroke_side": {"target": side_check, "reference": pick["side"]}})
     out = os.path.join(job["work"], "pairs.json")
     with open(out, "w") as f:
         json.dump({"pairs": pairs, "refused": refused}, f, indent=1)
     return {"pairs": len(pairs), "refused": len(refused), "file": out}
+
+
+def order_options(options, channels):
+    """The admitted partners in the matcher's order, or, given scorecard channel names, by the sum of each channel's
+    rank among them (closest = 0; a channel a partner lacks ranks last), ties kept in the matcher's order."""
+    if not channels:
+        return list(options)
+
+    def dist(o, name):
+        got = ((o["got"].get("scorecard") or {}).get("channels") or {}).get(name) or {}
+        return got.get("dist") if isinstance(got.get("dist"), (int, float)) else float("inf")
+    rank = {id(o): 0 for o in options}
+    for name in channels:
+        for place, o in enumerate(sorted(options, key=lambda o: dist(o, name))):
+            rank[id(o)] += place
+    return sorted(options, key=lambda o: rank[id(o)])        # sorted is stable: ties stay in the matcher's order
 
 
 def stroke_of_window(kp_path, window, forehand_side, job):
@@ -196,8 +226,10 @@ def clip_name(job, pair):
     t, r = by_key(job, "targets")[pair["target"]], by_key(job, "references")[pair["reference"]]
     stamp = lambda c, field: c.get(field) or "unknown-date"
     who = lambda c: re.sub(r"[^a-z0-9]+", "-", (c.get("people") or ["someone"])[0].lower()).strip("-")
-    return (f"{who(t)}-{stamp(t, 'date')}-{round(pair['target_peak'])}s_vs_{who(r)}-{stamp(r, 'year')}-"
-            f"{pair['reference_window']}_{job.get('movement', 'movement')}-{job.get('view', 'view')}.mp4")
+    clip_id = (r.get("identity") or "1f:" + key(r))[3:9]       # two clips of one year stay apart
+    choice = f"_{pair['choice']}" if pair.get("choice") else ""
+    return (f"{who(t)}-{stamp(t, 'date')}-{round(pair['target_peak'])}s_vs_{who(r)}-{stamp(r, 'year')}-{clip_id}-"
+            f"{pair['reference_window']}_{job.get('movement', 'movement')}-{job.get('view', 'view')}{choice}.mp4")
 
 
 def render(job):
@@ -386,7 +418,9 @@ def keep(job):
                                              "flipped": pair.get("parity") == "reflected"},
                                "match": {"tool": "track-and-compare-movement select_partner", "dist": pair.get("dist"),
                                          "heading_dist": pair.get("heading_dist"), "motion_dist": pair.get("motion_dist"),
-                                         "class_check": pair.get("class_check")},
+                                         "class_check": pair.get("class_check"), "choice": pair.get("choice"),
+                                         "tops": pair.get("tops"), "admitted": pair.get("admitted"),
+                                         "scorecard": pair.get("scorecard")},
                                "format": item.get("format"), "steps": item.get("steps"),
                                "check": item["check"]}})
     return {"rows": rows, "failed": failed}
