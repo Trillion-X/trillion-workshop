@@ -120,17 +120,48 @@ def forward_turn(heading):
     return round(end - farthest, 1)
 
 
+def facing_of(heading, rules):
+    """The body's heading at the follow-through (radians, 0 = back to the camera): the circular mean of the window's
+    last facing_samples headings; None without a trajectory."""
+    traj = _trajectory(heading)
+    if not traj:
+        return None
+    last = traj[-int(rules["facing_samples"]):]
+    return math.atan2(sum(math.sin(math.radians(h)) for h in last), sum(math.cos(math.radians(h)) for h in last))
+
+
 def forehand_side_of(heading, hand, rules):
     """+1 / -1: which way this swing's forehand goes on screen, from the playing hand and whether the camera is
     behind (cos(facing) > 0) or in front; None when the camera is near the player's side or a fact is missing."""
-    traj = _trajectory(heading)
-    if not traj or hand not in HANDS:
-        return None
-    last = traj[-int(rules["facing_samples"]):]
-    facing = math.atan2(sum(math.sin(math.radians(h)) for h in last), sum(math.cos(math.radians(h)) for h in last))
-    if abs(math.cos(facing)) < float(rules["facing_min_cos"]):
+    facing = facing_of(heading, rules)
+    if facing is None or hand not in HANDS or abs(math.cos(facing)) < float(rules["facing_min_cos"]):
         return None
     return HANDS[hand] * (1 if math.cos(facing) > 0 else -1)
+
+
+def camera_of(window, rules):
+    """Where the camera stood for one swing window, as a plain class with the numbers it came from:
+      birdseye    the window's elevation (describe_clip's CLIP axis) over birdseye_elevation with confidence at least
+                  elevation_min_conf
+      back/front  cos(facing) >= facing_min_cos / <= -facing_min_cos (the follow-through heading, 0 = back to camera)
+      side-right / side-left  otherwise: the camera at the player's right / left side. A right hand's forehand takeback
+                  turns the body by -right_hand_forehand_turn, so that turn shows the player's right side to a camera
+                  behind: the sign of sin(facing) x right_hand_forehand_turn is -1 for the right side
+      unclear     no heading"""
+    elevation = window.get("elevation") if isinstance(window.get("elevation"), dict) else {}
+    value, conf = elevation.get("value"), elevation.get("conf") or 0
+    facing = facing_of(window.get("heading"), rules)
+    numbers = {"facing_deg": None if facing is None else round(math.degrees(facing) % 360, 1),
+               "elevation": value if isinstance(value, (int, float)) and math.isfinite(value) else None}
+    if numbers["elevation"] is not None and conf >= float(rules["elevation_min_conf"]) \
+            and numbers["elevation"] > float(rules["birdseye_elevation"]):
+        return {"class": "birdseye", **numbers}
+    if facing is None:
+        return {"class": "unclear", **numbers}
+    if abs(math.cos(facing)) >= float(rules["facing_min_cos"]):
+        return {"class": "back" if math.cos(facing) > 0 else "front", **numbers}
+    right = math.sin(facing) * int(rules["right_hand_forehand_turn"]) < 0
+    return {"class": "side-right" if right else "side-left", **numbers}
 
 
 def stroke_by_turn(turn, hand, rules):
@@ -161,7 +192,27 @@ def read_stroke(kp, window, hand=None, forehand_side=None, rules=None):
         stroke = by_side if given else None
     return {"side": side, "hitting_wrist": wrist, "forehand_side": fs,
             "forehand_side_from": "given" if given else "heading" if fs else None,
-            "hand": hand, "turn": turn, "by_side": by_side, "by_turn": by_turn, "stroke": stroke}
+            "hand": hand, "turn": turn, "by_side": by_side, "by_turn": by_turn, "stroke": stroke,
+            "why": None if stroke else unclear_why(hand, given, fs, side, whole, turn, by_side, by_turn)}
+
+
+def unclear_why(hand, given, fs, side, whole, turn, by_side, by_turn):
+    """Why a window's stroke is unclear, in words, naming the first reading that could not be made."""
+    if hand not in HANDS and not given:
+        return "neither a playing hand nor a forehand side is known"
+    if fs is None:
+        return "the camera is at the player's side or the heading is missing: no forehand side"
+    if side is None:
+        return "too little of the body is seen to read the takeback side"
+    if by_side is None:
+        return f"the takeback is near the middle ({side} body widths)"
+    if hand not in HANDS:
+        return "no playing hand: the turn cannot be read"
+    if not whole:
+        return "the window is cut before its follow-through: no turn reading"
+    if by_turn is None:
+        return "the heading is missing" if turn is None else f"the body turned only {turn} degrees"
+    return f"the readings differ: the takeback side says {by_side}, the turn says {by_turn}"
 
 
 def main():

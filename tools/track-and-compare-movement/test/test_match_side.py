@@ -1,6 +1,6 @@
 """make_matched_clips match with recordings' forehand sides: a target swing whose takeback is not the movement is
-refused, and the partner is the best admitted one whose own takeback is the movement. stroke_side and the matcher
-are stood in for."""
+refused, and the partner is the best admitted one whose own swing reads as the movement. The measured readings
+(measure's work/measured.json) and the matcher are stood in for."""
 import json
 import os
 import sys
@@ -26,14 +26,15 @@ class MatchBySide(unittest.TestCase):
                 with open(os.path.join(self.work, f"{side}-index", f"{m.key(c)}.desc.json"), "w") as f:
                     json.dump({"windows": [{"t0": 0.0, "t1": 2.0, "peak_t": 1.0}, {"t0": 3.0, "t1": 5.0, "peak_t": 4.0}]}, f)
         self.strokes = {}
-        self.saved = (m.run_json, m.stroke_of_window)
-        m.stroke_of_window = lambda kp, window, clip, job: {"stroke": self.strokes.get((os.path.basename(kp), window["peak_t"]))}
+        self.saved = (m.run_json, m.swing_of)
+        peaks = (1.0, 4.0)
+        m.swing_of = lambda job, side, k, w: {"reading": {"stroke": self.strokes.get((f"{k}.kp.json", peaks[w]))}}
         m.run_json = lambda cmd, env=None: {"no_match": False, "partner_clip": "/r1.mp4", "partner_window": 0, "pairs": [
             {"partner_clip": "/r1.mp4", "partner_window": 0, "partner_t": [0, 2]},
             {"partner_clip": "/r2.mp4", "partner_window": 1, "partner_t": [3, 5]}], "target_t": [0, 2]}
 
     def tearDown(self):
-        m.run_json, m.stroke_of_window = self.saved
+        m.run_json, m.swing_of = self.saved
 
     def kp(self, c):
         return f"{m.key(c)}.kp.json"

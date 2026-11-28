@@ -20,6 +20,19 @@ REF_B = {"path": "/rb.mp4", "identity": "1f:" + "b" * 64, "people": ["Bo Reyes"]
 SWING_S = 2.5   # each target swing's synced span
 
 
+def measured(job, pairs, contact=None):
+    """work/measured.json as the measure stage writes it, for the windows the pairs use: each contact the wrist peak
+    unless `contact` names one ((side, key, window) -> contact)."""
+    out = {"targets": {}, "references": {}}
+    for p in pairs:
+        for side, k, w, peak in (("targets", p["target"], p["target_window"], p["target_peak"]),
+                                 ("references", p["reference"], p["reference_window"], p["reference_peak"])):
+            got = (contact or {}).get((side, k, w)) or {"time": peak, "source": "wrist"}
+            out[side].setdefault(k, {"swings": {}})["swings"][str(w)] = {"reading": None, "contact": got}
+    with open(os.path.join(job["work"], "measured.json"), "w") as f:
+        json.dump(out, f)
+
+
 def pair(target, ref, ref_window, dist, window=0):
     peak = 10.0 + window * 5
     return {"target": m.key(target), "target_window": window, "target_peak": peak, "target_t": [peak - 1.5, peak + 1.5],
@@ -39,17 +52,20 @@ class ProgressionStage(unittest.TestCase):
         pairs += [pair(t, REF_B, 2, 0.05) for t in TARGETS[:3]]                             # B: closer, fewer dates
         with open(os.path.join(self.work, "pairs.json"), "w") as f:
             json.dump({"pairs": pairs, "refused": []}, f)
+        measured(self.job, pairs)
+        m._MEASURED.clear()
         os.makedirs(os.path.join(self.work, "references-index", "_work"))
         for ref in (REF_A, REF_B):
             with open(m.kp_of(self.job, "references", m.key(ref)), "w") as f:
                 json.dump({"video": {"width": 1920, "height": 1080, "fps": 30}}, f)
         self.calls, self.refuse_sync, self.refuse_framing, self.caption_in, self.rendered = [], set(), set(), None, None
-        self.saved = (m.run_json, m.subprocess.run)
+        self.saved = (m.run_json, m.subprocess.run, m.ensure_media)
         m.run_json = self.fake_run_json
         m.subprocess.run = self.fake_run
+        m.ensure_media = lambda job, clip: clip["path"]
 
     def tearDown(self):
-        m.run_json, m.subprocess.run = self.saved
+        m.run_json, m.subprocess.run, m.ensure_media = self.saved
 
     def arg(self, cmd, name):
         return cmd[cmd.index(name) + 1]
@@ -57,8 +73,6 @@ class ProgressionStage(unittest.TestCase):
     def fake_run_json(self, cmd, env=None, input_text=None):
         piece = os.path.basename(cmd[1])
         self.calls.append(piece)
-        if piece == "contact_moment.py":
-            return {"result": {"time": float(self.arg(cmd, "--wrist-peak")), "source": "wrist"}}
         if piece == "phase_sync.py":
             spec = m.read(self.arg(cmd, "--spec"))
             tc = spec["target"]["contact"]

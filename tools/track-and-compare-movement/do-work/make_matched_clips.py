@@ -2,13 +2,20 @@
 """The stages of workflow:make-matched-movement-clips, each one command that prints one {"result"} or {"error"} line.
 
 Each stage only chains pieces this tool already has; it adds no matcher, renderer or contact finder of its own:
-  prepare   files_road.fetch of the models and every clip by identity from Files, and the job file.
+  prepare   reads what is already measured about every clip (measured_facts.py rows, keyed by identity), files_road.fetch
+            of the models and of every clip not yet measured, and the job file. A measured clip is fetched only when a
+            later stage needs its pictures (ensure_media).
   perceive  process-scripts/perception/run_perception.py on each clip (pose, then describe_clip with the physical
             stroke rules on), written as an index folder the matcher reads: <key>.desc.json + _work/<key>.kp.json.
-            A clip already described (same key) is skipped, so a rerun does no work twice.
+            A clip described here before, or measured anywhere before under the same settings (its pose track and
+            descriptor fetched from Files by identity), or refused before, is not perceived again.
+  measure   per clip: its pose track and descriptor kept in Files, and per swing window its camera angle, stroke
+            reading (stroke_side.py) and contact (a person's mark, else contact_moment.py: the hit's sound less the
+            audio lag, else the wrist peak), kept as rows; work/measured.json holds them for the stages after it.
+            A clip measured before under the same settings is read, not measured.
   match     process-scripts/match/select_partner.py for every window of every target against the reference index;
             only admitted pairs are kept (it refuses an unverified camera direction and an ambiguous match).
-  render    per pair: contact_moment.py (the hit's sound, else the wrist peak), phase_sync.py (the reference retimed so
+  render    per pair: the measured contacts, phase_sync.py (the reference retimed so
             every phase lands with the target's), author_comparison_edl.py --variants (9:16 and 16:9, 1x, smooth 0.5x /
             0.25x / 0.1x, a contact still), whole_movement_check.py (body and racket in every crop), and media-composition's
             render-an-edit.mjs renders each format.
@@ -31,6 +38,10 @@ JOB.json (DATA; nothing about a person, a sport or a folder is in this file):
                                                           from any camera angle; a "forehand_side" (spec.<side>_forehand_side,
                                                           +1/-1) overrides the forehand side read from the heading
   "stroke_side_rules": {"margin": 2.0, ...},              optional: over stroke-side.json for this job
+  "facts": {"sql": ["<engine command>", ...], "database": "...", "table": "recording_facts",
+            "files_folder": "/Recordings/..."},           where measurements are kept (measured_facts.py); without it
+                                                          nothing is read or kept and every clip is measured
+  "model_identities": {"<model file>": "1f:..."},         prepare: the perception models (part of the settings fingerprint)
   "reference_max_seconds": 8,                             prepare leaves out longer references (their label may not hold)
   "movement": "forehand", "class_margin": 0.05, "class_admit": 0.6,   when references carry a class (a human label, e.g.
                                                           from their folder), match uses select_partner's labelled mode
@@ -60,29 +71,218 @@ def key(clip):
 
 
 def perceive(job, side):
-    """Describe each clip of job[side] into work/<side>-index, skipping clips already described with the job's
-    salience rules. A descriptor made under other rules is described again; pose keeps its own cache, so only the
-    describe step runs again."""
+    """Describe each clip of job[side] into work/<side>-index. Not perceived again: a clip described here with the
+    job's salience rules (already), one measured before under the same perception settings, whose pose track and
+    descriptor are fetched from Files by identity (reused), and one refused before under them (refused_before). A
+    descriptor made under other rules is described again; pose keeps its own cache, so only the describe step runs
+    again. The refusals of this run are written to work/<side>-refused.json for measure to keep."""
+    sys.path.insert(0, HERE)
+    import files_road
     index = os.path.join(job["work"], f"{side}-index")
     os.makedirs(os.path.join(index, "_work"), exist_ok=True)
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
-    made, kept, failed = [], [], []
+    made, kept, reused, before, failed = [], [], [], [], []
     rules = json.dumps(job.get("salience") or {})
     fp = salience_fingerprint(rules)
+    pfp = perception_fingerprint(job)
+    have = measured_rows(job)
     for clip in job[side]:
         k = key(clip)
-        desc = os.path.join(index, f"{k}.desc.json")
-        if os.path.exists(desc) and read(desc).get("salience_fp") == fp:
+        desc, kp = os.path.join(index, f"{k}.desc.json"), os.path.join(index, "_work", f"{k}.kp.json")
+        if os.path.exists(desc) and os.path.exists(kp) and read(desc).get("salience_fp") == fp:
             kept.append(k)
             continue
+        known = have.get((clip.get("identity"), "perception", "", pfp))
+        if known and known.get("refused"):
+            before.append({"clip": clip["path"], "identity": clip.get("identity"), "why": known["refused"]})
+            continue
+        if known:
+            for ident, path, field in ((known["descriptor"], desc, "source"), (known["pose_track"], kp, "video")):
+                files_road.fetch(job["call"], ident, path + ".kept")
+                data = read(path + ".kept")       # the kept copy names the work folder it was made in; this one's
+                data[field]["path"] = clip["path"]  # clip path is where the matcher and the renderer look
+                with open(path, "w") as f:
+                    json.dump(data, f)
+            reused.append(k)
+            continue
+        ensure_media(job, clip)
         cmd = [sys.executable, os.path.join(PERCEPTION, "run_perception.py"), "--clip", clip["path"], "--out", desc,
-               "--kp", os.path.join(index, "_work", f"{k}.kp.json"), "--salience-config", rules]
+               "--kp", kp, "--salience-config", rules]
         r = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if r.returncode or not os.path.exists(desc):
-            failed.append({"clip": clip["path"], "why": (r.stderr.strip().splitlines() or ["no output"])[-1][:300]})
+            failed.append({"clip": clip["path"], "identity": clip.get("identity"),
+                           "why": (r.stderr.strip().splitlines() or ["no output"])[-1][:300]})
             continue
         made.append(k)
-    return {"index": index, "made": made, "already": kept, "failed": failed}
+    with open(os.path.join(job["work"], f"{side}-refused.json"), "w") as f:
+        json.dump(failed, f, indent=1)
+    return {"index": index, "made": made, "already": kept, "reused": reused, "refused_before": before, "failed": failed}
+
+
+def ensure_media(job, clip):
+    """The clip's own pictures in the work folder, fetched from Files by identity when a stage needs them."""
+    if not os.path.exists(clip["path"]):
+        sys.path.insert(0, HERE)
+        import files_road
+        files_road.fetch(job["call"], clip["identity"], clip["path"])
+    return clip["path"]
+
+
+def measured_rows(job):
+    """The kept rows prepare read about this job's clips, indexed by (identity, fact, part, fingerprint)."""
+    sys.path.insert(0, HERE)
+    import measured_facts
+    path = os.path.join(job["work"], "measured-rows.json")
+    return measured_facts.index_rows(read(path) if os.path.exists(path) else [])
+
+
+def perception_fingerprint(job):
+    """What a pose track and descriptor depend on: the salience rules and the perception models."""
+    sys.path.insert(0, HERE)
+    import measured_facts
+    return measured_facts.fingerprint({"salience_fp": salience_fingerprint(json.dumps(job.get("salience") or {})),
+                                       "models": job.get("model_identities") or {}})
+
+
+def reading_fingerprint(job, side, clip, pfp):
+    """What a clip's swing facts depend on: its perception, the stroke rules, the playing hand and given forehand
+    side, the contact settings of its side, a person's marks on it and the people in it."""
+    sys.path.insert(0, HERE)
+    import measured_facts
+    import stroke_side
+    name = "target" if side == "targets" else "reference"
+    return measured_facts.fingerprint({
+        "perception": pfp, "rules": stroke_side.rules_of(job), "hand": clip.get("hand"),
+        "forehand_side": clip.get("forehand_side"), "people": clip.get("people") or [],
+        "contact": {"tolerance_s": (job.get("contact_tolerance_s") or {}).get(name, 0.25),
+                    "audio_lag_s": (job.get("contact_audio_lag_s") or {}).get(name, 0.0)},
+        "marks": (job.get("contact_marks") or {}).get(clip.get("identity"), [])})
+
+
+def contact_of(job, side, clip, window):
+    """One swing's contact: a person's mark inside the window (the one nearest the wrist peak), else
+    contact_moment.py (the hit's sound less the side's audio lag, else the wrist peak). Says its source."""
+    peak = window["peak_t"]
+    marks = [m for m in (job.get("contact_marks") or {}).get(clip.get("identity"), []) if window["t0"] <= float(m) <= window["t1"]]
+    if marks:  # a person's mark is the contact: no detector here is frame-exact on every kind of video
+        near = min(marks, key=lambda m: abs(float(m) - peak))
+        return {"time": float(near), "source": "mark", "hit": None,
+                "why": f"marked by a person, {float(near) - peak:+.3f} s from the wrist peak"}
+    name = "target" if side == "targets" else "reference"
+    tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)
+    lag = (job.get("contact_audio_lag_s") or {}).get(name, 0.0)  # how late this side's sound is (DATA); 0 = never the sound
+    got = run_json([sys.executable, os.path.join(HERE, "contact_moment.py"), "--clip", ensure_media(job, clip),
+                    "--t0", str(window["t0"]), "--t1", str(window["t1"]), "--wrist-peak", str(peak),
+                    "--media-composition", media_of(job), "--tolerance", str(tolerance), "--audio-lag", str(lag)])
+    if "error" in got:
+        raise RuntimeError(f"contact: {got['error']}")
+    return got["result"]
+
+
+def measure(job):
+    """Each perceived clip's facts, measured once (measured_facts.py has the row shape): the pose track and descriptor
+    kept in Files and a perception row (or the refusal perceive met), then per swing window a swing row (times,
+    heading, camera angle, stroke reading, contact, people, date) and one recording row. A clip with rows under the
+    same fingerprints is read, not measured. work/measured.json holds every clip's facts for match and render."""
+    sys.path.insert(0, HERE)
+    import files_road
+    import measured_facts
+    import stroke_side
+    from concurrent.futures import ThreadPoolExecutor
+    facts = job.get("facts")
+    have = measured_rows(job)
+    pfp = perception_fingerprint(job)
+    rules = stroke_side.rules_of(job)
+    by = {"tool": "track-and-compare-movement", "commit": job.get("code_commit")}
+    row = lambda ident, fact, part, fp, value: {"identity": ident, "fact": fact, "part": part, "fingerprint": fp,  # noqa: E731
+                                                "value": value, "measured_by": by}
+    new, to_keep, out = [], [], {"targets": {}, "references": {}}
+    counts = {"measured": 0, "read": 0, "refused": 0}
+    for side in ("targets", "references"):
+        index = os.path.join(job["work"], f"{side}-index")
+        refusals = os.path.join(job["work"], f"{side}-refused.json")
+        refused = {f["identity"]: f["why"] for f in (read(refusals) if os.path.exists(refusals) else [])}
+        for clip in job[side]:
+            ident, k = clip.get("identity"), key(clip)
+            desc_path, kp_path = os.path.join(index, f"{k}.desc.json"), os.path.join(index, "_work", f"{k}.kp.json")
+            if (ident, "perception", "", pfp) not in have and ident in refused:
+                new.append(row(ident, "perception", "", pfp, {"refused": refused[ident], "duration_s": clip.get("seconds")}))
+                counts["refused"] += 1
+                continue
+            if not os.path.exists(desc_path):
+                continue
+            if (ident, "perception", "", pfp) not in have:
+                to_keep.append((clip, desc_path, kp_path))
+            rfp = reading_fingerprint(job, side, clip, pfp)
+            record = have.get((ident, "recording", "", rfp))
+            if record is not None:
+                swings = {part: v for (i, f, part, fp), v in have.items() if i == ident and f == "swing" and fp == rfp}
+                counts["read"] += 1
+            else:
+                desc, kp = read(desc_path), read(kp_path)
+                swings = {}
+                for w, window in enumerate(desc.get("windows", [])):
+                    reading = stroke_side.read_stroke(kp, window, clip.get("hand"), clip.get("forehand_side"), rules) \
+                        if readable(clip) else None
+                    heading = window.get("heading") or {}
+                    swings[str(w)] = {"t0": window["t0"], "t1": window["t1"], "peak_t": window["peak_t"],
+                                      "full_swing": window.get("full_swing"),
+                                      "heading": {"traj": heading.get("traj"), "conf": heading.get("conf")},
+                                      "camera": stroke_side.camera_of(window, rules), "reading": reading,
+                                      "contact": contact_of(job, side, clip, window),
+                                      "people": clip.get("people") or [], "date": clip.get("date"), "name": clip.get("name")}
+                    new.append(row(ident, "swing", str(w), rfp, swings[str(w)]))
+                sides = sorted({(s["reading"] or {}).get("forehand_side") for s in swings.values()} - {None})
+                record = {"name": clip.get("name"), "people": clip.get("people") or [], "date": clip.get("date"),
+                          "hand": clip.get("hand"), "windows": len(swings),
+                          "forehand_side": sides[0] if len(sides) == 1 else None, "forehand_sides_seen": sides,
+                          "cameras": sorted({s["camera"]["class"] for s in swings.values()})}
+                new.append(row(ident, "recording", "", rfp, record))
+                counts["measured"] += 1
+            out[side][k] = {"identity": ident, "perception_fp": pfp, "reading_fp": rfp, "recording": record, "swings": swings}
+
+    def kept_outputs(item):
+        """The pose track and descriptor kept in Files under facts.files_folder; their identities, or why not."""
+        clip, desc_path, kp_path = item
+        folder = f"{facts['files_folder'].rstrip('/')}/{clip['identity'][3:]}/{pfp[3:19]}"
+        desc_id = files_road.keep(job["call"], desc_path, folder + ".desc.json", "application/json")
+        kp_id = files_road.keep(job["call"], kp_path, folder + ".kp.json", "application/json")
+        if not (desc_id and kp_id):
+            return clip, None
+        return clip, {"descriptor": desc_id, "pose_track": kp_id, "windows": len(read(desc_path).get("windows", [])),
+                      "duration_s": clip.get("seconds") or duration(ensure_media(job, clip)),
+                      "salience_fp": read(desc_path).get("salience_fp")}
+    kept, not_kept = 0, []
+    if facts and to_keep:
+        with ThreadPoolExecutor(max_workers=int(facts.get("keep_workers", 4))) as pool:
+            for clip, value in pool.map(kept_outputs, to_keep):
+                if value is None:
+                    not_kept.append(clip["identity"])
+                    continue
+                new.append(row(clip["identity"], "perception", "", pfp, value))
+                kept += 1
+    written = measured_facts.write_rows(facts, new)
+    path = os.path.join(job["work"], "measured.json")
+    with open(path, "w") as f:
+        json.dump(out, f)
+    return {"file": path, **counts, "outputs_kept": kept, "outputs_not_kept": not_kept, "rows_written": written,
+            "rows_kept": bool(facts)}
+
+
+_MEASURED = {}
+
+
+def swing_of(job, side, k, w):
+    """One window's measured facts from work/measured.json (measure's answer); RuntimeError when it was not measured."""
+    path = os.path.join(job["work"], "measured.json")
+    if path not in _MEASURED:
+        if not os.path.exists(path):
+            raise RuntimeError("no work/measured.json: the measure stage has not run")
+        _MEASURED[path] = read(path)
+    got = ((_MEASURED[path].get(side) or {}).get(k) or {}).get("swings", {}).get(str(w))
+    if got is None:
+        raise RuntimeError(f"{side} {k} window {w} was not measured")
+    return got
 
 
 def salience_fingerprint(rules):
@@ -122,8 +322,8 @@ def match(job):
       {"name": "best"}                                   the matcher's order
       {"name": "footwork", "channels": ["approach", ...]} the scorecard channels named, closest first (each channel's
                                                          rank among the admitted partners, summed: no units to weigh)
-    When a clip carries a playing hand or a forehand side, its swing must read as the movement (stroke_side.py), and
-    so must each partner's. Each pair says its choice and which orderings it tops."""
+    When a clip carries a playing hand or a forehand side, its swing must read as the movement (its measured
+    stroke_side.py reading), and so must each partner's. Each pair says its choice and which orderings it tops."""
     t_index, r_index = (os.path.join(job["work"], f"{s}-index") for s in ("targets", "references"))
     refs_by_src = {os.path.realpath(c["path"]): c for c in job["references"]}
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
@@ -156,7 +356,7 @@ def match(job):
                 continue
             side_check = None
             if readable(clip):
-                side_check = stroke_of_window(os.path.join(t_index, "_work", f"{k}.kp.json"), window, clip, job)
+                side_check = swing_of(job, "targets", k, w)["reading"]
                 if side_check["stroke"] != job.get("movement"):
                     refused.append({"target": k, "window": w, "reason": f"the swing reads as {side_check['stroke'] or 'unclear'}",
                                     "stroke_side": side_check, "class_check": got.get("class_check")})
@@ -170,7 +370,7 @@ def match(job):
                 w_ = d_["windows"][option["partner_window"]]
                 ps = None
                 if readable(r_):
-                    ps = stroke_of_window(os.path.join(r_index, "_work", f"{key(r_)}.kp.json"), w_, r_, job)
+                    ps = swing_of(job, "references", key(r_), option["partner_window"])["reading"]
                     if ps["stroke"] != job.get("movement"):
                         continue
                 options.append({"ref": r_, "pw": w_, "side": ps, "got": {**got, **option}})
@@ -220,16 +420,6 @@ def readable(clip):
     return clip.get("hand") in ("right", "left") or clip.get("forehand_side") in (1, -1)
 
 
-def stroke_of_window(kp_path, window, clip, job):
-    """stroke_side.py's reading of one swing window from the clip's playing hand and given forehand side (either may be
-    absent): its takeback side, its turn, the forehand side used and the stroke both agree on."""
-    sys.path.insert(0, HERE)
-    import stroke_side
-    with open(kp_path) as f:
-        return stroke_side.read_stroke(json.load(f), window, clip.get("hand"), clip.get("forehand_side"),
-                                       stroke_side.rules_of(job))
-
-
 def on_screen(clip, job, reading=None):
     """The facts side_by_side.screen_direction reads. A swing's forehand side (the one its stroke reading used, else
     the recording's given one) says it directly: its forehand travels like a right hand seen from behind when +1.
@@ -261,31 +451,15 @@ def kp_of(job, index, k):
 
 
 def plan_pair(job, pair, base, media, steps):
-    """One pair's plan, written beside `base` for author_comparison_edl.py: each side's contact (a person's mark, else
-    contact_moment.py), the phase sync of the reference to the target (phase_sync.py; refused = contact only), the
+    """One pair's plan, written beside `base` for author_comparison_edl.py: each side's measured contact (measure:
+    a person's mark, else contact_moment.py), the phase sync of the reference to the target (phase_sync.py; refused = contact only), the
     mirror from facts both sides carry, and the two-sided spec (BASE.spec.json, reference first: top / left). `steps`
     is filled as it goes, so a failure still says what was found; a piece that fails raises RuntimeError."""
     T, R = by_key(job, "targets"), by_key(job, "references")
     t, r = T[pair["target"]], R[pair["reference"]]
-    contacts = {}
-    for name, clip, k, index, window, peak in (
-            ("target", t, pair["target"], "targets", pair["target_t"], pair["target_peak"]),
-            ("reference", r, pair["reference"], "references", pair["reference_t"], pair["reference_peak"])):
-        marks = [m for m in (job.get("contact_marks") or {}).get(clip.get("identity"), [])
-                 if window[0] <= float(m) <= window[1]]
-        if marks:  # a person's mark is the contact: no detector here is frame-exact on every kind of video
-            near = min(marks, key=lambda m: abs(float(m) - peak))
-            contacts[name] = {"time": float(near), "source": "mark", "hit": None,
-                              "why": f"marked by a person, {float(near) - peak:+.3f} s from the wrist peak"}
-            continue
-        tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)
-        lag = (job.get("contact_audio_lag_s") or {}).get(name, 0.0)  # how late this side's sound is (DATA)  # 0 = never the sound (its audio
-        got = run_json([sys.executable, os.path.join(HERE, "contact_moment.py"), "--clip", clip["path"],  # may be off)
-                        "--t0", str(window[0]), "--t1", str(window[1]), "--wrist-peak", str(peak),
-                        "--media-composition", media, "--tolerance", str(tolerance), "--audio-lag", str(lag)])
-        if "error" in got:
-            raise RuntimeError(f"contact {name}: {got['error']}")
-        contacts[name] = got["result"]
+    ensure_media(job, t), ensure_media(job, r)
+    contacts = {"target": swing_of(job, "targets", pair["target"], pair["target_window"])["contact"],
+                "reference": swing_of(job, "references", pair["reference"], pair["reference_window"])["contact"]}
     steps["contact"] = contacts
     tc, rc = contacts["target"]["time"], contacts["reference"]["time"]
     # each side's window comes from its own swing landmarks (phase_sync); the clips make its landmark sheet
@@ -746,34 +920,49 @@ def prepare(spec):
     """Fetch the models and every clip by identity from Files into spec.work, and write the job the other stages read.
     spec: {work, call, models: [{name, identity}], targets: [{name, identity}], references: [{name, identity}],
     target_people, reference_people, target_hand / reference_hand (each side's playing hand), target_forehand_side /
-    reference_forehand_side (overrides), and the job settings (movement, view, layout, padding_s, size, keep_folder,
-    salience, stroke_side_rules)}."""
+    reference_forehand_side (overrides), facts (where measurements are kept), and the job settings (movement, view,
+    layout, padding_s, size, keep_folder, salience, stroke_side_rules)}. A person's contact marks come from the
+    contact-mark rows, never from the spec. A clip already measured under the same perception settings is not fetched
+    here (its length comes from its perception row)."""
     sys.path.insert(0, HERE)
     import files_road
+    import measured_facts
     work, call = spec["work"], spec["call"]  # the engine command that holds the Files right, given by the caller
     models, media = os.path.join(work, "models"), os.path.join(work, "media")
     os.makedirs(models, exist_ok=True)
     os.makedirs(media, exist_ok=True)
     for m in spec["models"]:
         files_road.fetch(call, m["identity"], os.path.join(models, m["name"]))
+    # what is already measured about every clip, read first; a person's contact marks are among those rows
+    rows = measured_facts.read_rows(spec.get("facts"), [r["identity"] for r in spec["targets"] + spec["references"]])
+    with open(os.path.join(work, "measured-rows.json"), "w") as f:
+        json.dump(rows, f)
+    have = measured_facts.index_rows(rows)
+    pfp = perception_fingerprint({"salience": spec.get("salience"),
+                                  "model_identities": {m["name"]: m["identity"] for m in spec["models"]}})
 
     left_out = []
     longest = spec.get("reference_max_seconds")  # a folder's label holds for its one-swing clips, not for a long
     #                                              practice recording filed under it (measured Nov 25 2026: 5 to 11
     #                                              minute "backhand" sessions hold forehands too), so those are left out
 
+    measured_before = {"target": 0, "reference": 0}
+
     def clips(rows, people, side):
         out = []
         for row in rows:
             ext = os.path.splitext(row["name"])[1].lower() or ".mp4"
             path = os.path.join(media, side + "-" + row["identity"][3:19] + ext)
-            files_road.fetch(call, row["identity"], path)
+            known = have.get((row["identity"], "perception", "", pfp))
+            measured_before[side] += known is not None
+            if known is None:                             # not measured yet: perceive needs its pictures
+                files_road.fetch(call, row["identity"], path)
+            seconds = known.get("duration_s") if known else duration(path)
             if side == "reference" and longest:
-                seconds = duration(path)
                 if seconds is None or seconds > float(longest):
                     left_out.append({"name": row["name"], "seconds": seconds, "why": f"longer than {longest} s or unreadable"})
                     continue
-            clip = {"path": path, "identity": row["identity"], "name": row["name"], "people": people}
+            clip = {"path": path, "identity": row["identity"], "name": row["name"], "people": people, "seconds": seconds}
             if row.get("class"):
                 clip["class"] = row["class"]                  # a human label (e.g. from the clip's folder)
             if spec.get(f"{side}_hand") in ("right", "left"):  # the side's player's playing hand: each swing's forehand
@@ -788,13 +977,15 @@ def prepare(spec):
             out.append(clip)
         return out
     settings = {k: v for k, v in spec.items() if k not in ("models", "targets", "references", "target_people", "reference_people")}
-    job = {**settings, "work": work, "models": models, "call": call,
+    job = {**settings, "work": work, "models": models, "call": call, "contact_marks": measured_facts.marks_of(rows),
+           "model_identities": {m["name"]: m["identity"] for m in spec["models"]},
            "targets": clips(spec["targets"], spec.get("target_people") or [], "target"),
            "references": clips(spec["references"], spec.get("reference_people") or [], "reference")}
     path = os.path.join(work, "job.json")
     with open(path, "w") as f:
         json.dump(job, f, indent=1)
     return {"job": path, "targets": len(job["targets"]), "references": len(job["references"]), "references_left_out": left_out,
+            "measured_before": measured_before, "facts_read": len(rows),
             "progression": bool(job.get("progression"))}
 
 
@@ -810,7 +1001,7 @@ def duration(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["prepare", "perceive", "match", "render", "check", "keep", "progression"])
+    ap.add_argument("stage", choices=["prepare", "perceive", "measure", "match", "render", "check", "keep", "progression"])
     ap.add_argument("--job", help="the job file (every stage but prepare, which reads its spec on stdin)")
     ap.add_argument("--side", choices=["targets", "references"], default="targets")
     a = ap.parse_args()
@@ -820,7 +1011,7 @@ def main():
         else:
             job = read(a.job)
             out = perceive(job, a.side) if a.stage == "perceive" else \
-                {"match": match, "render": render, "check": check, "keep": keep,
+                {"measure": measure, "match": match, "render": render, "check": check, "keep": keep,
                  "progression": progression}[a.stage](job)
     except Exception as e:  # one line the workflow reads, with the reason
         print(json.dumps({"error": f"{a.stage}: {type(e).__name__}: {e}"}))

@@ -123,6 +123,23 @@ class ForehandSideAndTurn(unittest.TestCase):
         self.assertEqual((got["by_turn"], got["stroke"]), (None, "backhand"))
         self.assertIsNone(s.read_stroke(track(850), {"t0": 0.0, "peak_t": 29 / 30}, rules=self.rules)["stroke"])
 
+    def test_the_camera_angle_is_a_plain_class(self):
+        cls = lambda traj, elevation=-0.05: s.camera_of({"heading": {"traj": traj}, "elevation": {"value": elevation, "conf": 0.9}}, self.rules)["class"]  # noqa: E731
+        self.assertEqual(cls(RIGHT_FOREHAND_FROM_BEHIND), "back")
+        self.assertEqual(cls(turned(RIGHT_FOREHAND_FROM_BEHIND, 180)), "front")
+        self.assertEqual(cls(turned(RIGHT_FOREHAND_FROM_BEHIND, 270)), "side-right")   # a right forehand's takeback way
+        self.assertEqual(cls(turned(RIGHT_FOREHAND_FROM_BEHIND, 90)), "side-left")
+        self.assertEqual(cls(RIGHT_FOREHAND_FROM_BEHIND, elevation=0.02), "birdseye")
+        self.assertEqual(s.camera_of({"heading": None}, self.rules)["class"], "unclear")
+
+    def test_an_unclear_stroke_says_why(self):
+        got = s.read_stroke(track(850), window(turned(RIGHT_FOREHAND_FROM_BEHIND, 90)), hand="right", rules=self.rules)
+        self.assertIn("side", got["why"])
+        got = s.read_stroke(track(250), window(RIGHT_FOREHAND_FROM_BEHIND), hand="right", rules=self.rules)
+        self.assertEqual(got["why"], "the readings differ: the takeback side says backhand, the turn says forehand")
+        got = s.read_stroke(track(850), window(RIGHT_FOREHAND_FROM_BEHIND), hand="right", rules=self.rules)
+        self.assertIsNone(got["why"])
+
     def test_a_job_can_give_its_own_numbers(self):
         self.assertEqual(s.rules_of({"stroke_side_rules": {"turn_min_deg": 200}})["turn_min_deg"], 200)
         self.assertIsNone(s.stroke_by_turn(134.0, "right", s.rules_of({"stroke_side_rules": {"turn_min_deg": 200}})))
