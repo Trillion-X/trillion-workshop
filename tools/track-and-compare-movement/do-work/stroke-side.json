@@ -6,5 +6,7 @@
   "facing_samples": 3,
   "turn_follow_min_s": 0.3,
   "birdseye_elevation": 0.007,
-  "elevation_min_conf": 0.4
+  "elevation_min_conf": 0.4,
+  "camera_target_offset_deg": 90,
+  "camera_turn_min_deg": 30
 }
