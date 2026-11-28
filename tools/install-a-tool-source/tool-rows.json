@@ -195,9 +195,14 @@
         "input_schema": {
           "type": "object",
           "required": [
+            "computer",
             "source"
           ],
           "properties": {
+            "computer": {
+              "type": "string",
+              "description": "The one computer this install is for: the id a call is pinned to with --pin (lowercase letters, digits, dot, dash or underscore). A call or a row that names no computer is refused, so the default tool_sources row installs nowhere."
+            },
             "source": {
               "type": "string",
               "description": "The label of one tool source: lowercase letters, digits, dot, dash or underscore."

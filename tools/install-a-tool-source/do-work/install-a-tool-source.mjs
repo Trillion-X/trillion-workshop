@@ -16,6 +16,11 @@
 //   2. The request key is made from the label and the pin (or the removal), so the same row told twice is one install.
 //   3. While the engine is already installing for this account it refuses another install (`busy_code`); the same call is
 //      asked again with the same key after a growing wait, a bounded number of times (install-a-tool-source.json).
+//   5. A call names the one computer it is for (`computer`, the id a call is pinned to with --pin); a call that names none is refused before the door is called. A tool
+//      source row with no computer (the default row) therefore never installs anywhere: on Nov 28 2026 the keeper ran
+//      on one computer for a default-row write meant for another and moved a computer that had to stay put. The engine gives
+//      a tool no way to read which computer it runs on yet (Track B Task 3.5 adds ran_on), so the caller pins the call
+//      to that computer, and the name is part of the request key, so one row told for two computers is two installs.
 //   4. The engine's answer is handed back as it is (`changed`, `files_blake3`, `previous`, `removed`, `switch_again`), with the
 //      label beside it; this tool decides nothing about which version is right: the person's row does.
 //
@@ -28,11 +33,13 @@ import settings from './install-a-tool-source.json' with { type: 'json' };
 
 const LABEL = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 const PIN = /^[0-9a-f]{64}$/;
+const COMPUTER = /^[a-z0-9][a-z0-9._-]{0,63}$/;
 
 /** Why `input` is not one source to install or take away, or null when it is. */
 export function problemOf(input) {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) return 'Give {source, address, files_blake3} or {source, removed: true}.';
-  const { source, address, files_blake3: pin, removed } = input;
+  if (!input || typeof input !== 'object' || Array.isArray(input)) return 'Give {computer, source, address, files_blake3} or {computer, source, removed: true}.';
+  const { computer, source, address, files_blake3: pin, removed } = input;
+  if (typeof computer !== 'string' || !COMPUTER.test(computer)) return 'computer names the one computer this install is for (the id a call is pinned to with --pin); a call or a row that names no computer installs nowhere.';
   if (typeof source !== 'string' || !LABEL.test(source)) return 'source is the label of one tool source: lowercase letters, digits, dot, dash or underscore.';
   // A removed row's change carries no archive: its address and pin come as null (or not at all).
   if (removed === true) return address == null && pin == null ? null : 'A removal names only the source.';
@@ -47,13 +54,13 @@ export function problemOf(input) {
 export async function installToolSource(input, { door, wait = delay, tries = settings }) {
   const problem = problemOf(input);
   if (problem) throw new Error(problem);
-  const { source, address, files_blake3: pin, removed } = input;
+  const { computer, source, address, files_blake3: pin, removed } = input;
   const asked = removed === true ? { source, removed: true } : { source, address, files_blake3: pin };
-  const key = `install-a-tool-source:${source}:${removed === true ? 'removed' : pin}`;
+  const key = `install-a-tool-source:${computer}:${source}:${removed === true ? 'removed' : pin}`;
   for (let ask = 1, waited = tries.first_wait_ms; ; ask += 1, waited *= tries.factor) {
     try {
       const answer = await door.operation('tools:update', asked, { key, at: door.toolsAddress });
-      return { source, ...answer };
+      return { computer, source, ...answer };
     } catch (error) {
       if (error?.code !== tries.busy_code || ask >= tries.most_tries) throw error;
       await wait(waited);
