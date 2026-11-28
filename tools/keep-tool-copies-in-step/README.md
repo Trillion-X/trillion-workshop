@@ -1,11 +1,11 @@
 # tools/keep-tool-copies-in-step/
 
-`tool:keep-tool-copies-in-step` keeps the tool folders a project copied into its own tools folder (with
-`tool:add-a-tool-to-a-project`, whose `read-data/record.ts` names the folder once as `TOOLS_FOLDER`) in step with where
-they came from. It reads the project from a clone it keeps itself in its own state folder, fetched from the project's
+`tool:keep-tool-copies-in-step` keeps the tool folders a project copied (with `tool:add-a-tool-to-a-project`, each at
+the place its record line names, `at`) in step with where they came from. It reads the project from a clone it keeps itself in its own state folder, fetched from the project's
 repository address (`repo`) at the tip of its branch (`main` unless `branch` names another); no working checkout of the
-project, and no deploy folder, is ever read or written. For each line of the folder's record
-`where-each-tool-comes-from.json` it compares three versions of the folder, offers each upstream change to the project
+project, and no deploy folder, is ever read or written. The record is the project's one `where-each-tool-comes-from.json`,
+found in the tip's file list wherever it is (the add tool's `recordPlaceIn`; two are refused). For each of its lines it
+compares three versions of the folder, offers each upstream change to the project
 as one branch `sync/upstream/<record line>/<upstream commit>`, refuses conflicts with their diff, and skips forks. It
 never merges, never fast-forwards and never pushes any other ref. `workflow:keep-tool-copies-in-step` runs it when a push
 fact arrives, and once a day.
@@ -15,7 +15,7 @@ fact arrives, and once a day.
 | Name | What it is | Where it is read |
 |---|---|---|
 | base (b) | the files the copy started from | the record line's `files` (hashes) and, for a file changed on both sides, its bytes fetched at `copied_at_commit` |
-| project (l) | the copy now | the tool's folder at the tip of the project's branch, in the tool's own clone (`<state>/projects/<repo>-<id>`: a depth-1, blob-less fetch and a sparse checkout of only the tools folder) |
+| project (l) | the copy now | the tool's folder at the tip of the project's branch, in the tool's own clone (`<state>/projects/<repo>-<id>`: a depth-1, blob-less fetch and a sparse checkout of only the record and each line's `at`) |
 | upstream (u) | the source now | the folder at the commit the registry's pointer names now (`paths` only, when the pointer names them), checked against the pointer's `files_blake3`; for a direct `{repo, path, commit}` line, the repository's HEAD |
 
 ## The algebra (read-data/classify.ts)

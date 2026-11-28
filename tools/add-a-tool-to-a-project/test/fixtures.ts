@@ -2,7 +2,7 @@
 //
 // Stand-ins the add tests share: a git repository made from given files, a registry folder pointing at folders of it (each
 // pointer's files_blake3 computed by the content-identity owner from `git archive`, as a real registry's pin is), and an
-// empty project folder. Everything is made under the test process's own temp folder (test-helpers/own-tmpdir.mjs).
+// empty project (a git folder). Everything is made under the test process's own temp folder (test-helpers/own-tmpdir.mjs).
 // Each stand-in repository and registry has a git origin address (example.invalid, never reached), because a project
 // record names a registry or repo only by an address every computer can reach; the files are read from the folder.
 import { execFileSync } from 'node:child_process';
@@ -60,8 +60,10 @@ export function makeRegistry(repo: string, commit: string, needs: Record<string,
   return registry;
 }
 
+/** A project is a git folder: its record is found from git's list of its files (read-data/record.ts recordPlace). */
 export const emptyProject = (): string => {
   const project = scratch('project');
+  execFileSync('git', ['-C', project, 'init', '-q']);
   writeFileSync(join(project, 'package.json'), '{"name":"a-project","private":true}\n');
   return project;
 };

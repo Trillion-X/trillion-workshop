@@ -14,7 +14,7 @@ test('a direct pointer is copied and recorded as the object it was', async () =>
   const output = await add({ project, tool: 'greet', from });
   assert.deepEqual(output.refused, []);
   assert.deepEqual(output.added.map(a => a.tool), ['greet']);
-  const line = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8')).tools.greet;
+  const line = JSON.parse(readFileSync(join(project, 'where-each-tool-comes-from.json'), 'utf8')).tools.greet;
   assert.deepEqual(line.from, { ...from, repo: originAddress(repo) }, 'the repo is recorded by its origin address, not its folder');
 });
 
@@ -27,5 +27,5 @@ test('a from that is not a registry is refused and nothing is written', async ()
     const output = await add({ project, tool: 'greet', from });
     assert.deepEqual(output.refused.map(r => r.why), ['bad-from'], JSON.stringify(from));
   }
-  assert.equal(existsSync(join(project, 'trillion')), false);
+  assert.equal(existsSync(join(project, 'where-each-tool-comes-from.json')), false);
 });

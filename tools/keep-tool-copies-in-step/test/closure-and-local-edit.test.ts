@@ -6,13 +6,13 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { RECORD_FILE, TOOLS_FOLDER } from '../../add-a-tool-to-a-project/read-data/record.ts';
+import { RECORD_FILE } from '../../add-a-tool-to-a-project/read-data/record.ts';
 import { add } from '../../add-a-tool-to-a-project/do-work/add.ts';
 import { emptyProject, pinOf, scratch, withOrigin } from '../../add-a-tool-to-a-project/test/fixtures.ts';
 import { apply, plan, type Io } from '../do-work/sync.ts';
-import { TEXT, commitUpstream, git, makeUpstream, projectWith, publish, refsOf, remoteOf, toolFiles, type Upstream } from './fixtures.ts';
+import { TEXT, commitUpstream, git, makeUpstream, projectWith, publish, refsOf, remoteOf, toolFiles, type Upstream, PLACE } from './fixtures.ts';
 
-const recordFile = (project: string) => join(project, TOOLS_FOLDER, RECORD_FILE);
+const recordFile = (project: string) => join(project, PLACE, RECORD_FILE);
 const record = (project: string) => JSON.parse(readFileSync(recordFile(project), 'utf8'));
 
 /** A registry where app needs base, each pointer at its own commit. */
@@ -32,7 +32,7 @@ async function baseMoved() {
   needsRegistry(registry, up, { app: first, base: first }, up.bare);
   withOrigin(registry);
   const project = emptyProject();
-  const added = await add({ project, tool: 'app', from: registry, prepare: false });
+  const added = await add({ project, tool: 'app', from: registry, record_at: PLACE, prepare: false });
   assert.deepEqual(added.refused, []);
   git(project, 'init', '-q');
   git(project, 'add', '-A');
@@ -56,7 +56,7 @@ test('a change in a needed tool alone makes the tool that needs it upstream-only
   assert.notEqual(planned.tools.app.closure!.upstream, recorded);
   const done = await apply({ ...at, clones, plan: planned });
   assert.deepEqual(done.waiting.map(w => [w.tools, w.branch, w.created]), [[['base', 'app'], `sync/upstream/base/${next}`, true]]);
-  const onBranch = JSON.parse(execFileSync('git', ['-C', at.repo, 'show', `sync/upstream/base/${next}:${TOOLS_FOLDER}/${RECORD_FILE}`], { encoding: 'utf8' }));
+  const onBranch = JSON.parse(execFileSync('git', ['-C', at.repo, 'show', `sync/upstream/base/${next}:${PLACE}/${RECORD_FILE}`], { encoding: 'utf8' }));
   assert.equal(onBranch.tools.app.closure_blake3, planned.tools.app.closure!.upstream, 'the branch carries the closure the plan named');
   assert.equal(refsOf(at.repo)['refs/heads/main'], main, 'main did not move');
 });

@@ -14,7 +14,7 @@ test('needs that loop copy each folder once', async () => {
   const output = await add({ project, tool: 'tool-a', from: registry });
   assert.deepEqual(output.refused, []);
   assert.deepEqual(output.added.map(a => a.tool).sort(), ['tool-a', 'tool-b']);
-  const record = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8'));
+  const record = JSON.parse(readFileSync(join(project, 'where-each-tool-comes-from.json'), 'utf8'));
   assert.deepEqual(record.tools['tool-a'].needs_tools, ['tool-b']);
   assert.deepEqual(record.tools['tool-b'].needs_tools, ['tool-a']);
   assert.equal(record.tools['tool-a'].closure_blake3, record.tools['tool-b'].closure_blake3);

@@ -2,7 +2,7 @@
 // prepare runs as words in the copied folder (here a plain node command that writes a marker file).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { add } from '../do-work/add.ts';
 import { emptyProject, makeRegistry, makeRepo, standInTool } from './fixtures.ts';
@@ -21,7 +21,8 @@ test('a card\'s prepare runs in the copied folder', async () => {
   const project = emptyProject();
   const output = await add({ project, tool: 'greet', from: makeRegistry(repo, commit, { greet: [] }) });
   assert.deepEqual(output.prepared, ['greet']);
-  const folder = join(project, 'trillion', 'greet');
+  // The prepare's own working folder, as the system names it (on macOS /var is /private/var).
+  const folder = realpathSync(join(project, 'greet'));
   assert.equal(readFileSync(join(folder, 'ready.txt'), 'utf8'), folder);
   const skipped = emptyProject();
   const unprepared = await add({ project: skipped, tool: 'greet', from: makeRegistry(repo, commit, { greet: [] }), prepare: false });

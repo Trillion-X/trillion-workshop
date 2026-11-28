@@ -13,6 +13,9 @@ import { add } from '../../add-a-tool-to-a-project/do-work/add.ts';
 import { emptyProject, makeRepo, pinOf, scratch, withOrigin } from '../../add-a-tool-to-a-project/test/fixtures.ts';
 
 export type Upstream = { work: string; bare: string; commit: string };
+/** Where the stand-in projects keep their record and copies: a nested folder, so every read and write goes by the record's
+ *  place and each line's `at`, never by a fixed folder. */
+export const PLACE = 'lib/copies';
 const git = (dir: string, ...args: string[]) => execFileSync('git', ['-C', dir, ...args], { encoding: 'utf8' }).trim();
 
 /** A bare upstream holding `files` in one commit on main, which may be fetched at any commit it holds. */
@@ -59,7 +62,7 @@ export async function projectWith(up: Upstream, names: string[]): Promise<{ proj
   withOrigin(registry);
   const project = emptyProject();
   for (const name of names) {
-    const added = await add({ project, tool: name, from: registry, prepare: false });
+    const added = await add({ project, tool: name, from: registry, record_at: PLACE, prepare: false });
     if (added.refused.length) throw new Error(JSON.stringify(added.refused));
   }
   git(project, 'init', '-q');
