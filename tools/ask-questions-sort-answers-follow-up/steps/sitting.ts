@@ -15,7 +15,7 @@
 //   4. No form, question, page or word is named here: they are rows.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
-import { nextStepOf, askedStep, checkAnswer, checkSpecOf, stepsOf } from '../../take-a-booking-one-step-at-a-time/read-data/booking-steps.mjs';
+import { nextStepOf, askedStep, checkAnswer, checkAgainst, checkSpecOf, stepsOf } from '../../take-a-booking-one-step-at-a-time/read-data/booking-steps.mjs';
 import { answerFactId, ANSWER_FACT_KIND } from '../do-work/answer-fact-writes.ts';
 import { questionSequenceId } from '../do-work/save-question-sequence.ts';
 import { refusal } from '../../run-sql-in-my-database/do-work/run-sql.mjs';
@@ -150,7 +150,8 @@ export async function answerQuestion(
   const step = nextStepOf(page, progress);
   if (named && (step?.kind !== 'question' || step.question.questionId !== named)) return sentAgain(page, progress, named, value, refusals);
   if (step?.kind !== 'question') throw refused(refusals, 'not_answering');
-  const checked = checkAnswer(step, value);
+  // A question step's check is checkAgainst (what checkAnswer does for kind 'question'), whose answer always names `text`.
+  const checked = checkAgainst(step.question, checkSpecOf(step), value);
   if (!checked.ok) throw refusal(checked.reason, 400);
   const asked = askedStep(page, step, progress);
   const { questionId } = step.question;

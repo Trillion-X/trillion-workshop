@@ -806,8 +806,10 @@ export function TimedTextCaptionOverlay({
   // Measure the real frame before mounting a positioned reader. Its next
   // layout pass measures the newly attached toolbar before the first paint.
   React.useLayoutEffect(() => {
-    const element = constraintsRef.current;
-    if (!element) return undefined;
+    const found = constraintsRef.current;
+    if (!found) return undefined;
+    // Named with its proven type, so updateSize (declared below, hoisted) reads it as the frame and never null.
+    const element: HTMLDivElement = found;
     let observedControls: Element | null = null;
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(updateSize);
     function updateSize() {

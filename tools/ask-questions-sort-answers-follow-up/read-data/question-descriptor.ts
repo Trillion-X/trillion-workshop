@@ -149,8 +149,9 @@ export function answerText(question: QuestionDescriptor, value: unknown): string
   if (typeof value !== 'object') return String(value);
   const picks = value as { picked?: unknown; other?: unknown };
   if (!Array.isArray(picks.picked)) return JSON.stringify(value);
+  const other = question.other;
   return picks.picked.map((item) => {
-    if (question.other?.value === item) return `${question.other.label}: ${typeof picks.other === 'string' ? picks.other : ''}`.trim();
+    if (other && other.value === item) return `${other.label}: ${typeof picks.other === 'string' ? picks.other : ''}`.trim();
     return question.options?.find((option) => option.value === item)?.label ?? String(item);
   }).join('; ');
 }

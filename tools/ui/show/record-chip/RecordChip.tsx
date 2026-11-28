@@ -20,7 +20,7 @@ import React from 'react';
 import { NamedIcon } from '../icon';
 import { safeLinkedIdentityUrl } from '../linked-identity';
 import { parseInlineRuns } from 'trillion-workshop/tools/edit-a-document-together/read-data/inline-tokens.ts';
-import { mentionRuns, type KeptMention } from './mention-runs';
+import { mentionRuns, type KeptMention, type MentionRun } from './mention-runs';
 
 /** How one kind of thing looks: its name, a named icon and a screen-look colour id. */
 export type RecordChipKind = { label: string; icon: string; colour: string };
@@ -106,7 +106,8 @@ export function RecordChip({ kind, value, label, icon, colour, onOpen, href, des
  * `mentionRuns`), or words holding mention tokens (tools/edit-a-document-together/read-data/inline-tokens.ts) when none are given.
  */
 export function MentionWords({ text, mentions }: { text: string; mentions?: readonly KeptMention[] }) {
-  const runs = mentions ? mentionRuns(text, mentions) : parseInlineRuns(text).map(run => (run.type === 'text' ? run : { ...run, type: 'mention' as const }));
+  // A kept mention carries no icon or destination; a token's mention may (inline-tokens.ts Ref).
+  const runs: readonly (MentionRun | ({ type: 'mention' } & KeptMention & { icon?: string; destination?: string }))[] = mentions ? mentionRuns(text, mentions) : parseInlineRuns(text).map(run => (run.type === 'text' ? run : { ...run, type: 'mention' as const }));
   return <>{runs.map((run, index) => (run.type === 'text'
     ? <React.Fragment key={index}>{run.text}</React.Fragment>
     : <RecordChip key={index} kind={run.kind} value={run.value} label={run.label} icon={'icon' in run ? run.icon : undefined} destination={'destination' in run ? run.destination : undefined} />))}</>;

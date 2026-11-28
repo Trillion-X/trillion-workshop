@@ -7,6 +7,7 @@
 // computed via read-data/validate-answer.ts. They do NOT validate or know about
 // other question types (separation of concerns; enum-dissolution at the map).
 
+import type { JSX } from 'react';
 import type { CoerceKind } from './validate-answer.ts';
 
 export interface QuestionOption {

@@ -47,7 +47,8 @@ export type BookingPageProps = {
   timezone: string;
   duration_minutes: number;
   questions: { position: number; prompt: string; required: boolean }[];
-  words?: Partial<BookingWords>;
+  /** Any of the page's words, each replacing its default (a Record already holds only the keys it is given). */
+  words?: BookingWords;
   api_base?: string;
 };
 

@@ -263,7 +263,7 @@ export function MediaFrame({
     return (
       <Card variant="nested" padding="md" layout="stack" className={cn('w-full', className)}>
         <span className="text-sm font-semibold text-[var(--text-primary)] truncate">{label}</span>
-        <MediaPlaybackSurface media={{ id: url, label, source_kind: 'audio', mime_type: mediaType, playback_url: url }} showFrameChrome={false} />
+        <MediaPlaybackSurface media={{ id: url ?? '', label, source_kind: 'audio', mime_type: mediaType, playback_url: url }} showFrameChrome={false} />
       </Card>
     );
   }
