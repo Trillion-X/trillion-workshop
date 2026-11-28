@@ -1,0 +1,28 @@
+{
+  "listen_host": "127.0.0.1",
+  "listen_port": 8911,
+  "path": "/webhooks/github-registry",
+  "secret_credential": "github-registry-webhook-secret",
+  "verify": "github-x-hub-signature-256",
+  "shape": {
+    "place": {
+      "path": "ref"
+    },
+    "change": {
+      "otherwise": "changed"
+    },
+    "key": [
+      "after"
+    ],
+    "at": [
+      "head_commit.timestamp"
+    ],
+    "at_unit": "iso",
+    "before": "before",
+    "after": "repository.full_name"
+  },
+  "where": "github:registry-of-tools-we-use-from-trillion",
+  "kind": "something-changed",
+  "body_byte_ceiling": 262144,
+  "door": "http://127.0.0.1:7190"
+}

@@ -1,0 +1,247 @@
+{
+  "_what": "Keeps the tool folders a project copied into its own tools folder (tool:add-a-tool-to-a-project's) in step with where they came from. It is chosen by workflow:route-each-row-change when a push fact arrives (a GitHub push the signed receiver receivers/github-push.json told, kind something-changed) whose ref is the main branch. Its two steps are tool:keep-tool-copies-in-step: plan compares every copy with its base and its upstream and writes nothing; apply settles what plan found (upstream changes taken, project changes offered on a sync/ branch, conflicts answered with their diff, forks skipped). Every step is deterministic: no AI decides anything. The project's folder comes in on the person's own switch ({project: {computer: {change-a-folder: {folder}}}}); the row names none. The original is the pursuit's own workflow_recipes row; this file is the shipped form.",
+  "records": [
+    {
+      "payload": {
+        "kind": "workflow-recipe",
+        "id": "workflow:keep-tool-copies-in-step",
+        "label": "Keep each project's tool copies in step with their registry",
+        "job": "When a repository a project's tools come from (the registry, the Workshop) or the project itself is pushed on its main branch, compare every tool copy with its pointer and settle it: take upstream changes, offer project changes upstream on a branch, refuse conflicts with a diff, skip forks.",
+        "produces": "the project's record where-each-tool-comes-from.json advanced for each settled tool, sync/ branches offered upstream, and a list of conflicts with their diffs; nothing a person wrote is overwritten",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "fact": {
+              "type": "object",
+              "description": "The workflow-chosen fact: where (github:<repo>), place (the pushed ref), change (changed), key (the pushed head sha), at, before (the sha the ref moved from), after (the repository's full name)"
+            },
+            "project": {
+              "type": "object",
+              "description": "The project's folder as a capability target, on the person's own switch: {computer: {change-a-folder: {folder}}, clones?: [local git folders inside it to read commits from, as tool:add-a-tool-to-a-project reads them]}"
+            }
+          }
+        },
+        "fires_when": [
+          {
+            "label": "a tool source or a project was pushed on its main branch",
+            "condition": {
+              "fields": [
+                {
+                  "id": "where",
+                  "kind": "text",
+                  "path": [
+                    "where"
+                  ]
+                },
+                {
+                  "id": "place",
+                  "kind": "choice",
+                  "path": [
+                    "place"
+                  ]
+                },
+                {
+                  "id": "change",
+                  "kind": "choice",
+                  "path": [
+                    "change"
+                  ]
+                }
+              ],
+              "tree": {
+                "kind": "group",
+                "combinator": "and",
+                "negate": false,
+                "rules": [
+                  {
+                    "kind": "rule",
+                    "field": "where",
+                    "operator": "is_not_empty"
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "place",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "refs/heads/main"
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "rule",
+                    "field": "change",
+                    "operator": "is_any_of",
+                    "params": {
+                      "values": [
+                        "changed"
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            "made_by": "fires_when",
+            "state": "On",
+            "input": {
+              "start_at": "plan"
+            },
+            "evidence": "Written Nov 26 2026 for the new setup (plan Task 4.2; decision 8: the push webhook is the trigger), made a row Nov 28 2026. A push on any branch other than main, a forged call (401, told to nobody) and a call that is not a push never reach here. The branch name is DATA in this rule: a repository whose default branch is not main gets its own value here, never code."
+          }
+        ],
+        "wakes": [
+          {
+            "id": "chosen--a-tool-source-or-a-project-was-pushed",
+            "needs_input": [
+              "project.computer"
+            ],
+            "on": {
+              "fact": {
+                "kind": "workflow-chosen",
+                "from": [
+                  "run"
+                ],
+                "match": {
+                  "workflow": "workflow:keep-tool-copies-in-step",
+                  "condition": "a tool source or a project was pushed on its main branch"
+                }
+              }
+            },
+            "budget": {
+              "steps": 10,
+              "wall_ms": 900000
+            },
+            "input": {
+              "start_at": "plan"
+            }
+          }
+        ],
+        "definition": {
+          "id": "workflow:keep-tool-copies-in-step",
+          "name": "Keep each project's tool copies in step with their registry",
+          "kind": "workflow",
+          "is_active": true,
+          "version": 1,
+          "steps": [
+            {
+              "id": "plan",
+              "kind": "ask",
+              "config": {
+                "name": "tool:keep-tool-copies-in-step",
+                "input": {
+                  "op": "plan",
+                  "computer": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "project.computer"
+                    }
+                  },
+                  "fact": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "fact"
+                    }
+                  },
+                  "clones": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "project.clones"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": []
+                        }
+                      }
+                    ]
+                  }
+                },
+                "context": {
+                  "step_id": "plan"
+                }
+              }
+            },
+            {
+              "id": "apply",
+              "kind": "ask",
+              "config": {
+                "name": "tool:keep-tool-copies-in-step",
+                "input": {
+                  "op": "apply",
+                  "computer": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "project.computer"
+                    }
+                  },
+                  "plan": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "steps",
+                      "key": "plan",
+                      "path": "output"
+                    }
+                  },
+                  "clones": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "input",
+                      "path": "project.clones"
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.if_null",
+                        "args": {
+                          "fallback": []
+                        }
+                      }
+                    ]
+                  }
+                },
+                "context": {
+                  "step_id": "apply"
+                }
+              }
+            },
+            {
+              "id": "done",
+              "kind": "return",
+              "config": {
+                "value": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "steps",
+                    "key": "apply",
+                    "path": "output"
+                  }
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "plan",
+              "to": "apply",
+              "kind": "always"
+            },
+            {
+              "from": "apply",
+              "to": "done",
+              "kind": "always"
+            }
+          ]
+        },
+        "records": {
+          "runs": [
+            "tool:keep-tool-copies-in-step"
+          ]
+        }
+      }
+    }
+  ]
+}

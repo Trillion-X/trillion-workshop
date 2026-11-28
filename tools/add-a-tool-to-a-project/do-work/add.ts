@@ -42,7 +42,7 @@ import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
 import { BadFrom, TOOL_NAME, addressOf, isInsidePath, readRegistry, type Hex64, type Registry } from '../read-data/registry.ts';
 import { FetchedCommit, GitRefused, NotAtCommit, type Fetched } from '../read-data/fetch-folder.ts';
 import { BadCard, OldCardName, cardFacts } from '../read-data/card.ts';
-import { RecordChanged, readProjectRecord, writeProjectRecord, type FromWhere, type RecordFile, type ToolRecord } from '../read-data/record.ts';
+import { RecordChanged, TOOLS_FOLDER, readProjectRecord, writeProjectRecord, type FromWhere, type RecordFile, type ToolRecord } from '../read-data/record.ts';
 import { unifiedDiff } from '../read-data/diff-text.ts';
 
 export type Direct = { repo: string; path: string; commit: string };
@@ -153,7 +153,7 @@ export async function add(input: AddInput): Promise<AddOutput> {
   const clones = (input.clones ?? []).map(clone => realpathSync(clone));
   const project = realpathSync(input.project);
   if (!lstatSync(project).isDirectory()) throw new Error(`${project} is not a folder.`);
-  const trillion = join(project, 'trillion');
+  const trillion = join(project, TOOLS_FOLDER);
   if (existsSync(trillion) && !lstatSync(trillion).isDirectory()) throw new Error(`${trillion} is not a folder (a link is not followed).`);
   const { expected, record } = readProjectRecord(trillion);
   const rooted = await rootOf(input, record, clones);

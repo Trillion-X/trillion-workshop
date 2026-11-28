@@ -1,0 +1,403 @@
+{
+  "_what": "The sync state table: each case is one tool folder's base (the record's files), project and upstream files as text (null-free maps: an absent path is not listed), the verdict of each file and of the tool that read-data/classify.ts with git merge-file must give, and land_paths: what ai-command-center's land_paths.merged_tree made of the same three trees (landing = project, origin = upstream; 'conflict', or the merged tree as path -> text). Cut from land_paths' own per-file cases; land_paths was run once by hand on every case (README.md says how). differs_from_land_paths names the cases where this tool is stricter on purpose.",
+  "cases": [
+    {
+      "name": "nothing changed",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "a.txt": "same"
+      },
+      "tool": "none-changed",
+      "land_paths": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      }
+    },
+    {
+      "name": "project only edit",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "a.txt": "project-only"
+      },
+      "tool": "project-only",
+      "land_paths": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      }
+    },
+    {
+      "name": "upstream only edit",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n"
+      },
+      "files": {
+        "a.txt": "upstream-only"
+      },
+      "tool": "upstream-only",
+      "land_paths": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n"
+      }
+    },
+    {
+      "name": "both edit different lines: clean text merge",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n"
+      },
+      "files": {
+        "a.txt": "both-clean"
+      },
+      "tool": "both-clean",
+      "land_paths": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nSIX\n"
+      }
+    },
+    {
+      "name": "both edit the same line: conflict",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "uno\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "a.txt": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": "conflict"
+    },
+    {
+      "name": "project deletes, upstream edits",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {},
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n"
+      },
+      "files": {
+        "a.txt": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": "conflict"
+    },
+    {
+      "name": "project edits, upstream deletes",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {},
+      "files": {
+        "a.txt": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": "conflict"
+    },
+    {
+      "name": "project deletes, upstream unchanged",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "b\n"
+      },
+      "project": {
+        "b.txt": "b\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "b\n"
+      },
+      "files": {
+        "a.txt": "deleted-project",
+        "b.txt": "same"
+      },
+      "tool": "project-only",
+      "land_paths": {
+        "b.txt": "b\n"
+      }
+    },
+    {
+      "name": "upstream deletes, project unchanged",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "b\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "b\n"
+      },
+      "upstream": {
+        "b.txt": "b\n"
+      },
+      "files": {
+        "a.txt": "deleted-upstream",
+        "b.txt": "same"
+      },
+      "tool": "upstream-only",
+      "land_paths": {
+        "b.txt": "b\n"
+      }
+    },
+    {
+      "name": "project adds a file",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "a.txt": "same",
+        "n.txt": "project-only"
+      },
+      "tool": "project-only",
+      "land_paths": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      }
+    },
+    {
+      "name": "upstream adds a file",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      },
+      "files": {
+        "a.txt": "same",
+        "n.txt": "upstream-only"
+      },
+      "tool": "upstream-only",
+      "land_paths": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      }
+    },
+    {
+      "name": "both add the same file",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      },
+      "files": {
+        "a.txt": "same",
+        "n.txt": "same"
+      },
+      "tool": "upstream-only",
+      "land_paths": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "new\n"
+      }
+    },
+    {
+      "name": "both add the same path, different bytes",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "mine\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "n.txt": "theirs\n"
+      },
+      "files": {
+        "a.txt": "same",
+        "n.txt": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": "conflict"
+    },
+    {
+      "name": "both make the same edit",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "a.txt": "same"
+      },
+      "tool": "upstream-only",
+      "land_paths": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      }
+    },
+    {
+      "name": "project renames a file",
+      "base": {
+        "old.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "new.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "old.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "old.txt": "renamed-project",
+        "new.txt": "renamed-project"
+      },
+      "tool": "project-only",
+      "land_paths": {
+        "new.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      }
+    },
+    {
+      "name": "upstream renames a file",
+      "base": {
+        "old.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "old.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "new.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "old.txt": "renamed-upstream",
+        "new.txt": "renamed-upstream"
+      },
+      "tool": "upstream-only",
+      "land_paths": {
+        "new.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      }
+    },
+    {
+      "name": "both rename the same file to different names",
+      "base": {
+        "old.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "mine.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "theirs.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "old.txt": "both-conflict",
+        "mine.txt": "both-conflict",
+        "theirs.txt": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": {
+        "mine.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "theirs.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "differs_from_land_paths": "land_paths has no rename rule: it keeps both new names (two copies of one file). This tool refuses it as a conflict so a person picks the name."
+    },
+    {
+      "name": "binary file changed on both sides",
+      "base": {
+        "i.bin": "PNG\u0000a\n"
+      },
+      "project": {
+        "i.bin": "PNG\u0000b\n"
+      },
+      "upstream": {
+        "i.bin": "PNG\u0000c\n"
+      },
+      "files": {
+        "i.bin": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": "conflict"
+    },
+    {
+      "name": "each side edits a different file",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n"
+      },
+      "files": {
+        "a.txt": "project-only",
+        "b.txt": "upstream-only"
+      },
+      "tool": "both-clean",
+      "land_paths": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n"
+      }
+    },
+    {
+      "name": "a clean merge beside a conflict: the tool is a conflict",
+      "base": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "one\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "project": {
+        "a.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n",
+        "b.txt": "ONE\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "upstream": {
+        "a.txt": "one\ntwo\nthree\nfour\nfive\nSIX\n",
+        "b.txt": "uno\ntwo\nthree\nfour\nfive\nsix\n"
+      },
+      "files": {
+        "a.txt": "both-clean",
+        "b.txt": "both-conflict"
+      },
+      "tool": "both-conflict",
+      "land_paths": "conflict"
+    }
+  ]
+}

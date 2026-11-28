@@ -57,6 +57,13 @@
       "signature": "sig",
       "hash": "sha256",
       "encoding": "hex"
+    },
+    "github-x-hub-signature-256": {
+      "parts": { "sig": { "header": "x-hub-signature-256", "match": "^sha256=([0-9a-fA-F]{64})$" } },
+      "signed": "{body}",
+      "signature": "sig",
+      "hash": "sha256",
+      "encoding": "hex"
     }
   }
 }

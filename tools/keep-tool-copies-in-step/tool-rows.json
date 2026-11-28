@@ -1,0 +1,361 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-tool-copies-in-step-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-tool-copies-in-step",
+        "id": "tool:keep-tool-copies-in-step",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true
+        },
+        "label": "Keep my project's tool copies in step",
+        "job": "Compare every tool folder a project copied into its tools folder with its base and its upstream, take upstream changes, offer project changes upstream on a branch, refuse conflicts with a diff and skip forks",
+        "description": "Give op plan or apply, and project (the project's folder, inside the folder the person granted for change; default the granted folder). For every line of the record where-each-tool-comes-from.json in the project's tools folder (the folder tool:add-a-tool-to-a-project copies into) (only the names in only, when given) it compares three versions of the tool folder: the base (the files the line says the copy started from, at copied_at_commit), the project's folder now (the files git lists there, or every file when the project is not a git checkout) and upstream (the folder at the commit the registry's pointer names now, or the repository's HEAD for a direct pointer). Each file gets a verdict: same, project-only, upstream-only, deleted-project, deleted-upstream, renamed-project, renamed-upstream, both-clean (changed on both sides and merged cleanly by git merge-file from the base bytes) or both-conflict. The tool's state is the strongest: both-conflict, both-clean, project-only, upstream-only or none-changed; a line with synced false is forked and is not read at all (no fetch), a made-here line is skipped. plan answers every tool's state and file verdicts and writes nothing. apply takes plan's answer: it checks that the record and every file are still what plan read (else record-changed-meanwhile or changed-since-plan, and nothing is written), writes upstream's side and each clean merge into the project, advances each settled tool's line to the upstream version in one compare-and-set write of the record, and offers project changes (and clean merges) upstream as branch sync/<project>/<tool> on the upstream commit, pushed with --force-with-lease; it never pushes a default branch. A tool with any conflict is left exactly as it was and each conflicting file is answered with its unified diff (base to project, base to upstream). Returns settled, forked, conflicts, unchanged, pushed, skipped and refused. A conflict is an answer, not a failure.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op"
+          ],
+          "properties": {
+            "op": {
+              "enum": [
+                "plan",
+                "apply"
+              ],
+              "description": "plan: say each tool's state, write nothing. apply: settle what plan found."
+            },
+            "project": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The project's folder, relative to the granted folder (. for the granted folder itself). Only its tools folder is written. Default ."
+            },
+            "only": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "description": "plan only these tool folders"
+            },
+            "fact": {
+              "type": "object",
+              "description": "The fact that woke this sync (where, place, key are echoed in plan's because); the sync finds changes itself by comparing files."
+            },
+            "plan": {
+              "type": "object",
+              "description": "For apply: plan's whole answer."
+            },
+            "clones": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Local git folders inside the granted folder (for example a clone of the Workshop) to read a commit from when one already holds it, as tool:add-a-tool-to-a-project reads them; a commit none holds is fetched over the network."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "plan answers record_blake3, because? and tools (name -> {state, files, upstream_commit, renames?, why?, said?}); apply answers settled, forked, conflicts, unchanged, pushed, skipped and refused.",
+          "properties": {
+            "record_blake3": {
+              "type": "string"
+            },
+            "because": {
+              "type": "object"
+            },
+            "tools": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "state",
+                  "files",
+                  "upstream_commit"
+                ],
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "none-changed",
+                      "project-only",
+                      "upstream-only",
+                      "both-clean",
+                      "both-conflict",
+                      "forked",
+                      "skipped",
+                      "refused"
+                    ]
+                  },
+                  "files": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "enum": [
+                        "same",
+                        "project-only",
+                        "upstream-only",
+                        "both-clean",
+                        "both-conflict",
+                        "deleted-project",
+                        "deleted-upstream",
+                        "renamed-project",
+                        "renamed-upstream"
+                      ]
+                    }
+                  },
+                  "upstream_commit": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "renames": {
+                    "type": "array"
+                  },
+                  "why": {
+                    "enum": [
+                      "made-here",
+                      "not-in-registry",
+                      "bad-from",
+                      "fetch-refused",
+                      "identity-mismatch",
+                      "no-base",
+                      "record-changed-meanwhile",
+                      "changed-since-plan",
+                      "push-refused"
+                    ]
+                  },
+                  "said": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "settled": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "forked": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "path",
+                  "diff"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "diff": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "unchanged": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "pushed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "branch",
+                  "repo",
+                  "commit",
+                  "already"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "branch": {
+                    "type": "string"
+                  },
+                  "repo": {
+                    "type": "string"
+                  },
+                  "commit": {
+                    "type": "string"
+                  },
+                  "already": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "why"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "enum": [
+                      "made-here",
+                      "not-in-registry",
+                      "bad-from",
+                      "fetch-refused",
+                      "identity-mismatch",
+                      "no-base",
+                      "record-changed-meanwhile",
+                      "changed-since-plan",
+                      "push-refused"
+                    ]
+                  }
+                }
+              }
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "why",
+                  "said"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "enum": [
+                      "made-here",
+                      "not-in-registry",
+                      "bad-from",
+                      "fetch-refused",
+                      "identity-mismatch",
+                      "no-base",
+                      "record-changed-meanwhile",
+                      "changed-since-plan",
+                      "push-refused"
+                    ]
+                  },
+                  "said": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/keep-tool-copies-in-step",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/keep-tool-copies-in-step/do-work/sync.ts",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-tool-copies-in-step",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-tool-copies-in-step"
+              },
+              {
+                "package": "add-a-tool-to-a-project",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/add-a-tool-to-a-project"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "op": "plan",
+              "project": "."
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "package.json",
+                "text": "{\"name\":\"a-sample-project\",\"private\":true}\n"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

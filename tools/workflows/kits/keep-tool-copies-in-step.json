@@ -1,0 +1,59 @@
+{
+  "start_here": "Say to your AI: \"Switch on workflow:keep-tool-copies-in-step for my project folder /Volumes/Work/my-site.\" From then on each push to the main branch of the registry, the Workshop or the project, told by the signed GitHub receiver, settles every tool copy in the project's tools folder.",
+  "lists": [],
+  "no_lists_because": "The workflow reads and writes the granted project folder and its own record file through tool:keep-tool-copies-in-step and keeps no list rows.",
+  "workflows": [
+    "workflow:keep-tool-copies-in-step",
+    "workflow:route-each-row-change"
+  ],
+  "tools": [
+    "tool:keep-tool-copies-in-step",
+    "tool:choose-the-workflows-that-fire"
+  ],
+  "instructions": [
+    "1. Switch the wake chosen--a-tool-source-or-a-project-was-pushed on with the project's folder as its input: {\"project\":{\"computer\":{\"change-a-folder\":{\"folder\":\"/Volumes/Work/my-site\"}}}}.",
+    "2. Push to the main branch of the registry (or the Workshop, or the project): the receiver tells the push, workflow:route-each-row-change chooses this workflow, and it runs plan then apply.",
+    "3. Read the run's answer: settled tools changed in your project's tools folder (commit them), pushed sync/ branches wait for review upstream, and each conflict carries its diff for you to settle by hand."
+  ],
+  "worked_examples": [
+    {
+      "title": "A registry pointer moves and the project's copy follows",
+      "ask": "The registry moved screen-look to a new commit; bring my project's copy up to it.",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:run-workflow-definition",
+            "input": {
+              "row": "workflow:keep-tool-copies-in-step",
+              "input": {
+                "fact": {
+                  "where": "github:my-registry-of-tools",
+                  "place": "refs/heads/main",
+                  "change": "changed",
+                  "key": "9f2c6d5e4b3a29180716f5e4d3c2b1a0f9e8d7c6"
+                },
+                "project": {
+                  "computer": {
+                    "change-a-folder": {
+                      "folder": "/Volumes/Work/my-site"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "workflow": "workflow:keep-tool-copies-in-step",
+      "step": "apply",
+      "given": "The project's copy of screen-look is unedited since it was copied; the registry's screen-look pointer moved to a commit that changed show/coss-workspace.css.",
+      "hands_back": "{\"settled\": [\"screen-look\"], \"forked\": [], \"conflicts\": [], \"unchanged\": [\"ui\"], \"pushed\": [], \"skipped\": [], \"refused\": []}"
+    }
+  ],
+  "see_also": [
+    "workflow:route-each-row-change"
+  ]
+}

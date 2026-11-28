@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Grant my project folder for change, then run tool:keep-tool-copies-in-step with op plan.\" It says, for every tool folder the project copied in, whether upstream moved, you edited it, both, or neither; then run it with op apply and plan's answer to settle it.",
+  "lists": [],
+  "no_lists_because": "This tool reads and writes the granted project folder and its own record file, and pushes review branches to the tool's source repository; it reads and keeps no list rows.",
+  "workflows": [
+    "workflow:keep-tool-copies-in-step"
+  ],
+  "tools": [
+    "tool:keep-tool-copies-in-step",
+    "tool:add-a-tool-to-a-project"
+  ],
+  "instructions": [
+    "1. Grant the project's folder (the folder whose tools folder holds where-each-tool-comes-from.json) for change.",
+    "2. Ask your AI to run tool:keep-tool-copies-in-step with {\"op\":\"plan\"}. Read each tool's state and its files' verdicts; nothing is written.",
+    "3. Run it with {\"op\":\"apply\",\"plan\":<plan's answer>}. Read settled (taken from upstream or merged), pushed (your edits offered on a sync/ branch for review), conflicts (each with its diff: settle those by hand), forked and refused. Commit the changed tool files and the record in your project."
+  ],
+  "worked_examples": [
+    {
+      "title": "See what moved in every tool copy",
+      "ask": "Are my project's tool copies in step with the registry?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-tool-copies-in-step",
+            "input": {
+              "op": "plan",
+              "project": "."
+            }
+          }
+        }
+      },
+      "given": "The project holds a copy of screen-look, unedited since it was copied at Workshop 2446f95e0d748229ff15260fa3d862085301488f; the registry's screen-look pointer has moved to a commit that changed README.md.",
+      "hands_back": "{\"record_blake3\": \"4d143123b3e9368e9526cd8579aee11db735e6ec4660cfa73e1d27ea1d7f3ad4\", \"tools\": {\"screen-look\": {\"state\": \"upstream-only\", \"files\": {\"README.md\": \"upstream-only\", \"part.json\": \"same\"}, \"upstream_commit\": \"<the pointer's new commit>\"}}}"
+    }
+  ]
+}
