@@ -75,6 +75,9 @@ async function callOnce(name: string, args: Record<string, unknown>, input: Reco
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: DO, arguments: { method: 'tools:run', input: { tool, call: { name, arguments: args }, input }, request_key: crypto.randomUUID() } } }) });
   if (reply.status === 401) { sessionStorage.removeItem(PASS); await signIn(); throw new Error('signing in'); }
   const message = await reply.json();
+  // The door refuses a call it did not run (a key not held, the engine's own refusal) as a result with isError and a
+  // structuredContent of its own: say its words, never read it as an answer.
+  if (message?.result?.isError) throw new Error(String(message.result.structuredContent?.detail ?? message.result.content?.[0]?.text ?? 'refused'));
   const outer = message?.result?.structuredContent ?? JSON.parse(message?.result?.content?.[0]?.text ?? 'null');
   const inner = outer?.result;
   if (message?.error || outer?.error || inner?.isError) throw new Error(String(message?.error?.message ?? outer?.error?.message ?? inner?.content?.[0]?.text ?? 'refused'));
