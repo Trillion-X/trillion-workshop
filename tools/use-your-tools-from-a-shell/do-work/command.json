@@ -92,11 +92,10 @@
   },
   "install": {
     "follow": {
-      "_what": "Where the installed command finds the Workshop copy it runs, from this computer's engine config (the first of `computer_config_files` that exists, the same file the agent socket is read from): its `persons_field` is the folder that holds one state folder per person the engine serves, and a person's <state>/<installs_folder>/<current> is the Workshop install the engine keeps current for them (current is `current_field` of <state>/<installs_folder>/<state_file>); `program` is the command inside it. It follows only when exactly one person's state holds a current install, so it never guesses between people. Nothing found, or the copy is this file: the installed copy runs itself. (It read a local-runtime.json the engine no longer writes, so on 2026-11-17 every Workshop update to this command was skipped on the Mac.)",
+      "_what": "Where the installed command finds the Workshop copy it runs, from this computer's engine config (the first of `computer_config_files` that exists, the same file the agent socket is read from), by the same rule the engine reads its tool sources (trillion-rust src/tool_runs/tools/location.rs): nothing is installed, so there is no install folder, state.json or pin to follow. The config's `settings_field` names the product settings file, whose `sources_field` is the list of tool sources; the first source with a `place` is the Workshop, a folder read where it stands. A place names its folder one way: `setting` (an environment variable naming an absolute folder), `state` (a folder inside each person's state folder, under the config's `persons_field` folder that holds one state folder per person the engine serves), `home` (a folder inside the home folder) or `at` (one absolute folder); relative parts are ordinary names, never `..`. `program` is the command inside the folder. It follows only when exactly one folder holds it, so it never guesses between people. Nothing found, or the copy is this file: the installed copy runs itself. (It read a local-runtime.json the engine no longer writes, so on 2026-11-17 every Workshop update to this command was skipped on the Mac; it read workshop-installs/state.json until the engine's install was deleted on 2026-11-28.)",
       "persons_field": "persons",
-      "installs_folder": "workshop-installs",
-      "state_file": "state.json",
-      "current_field": "current",
+      "settings_field": "product_settings",
+      "sources_field": "tool_sources",
       "program": "tools/use-your-tools-from-a-shell/do-work/command.mjs"
     },
     "folder": "~/.{cli}/cli/program",
@@ -279,7 +278,7 @@
     "poll_seconds": 20
   },
   "update": {
-    "workshop": "The installed {cli} command follows the Workshop: each run it finds the Workshop copy this computer's engine has installed (install.follow) and runs that copy instead of itself, so a Workshop update reaches every command at once. `{cli} setup` run from the Workshop copy also refreshes the installed files, which stay as the fallback when no Workshop copy is found. The command never fetches code by itself."
+    "workshop": "The installed {cli} command follows the Workshop: each run it finds the Workshop copy this computer's engine reads where it stands (install.follow) and runs that copy instead of itself, so a Workshop update reaches every command at once. `{cli} setup` run from the Workshop copy also refreshes the installed files, which stay as the fallback when no Workshop copy is found. The command never fetches code by itself."
   },
   "ag_ui": {
     "_what": "`{cli} serve --ag-ui URL` (ag-ui-agent.mjs): any AG-UI agent at URL runs each task this AI takes. tools: the tools the agent is offered as AG-UI frontend tools; each call it makes of one is made by this program as this AI. max_turns: the most runs of the agent one task gets (each answered tool call starts the next). run_seconds: the longest one run is waited for. quiet_seconds: the longest the agent may send nothing while it is waited on (a silence watchdog; time spent running its tools here does not count). answer_chars: the most characters of a tool's answer given back to the agent. max_frame_chars and max_events bound what one run may send. context is the ambient line every run is given ({handoff_id}). words: what is recorded when something goes wrong, in plain words.",

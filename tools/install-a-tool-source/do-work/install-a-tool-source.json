@@ -1,7 +1,0 @@
-{
-  "_what": "How tool:install-a-tool-source (do-work/install-a-tool-source.mjs) waits when the engine is already installing for this account: the engine makes one install at a time per account (trillion-rust src/tool_runs/tools.rs `one_install`) and refuses another as `busy_code` (src/tool_runs/tools/computer/words.json tools_run_in_progress), so two changes of the person's rows told at once, or a run told again, would fail one of them. The keeper asks again with the same request key after `first_wait_ms`, each wait `factor` times the one before, at most `most_tries` asks in all; an install the engine already made answers unchanged. `_why`: a Workshop install of about 20,000 files takes tens of seconds on a busy Mac, so the waits reach about two minutes before the run gives up and the workflow's run says why.",
-  "busy_code": "tools_run_in_progress",
-  "first_wait_ms": 2000,
-  "factor": 2,
-  "most_tries": 7
-}

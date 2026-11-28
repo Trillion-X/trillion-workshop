@@ -1,6 +1,8 @@
 // tools/workflows/do-work/pin-a-commit-by-its-files.mjs
 //
-// Purpose: The pin an engine installs a commit of a repository by: the BLAKE3 identity of the commit's files, computed here
+// Purpose: The pin of a commit of a repository (the engine no longer installs a commit by it: the whole-Workshop install and its
+// tools:update were deleted Nov 28 2026, Track B Task 3.2; the pin stays as the layout gate of a commit and as the identity a
+// registry pointer names). It was the pin an engine installed a commit by: the BLAKE3 identity of the commit's files, computed here
 // from the publisher's own checkout, never from the host that serves the archive. An engine's tools:update takes
 // {address, files_blake3} (a launcher's `tool_sources` entry names the same two beside its `label`): the https address of an
 // archive of the commit and this pin. The engine reads the archive at that address, records every file's path and BLAKE3, and
@@ -152,7 +154,7 @@ export function layoutReport(files, parentFiles = []) {
   return { added: problems.filter(problem => !parent.has(problem)), existing: problems.filter(problem => parent.has(problem)) };
 }
 
-/** The pin of `commit` in `repository`, served at `address` (`{commit}` stands for the commit): what tools:update takes. */
+/** The pin of `commit` in `repository`, served at `address` (`{commit}` stands for the commit): what tools:update took, and the layout gate's call (the push check refuses a commit whose layout would stop runs). */
 export function pinOf(repository, commit, address) {
   if (!/^[a-f0-9]{40}$/.test(commit)) throw new Error('Give the full commit identity (40 hex): a branch or a short name moves.');
   const at = String(address ?? '').replaceAll('{commit}', commit);

@@ -8,7 +8,7 @@
 //
 // Non-Negotiable Invariants:
 // - Keys are compared as UTF-8 bytes, never as numbers or by locale, so a name that looks like a number is not moved first.
-// - A file's digest is bare 64 hex (no `1f:`): this is the engine's pin text, read by tools:update and by every record file.
+// - A file's digest is bare 64 hex (no `1f:`): this is the engine's pin text, read by every record file and registry pointer (the engine's tools:update that once read it is deleted with its install, Nov 28 2026).
 // - Pure: no file, account or network operation; a reader hands in bytes or digests.
 //
 // AI Assistant Directive:

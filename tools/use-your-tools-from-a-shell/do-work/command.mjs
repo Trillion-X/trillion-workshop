@@ -49,7 +49,7 @@ import { chmodSync, existsSync, writeSync, lstatSync, mkdirSync, readFileSync, r
 import { createServer, request as httpRequest } from 'node:http';
 import { createInterface } from 'node:readline';
 import { homedir, hostname } from 'node:os';
-import { basename, dirname, join, resolve as resolvePath } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
@@ -2228,26 +2228,36 @@ export async function main(argv, seams = {}) {
 
 
 /** The Workshop copy of this command that the installed copy runs, or null (rules.install.follow). Only the installed copy follows:
- *  a copy run from anywhere else (the Workshop's own, a checkout) runs itself, so the two never hand off to each other. */
-export function workshopProgram({ rules = settings, home = homedir(), here = HERE, self = fileURLToPath(import.meta.url) } = {}) {
+ *  a copy run from anywhere else (the Workshop's own, a checkout) runs itself, so the two never hand off to each other. The
+ *  Workshop is found where the engine reads it (trillion-rust src/tool_runs/tools/location.rs), nothing installed: this
+ *  computer's engine config names its product settings file, whose first tool source with a `place` is the Workshop's folder. */
+export function workshopProgram({ rules = settings, home = homedir(), here = HERE, self = fileURLToPath(import.meta.url), env = process.env } = {}) {
   const follow = rules.install.follow;
   const real = path => { try { return realpathSync(path); } catch { return null; } };
   if (real(here) !== real(expand(rules.install.folder, home))) return null;
-  // Each person's state folder the engine config names, with the Workshop install its engine keeps current.
-  const installed = state => {
-    let current;
-    try { current = JSON.parse(readFileSync(join(state, follow.installs_folder, follow.state_file), 'utf8'))[follow.current_field]; } catch { return null; }
-    if (typeof current !== 'string' || !/^[\w.-]+$/.test(current)) return null;
-    return real(join(state, follow.installs_folder, current, follow.program));
-  };
+  const ordinary = text => typeof text === 'string' && text !== '' && text.split('/').every(part => part !== '' && part !== '.' && part !== '..' && !part.includes('\\'));
   for (const file of rules.computer_config_files) {
-    let persons;
-    try { persons = JSON.parse(readFileSync(expand(file, home), 'utf8'))[follow.persons_field]; } catch { continue; }
-    if (typeof persons !== 'string') continue;
-    let names;
-    try { names = readdirSync(persons); } catch { continue; }
-    const programs = names.map(name => installed(join(persons, name))).filter(program => program !== null);
-    // One person: their copy. Several: none, rather than a guess of whose.
+    let config;
+    try { config = JSON.parse(readFileSync(expand(file, home), 'utf8')); } catch { continue; }
+    let sources;
+    try { sources = JSON.parse(readFileSync(config[follow.settings_field], 'utf8'))[follow.sources_field]; } catch { return null; }
+    const place = Array.isArray(sources) ? sources.find(source => source && typeof source.label === 'string' && source.place && typeof source.place === 'object')?.place : undefined;
+    if (!place) return null;
+    const ways = ['setting', 'state', 'home', 'at'].filter(way => place[way] !== undefined);
+    if (ways.length !== 1) return null;
+    const [way] = ways, named = place[way];
+    let folders;
+    if (way === 'setting') folders = typeof env[named] === 'string' && isAbsolute(env[named]) ? [env[named]] : [];
+    else if (way === 'at') folders = typeof named === 'string' && isAbsolute(named) ? [named] : [];
+    else if (!ordinary(named)) folders = [];
+    else if (way === 'home') folders = [join(home, named)];
+    else {
+      // A `state` place is read inside each person's state folder the engine serves: one person's Workshop, never a guess between several.
+      let names;
+      try { names = readdirSync(config[follow.persons_field]); } catch { return null; }
+      folders = names.map(name => join(config[follow.persons_field], name, named));
+    }
+    const programs = folders.map(folder => real(join(folder, follow.program))).filter(program => program !== null);
     if (programs.length === 1 && programs[0] !== real(self)) return programs[0];
     return null;
   }

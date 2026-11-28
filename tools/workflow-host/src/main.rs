@@ -96,19 +96,20 @@ fn definition_named(id: &str) -> Value { own_definition(id).unwrap_or(Value::Nul
 fn door(mut request: Value) -> Result<std::process::Output, String> {
     request["cli"] = json!(setting("cli"));
     if let Some(fields) = request.as_object_mut() { fields.retain(|_, value| !value.is_null()); }
-    let program = installed_door_op()?;
+    let program = placed_door_op()?;
     let mut child = Command::new("node").arg(&program).stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped()).spawn().map_err(|e| e.to_string())?;
     child.stdin.take().unwrap().write_all(request.to_string().as_bytes()).map_err(|e| e.to_string())?;
     child.wait_with_output().map_err(|e| e.to_string())
 }
 
-// The door program the installed Workshop tree holds: the engine's pinned, landed copy, so it is never a lane's unlanded edit. The
-// commit it is named by is said on stderr (the installed tree's own record: its address ends in the commit it was downloaded from).
-fn installed_door_op() -> Result<String, String> {
+// The door program the Workshop place holds: the folder the engine reads its tools from, so wf and the engine run the same files. The
+// commit it stands at is said on stderr (the place's own checkout: its HEAD).
+fn placed_door_op() -> Result<String, String> {
     const DOOR: &str = "tools/use-your-tools-from-a-shell/do-work/door-op.mjs";
-    let tree = installed_tree()?;
-    let commit = read(&format!("{tree}.json"))["address"].as_str().and_then(|address| address.rsplit('/').next()).unwrap_or("unknown").to_string();
-    eprintln!("wf: the door program is the installed Workshop's {DOOR} at commit {commit}");
+    let tree = workshop_tree()?;
+    let commit = Command::new("git").args(["-C", &tree, "rev-parse", "HEAD"]).output().ok().filter(|out| out.status.success())
+        .map(|out| String::from_utf8_lossy(&out.stdout).trim().to_string()).unwrap_or_else(|| "unknown".to_string());
+    eprintln!("wf: the door program is the Workshop place's {DOOR} at commit {commit}");
     Ok(format!("{tree}/{DOOR}"))
 }
 
@@ -521,7 +522,7 @@ impl Host for OneRule {
                     let words: Vec<String> = template.split_whitespace().map(|w| w.replace("{request}", &request.to_string_lossy())).collect();
                     if words.is_empty() { return Err(format!("{name} has an empty run_template")); }
                     let started = std::time::Instant::now();
-                    let tree = installed_tree()?;
+                    let tree = workshop_tree()?;
                     let ran = Command::new(&words[0]).args(&words[1..]).current_dir(&tree)
                         .stdin(Stdio::null()).stdout(Stdio::piped()).stderr(Stdio::piped()).output().map_err(|e| e.to_string())?;
                     let text = String::from_utf8_lossy(&ran.stdout).to_string();
@@ -536,7 +537,7 @@ impl Host for OneRule {
                     }
                     let parsed = parsed.unwrap();
                     let kept = match parsed.as_object() { Some(o) if o.len() == 1 && o.contains_key("result") => parsed["result"].clone(), _ => parsed };
-                    eprintln!("  {step}: answered by {name}, run on this computer from the installed Workshop {} in {:.1} s", tree.rsplit('/').next().unwrap_or("").chars().take(12).collect::<String>(), started.elapsed().as_secs_f32());
+                    eprintln!("  {step}: answered by {name}, run on this computer from the Workshop place {tree} in {:.1} s", started.elapsed().as_secs_f32());
                     self.keep(&step, &kept)?;
                     return Ok(serde_json::to_vec(&kept).unwrap());
                 }
@@ -993,21 +994,47 @@ fn re(pattern: &str) -> regex::Regex {
     thread_local! { static COMPILED: std::cell::RefCell<std::collections::HashMap<String, regex::Regex>> = Default::default(); }
     COMPILED.with(|c| c.borrow_mut().entry(pattern.to_string()).or_insert_with(|| regex::Regex::new(pattern).unwrap()).clone())
 }
-// The Workshop tree this computer's engine installed for the person: its keeper's state (persons/<person>/workshop-installs/
-// state.json, `current`) names a folder under tool-installs/workshop-trees. The same files the engine's own tool runs use.
-fn installed_tree() -> Result<String, String> {
+// The Workshop this computer's engine reads where it stands, as the engine reads it (trillion-rust src/tool_runs/tools/location.rs):
+// the first source of `tool_sources` in the product settings file computer.json names (`product_settings`) that names a `place`.
+// Nothing is installed (Track B Task 3.2), so there is no state.json, install record or hex folder to follow: a place names its
+// folder one way, `setting` (an environment variable naming an absolute folder), `state` (a folder inside the person's own folder
+// under persons/), `home` (a folder inside the home folder) or `at` (one absolute folder); relative parts are ordinary names.
+// This is the one function that finds the Workshop for wf (its door program and its tool run templates).
+fn workshop_tree() -> Result<String, String> {
     let root = setting("computer_root");
-    let people: Vec<std::path::PathBuf> = std::fs::read_dir(format!("{root}/persons")).map_err(|e| format!("no installed Workshop: {e}"))?
-        .filter_map(|e| e.ok().map(|e| e.path())).filter(|p| p.join("workshop-installs/state.json").exists()).collect();
-    let state = match people.as_slice() {
-        [one] => read(&one.join("workshop-installs/state.json").to_string_lossy()),
-        [] => return Err("this computer's engine has installed no Workshop for anyone".into()),
-        _ => return Err("this computer's engine holds Workshop installs for more than one person; wf cannot tell whose".into()),
-    };
-    let current = state["current"].as_str().filter(|c| c.len() == 64 && c.chars().all(|ch| ch.is_ascii_hexdigit())).ok_or("the Workshop install state names no current tree")?;
-    let tree = format!("{root}/tool-installs/workshop-trees/{current}");
-    if !std::path::Path::new(&tree).is_dir() { return Err(format!("the installed Workshop tree {current} is missing")); }
-    Ok(tree)
+    let computer = read(&format!("{root}/computer.json"));
+    let settings_path = computer["product_settings"].as_str().ok_or("computer.json names no product_settings")?;
+    let settings = read(settings_path);
+    let place = settings["tool_sources"].as_array().into_iter().flatten().find(|source| source["place"].is_object() && source["label"].is_string())
+        .map(|source| &source["place"]).ok_or("the product settings name no tools source with a place")?;
+    let persons: Vec<std::path::PathBuf> = std::fs::read_dir(format!("{root}/persons")).into_iter().flatten()
+        .filter_map(|e| e.ok().map(|e| e.path())).filter(|p| p.is_dir()).collect();
+    let tree = place_folder(place, &persons, &home(), &|name| std::env::var(name).ok())?;
+    if !tree.is_dir() { return Err(format!("the Workshop place {} is missing", tree.display())); }
+    Ok(tree.to_string_lossy().into_owned())
+}
+// The folder `place` names, before checking it holds anything. `persons` are the folders of the computer's persons: a `state` place is
+// read inside the one person whose folder holds it, and with none or several that do, wf cannot tell whose Workshop it is.
+fn place_folder(place: &Value, persons: &[std::path::PathBuf], home: &str, environment: &dyn Fn(&str) -> Option<String>) -> Result<std::path::PathBuf, String> {
+    let ordinary = |text: &str| !text.is_empty() && text.split('/').all(|part| !part.is_empty() && part != "." && part != ".." && !part.contains('\\'));
+    let ways: Vec<&str> = ["setting", "state", "home", "at"].into_iter().filter(|way| !place[*way].is_null()).collect();
+    let [way] = ways.as_slice() else { return Err("a place names its folder in exactly one way".into()) };
+    let named = place[*way].as_str().ok_or_else(|| format!("the {way} place is not a text"))?;
+    match *way {
+        "setting" => environment(named).filter(|folder| folder.starts_with('/')).map(std::path::PathBuf::from).ok_or_else(|| format!("the setting {named} names no absolute folder")),
+        "at" if named.starts_with('/') => Ok(std::path::PathBuf::from(named)),
+        "at" => Err("an at place is one absolute folder".into()),
+        _ if !ordinary(named) => Err(format!("the {way} place {named:?} is not a relative path of ordinary names")),
+        "home" => Ok(std::path::Path::new(home).join(named)),
+        _ => {
+            let held: Vec<std::path::PathBuf> = persons.iter().map(|person| person.join(named)).filter(|folder| folder.is_dir()).collect();
+            match held.as_slice() {
+                [one] => Ok(one.clone()),
+                [] => Err("this computer holds no Workshop place for anyone".into()),
+                _ => Err("this computer holds a Workshop place for more than one person; wf cannot tell whose".into()),
+            }
+        }
+    }
 }
 fn plain_letters(word: &str) -> String {
     word.chars().map(|c| match c { 'á'|'à'|'â'|'ä'|'ã'|'å' => 'a', 'Á'|'À'|'Â'|'Ä'|'Ã'|'Å' => 'A', 'é'|'è'|'ê'|'ë' => 'e', 'É'|'È'|'Ê'|'Ë' => 'E',
@@ -1945,5 +1972,42 @@ mod names_wf_tests {
         assert_eq!(asked_words(wrapped), "<teammate-message>fix the recorder</teammate-message>");
         assert_eq!(asked_words("<system-reminder>only rules</system-reminder>"), "");
         assert_eq!(asked_words("  plain ask "), "plain ask");
+    }
+}
+
+#[cfg(test)]
+mod workshop_place_tests {
+    use super::place_folder;
+    use serde_json::json;
+    use std::path::PathBuf;
+
+    fn none(_: &str) -> Option<String> { None }
+
+    #[test]
+    fn a_state_place_is_read_inside_the_one_person_who_holds_it_and_a_stale_install_is_never_read() {
+        let folder = std::env::temp_dir().join(format!("wf-place-{}", std::process::id()));
+        let person = folder.join("persons/one");
+        std::fs::create_dir_all(person.join("workshop")).unwrap();
+        // The decoy: an install state an earlier engine left, naming a tree that holds nothing.
+        std::fs::create_dir_all(person.join("workshop-installs")).unwrap();
+        std::fs::write(person.join("workshop-installs/state.json"), r#"{"current":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"}"#).unwrap();
+        let persons = vec![person.clone()];
+        assert_eq!(place_folder(&json!({"state": "workshop"}), &persons, "/h", &none).unwrap(), person.join("workshop"));
+        let other = folder.join("persons/two");
+        std::fs::create_dir_all(other.join("workshop")).unwrap();
+        assert!(place_folder(&json!({"state": "workshop"}), &[person.clone(), other], "/h", &none).unwrap_err().contains("more than one person"));
+        assert!(place_folder(&json!({"state": "workshop"}), &[], "/h", &none).unwrap_err().contains("no Workshop place"));
+        std::fs::remove_dir_all(&folder).unwrap();
+    }
+
+    #[test]
+    fn a_place_names_its_folder_one_way_and_no_name_climbs_out() {
+        let env = |name: &str| (name == "WORKSHOP_HERE").then(|| "/checkout".to_string());
+        assert_eq!(place_folder(&json!({"home": "dev/trillion-workshop"}), &[], "/h", &none).unwrap(), PathBuf::from("/h/dev/trillion-workshop"));
+        assert_eq!(place_folder(&json!({"at": "/a/b"}), &[], "/h", &none).unwrap(), PathBuf::from("/a/b"));
+        assert_eq!(place_folder(&json!({"setting": "WORKSHOP_HERE"}), &[], "/h", &env).unwrap(), PathBuf::from("/checkout"));
+        for place in [json!({}), json!({"state": "a", "at": "/a"}), json!({"state": "../x"}), json!({"state": "/etc"}), json!({"home": "a//b"}), json!({"at": "relative"}), json!({"setting": "NOT_SET"})] {
+            assert!(place_folder(&place, &[], "/h", &env).is_err(), "{place}");
+        }
     }
 }
