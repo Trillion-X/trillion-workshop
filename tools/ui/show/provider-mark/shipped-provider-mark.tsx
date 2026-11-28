@@ -11,7 +11,7 @@ import { providerIconRegistry } from './shipped-provider-icons';
 export type ShippedProviderMarkProps = { providerSlug: string; providerName?: string; size?: ProviderMarkProps['size']; needsImage?: boolean; fallback: React.ReactNode };
 
 export default function ShippedProviderMark({ providerSlug, providerName, size, needsImage = false, fallback }: ShippedProviderMarkProps) {
-  const known = resolveProviderMark({ providerSlug, providerName }, providerIconRegistry);
+  const known = resolveProviderMark({ providerSlug, providerName: providerName ?? '' }, providerIconRegistry);
   if (!known || (needsImage && !known.image)) return <>{fallback}</>;
   return <ProviderMark providerSlug={known.providerSlug} providerName={known.providerName} registry={providerIconRegistry} size={size} />;
 }

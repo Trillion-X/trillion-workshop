@@ -116,7 +116,7 @@ export function Tooltip({
 }: TooltipProps) {
   // A tooltip adds something the trigger does not already show: a label its
   // own text already says, with no shortcut or detail, is never opened.
-  const triggerRef = React.useRef<HTMLElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [open, setOpen] = React.useState(false);
   const onOpenChange = React.useCallback((next: boolean) => {
     const trigger = triggerRef.current;

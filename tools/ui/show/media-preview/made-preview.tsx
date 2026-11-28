@@ -336,7 +336,7 @@ export const PREVIEW_MAKERS: Record<string, PreviewMaker> = {
 }
 
 // A made preview worth keeping has something to draw.
-const drawable = (made: MadePreview | null | undefined) => Boolean(made && (made.poster || made.peaks || made.lines))
+const drawable = (made: MadePreview | null | undefined): made is MadePreview => Boolean(made && (made.poster || made.peaks || made.lines))
 
 /** Makes a file's previews in this browser. Resolves `{}` when nothing can be made. */
 export function makePreview(url: string, contentType: string, sizes: MadePreviewSizes = MADE_PREVIEW_SIZES): Promise<MadePreview> {
