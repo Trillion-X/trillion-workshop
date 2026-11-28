@@ -2,7 +2,9 @@
 //
 // PURPOSE
 //   The screen of tool:read-a-booking-page: a booking made one step at a time. It asks for the email, then each question of the
-//   page, then offers the open times from the page's calendar, asks the person to confirm one, and shows the booking. The site's
+//   page, then offers the open times from the page's calendar, asks the person to confirm one, and shows the booking, flat on the
+//   page (no card, no drop shadow), one thing on the screen at a time, under one progress piece per step (../../ask-questions-sort-answers-follow-up/show/step-pieces.ts), each
+//   new step opening at the top of the page. The site's
 //   booking routes say what comes next; this screen draws the step it is given. It does not wait on the network between questions:
 //   the booking's start hands over the page's questions with how each answer is checked, and the answers are checked here, the next
 //   question drawn at once and the answers sent in the background, in order (../../ask-questions-sort-answers-follow-up/show/
@@ -11,7 +13,8 @@
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Rendering is pure: nothing is fetched and no window is read while it renders (the server draws the first step). After it is
-//      mounted an effect reads `?email=` from the address (an email already given starts the booking at its first question) and
+//      mounted an effect reads `?email=` from the address (an email already given starts the booking at its first question, so the
+//      email is asked once; while it starts, the email step shows that email with its button pending) and
 //      every call to `<api_base>/book.start|answer|slots|slot|confirm` is made from an effect or a press.
 //   2. Props are plain JSON: `page` (the page's name), `title`, `timezone`, `duration_minutes`, `questions`
 //      ([{position, prompt, required}]), `words` (any of the words below, replacing the plain defaults) and `api_base`.
@@ -20,25 +23,28 @@
 //      `why` too: the error line shows `why` when it is there and `error` when it is not; any other failure shows `words.failed`.
 //   4. A question is a form question: its type picks its control through ./FormSteps (shared with the form page), and the server
 //      checks the answer the same way. Times are drawn in the page's time zone.
-//   5. Everything drawn is a shared part (Container, Text, Button, ProgressBar, the Coss Input and TimeSlotPicker); no raw HTML,
-//      no inline styling.
+//   5. Everything drawn is a shared part (Container, Text, Button, the Coss Input and TimeSlotPicker); no raw HTML, no inline
+//      styling. The progress is one piece per step (the shared FormSteps StepPieces, step-pieces.ts piecesOf: done solid, current half, ahead faint), never one
+//      continuous bar, and each piece carries `data-step-piece` with what it shows.
+//   6. A step drawn after another opens at the top of the page (step-pieces.ts useStepOpensAtTop); the first step stays where the
+//      page put it.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React, { useEffect, useRef, useState } from 'react';
 import { Container } from '../../ui/show/container/index.ts';
 import { Text } from '../../ui/show/text/Text.tsx';
 import { Form } from '../../ui/show/form/Form.tsx';
-import { ProgressBar } from '../../ui/show/progress-bar/ProgressBar.tsx';
 import { Input } from '../../ui/show/coss/ui/input.tsx';
 import { Button } from '../../ui/show/coss/ui/button.tsx';
 import { TimeSlotPicker } from '../../ui/show/coss/time-slot-picker.tsx';
 import { SectionShell, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
-import { AnswerControl, Labelled, answered, type Answer, type Next as AskedNext } from '../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
+import { AnswerControl, Labelled, StepPieces, answered, type Answer, type Next as AskedNext } from '../../ask-questions-sort-answers-follow-up/show/FormSteps.tsx';
 import { controlFor } from '../../ask-questions-sort-answers-follow-up/read-data/step-controls.ts';
 import { callStep as call } from '../../ask-questions-sort-answers-follow-up/show/call-step.ts';
 import type { Definition } from '../../ask-questions-sort-answers-follow-up/show/optimistic-run.ts';
 import { useOptimisticForm } from '../../ask-questions-sort-answers-follow-up/show/use-optimistic-form.ts';
 import { holdSlot, withoutSlot, type Slot } from './hold-slot.ts';
+import { useStepOpensAtTop } from '../../ask-questions-sort-answers-follow-up/show/step-pieces.ts';
 
 export type BookingWords = Record<string, string>;
 export type BookingPageProps = {
@@ -84,7 +90,7 @@ function calendarLinkOf(title: string, details: string, slot: Slot, timezone: st
 function Step({ at, count, progress, title, lead, children }: { at: number; count: number; progress?: string; title: string; lead?: string; children?: React.ReactNode }) {
   return (
     <Container as="section" layout="vertical" gap="lg" width="full" className="max-w-xl text-left" data-booking-step>
-      <ProgressBar percentage={Math.round((Math.min(at, count) / count) * 100)} color="var(--button-primary-bg)" height="0.25rem" aria-label={progress ?? title} />
+      <StepPieces at={at} count={count} label={progress ?? title} />
       {progress ? <Text as="p" variant="label" color="secondary">{progress}</Text> : null}
       <Container layout="vertical" gap="sm" width="full">
         <Text as="h1" variant="heading-xl" color="strong" className="leading-tight text-balance">{title}</Text>
@@ -116,6 +122,8 @@ export function View({ page, title, timezone, duration_minutes, questions, words
   const [holding, setHolding] = useState(false);
   const attempt = useRef('');
   const count = 1 + questions.length + 2;
+  // Each new step opens at the top of the page; the first step stays where the page put it.
+  useStepOpensAtTop(screen.kind === 'question' ? `question:${screen.next.position}` : screen.kind);
 
   const run = async (work: () => Promise<void>) => {
     setError('');
@@ -151,6 +159,7 @@ export function View({ page, title, timezone, duration_minutes, questions, words
   useEffect(() => {
     const given = (new URLSearchParams(window.location.search).get('email') ?? '').trim();
     if (given === '') return;
+    setValue(given);
     setSending(true);
     startWith(given)
       .catch(caught => { setValue(given); setError(caught instanceof Error ? caught.message : words.failed); })

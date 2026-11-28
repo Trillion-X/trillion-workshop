@@ -11,7 +11,7 @@
 //      never `switch(style)`. A new progress visual = one `register()` + zero
 //      change here. The style is DATA; the projection is Physics.
 
-import { createBlindRegistry, type BlindRegistry } from '../blind-registry/blind-registry';
+import { createBlindRegistry, type BlindRegistry } from '../blind-registry/blind-registry.ts';
 
 /** Universal progress facts — what every progress visual reads. */
 export interface ProgressState {

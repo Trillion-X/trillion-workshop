@@ -3,7 +3,7 @@
 // PURPOSE
 //   What every page that asks a form one question at a time shares (the form page, and a booking page that asks its
 //   questions the same way): the types of a step, a labelled field, the control a question's type asks for, and whether an
-//   answer has anything in it yet. Every part is a shared part (the licensed Coss kit in tools/ui/show/coss and the shared
+//   answer has anything in it yet, and the progress as one piece per step (./step-pieces.ts). Every part is a shared part (the licensed Coss kit in tools/ui/show/coss and the shared
 //   Text); the look is Screen Look's.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -18,11 +18,13 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
+import { Container } from '../../ui/show/container/index.ts';
 import { Text } from '../../ui/show/text/Text.tsx';
 import { Input } from '../../ui/show/coss/ui/input.tsx';
 import { Textarea, FieldPrimitive } from '../../ui/show/coss/ui/textarea.tsx';
 import { ChoiceRows, type ChoiceRowsValue } from '../../ui/show/coss/choice-rows.tsx';
 import { controlFor, noControlWords } from '../read-data/step-controls.ts';
+import { piecesOf, type Piece } from './step-pieces.ts';
 
 export type Option = { value: string; label: string };
 // What the program says a question needs drawn: its type, its options and other option, its words and bounds.
@@ -80,4 +82,16 @@ export function answered(value: Answer): boolean {
   if (value === null) return false;
   if (typeof value === 'string') return value.trim() !== '';
   return value.picked.length > 0;
+}
+
+const PIECE_LOOK: Record<Piece, string> = { done: 'bg-foreground', current: 'bg-foreground/45', ahead: 'bg-foreground/12' };
+
+// The progress of a page asked one step at a time: one piece per step across the full width, the steps done solid, the
+// current one half, the rest faint (./step-pieces.ts piecesOf). Each piece says what it shows in `data-step-piece`.
+export function StepPieces({ at, count, label }: { at: number; count: number; label: string }) {
+  return (
+    <Container layout="horizontal" gap="xs" width="full" role="progressbar" aria-valuemin={0} aria-valuemax={count} aria-valuenow={Math.min(at, count)} aria-label={label}>
+      {piecesOf(at, count).map((piece, index) => <Container key={index} as="span" gap="none" data-step-piece={piece} className={`h-1 flex-1 rounded-full ${PIECE_LOOK[piece]}`} />)}
+    </Container>
+  );
 }
