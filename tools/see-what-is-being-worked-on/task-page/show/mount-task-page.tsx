@@ -9,7 +9,7 @@
 // those addresses (its text, or a refusal); by default a same-origin fetch. A host that answers through calls passes its own.
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
-import type { Data } from '../read-data/task-rows';
+import type { Joined } from '../read-data/ask-by-database';
 import { TaskPage, type Choice } from './task-page';
 
 export type Choices = { url: string; param: string; ariaLabel: string; every?: string };
@@ -22,7 +22,7 @@ const DEFAULT_SEEN_KEY = 'task-page-last-seen-change';
 const fetchText: Ask = url => fetch(url, { cache: 'no-store', credentials: 'same-origin' }).then(reply => (reply.ok ? reply.text() : Promise.reject(new Error(String(reply.status)))));
 
 function Live({ dataUrl, intervalMs, seenKey, choices, ask }: Required<Omit<TaskPageProps, 'choices'>> & { choices?: Choices }) {
-  const [data, setData] = useState<Data | null>(null);
+  const [data, setData] = useState<Joined | null>(null);
   const [items, setItems] = useState<{ id: string; label: string }[] | null>(choices ? null : []);
   const [chosen, setChosen] = useState(() => (choices ? new URLSearchParams(location.search).get(choices.param) ?? '' : ''));
   const [failed, setFailed] = useState<string | null>(null);
@@ -46,7 +46,7 @@ function Live({ dataUrl, intervalMs, seenKey, choices, ask }: Required<Omit<Task
     setSeenBefore(localStorage.getItem(choices ? `${seenKey}-${id}` : seenKey)); setChosen(id);
   };
   const choice: Choice | undefined = choices && items
-    ? { items: [...items, ...(choices.every && items.length > 1 ? [{ id: EVERY, label: choices.every }] : [])], value, ariaLabel: choices.ariaLabel, onValueChange: choose }
+    ? { items: [...items.map(item => { const unread = data?.unread?.find(one => one.ids.includes(item.id)); return unread ? { ...item, label: `${item.label} (could not be read: ${unread.error})` } : item; }), ...(choices.every && items.length > 1 ? [{ id: EVERY, label: choices.every }] : [])], value, ariaLabel: choices.ariaLabel, onValueChange: choose }
     : undefined;
   useEffect(() => {
     if (!asked) return undefined;
