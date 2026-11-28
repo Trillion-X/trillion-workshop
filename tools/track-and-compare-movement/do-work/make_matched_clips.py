@@ -388,7 +388,8 @@ def progression(job):
     pairs.json by the pieces render uses, and adds no matcher, sync or renderer of its own.
     job.progression (DATA; nothing about a person, a stroke or a reference is in this code):
       "reference": {"key" | "identity", "window"}   optional; else the reference swing that partners the most distinct
-                                                    target dates (ties: the lowest mean motion distance). One batch is
+                                                    target dates with a swing that can be shown (ties: the lowest mean
+                                                    motion distance; `references_tried` says how many each showed). One batch is
                                                     one camera view (job.view), so every candidate is at that angle
       "targets": [{"key" | "identity", "window"}]   optional, in play order; else per date its pair closest to the
                                                     reference (lowest motion_dist) whose sync holds and whose cells
@@ -414,32 +415,17 @@ def progression(job):
         return pair["motion_dist"] if isinstance(pair.get("motion_dist"), (int, float)) else float("inf")
 
     dated = [pair for pair in pairs if T[pair["target"]].get("date")]
-    if p.get("reference"):
-        swing = (named_key(p["reference"]), int(p["reference"].get("window", 0)))
-    else:
-        swings = {}
-        for pair in dated:
-            swings.setdefault((pair["reference"], pair["reference_window"]), []).append(pair)
-        if not swings:
-            raise ValueError("pairs.json has no pair of a dated target")
-        swing = min(swings, key=lambda s: (-len({T[x["target"]]["date"] for x in swings[s]}),
-                                           sum(map(dist, swings[s])) / len(swings[s]), s))
-    if swing[0] not in R:
-        raise ValueError(f"the job has no reference {swing[0]}")
-    with_ref = [pair for pair in dated if (pair["reference"], pair["reference_window"]) == swing]
     width, height = (int(n) for n in p.get("size") or job.get("size") or [1080, 1920])
     layout = p.get("layout", "v")
-    name = p.get("name") or re.sub(r"[^A-Za-z0-9]+", "-", f"{job.get('movement', 'movement')}-{job.get('view', 'view')}-"
-                                   f"progression-vs-{swing[0]}-{swing[1]}").strip("-")
+    name = p.get("name") or f"{job.get('movement', 'movement')}-{job.get('view', 'view')}-progression"
     folder = os.path.join(job["work"], "progression", name)
     os.makedirs(folder, exist_ok=True)
     media = media_of(job)
     slow = p.get("slow_last")
-    planned, dropped = [], []
 
     def plan(pair):
         """A swing is shown only when its sync holds and both cells hold the whole movement (the render rules)."""
-        base = os.path.join(folder, f"{pair['target']}-{pair['target_window']}")
+        base = os.path.join(folder, f"{pair['target']}-{pair['target_window']}-vs-{pair['reference']}-{pair['reference_window']}")
         steps = {}
         try:
             spec = plan_pair(job, pair, base, media, steps)
@@ -465,20 +451,26 @@ def progression(job):
         return {"pair": pair, "base": base, "steps": {**steps, "framing": framing}, "date": T[pair["target"]]["date"],
                 "seconds": sync["target"]["out"] - sync["target"]["in"]}, None
 
-    if p.get("targets"):
+    def with_swing(swing):
+        return [pair for pair in dated if (pair["reference"], pair["reference_window"]) == swing]
+
+    def plan_named(swing):
+        planned, dropped = [], []
         for named in p["targets"]:
             want = (named_key(named), int(named.get("window", 0)))
-            pair = min((x for x in with_ref if (x["target"], x["target_window"]) == want), key=dist, default=None)
+            pair = min((x for x in with_swing(swing) if (x["target"], x["target_window"]) == want), key=dist, default=None)
             got, why = plan(pair) if pair else (None, "no pair of this target swing with the reference swing")
             if got:
                 planned.append(got)
             else:
                 dropped.append({"target": want, "why": why})
-        chosen = planned
-    else:
-        for date in sorted({T[x["target"]]["date"] for x in with_ref}):
+        return planned, dropped
+
+    def plan_dates(swing):
+        planned, dropped = [], []
+        for date in sorted({T[x["target"]]["date"] for x in with_swing(swing)}):
             whys = []
-            for pair in sorted((x for x in with_ref if T[x["target"]]["date"] == date), key=dist):
+            for pair in sorted((x for x in with_swing(swing) if T[x["target"]]["date"] == date), key=dist):
                 got, why = plan(pair)
                 if got:
                     planned.append(got)
@@ -486,7 +478,33 @@ def progression(job):
                 whys.append(why)
             else:
                 dropped.append({"date": date, "why": whys})
-        chosen = fit(planned, int(p.get("count", 12)), p.get("seconds"), p.get("slow_last"))
+        return planned, dropped
+
+    planner = plan_named if p.get("targets") else plan_dates
+    tried = []
+    if p.get("reference"):
+        swing = (named_key(p["reference"]), int(p["reference"].get("window", 0)))
+        if swing[0] not in R:
+            raise ValueError(f"the job has no reference {swing[0]}")
+        planned, dropped = planner(swing)
+    else:
+        # the reference swing that partners the most dates WITH a swing that can be shown: candidates in order of their
+        # partnered dates (ties: the lowest mean motion distance), each planned until no later one could show more
+        swings = {}
+        for pair in dated:
+            swings.setdefault((pair["reference"], pair["reference_window"]), []).append(pair)
+        if not swings:
+            raise ValueError("pairs.json has no pair of a dated target")
+        reach = {s: len({T[x["target"]]["date"] for x in found}) for s, found in swings.items()}
+        swing, planned, dropped = None, [], []
+        for s in sorted(swings, key=lambda s: (-reach[s], sum(map(dist, swings[s])) / len(swings[s]), s)):
+            if swing is not None and reach[s] <= len(planned):
+                break
+            got, lost = planner(s)
+            tried.append({"reference": s[0], "window": s[1], "dates": reach[s], "shown": len(got)})
+            if swing is None or len(got) > len(planned):
+                swing, planned, dropped = s, got, lost
+    chosen = planned if p.get("targets") else fit(planned, int(p.get("count", 12)), p.get("seconds"), slow)
     if not chosen:
         raise ValueError(f"no swing of a dated target syncs and frames with the reference swing {list(swing)}: {dropped[:3]}")
 
@@ -528,7 +546,7 @@ def progression(job):
     r = R[swing[0]]
     made = {"file": out, "edit": out[:-4] + ".edit.json", "size": [width, height], "seconds": round(at_frame / fps, 3),
             "reference": {"key": swing[0], "window": swing[1], "name": r.get("name"), "identity": r.get("identity")},
-            "swings": shown, "labels": caption["result"]["lines"], "dropped": dropped}
+            "swings": shown, "labels": caption["result"]["lines"], "dropped": dropped, "references_tried": tried}
     with open(out[:-4] + ".json", "w") as f:
         json.dump(made, f, indent=1)
     return {"file": out, "record": out[:-4] + ".json", "swings": len(shown), "seconds": made["seconds"],

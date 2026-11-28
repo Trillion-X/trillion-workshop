@@ -62,7 +62,7 @@ class ProgressionStage(unittest.TestCase):
         if piece == "phase_sync.py":
             spec = m.read(self.arg(cmd, "--spec"))
             tc = spec["target"]["contact"]
-            if (spec["target"]["kp"], tc) in self.refuse_sync:
+            if (spec["target"]["kp"], tc) in self.refuse_sync or spec["reference"]["kp"] in self.refuse_sync:
                 return {"error": "piece L2..L3 would play the reference at 5x"}
             with open(self.arg(cmd, "--out"), "w") as f:
                 json.dump({"kind": "phase_sync.v1", "target": {"in": tc - 1.5, "contact": tc, "out": tc - 1.5 + SWING_S}}, f)
@@ -142,11 +142,19 @@ class ProgressionStage(unittest.TestCase):
         self.assertEqual(record["dropped"][0]["date"], "2024-03-09")
 
     def test_a_swing_whose_cell_cannot_hold_the_movement_is_not_shown(self):
-        self.refuse_framing = {f"{m.key(TARGETS[0])}-1."}             # day 0's closest swing loses its racket
+        self.refuse_framing = {f"{m.key(TARGETS[0])}-1-vs-"}             # day 0's closest swing loses its racket
         got = m.progression(self.job)
         record = m.read(got["record"])
         self.assertEqual(record["swings"][0]["target_window"], 0)    # that day's next swing is shown instead
         self.assertEqual(self.calls.count("render-an-edit.mjs"), 1)  # the whole video renders once, already framed
+
+    def test_a_reference_swing_none_of_whose_swings_can_be_shown_gives_way_to_the_next(self):
+        self.refuse_sync = {m.kp_of(self.job, "references", m.key(REF_A))}   # A partners every date, none syncs
+        got = m.progression(self.job)
+        self.assertEqual(got["reference"]["key"], m.key(REF_B))
+        self.assertEqual(got["dates"], ["2023-11-04", "2024-03-09", "2024-08-17"])
+        tried = m.read(got["record"])["references_tried"]
+        self.assertEqual([(t["dates"], t["shown"]) for t in tried], [(6, 0), (3, 3)])
 
     def test_the_length_bounds_take_fewer_swings(self):
         got = m.progression({**self.job, "progression": {**self.job["progression"], "count": 6, "seconds": [5, 12]}})
