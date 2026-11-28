@@ -11,6 +11,8 @@ SPEC (DATA; nothing about a person, a sport or a page is in this file):
              "stroke": "forehand", "hand": "left", "camera": "behind", "stroke_seen": "..."},
   "cell": [1080, 960], "fps": 30, "before_s": 1.5, "after_s": 1.3, "encode": {"crf": 18, "preset": "slow"}
 }
+A side may carry "inner": [w, h, x, y], the part of its cell its crop is shown in, whole, when the rest is a fill
+(a fitted cell); check then compares only that part with the source.
 contact_frame is the source frame where the ball first sits on the strings, read by eye; stroke is read from frames
 (never from a file name) and stroke_seen says which frames were looked at. hand is the hitting hand; camera is
 "behind" (the camera sees the player's back) or "facing" (the player faces the camera).
@@ -121,12 +123,18 @@ def psnr(a, b):
     return 99.0 if mse == 0 else 10 * math.log10(255 ** 2 / mse)
 
 
+def shown(side, cell):
+    """Where in its cell a side's crop is shown, [w, h, x, y]: its fitted part, else the whole cell."""
+    return list(side.get("inner") or [cell[0], cell[1], 0, 0])
+
+
 def source_contact(side, cell):
     cw, ch, cx, cy = side["crop"]
-    vf = f"select='eq(n\\,{side['contact_frame']})',crop={cw}:{ch}:{cx}:{cy},scale={cell[0]}:{cell[1]}:flags=lanczos"
+    w, h, _, _ = shown(side, cell)
+    vf = f"select='eq(n\\,{side['contact_frame']})',crop={cw}:{ch}:{cx}:{cy},scale={w}:{h}:flags=lanczos"
     vf += ",hflip" if side.get("mirror") else ""
     return gray(["ffmpeg", "-v", "error", "-i", side["source"], "-vf", vf, "-frames:v", "1", "-f", "rawvideo",
-                 "-pix_fmt", "gray", "-"], (cell[1], cell[0]))[0]
+                 "-pix_fmt", "gray", "-"], (h, w))[0]
 
 
 def clip_cells(clip, first, last, cell, row, layout="v"):
@@ -152,7 +160,9 @@ def check(spec, clip, limits=None):
     k, s = round(before * fps), limits["search"]
     found = {}
     for row, name in enumerate(("top", "bottom")):
-        scores = [round(psnr(source_contact(spec[name], cell), c), 2) for c in clip_cells(clip, k - s, k + s, cell, row, spec.get("layout", "v"))]
+        w, h, x, y = shown(spec[name], cell)
+        scores = [round(psnr(source_contact(spec[name], cell), c[y:y + h, x:x + w]), 2)
+                  for c in clip_cells(clip, k - s, k + s, cell, row, spec.get("layout", "v"))]
         best = int(np.argmax(scores))
         found[name] = {"frame": k - s + best, "match_db": scores[best], "scores": scores}
     distinct = blake3_or_sha(spec["top"]["source"]) != blake3_or_sha(spec["bottom"]["source"])

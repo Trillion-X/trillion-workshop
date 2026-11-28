@@ -311,12 +311,13 @@ def plan_pair(job, pair, base, media, steps):
     return spec
 
 
-def frame_edit(job, edit, framed):
-    """whole_movement_check.py on an edit: a cell's crop widened where the body or racket would leave it, written to
-    `framed`. Answers (framing result, None) or (framing result, why a cell cannot hold the whole movement)."""
+def frame_edit(job, edit, framed, when_too_wide):
+    """whole_movement_check.py on an edit: a cell's crop widened where the body or racket would leave it, or, where no
+    crop of the cell's shape fits the source, the whole movement fitted over a blurred fill (`when_too_wide`
+    fit-blurred) or refused (refuse), written to `framed`. Answers (framing result, None) or (framing result, why)."""
     seg_model = os.path.join(job["models"], job.get("framing_model", "yolo11n-seg.pt"))
     got = run_json([sys.executable, os.path.join(HERE, "whole_movement_check.py"), "--edit", edit, "--model", seg_model,
-                    "--work", framed[:-5] + ".framing", "--write-edit", framed])
+                    "--work", framed[:-5] + ".framing", "--write-edit", framed, "--when-too-wide", when_too_wide])
     if "error" in got or not os.path.exists(framed) or (got.get("result") or {}).get("cells_refused"):
         return got.get("result"), f"framing: {got.get('error') or 'a cell cannot hold the whole movement'}"
     return got.get("result"), None
@@ -352,7 +353,8 @@ def render(job):
         base = os.path.join(folder, clip_name(job, pair)[:-4])
         formats = [f["id"] for f in variants["formats"]]
         if all(os.path.exists(f"{base}.{fid}.mp4") for fid in formats):
-            made += [already_made(pair, base, fmt) for fmt in variants["formats"]]
+            made += [{"pair": pair, "file": f"{base}.{fid}.mp4", "edit": f"{base}.{fid}.edit.json", "format": fid,
+                      "already": True} for fid in formats]
             continue
         steps = {}
         try:
@@ -367,35 +369,16 @@ def render(job):
         for fmt in variants["formats"]:
             fid = fmt["id"]
             edit, out = f"{base}.edit.{fid}.json", f"{base}.{fid}.mp4"   # author_comparison_edl --variants names OUT.FORMAT.json
-            framing, why = frame_edit(job, edit, f"{base}.{fid}.edit.json")
+            framing, why = frame_edit(job, edit, f"{base}.{fid}.edit.json", variants.get("when_too_wide", "fit-blurred"))
             why = why or render_edit(media, read(f"{base}.{fid}.edit.json"), out)
             if why:
                 failed.append({"pair": pair, "format": fid, "why": why, "framing": framing, "steps": steps})
                 continue
-            entry = {"pair": pair, "file": out, "edit": f"{base}.{fid}.edit.json", "format": fid,
-                     "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": {**steps, "framing": framing}}
-            with open(f"{base}.{fid}.made.json", "w") as f:   # a rerun reads this back instead of making the clip again
-                json.dump(entry, f, indent=1)
-            made.append(entry)
+            made.append({"pair": pair, "file": out, "edit": f"{base}.{fid}.edit.json", "format": fid,
+                         "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": {**steps, "framing": framing}})
     with open(os.path.join(job["work"], "rendered.json"), "w") as f:
         json.dump({"made": made, "failed": failed}, f, indent=1)
     return {"made": len(made), "failed": len(failed), "first_failure": failed[0]["why"] if failed else None}
-
-
-def already_made(pair, base, fmt):
-    """A clip a previous run made: its own record when that run kept one, else rebuilt from what it left beside the
-    clip (each side's contact from the sync spec), so the check reads the contact and the cell shape it was made
-    with, never the wrist peak or another format's shape."""
-    fid = fmt["id"]
-    kept = f"{base}.{fid}.made.json"
-    if os.path.exists(kept):
-        return {**read(kept), "pair": pair, "already": True}
-    steps = {}
-    if os.path.exists(base + ".sync-spec.json"):
-        spec = read(base + ".sync-spec.json")
-        steps["contact"] = {name: {"time": spec[name]["contact"], "source": "sync-spec"} for name in ("target", "reference")}
-    return {"pair": pair, "file": f"{base}.{fid}.mp4", "edit": f"{base}.{fid}.edit.json", "format": fid,
-            "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": steps, "already": True}
 
 
 def progression(job):
@@ -418,6 +401,8 @@ def progression(job):
       "label": {"format": "%b %Y", "style": <caption style id | row>, "letters": {"edge": "top", "at": 0.5},
                 "fontsdir": "/a/folder"}            the date text, its caption style and where its letters sit
       "size": [1080, 1920], "layout": "v", "name": "<file name without .mp4>"
+      "when_too_wide": "fit-blurred" | "refuse"     a swing no crop of the cell's shape can hold: shown whole over a
+                                                    blurred fill (the default), or not shown
     Without job.progression it does nothing and says so."""
     p = job.get("progression")
     if not p:
@@ -462,7 +447,8 @@ def progression(job):
                         base + ".progression-spec.json", "--out", base + ".progression-edit.json"])
         if "error" in got:
             return None, f"edit: {got['error']}"
-        framing, why = frame_edit(job, base + ".progression-edit.json", base + ".progression-framed.json")
+        framing, why = frame_edit(job, base + ".progression-edit.json", base + ".progression-framed.json",
+                                  p.get("when_too_wide", "fit-blurred"))
         if why:
             return None, {"why": why, "framing": framing}
         sync = read(base + ".sync.json")
@@ -607,22 +593,32 @@ def fit(planned, count, seconds, slow):
 
 
 def hold_reference_crop(segments, video, width, height, layout):
-    """One crop for the reference cell of every segment: the union of their crops, at the cell's aspect, inside the
-    source frame, so the reference never jumps when the date changes."""
-    crops = [s["sources"][0]["crop"] for s in segments]
-    x0, y0 = min(c["x"] for c in crops), min(c["y"] for c in crops)
-    x1, y1 = max(c["x"] + c["w"] for c in crops), max(c["y"] + c["h"] for c in crops)
+    """One crop for the reference cell of every segment: the union of their crops at the cell's aspect inside the
+    source frame, so the reference never jumps when the date changes. When that shape does not fit the source, the
+    union cut to the source is shown whole over a blurred fill (the framing check's own fit), the same in every segment."""
+    sources = [s["sources"][0] for s in segments]
+    x0, y0 = min(c["crop"]["x"] for c in sources), min(c["crop"]["y"] for c in sources)
+    x1 = max(c["crop"]["x"] + c["crop"]["w"] for c in sources)
+    y1 = max(c["crop"]["y"] + c["crop"]["h"] for c in sources)
     aspect = (width / 2) / height if layout == "h" else width / (height / 2)
+    cell = [width // 2, height] if layout == "h" else [width, height // 2]
     w, h = max(x1 - x0, (y1 - y0) * aspect), max(y1 - y0, (x1 - x0) / aspect)
-    if w > video["width"]:
-        w, h = video["width"], video["width"] / aspect
-    if h > video["height"]:
-        w, h = video["height"] * aspect, video["height"]
+    fit = None
+    if w > video["width"] or h > video["height"]:
+        w, h = min(w, video["width"]), min(h, video["height"])
+        if abs(w / h - aspect) > 1e-3:
+            scale = min(cell[0] / w, cell[1] / h)
+            iw, ih = 2 * int(w * scale / 2), 2 * int(h * scale / 2)
+            fit = {"fill": "blur", "cell": cell, "inner": {"w": iw, "h": ih, "x": (cell[0] - iw) // 2, "y": (cell[1] - ih) // 2}}
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     crop = {"w": int(w), "h": int(h), "x": int(max(0, min(cx - w / 2, video["width"] - w))),
             "y": int(max(0, min(cy - h / 2, video["height"] - h)))}
-    for s in segments:
-        s["sources"][0]["crop"] = dict(crop)
+    for source in sources:
+        source["crop"] = dict(crop)
+        if fit:
+            source["fit"] = json.loads(json.dumps(fit))
+        else:
+            source.pop("fit", None)
     return crop
 
 
@@ -646,7 +642,9 @@ def check(job):
         def side(src, clip, peak, data_side):
             fps = read(os.path.join(job["work"], f"{data_side}-index", "_work", f"{key(clip)}.kp.json"))["video"]["fps"]
             c = src["crop"]
+            inner = (src.get("fit") or {}).get("inner")
             return {"source": clip["path"], "fps": fps, "contact_frame": round(peak * fps), "crop": [c["w"], c["h"], c["x"], c["y"]],
+                    **({"inner": [inner["w"], inner["h"], inner["x"], inner["y"]]} if inner else {}),
                     "mirror": src.get("flip") == "h", "stroke": job.get("movement"), **on_screen(clip, job),
                     "stroke_seen": f"{job.get('movement')}: the reference's labelled class, and the matcher admitted the pair (motion {pair.get('motion_dist')}, class check {pair.get('class_check')})"}
         width, height = item.get("size") or job.get("size", [1080, 1920])

@@ -168,6 +168,18 @@ class ProgressionStage(unittest.TestCase):
         self.assertEqual(got["reference"]["key"], m.key(REF_B))
         self.assertEqual(got["dates"], ["2024-08-17", "2023-11-04"])
 
+    def test_a_held_reference_crop_too_big_for_the_cell_shape_is_shown_whole_on_a_fill(self):
+        segs = [{"sources": [{"crop": {"x": 0, "y": 0, "w": 1080, "h": 1000}}, {}]},
+                {"sources": [{"crop": {"x": 0, "y": 200, "w": 1080, "h": 1000}, "fit": {"fill": "blur"}}, {}]}]
+        crop = m.hold_reference_crop(segs, {"width": 1080, "height": 1920}, 1080, 1920, "v")
+        self.assertEqual(crop, {"w": 1080, "h": 1200, "x": 0, "y": 0})        # the union, cut only by the source
+        fits = [s["sources"][0]["fit"] for s in segs]
+        self.assertEqual(fits[0], fits[1])
+        self.assertEqual(fits[0]["inner"], {"w": 864, "h": 960, "x": 108, "y": 0})
+        small = [{"sources": [{"crop": {"x": 10, "y": 10, "w": 900, "h": 800}, "fit": {"fill": "blur"}}, {}]}]
+        m.hold_reference_crop(small, {"width": 1920, "height": 1080}, 1080, 1920, "v")
+        self.assertNotIn("fit", small[0]["sources"][0])                      # a cell-shaped crop fills its cell
+
     def test_no_progression_does_nothing(self):
         del self.job["progression"]
         self.assertEqual(m.progression(self.job), {"skipped": "the job has no progression"})

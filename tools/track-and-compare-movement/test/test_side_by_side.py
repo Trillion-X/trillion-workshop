@@ -79,6 +79,21 @@ class MakeAndCheck(unittest.TestCase):
         self.assertFalse(result["checks"]["is-a-comparison"]["pass"])
         self.assertFalse(result["pass"])
 
+    def test_a_fitted_cell_is_compared_on_the_part_its_crop_is_shown_in(self):
+        fitted = str(self.dir / "fitted.mp4")       # the bottom cell's picture shown whole at 320x240, on a dark fill
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.made["out"], "-filter_complex",
+                        "[0:v]split[a][b];[a]crop=640:480:0:0[top];[b]crop=640:480:0:480,split[c][d];"
+                        "[c]gblur=sigma=20,colorchannelmixer=rr=0.4:gg=0.4:bb=0.4[fill];[d]scale=320:240[whole];"
+                        "[fill][whole]overlay=160:120[bottom];[top][bottom]vstack=2,format=yuv420p[v]",
+                        "-map", "[v]", "-c:v", "libx264", "-crf", "12", fitted], check=True)
+        spec = json.loads(json.dumps(self.spec))
+        spec["bottom"]["inner"] = [320, 240, 160, 120]
+        result = M.check(spec, fitted)
+        self.assertTrue(result["pass"], json.dumps(result["checks"]))
+        self.assertEqual(result["checks"]["contact-in-sync"]["offset_frames"], 0)
+        del spec["bottom"]["inner"]                  # read as a whole cell it is not its source
+        self.assertFalse(M.check(spec, fitted)["checks"]["is-a-comparison"]["pass"])
+
     def test_the_sheet_holds_the_contact_and_its_neighbours(self):
         out = M.sheet(self.made["out"], self.made["contact_output_frame"], str(self.dir / "sheet.jpg"))
         self.assertEqual(out["frames"], [0, 15, 29, 30, 31, 42, 60])
