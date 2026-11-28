@@ -3,8 +3,9 @@
 // One published article: category, title, description, picture, its sections in order, the short version, the sources, the
 // articles to read next and the course it points to. Its props are the answer of tool:read-a-published-article. Pure:
 // nothing is fetched, no window is read, and every word is drawn as text, never as markup. The links to the next articles and
-// the course are Buttons given `wrap`: their labels are titles, which on a phone are wider than the screen, so the label
-// wraps inside the button instead of making the page wider than the screen.
+// the course, a source's address and every link in the words (Inline.tsx) are Buttons given `wrap`: their labels are titles,
+// sentences and addresses, which on a phone are wider than the screen, so the label wraps inside the button instead of making
+// the page wider than the screen (an address, which has no spaces, may break anywhere).
 import React from 'react';
 import { SectionShell, StatementText, Text, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import { Button } from '../../ui/show/button/Button.tsx';
@@ -47,7 +48,7 @@ export function View({ article, base_path = '/articles', course_path = '/courses
                 {article.sources.map(source => (
                   <Text as="li" id={`source-${source.n}`} key={source.n}>
                     <Text as="strong">{source.title}</Text>, {source.label}. {source.excerpt ? `“${source.excerpt}” ` : null}
-                    {/^https?:\/\/|^\//i.test(source.href) ? <Button href={source.href} variant="plain" size="xs">{source.href}</Button> : null}
+                    {/^https?:\/\/|^\//i.test(source.href) ? <Button href={source.href} variant="plain" size="xs" wrap className="[overflow-wrap:anywhere]">{source.href}</Button> : null}
                   </Text>
                 ))}
               </Text>

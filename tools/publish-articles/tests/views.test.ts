@@ -46,12 +46,14 @@ const linkTo = (html: string, href: string) => html.match(new RegExp(`<a[^>]*hre
 test('every title link wraps inside its button, so no title makes a phone page wider than the screen', () => {
   const html = draw('article', { article });
   const list = draw('list', { heading: 'All articles', articles: [{ slug: 'x', title: 'A title much longer than a phone screen is wide', description: 'D', category: '', published_at: null }] });
-  for (const [where, tag] of [['related', linkTo(html, '/articles/b')], ['course', linkTo(html, '/courses/c')], ['list', linkTo(list, '/articles/x')]]) {
+  for (const [where, tag] of [['related', linkTo(html, '/articles/b')], ['course', linkTo(html, '/courses/c')], ['list', linkTo(list, '/articles/x')],
+    ['words', linkTo(html, 'https://example.com')], ['source', linkTo(html, 'https://example.com/s')]]) {
     assert.ok(tag, `${where} link drawn`);
     assert.match(tag, /\bwhitespace-normal\b/, `${where} label may wrap`);
     assert.match(tag, /\bmax-w-full\b/, `${where} button is never wider than its column`);
     assert.doesNotMatch(tag, /\bwhitespace-nowrap\b/, `${where} keeps no one-line rule`);
   }
+  assert.match(linkTo(html, 'https://example.com/s'), /overflow-wrap:anywhere/, 'an address may break anywhere');
 });
 
 test('a missing article draws only the not-found words', () => {
