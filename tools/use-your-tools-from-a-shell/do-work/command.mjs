@@ -636,13 +636,36 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
 
 // ── The door ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The Mac app's local door on this computer (./local-door.mjs, run against the app command.json `mac_app` names),
- *  or null when this computer has none. */
-export function findLocalDoor({ rules = settings } = {}) {
-  try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); } catch { return null; }
+/** Where this computer's local door is declared (./local-door.mjs): the engine config files `computer_config_files` names (the app
+ *  writes them on every launch), then the app `mac_app` names, then the node running this program when it is an app's own
+ *  (Contents/MacOS/node; an app installed anywhere else than `mac_app`). */
+export function localDoorSources({ rules = settings, home = homedir(), execPath = process.execPath } = {}) {
+  const inApp = basename(dirname(execPath)) === 'MacOS';
+  return { configs: rules.computer_config_files.map(file => expand(file, home)),
+    runtimes: [join(rules.mac_app, 'Contents', 'MacOS', 'node'), ...(inApp ? [execPath] : [])] };
 }
 
-/** The door this run talks to: `asked` (--origin or {CLI}_ORIGIN); else, for the account's key, the Mac app's local door
+/** The Mac app's local door on this computer, or null when nothing declares one. */
+export function findLocalDoor(where = {}) {
+  try { return localDoorAddress(localDoorSources(where)); } catch { return null; }
+}
+
+/** The line said on stderr when a call goes to another door because this computer declares no local door. With `verbose`, the
+ *  technical line follows: every file looked at and the door the call went to instead. */
+export function noLocalDoorWords(door, { verbose = false, ...where } = {}) {
+  let tried = [];
+  try { localDoorAddress(localDoorSources(where)); } catch (error) { tried = error.tried ?? []; }
+  const rules = where.rules ?? settings;
+  return [fill(rules.words.no_local_door, { name: door.name }), ...(verbose ? [fill(rules.words.details.no_local_door, { tried: tried.join(', '), mcp: door.mcp })] : [])].join(' ');
+}
+
+/** The line said on stderr after a call: the door that answered it, and the computers it was pinned to (`verbose` adds its address). */
+export function answeredByWords(door, pins, { rules = settings, verbose = false } = {}) {
+  return [fill(rules.words.answered_by, { name: door.name }) + (pins?.length ? fill(rules.words.answered_pinned, { pins: pins.join(', ') }) : ''),
+    ...(verbose ? [fill(rules.words.details.answered_by, { mcp: door.mcp })] : [])].join(' ');
+}
+
+/** The door this run talks to: `asked` (--origin or {CLI}_ORIGIN); else, for the account's key or a sign-in made for this site, the Mac app's local door
  *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, {CLI}_ORIGIN); with none the run is
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
 /** The sign-in servers (origins) a door names in its protected-resource document (RFC 9728); none when it does not answer. */
@@ -653,12 +676,20 @@ async function engineServersOf(door, { fetchImpl, rules }) {
 }
 
 
+/** Whether a sign-in's pass was made for the site this computer's app serves (the declared site's own door): such a pass goes to this
+ *  computer's local door, which admits a pass of its issuer; a pass made for another site never does. */
+const passIsForThisSite = (credential, declared) => {
+  try { return declared !== null && new URL(credential.resource ?? `${credential.origin}/mcp`).origin === declared; } catch { return false; }
+};
+
 export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
-  // The engine a run talks to: the one asked for (--origin, {CLI}_ORIGIN); else, for a kept key, this computer's own; else, for a sign-in,
+  // The engine a run talks to: the one asked for (--origin, {CLI}_ORIGIN); else, for a kept key or a sign-in, this computer's own
+  // (the engine admits a pass of its issuer at its loopback address; a sign-in made for another site stays with that site); else, for a sign-in,
   // the one its pass was made for (`resource`: the pass names it, so no host is compared and no other engine is tried); else the declared
   // address, else the sign-in site's own engine (the public origin the Mac app declares), else none: the run is refused.
   const mcp = asked ? `${asked}/mcp`
     : credential?.kind === 'key' && localMcp ? localMcp
+    : credential?.kind === 'sign-in' && localMcp && passIsForThisSite(credential, declared) ? localMcp
     : credential?.kind === 'sign-in' ? credential.resource ?? `${credential.origin}/mcp`
     : declared ? `${declared}/mcp` : null;
   if (mcp === null) throw new CommandError(rules.words.no_origin, { status: 2 });
@@ -2168,6 +2199,10 @@ export async function main(argv, seams = {}) {
   const requestKey = randomUUID();
   const call = TASK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held(), requestKey }) : null;
   const client = await signedInClient(context);
+  // A call that went to another door because this computer declares no local door says so (with --verbose, every place looked at): it never falls through unsaid.
+  const direct = command === 'call' || command === 'op';
+  const say = direct ? (seams.say ?? (text => process.stderr.write(`${text}\n`))) : null;
+  if (direct && !context.asked && !client.door.local && context.localMcp() === null) say(noLocalDoorWords(client.door, { verbose: flags.verbose === true }));
   // A move the task rows do not allow is said in the rows' own words, as a refusal (status 1), never as a program failure.
   if (call) return taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout: seams.stdout ?? process.stdout, print })
     .catch(error => { throw error?.code === 'tool_refused' ? new CommandError(error.message, { status: 1 }) : error; });
@@ -2205,12 +2240,16 @@ export async function main(argv, seams = {}) {
       const input = await readJson(words[1], '{"text": "..."}');
       const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
       const request = withUntil(engine.tools_run, { tool, input }, { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
-      return whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: { ...await routeOf(client, tool), ...pinned }, upload: uploadOf(flags.upload) }));
+      const answer = whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: { ...await routeOf(client, tool), ...pinned }, upload: uploadOf(flags.upload) }));
+      say(answeredByWords(client.door, pinned.pins, { verbose: flags.verbose === true }));
+      return answer;
     }
     const method = opMethod(words[0]);
     const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
     const request = withUntil(method, await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
-    return whole(await opWhole(client, flags.address ?? null, method, request, { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
+    const answer = whole(await opWhole(client, flags.address ?? null, method, request, { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
+    say(answeredByWords(client.door, pinned.pins, { verbose: flags.verbose === true }));
+    return answer;
   }
   if (command === 'who') {
     const now = Date.now();
