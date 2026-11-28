@@ -18,7 +18,7 @@
         },
         "label": "Add a tool to my project",
         "job": "Copy one tool folder, and the folders it needs, into a project's own trillion/ folder at the exact commit its pointer names, and record where each came from",
-        "description": "Give project (the project's folder, inside the folder the person granted for change) and tool (the tool's name). from says where the pointer comes from: a registry (a folder holding tools-in-this-registry.json, the file, or its https address) or a direct pointer {repo, path, commit}; without from, the registry the project's trillion/where-each-tool-comes-from.json names. The tool folder and every folder it needs (needs_tools, from the registry and from the tool's card) are fetched at the pinned commit, their BLAKE3 identity is checked against the pointer, and each is written as trillion/<folder>/ with one line in the record file (where it came from, the commit, every file's BLAKE3, the folders it needs and the identity of the whole set). A folder whose card still has the old name tool-rows.json is refused (old-card-name). Then each new folder's card (what-this-tool-does-and-how-to-run-it.json) prepare command, if it names one, runs in that folder (prepare: false skips it). Nothing is overwritten: a folder already there from the same pointer is reported as already; an edited copy is refused with its diff; another version from the same source is refused (moving it is a sync); another source's folder of the same name is refused unless as gives the new folder another name. When anything is refused, nothing is written. Returns added, already, refused (each with why), prepared and not_prepared.",
+        "description": "Give project (the project's folder, inside the folder the person granted with use-git-in-a-folder, which also lets the run start the system git that reads and fetches the pinned commit) and tool (the tool's name). from says where the pointer comes from: a registry (a folder holding tools-in-this-registry.json, the file, or its https address) or a direct pointer {repo, path, commit}; without from, the registry the project's trillion/where-each-tool-comes-from.json names. The tool folder and every folder it needs (needs_tools, from the registry and from the tool's card) are fetched at the pinned commit, their BLAKE3 identity is checked against the pointer, and each is written as trillion/<folder>/ with one line in the record file (where it came from, the commit, every file's BLAKE3, the folders it needs and the identity of the whole set). A folder whose card still has the old name tool-rows.json is refused (old-card-name). Then each new folder's card (what-this-tool-does-and-how-to-run-it.json) prepare command, if it names one, runs in that folder (prepare: false skips it). Nothing is overwritten: a folder already there from the same pointer is reported as already; an edited copy is refused with its diff; another version from the same source is refused (moving it is a sync); another source's folder of the same name is refused unless as gives the new folder another name. When anything is refused, nothing is written. Returns added, already, refused (each with why), prepared and not_prepared.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -203,7 +203,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "change-a-folder"
+            "use-git-in-a-folder"
           ],
           "workdir": "/opt/add-a-tool-to-a-project",
           "internet": true,
@@ -215,7 +215,7 @@
             {
               "fill": {
                 "from": "task",
-                "field": "grants.change-a-folder.folder"
+                "field": "grants.use-git-in-a-folder.folder"
               }
             }
           ],
@@ -270,12 +270,12 @@
             },
             "files": [
               {
-                "grant": "change-a-folder",
+                "grant": "use-git-in-a-folder",
                 "path": "package.json",
                 "text": "{\"name\":\"a-sample-project\",\"private\":true}\n"
               },
               {
-                "grant": "change-a-folder",
+                "grant": "use-git-in-a-folder",
                 "path": "tools-in-this-registry.json",
                 "text": "{\"_what\": \"A stand-in registry with one real pointer: the content-identity folder of the public Workshop at one commit.\", \"tools\": {\"content-identity\": {\"repo\": \"https://github.com/Trillion-X/trillion-workshop.git\", \"path\": \"tools/content-identity\", \"commit\": \"01c2cc3a271f56ae6799b20501ab6153057aeb69\", \"files_blake3\": \"7d9e45feea11f2842e6c49bc282d9a14bcacb09879865edaf2c167d99ce50428\", \"what_it_does\": \"The one BLAKE3 content-identity owner every Workshop tool hashes through.\", \"needs_tools\": []}}}\n"
               }

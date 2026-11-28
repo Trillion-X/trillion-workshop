@@ -56,6 +56,10 @@ folder. (This tool's own card is still `tool-rows.json` until the Workshop renam
 
 ## Invariants
 
+- The run holds `use-git-in-a-folder` on the granted folder: the same folder for change, plus starting the system git that reads
+  a clone or fetches the pinned commit. Under `change-a-folder` alone the sandbox grants no git, so every add was refused
+  at its first git call (the same cause `tool:keep-tool-copies-in-step` was fixed for in Workshop 72d6aeb8f).
+
 - All or nothing: one refusal in the set writes nothing.
 - Nothing is overwritten: the same pointer is `already`; an edited copy is refused with a unified diff
   (`edited-copy`); another version from the same source is refused (`other-version-present`: that is a sync);
