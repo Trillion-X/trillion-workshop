@@ -71,3 +71,36 @@ class KeepAnySize(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FetchSurvivesABrokenTransfer(unittest.TestCase):
+    """A transfer that breaks is tried again; bytes that never match are refused by name."""
+
+    def setUp(self):
+        self.saved = (files_road._op, files_road.subprocess.run, files_road.blake3_identity)
+        files_road._op = lambda call, name, arguments, **kw: {"url": "https://x", "share": "s"} if name == "share_file" else {}
+        self.d = tempfile.mkdtemp()
+        self.dest = os.path.join(self.d, "clip.mp4")
+
+    def tearDown(self):
+        files_road._op, files_road.subprocess.run, files_road.blake3_identity = self.saved
+        shutil.rmtree(self.d)
+
+    def test_a_broken_transfer_is_tried_again(self):
+        runs = []
+
+        def curl(cmd, **kw):
+            runs.append(cmd)
+            open(self.dest, "ab").write(b"x")
+            return subprocess.CompletedProcess(cmd, 92 if len(runs) == 1 else 0)
+        files_road.subprocess.run = curl
+        files_road.blake3_identity = lambda p: "1f:good" if len(runs) >= 2 else "1f:part"
+        self.assertEqual(files_road.fetch(["engine"], "1f:good", self.dest), self.dest)
+        self.assertEqual(len(runs), 2)
+        self.assertIn("-C", runs[0])                    # resumes from the bytes already here
+
+    def test_bytes_that_never_match_are_refused_by_name(self):
+        files_road.subprocess.run = lambda cmd, **kw: (open(self.dest, "ab").write(b"y"), subprocess.CompletedProcess(cmd, 0))[1]
+        files_road.blake3_identity = lambda p: "1f:other"
+        with self.assertRaisesRegex(RuntimeError, "could not fetch 1f:good in 4 tries"):
+            files_road.fetch(["engine"], "1f:good", self.dest)

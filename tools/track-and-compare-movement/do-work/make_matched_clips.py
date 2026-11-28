@@ -956,7 +956,11 @@ def prepare(spec):
             known = have.get((row["identity"], "perception", "", pfp))
             measured_before[side] += known is not None
             if known is None:                             # not measured yet: perceive needs its pictures
-                files_road.fetch(call, row["identity"], path)
+                try:
+                    files_road.fetch(call, row["identity"], path)
+                except (RuntimeError, OSError) as e:      # one file that won't come is left out by name, not the batch
+                    left_out.append({"name": row["name"], "why": f"could not fetch: {e}"})
+                    continue
             seconds = known.get("duration_s") if known else duration(path)
             if side == "reference" and longest:
                 if seconds is None or seconds > float(longest):
