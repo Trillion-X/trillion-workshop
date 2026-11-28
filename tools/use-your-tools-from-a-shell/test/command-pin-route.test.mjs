@@ -110,3 +110,21 @@ test('64 pins and a 128-character id are the most the engine takes, and both are
   await named.result;
   assert.deepEqual(envelopes(named.asked)[0].pins, [longest]);
 });
+
+test('call TOOL JSON --pin A sends pins ["A"] with the tools:run call, as op does, and a refused pin sends nothing', async () => {
+  const { asked, result } = run(['call', 'tool:x', '{"text":"hi"}', '--pin', 'mac-a', '--request-key', 'k-call']);
+  await result;
+  const runs = envelopes(asked).filter(sent => sent.method === settings.engine.tools_run);
+  assert.equal(runs.length, 1);
+  assert.deepEqual(runs[0].pins, ['mac-a']);
+  assert.equal(runs[0].input.tool, 'tool:x');
+
+  const unpinned = run(['call', 'tool:x', '{"text":"hi"}', '--request-key', 'k-call-2']);
+  await unpinned.result;
+  const plain = envelopes(unpinned.asked).filter(sent => sent.method === settings.engine.tools_run);
+  assert.equal(plain[0].pins, undefined, 'a call with no --pin carries no pins');
+
+  const refused = run(['call', 'tool:x', '{}', '--pin', 'bad id']);
+  await assert.rejects(refused.result, CommandError);
+  assert.equal(refused.asked.length, 0, 'nothing was sent');
+});

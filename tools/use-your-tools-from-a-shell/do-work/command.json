@@ -82,7 +82,8 @@
         "json",
         "help",
         "verbose",
-        "upload"
+        "upload",
+        "pin"
       ]
     }
   },

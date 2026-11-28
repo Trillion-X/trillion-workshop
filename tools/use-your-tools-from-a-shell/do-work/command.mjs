@@ -1577,7 +1577,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
   {cli} op METHOD JSON|-|@FILE [--pin ID]...           any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
-  --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
+  --pin ID  meet the op, call or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer may still be running: it is asked again under the same request key, up to ${settings.retry.count} more times, which follows that run to its end and never starts it again
   {cli} schedule list [--first-page] | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare (a list reads every page; --first-page prints only the first and the cursor after it): list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list). Each answer says which computer answered it on its first line; an unpinned list has one block per carried computer
@@ -2151,7 +2151,9 @@ export async function main(argv, seams = {}) {
   }
   if (command === 'serve') return serve(context);
   if (!TASK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
-  const pinned = command === 'op' || command === 'schedule' ? pinRouteOf(flags) : {};
+  // `call` takes the same --pin as `op` and `schedule`: one reader of the flag, so the documented `call TOOL JSON` reaches a
+  // pinned computer (Nov 28 2026: a call on a pinned computer said "Nothing was sent" and had to be sent as op tools:run).
+  const pinned = command === 'op' || command === 'call' || command === 'schedule' ? pinRouteOf(flags) : {};
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
@@ -2203,7 +2205,7 @@ export async function main(argv, seams = {}) {
       const input = await readJson(words[1], '{"text": "..."}');
       const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
       const request = withUntil(engine.tools_run, { tool, input }, { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
-      return whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: await routeOf(client, tool), upload: uploadOf(flags.upload) }));
+      return whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: { ...await routeOf(client, tool), ...pinned }, upload: uploadOf(flags.upload) }));
     }
     const method = opMethod(words[0]);
     const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
