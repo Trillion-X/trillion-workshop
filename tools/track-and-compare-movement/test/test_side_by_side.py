@@ -72,6 +72,12 @@ class MakeAndCheck(unittest.TestCase):
         moved["bottom"]["contact_frame"] += 2
         self.assertFalse(M.check(moved, self.made["out"])["checks"]["contact-in-sync"]["pass"])
 
+    def test_the_check_looks_where_the_clip_says_contact_is_even_past_a_sides_own_lead(self):
+        # a retimed side (slowed before contact) can show more output time before contact than its source holds
+        early = json.loads(json.dumps(self.spec))
+        early["top"]["contact_frame"] = 20          # 0.63 s of source before contact, less than before_s 1.0
+        self.assertEqual(M.check(early, self.made["out"])["contact_output_frame"], 30)
+
     def test_a_solo_clip_is_not_a_comparison(self):
         solo = json.loads(json.dumps(self.spec))
         solo["bottom"] = dict(solo["top"])

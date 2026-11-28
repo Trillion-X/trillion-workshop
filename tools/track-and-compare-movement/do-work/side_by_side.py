@@ -156,7 +156,10 @@ def blake3_or_sha(path):
 def check(spec, clip, limits=None):
     limits = {**CHECK, **(limits or {})}
     cell, fps = spec.get("cell", [1080, 960]), spec.get("fps", 30)
-    before, _ = window(spec, {n: frame_count(spec[n]["source"]) for n in ("top", "bottom")})
+    if "before_s" in spec:   # a made clip says where its contact is; its sides may be retimed, so their own frames
+        before = float(spec["before_s"])   # before contact do not bound it (that bound is for `make`)
+    else:
+        before, _ = window(spec, {n: frame_count(spec[n]["source"]) for n in ("top", "bottom")})
     k, s = round(before * fps), limits["search"]
     found = {}
     for row, name in enumerate(("top", "bottom")):
