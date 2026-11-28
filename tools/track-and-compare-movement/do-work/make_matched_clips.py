@@ -362,7 +362,10 @@ def check(job):
         top_src, bottom_src = edit["spine"]["segments"][0]["sources"]
         pair = item["pair"]
         contact = (item.get("steps") or {}).get("contact") or {}
-        half = (bottom_src["out"] - bottom_src["in"]) / 2
+        # the target (bottom / right) plays as recorded, so its contact is this far into the first pass; a pass that
+        # shows the whole swing ("span": "swing") is not centred on contact
+        t_contact = (contact.get("target") or {}).get("time", pair["target_peak"])
+        before, after = t_contact - bottom_src["in"], bottom_src["out"] - t_contact
 
         def side(src, clip, peak, data_side):
             fps = read(os.path.join(job["work"], f"{data_side}-index", "_work", f"{key(clip)}.kp.json"))["video"]["fps"]
@@ -374,7 +377,7 @@ def check(job):
         cell = [width, height // 2] if item.get("layout", job.get("layout", "v")) == "v" else [width // 2, height]
         spec = {"top": side(top_src, R[pair["reference"]], (contact.get("reference") or {}).get("time", pair["reference_peak"]), "references"),
                 "bottom": side(bottom_src, T[pair["target"]], (contact.get("target") or {}).get("time", pair["target_peak"]), "targets"),
-                "cell": cell, "layout": item.get("layout", job.get("layout", "v")), "fps": 30, "before_s": half, "after_s": half}
+                "cell": cell, "layout": item.get("layout", job.get("layout", "v")), "fps": 30, "before_s": round(before, 6), "after_s": round(after, 6)}
         spec_path = item["file"][:-4] + ".check-spec.json"
         with open(spec_path, "w") as f:
             json.dump(spec, f, indent=1)

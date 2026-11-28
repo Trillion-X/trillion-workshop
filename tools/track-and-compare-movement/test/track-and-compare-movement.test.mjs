@@ -28,6 +28,7 @@ for (const [file, what] of [
   ['test_contact_moment.py', 'contact is the sharp sound of the hit near the wrist peak, else the wrist peak, never outside the window'],
   ['test_whole_movement_check.py', 'a cell whose crop cuts off the body or racket is widened to the smallest crop that holds it, or refused'],
   ['test_reference_length.py', 'prepare leaves out a reference longer than reference_max_seconds and names it'],
+  ['test_check_stage.py', 'the check puts contact where the target reaches it in the first pass, also in a whole-swing pass'],
   ['test_render_stage.py', 'render runs contact, phase sync, the edit per format, the framing check and the renderer in order; a refused sync or framing makes no clip'],
   ['test_whole_movement_still.py', 'a held-frame cell is measured at its frame, never raising'],
   ['test_side_by_side_layout.py', 'the check reads a side-by-side clip left and right, and a stacked reading of it does not match'],
