@@ -950,21 +950,45 @@ def prepare(spec):
     measured_before = {"target": 0, "reference": 0}
     lengths, by = [], {"tool": "track-and-compare-movement", "commit": spec.get("code_commit")}
 
+    def path_of(row, side):
+        ext = os.path.splitext(row["name"])[1].lower() or ".mp4"
+        return os.path.join(media, side + "-" + row["identity"][3:19] + ext)
+
+    def needs_fetch(row, side):
+        known = have.get((row["identity"], "perception", "", pfp))
+        length = have.get((row["identity"], "length", "", ""))
+        seconds = (known or {}).get("duration_s") or (length or {}).get("seconds")
+        return known is None and not (seconds is not None and side == "reference" and longest and seconds > float(longest))
+
+    def fetch_all(rows, side):
+        """Every file this side still needs, several at once (spec.fetch_parallel, default 6): one transfer from Files
+        ran at about 2 MB/s (measured Nov 28 2026), so one at a time made a 250-recording batch a day of waiting.
+        Returns {identity: why} for each file that would not come."""
+        from concurrent.futures import ThreadPoolExecutor
+        need = [row for row in rows if needs_fetch(row, side)]
+        failed = {}
+
+        def get(row):
+            try:
+                files_road.fetch(call, row["identity"], path_of(row, side))
+            except (RuntimeError, OSError) as e:
+                failed[row["identity"]] = str(e)
+        with ThreadPoolExecutor(max_workers=max(1, int(spec.get("fetch_parallel", 6)))) as pool:
+            list(pool.map(get, need))
+        return failed
+
     def clips(rows, people, side):
         out = []
+        not_fetched = fetch_all(rows, side)
         for row in rows:
-            ext = os.path.splitext(row["name"])[1].lower() or ".mp4"
-            path = os.path.join(media, side + "-" + row["identity"][3:19] + ext)
+            path = path_of(row, side)
             known = have.get((row["identity"], "perception", "", pfp))
             measured_before[side] += known is not None
             length = have.get((row["identity"], "length", "", ""))
             seconds = (known or {}).get("duration_s") or (length or {}).get("seconds")
-            if known is None and not (seconds is not None and side == "reference" and longest and seconds > float(longest)):
-                try:                                      # not measured yet: perceive needs its pictures
-                    files_road.fetch(call, row["identity"], path)
-                except (RuntimeError, OSError) as e:      # one file that won't come is left out by name, not the batch
-                    left_out.append({"name": row["name"], "why": f"could not fetch: {e}"})
-                    continue
+            if row["identity"] in not_fetched:            # one file that won't come is left out by name, not the batch
+                left_out.append({"name": row["name"], "why": f"could not fetch: {not_fetched[row['identity']]}"})
+                continue
             if seconds is None:
                 seconds = duration(path)
                 if seconds is not None:                    # a file's length is a fact of its bytes, kept once
