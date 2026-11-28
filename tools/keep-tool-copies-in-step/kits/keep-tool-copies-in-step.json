@@ -1,7 +1,7 @@
 {
-  "start_here": "Say to your AI: \"Grant my project folder for git (use-git-in-a-folder), then run tool:keep-tool-copies-in-step with op plan.\" It says, for every tool folder the project copied in, whether upstream moved, you edited it, both, or neither; then run it with op apply and plan's answer to settle it.",
+  "start_here": "Say to your AI: \"Run tool:keep-tool-copies-in-step with op plan and repo, my project's repository address.\" It says, for every tool folder the project copied in, whether upstream moved, you edited it, both, or neither; then run it with op apply and plan's answer, and each upstream change waits on its own sync/upstream branch for you to review and merge.",
   "lists": [],
-  "no_lists_because": "This tool reads and writes the granted project folder and its own record file, and pushes review branches to the tool's source repository; it reads and keeps no list rows.",
+  "no_lists_because": "This tool reads the project from a clone it keeps in its own kept folder and pushes only sync/upstream branches to the project's repository; it reads and keeps no list rows.",
   "workflows": [
     "workflow:keep-tool-copies-in-step"
   ],
@@ -10,9 +10,9 @@
     "tool:add-a-tool-to-a-project"
   ],
   "instructions": [
-    "1. Grant the project's folder (the folder whose tools folder holds where-each-tool-comes-from.json) for git: the capability use-git-in-a-folder, since the sync runs git there.",
-    "2. Ask your AI to run tool:keep-tool-copies-in-step with {\"op\":\"plan\"}. Read each tool's state and its files' verdicts; nothing is written.",
-    "3. Run it with {\"op\":\"apply\",\"plan\":<plan's answer>}. Read settled (upstream changes from a trusted source merged after your record's test passed), waiting (each upstream change on its sync/upstream/ branch for you to review and merge), pushed (your edits offered upstream), conflicts (each with its diff: settle those by hand), forked and refused. Put \"trust\": [\"owner\"] and \"test\": [\"npm\",\"test\"] in where-each-tool-comes-from.json to let a trusted source merge on its own."
+    "1. Ask your AI to run tool:keep-tool-copies-in-step with {\"op\":\"plan\",\"repo\":\"<your project's repository address>\"}. It fetches the project's main into its own clone; read each tool's state and its files' verdicts. Nothing is pushed.",
+    "2. Run it with {\"op\":\"apply\",\"repo\":\"<the same address>\",\"plan\":<plan's answer>}. Read waiting (each upstream change on its branch sync/upstream/<tool>/<upstream commit>, created when this run made it, would_open while no GitHub key is held), project_only (your edits, which stay where they are), conflicts (each with its diff: settle those by hand), forked and refused.",
+    "3. Review and merge each sync/upstream branch yourself, as any change; the tool never merges, never moves main and pushes no other ref."
   ],
   "worked_examples": [
     {
@@ -27,7 +27,7 @@
             "tool": "tool:keep-tool-copies-in-step",
             "input": {
               "op": "plan",
-              "project": "."
+              "repo": "https://github.com/OWNER/PROJECT.git"
             }
           }
         }

@@ -3,12 +3,12 @@
 // Stand-ins the sync tests share, built on the add tool's own (tools/add-a-tool-to-a-project/test/fixtures.ts): an upstream
 // that is a local BARE repository (made from a work repository the test commits to and pushes from), a registry pointing
 // at it (its origin an example.invalid address the record names), and a project with one tool copied in by
-// tool:add-a-tool-to-a-project itself, so every record line is the add tool's real output. Nothing reaches a network.
+// tool:add-a-tool-to-a-project itself, so every record line is the add tool's real output. The project's own repository
+// is a local BARE repository standing in for its GitHub remote (the sync reads and pushes only there), published to from
+// the author's working repository. Nothing reaches a network.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { RECORD_FILE, TOOLS_FOLDER } from '../../add-a-tool-to-a-project/read-data/record.ts';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { add } from '../../add-a-tool-to-a-project/do-work/add.ts';
 import { emptyProject, makeRepo, pinOf, scratch, withOrigin } from '../../add-a-tool-to-a-project/test/fixtures.ts';
 
@@ -53,7 +53,7 @@ export function writeRegistry(registry: string, up: Upstream, names: string[], c
 /** A git project with `names` copied in from a registry of the upstream by the add tool, committed. The registry has an
  *  origin address (example.invalid, never reached), which is what the record names; `clones` holds the registry folder, so
  *  the sync reads it from there, as a computer holding a clone of the registry does. */
-export async function projectWith(up: Upstream, names: string[]): Promise<{ project: string; registry: string; clones: string[] }> {
+export async function projectWith(up: Upstream, names: string[]): Promise<{ project: string; registry: string; clones: string[]; at: Remote }> {
   const registry = scratch('registry');
   writeRegistry(registry, up, names);
   withOrigin(registry);
@@ -65,8 +65,34 @@ export async function projectWith(up: Upstream, names: string[]): Promise<{ proj
   git(project, 'init', '-q');
   git(project, 'add', '-A');
   git(project, '-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', 'tools copied');
-  return { project, registry, clones: [registry] };
+  return { project, registry, clones: [registry], at: remoteOf(project) };
 }
+
+/** Where the sync finds a project: the bare repository standing in for its remote, and the tool's own state folder. */
+export type Remote = { repo: string; state: string };
+
+/** A bare repository made from the author's committed `project` (its branch main), set as the project's origin, and an
+ *  empty state folder for the tool. */
+export function remoteOf(project: string): Remote {
+  git(project, 'branch', '-M', 'main');
+  const repo = scratch('project-remote');
+  execFileSync('git', ['clone', '-q', '--bare', project, repo]);
+  git(repo, 'config', 'uploadpack.allowFilter', 'true');
+  git(repo, 'config', 'uploadpack.allowAnySHA1InWant', 'true');
+  git(project, 'remote', 'add', 'origin', repo);
+  return { repo, state: scratch('state') };
+}
+
+/** Commits every change of the author's `project` (when there is one) and pushes its main to the remote. */
+export function publish(project: string, message = 'project edit'): void {
+  git(project, 'add', '-A');
+  if (git(project, 'status', '--porcelain')) git(project, '-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', message);
+  git(project, 'push', '-q', 'origin', 'HEAD:refs/heads/main');
+}
+
+/** Every branch of a repository with the commit it names. */
+export const refsOf = (repo: string): Record<string, string> => Object.fromEntries(git(repo, 'for-each-ref', '--format=%(refname) %(objectname)', 'refs/heads')
+  .split('\n').filter(Boolean).map(line => line.split(' ') as [string, string]));
 
 export const TEXT = 'one\ntwo\nthree\nfour\nfive\nsix\n';
 export const toolFiles = (name: string, text = TEXT): Record<string, string> => ({
@@ -74,21 +100,3 @@ export const toolFiles = (name: string, text = TEXT): Record<string, string> => 
   [`tools/${name}/do-work/run.mjs`]: text,
 });
 export { git };
-
-/** Sets top-level fields of the project's record (trust, test) and commits it, as the project's owner would. */
-export function setRecord(project: string, fields: Record<string, unknown>): void {
-  const file = join(project, TOOLS_FOLDER, RECORD_FILE);
-  const record = JSON.parse(readFileSync(file, 'utf8'));
-  writeFileSync(file, `${JSON.stringify({ ...record, ...fields }, null, 2)}\n`);
-  git(project, '-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-am', 'record fields');
-}
-
-/** An owner's address for the stand-in upstream: its commits are read from the work clone given in `clones`. */
-export const OWNED = 'https://github.com/example-owner/stand-in-tools.git';
-/** Test words that pass and fail. */
-export const GREEN = ['node', '-e', 'process.exit(0)'];
-export const RED = ['node', '-e', 'console.error("one test failed"); process.exit(1)'];
-
-/** A stand-in landing owner (test/stand-in-landing.mjs): it keeps what it was asked to land in `log` and answers as
- *  land_paths does. */
-export const standInLanding = (log: string): string[] => [process.execPath, fileURLToPath(new URL('./stand-in-landing.mjs', import.meta.url)), log, '--repo', '/the/landing/checkout'];
