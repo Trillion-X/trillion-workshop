@@ -12,7 +12,7 @@
   "instructions": [
     "1. Grant the project's folder (the folder whose tools folder holds where-each-tool-comes-from.json) for git: the capability use-git-in-a-folder, since the sync runs git there.",
     "2. Ask your AI to run tool:keep-tool-copies-in-step with {\"op\":\"plan\"}. Read each tool's state and its files' verdicts; nothing is written.",
-    "3. Run it with {\"op\":\"apply\",\"plan\":<plan's answer>}. Read settled (taken from upstream or merged), pushed (your edits offered on a sync/ branch for review), conflicts (each with its diff: settle those by hand), forked and refused. Commit the changed tool files and the record in your project."
+    "3. Run it with {\"op\":\"apply\",\"plan\":<plan's answer>}. Read settled (upstream changes from a trusted source merged after your record's test passed), waiting (each upstream change on its sync/upstream/ branch for you to review and merge), pushed (your edits offered upstream), conflicts (each with its diff: settle those by hand), forked and refused. Put \"trust\": [\"owner\"] and \"test\": [\"npm\",\"test\"] in where-each-tool-comes-from.json to let a trusted source merge on its own."
   ],
   "worked_examples": [
     {

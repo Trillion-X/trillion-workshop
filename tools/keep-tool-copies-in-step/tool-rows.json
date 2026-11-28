@@ -18,7 +18,7 @@
         },
         "label": "Keep my project's tool copies in step",
         "job": "Compare every tool folder a project copied into its tools folder with its base and its upstream, take upstream changes, offer project changes upstream on a branch, refuse conflicts with a diff and skip forks",
-        "description": "Give op plan or apply, and project (the project's folder, inside the folder the person granted with use-git-in-a-folder, which also lets the run start the system git; default the granted folder). For every line of the record where-each-tool-comes-from.json in the project's tools folder (the folder tool:add-a-tool-to-a-project copies into) (only the names in only, when given) it compares three versions of the tool folder: the base (the files the line says the copy started from, at copied_at_commit), the project's folder now (the files git lists there, or every file when the project is not a git checkout) and upstream (the folder at the commit the registry's pointer names now, or the repository's HEAD for a direct pointer). Each file gets a verdict: same, project-only, upstream-only, deleted-project, deleted-upstream, renamed-project, renamed-upstream, both-clean (changed on both sides and merged cleanly by git merge-file from the base bytes) or both-conflict. The tool's state is the strongest: both-conflict, both-clean, project-only, upstream-only or none-changed; a line with synced false is forked and is not read at all (no fetch), a made-here line is skipped. plan answers every tool's state and file verdicts and writes nothing. apply takes plan's answer: it checks that the record and every file are still what plan read (else record-changed-meanwhile or changed-since-plan, and nothing is written), writes upstream's side and each clean merge into the project, advances each settled tool's line to the upstream version in one compare-and-set write of the record, and offers project changes (and clean merges) upstream as branch sync/<project>/<tool> on the upstream commit, pushed with --force-with-lease; it never pushes a default branch. A tool with any conflict is left exactly as it was and each conflicting file is answered with its unified diff (base to project, base to upstream). Returns settled, forked, conflicts, unchanged, pushed, skipped and refused. A conflict is an answer, not a failure.",
+        "description": "Give op plan or apply, and project (the project's folder, inside the folder the person granted with use-git-in-a-folder, which also lets the run start the system git; default the granted folder). For every line of the record where-each-tool-comes-from.json in the project's tools folder (the folder tool:add-a-tool-to-a-project copies into) (only the names in only, when given) it compares three versions of the tool folder: the base (the files the line says the copy started from, at copied_at_commit), the project's folder now (the files git lists there, or every file when the project is not a git checkout) and upstream (the folder at the commit the registry's pointer names now, or the repository's HEAD for a direct pointer). Each file gets a verdict: same, project-only, upstream-only, deleted-project, deleted-upstream, renamed-project, renamed-upstream, both-clean (changed on both sides and merged cleanly by git merge-file from the base bytes) or both-conflict. The tool's state is the strongest: both-conflict, both-clean, project-only, upstream-only or none-changed; a line with synced false is forked and is not read at all (no fetch), a made-here line is skipped. plan answers every tool's state and file verdicts and writes nothing. apply takes plan's answer: it checks that the record and every file are still what plan read (else record-changed-meanwhile or changed-since-plan, and nothing is written). An upstream change (upstream-only, both-clean) never goes straight into the project: it becomes one commit on the project's HEAD (the tool's files and its advanced record line), kept as branch sync/upstream/trusted (sources whose owner is in the record's trust list) or sync/upstream/<tool> (any other source), and pushed to the project's origin with a lease when it has one. The trusted branch is merged with git merge --ff-only only when the record's test command (a list of words) passes on an export of it; otherwise, and for every untrusted source, the change is answered in waiting with its branch and why (not-trusted, no-test-command, tests-not-green, project-moved). No pull request is opened while no GitHub key is held; gap says so. Project changes (and clean merges) go upstream through the landing owner land_through names for that repository (for a Workshop checkout on this computer, land_paths.py), else as branch sync/<project>/<tool> on the upstream commit, pushed with --force-with-lease; a default branch is never pushed. A tool with any conflict is left exactly as it was and each conflicting file is answered with its unified diff (base to project, base to upstream). Returns settled, forked, conflicts, unchanged, pushed, waiting, gap, skipped and refused. A conflict is an answer, not a failure.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -61,12 +61,40 @@
                 "minLength": 1
               },
               "description": "Local git folders inside the granted folder, read as tool:add-a-tool-to-a-project reads them: a clone that holds a pinned commit (for example the Workshop) is read instead of the network, and a clone whose origin is the registry address a record line names (for example the registry's clone) is read instead of fetching the registry. Without one, the commit or registry is fetched from its address."
+            },
+            "land_through": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "repo",
+                  "command"
+                ],
+                "properties": {
+                  "repo": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "The upstream repository address, exactly as the pointer names it"
+                  },
+                  "command": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "description": "The words that start its landing owner on this computer (for the Workshop: python3, the path of land_paths.py, --repo and the checkout); --lane, --message-file and one --edit or --remove per file are added"
+                  }
+                }
+              },
+              "description": "For apply: the landing owner of each upstream repository that has one on this computer"
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "plan answers record_blake3, because? and tools (name -> {state, files, upstream_commit, renames?, why?, said?}); apply answers settled, forked, conflicts, unchanged, pushed, skipped and refused.",
+          "description": "plan answers record_blake3, because? and tools (name -> {state, files, upstream_commit, renames?, why?, said?}); apply answers settled, forked, conflicts, unchanged, pushed, waiting, gap?, skipped and refused.",
           "properties": {
             "record_blake3": {
               "type": "string"
@@ -131,7 +159,10 @@
                       "no-base",
                       "record-changed-meanwhile",
                       "changed-since-plan",
-                      "push-refused"
+                      "push-refused",
+                      "landing-refused",
+                      "not-a-git-project",
+                      "record-not-committed"
                     ]
                   },
                   "said": {
@@ -186,8 +217,8 @@
                 "type": "object",
                 "required": [
                   "tool",
-                  "branch",
                   "repo",
+                  "branch",
                   "commit",
                   "already"
                 ],
@@ -196,7 +227,10 @@
                     "type": "string"
                   },
                   "branch": {
-                    "type": "string"
+                    "type": [
+                      "string",
+                      "null"
+                    ]
                   },
                   "repo": {
                     "type": "string"
@@ -206,6 +240,9 @@
                   },
                   "already": {
                     "type": "boolean"
+                  },
+                  "landed_by": {
+                    "type": "string"
                   }
                 }
               }
@@ -232,7 +269,10 @@
                       "no-base",
                       "record-changed-meanwhile",
                       "changed-since-plan",
-                      "push-refused"
+                      "push-refused",
+                      "landing-refused",
+                      "not-a-git-project",
+                      "record-not-committed"
                     ]
                   }
                 }
@@ -261,7 +301,10 @@
                       "no-base",
                       "record-changed-meanwhile",
                       "changed-since-plan",
-                      "push-refused"
+                      "push-refused",
+                      "landing-refused",
+                      "not-a-git-project",
+                      "record-not-committed"
                     ]
                   },
                   "said": {
@@ -269,6 +312,51 @@
                   }
                 }
               }
+            },
+            "waiting": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tools",
+                  "branch",
+                  "commit",
+                  "why",
+                  "said",
+                  "pull_request"
+                ],
+                "properties": {
+                  "tools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "branch": {
+                    "type": "string"
+                  },
+                  "commit": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "enum": [
+                      "not-trusted",
+                      "no-test-command",
+                      "tests-not-green",
+                      "project-moved"
+                    ]
+                  },
+                  "said": {
+                    "type": "string"
+                  },
+                  "pull_request": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            "gap": {
+              "type": "string"
             }
           }
         },
