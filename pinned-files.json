@@ -1,5 +1,5 @@
 {
- "_what": "The programs and packages this Workshop's tools share, each pinned by the BLAKE3 of its archive: the engine reads this file from the copy of the source (trillion-rust src/tool_runs/tools/pinned_files.rs), gives each tool row the program its first run word names and the packages its package_files items name, and fetches each at the run that needs it. `programs` and the wheel and model entries of `packages` are written by hand from the publisher's own checksum (`checked_against`); the `node_modules/...` entries are written from package-lock.json by test-helpers/write-pinned-files.mjs and checked against it by test/pinned-files-agree-with-the-lockfile.test.mjs. `bytecode` is the command that compiles the Python of a copy once at install.",
+ "_what": "The programs and packages this Workshop's tools share, each pinned by the BLAKE3 of its archive: the engine reads this file from the copy of the source (trillion-rust src/tool_runs/tools/pinned_files.rs), gives each tool row the program its first run word names and the packages its package_files items name, and fetches each at the run that needs it. `programs` and the wheel and model entries of `packages` are written by hand from the publisher's own checksum (`checked_against`); the `node_modules/...` entries are written from package-lock.json by test-helpers/write-pinned-files.mjs and checked against it by test/pinned-files-agree-with-the-lockfile.test.mjs. There is no bytecode command: with no install there is no copy to compile once, so Python compiles each script as it starts (trillion-rust card-names-only, Task 3.2).",
  "programs": {
   "node": {
    "fetch": {
@@ -4460,18 +4460,5 @@
     }
    }
   }
- },
- "bytecode": {
-  "program": "python3",
-  "arguments": [
-   "-I",
-   "-m",
-   "compileall",
-   "-q",
-   "--invalidation-mode",
-   "checked-hash",
-   "{copy}"
-  ],
-  "deadline_ms": 120000
  }
 }
