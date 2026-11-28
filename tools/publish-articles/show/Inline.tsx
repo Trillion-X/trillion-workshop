@@ -21,7 +21,7 @@ export function Inline({ text }: { text: string }) {
         if (!SAFE_ADDRESS.test(href)) return <React.Fragment key={index}>{label}</React.Fragment>;
         const note = /^#source-(\d+)$/.exec(href);
         if (note) return <Text as="sup" key={index}><Button href={href} variant="plain" size="xs">{note[1]}</Button></Text>;
-        return <Button key={index} href={href} variant="plain" size="xs">{label}</Button>;
+        return <Button key={index} href={href} variant="plain" size="xs" wrap>{label}</Button>;
       })}
     </>
   );
