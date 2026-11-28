@@ -14,9 +14,8 @@ import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { actsToDerive, applyARow, applyEdits, checkApplyProtocol, deriveActs, heldNamesOf, hostsOf, isAncestorIn, parsePath, requestFromRow, rowsOnComputer, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
+import { applyARow, applyEdits, checkApplyProtocol, heldNamesOf, hostsOf, isAncestorIn, parsePath, refuseDerivedActs, requestFromRow, runFolder, setLinks, sqlRowStore, startApplyProbe } from '../do-work/apply-a-computer-row.mjs';
 import { ROW_APPLY_RESULT_PROTOCOL, SLOT_SWITCH_UNCONFIRMED_EXIT } from '../do-work/start-a-computer.mjs';
-import { grantDifference } from '../../serve-a-sites-pages-from-its-rows/do-work/rights.ts';
 
 const OLD = '1'.repeat(40), NEW = '2'.repeat(40), TREE = '3'.repeat(40);
 const row = () => ({
@@ -684,77 +683,19 @@ test('a put-back receipt whose rollback failed a step, or that says it at exit 0
   }
 });
 
-test('a site\'s act given as { derive_from } is made from its rows at the pinned commit: the row keeps what was derived, the computer gets the grant', async () => {
-  const PIN = '4'.repeat(40);
-  const from = { connection: 'site-rows-connection', database: 'site_db', use: { purpose: 'publish', surface: 'site/one' }, site: 'one', pin: PIN };
-  const grant = { tools: ['tool:a', 'tool:b'], identity: 'none', journal: 'input', held_inputs_by_tool: { 'tool:a': { database: ['site_db'] } } };
-  const asked = { rows: [], pins: [] };
-  const fakeRights = refusals => ({
-    siteRowsOf: async (rows, at) => { await rows('SELECT 1', []); return { at }; },
-    derivedGrantOf: () => ({ grant, refused: refusals }),
-    heldInputsOfTools: tools => tools,
-    grantDifference,
-  });
-  const withDerive = (deps, refusals = []) => Object.assign(deps, {
-    rowsFor: (name, computer) => async (sql, params) => { asked.rows.push({ name, computer, sql, params }); return []; },
-    rightsAt: async pin => { asked.pins.push(pin); return { rights: fakeRights(refusals), tools: '/tools' }; },
-  });
-  const { deps, seen, log } = world();
-  seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, names: ['x'], act: { derive_from: from } }, { uid: 1104, operations: ['wake:arrive'] }] };
-  withDerive(deps);
-  await assert.rejects(applyARow(request(), {}, deps), /rows now ask for more than the computer runs \(tool:a; tool:b; tool:a database site_db; identity null becomes "none"; journal null becomes "input"\); give widen_acts: true/, 'an act that widens is refused unless the request says so');
-  assert.equal(seen.writes.length, 0);
-  asked.pins.length = 0; asked.rows.length = 0;
-  const { code, summary } = await applyARow(request({ widen_acts: true }), {}, deps);
-  assert.equal(code, 0);
-  assert.deepEqual(asked.pins, [PIN]);
-  assert.deepEqual(asked.rows.map(r => [r.name, r.computer]), [['site-rows-connection', 'example-box']], 'the rows are read on the row\'s own computer');
-  assert.deepEqual(summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2, widened: ['tool:a', 'tool:b', 'tool:a database site_db', 'identity null becomes "none"', 'journal null becomes "input"'] }]);
-  // Applied again from the kept row: nothing widens, so no consent is needed.
-  const again = await applyARow({ computer: 'example-box', workshop_commit: TREE, edits: [] }, {}, deps);
-  assert.deepEqual(again.summary.derived_acts, [{ at: 'runs.units.0.settings.vault_readers.0', site: 'one', pin: PIN, tools: 2 }]);
-  // A hand list the derived act replaces counts as what runs: a derived act inside it is no widening.
+test('an act given as { derive_from } is refused by its place before anything is written: an act is only the grant written in the row', async () => {
+  const from = { connection: 'site-rows-connection', database: 'site_db', use: { purpose: 'publish', surface: 'site/one' }, site: 'one', pin: '4'.repeat(40) };
+  const { deps, seen } = world();
+  seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, names: ['x'], act: { derive_from: from } }, { uid: 1104, act: { tools: ['tool:a'] } }] };
+  const refusal = /runs\.units\.0\.settings\.vault_readers\.0\.act gives the act as \{ derive_from \}: an act is only the grant written in the row, so write it out/;
+  await assert.rejects(applyARow(request(), {}, deps), refusal);
+  await assert.rejects(applyARow(request(), { dryRun: true }, deps), refusal, 'a dry run refuses it too');
+  assert.equal(seen.writes.length, 0, 'nothing is written');
+  // An edit that writes one in is refused the same way.
   const handed = world();
-  handed.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { ...grant, tools: ['tool:a', 'tool:b', 'tool:z'] } }] };
-  withDerive(handed.deps);
-  const swap = await applyARow({ computer: 'example-box', workshop_commit: TREE, edits: [{ at: 'runs.units[0].settings.vault_readers[uid=1106].act', to: { derive_from: from } }] }, {}, handed.deps);
-  assert.equal(swap.code, 0, 'narrowing from a hand list needs no consent');
-  await assert.rejects(applyARow(request({ widen_acts: 'yes' }), {}, deps), /widen_acts/);
-  assert.deepEqual(seen.stored.runs.units[0].settings.vault_readers[0].act, { derive_from: from, derived: { pin: PIN, grant } }, 'the row keeps what was derived');
-  const given = JSON.parse(readFileSync(join(log, 'row/computer.json'), 'utf8'));
-  assert.deepEqual(given.runs.units[0].settings.vault_readers[0].act, grant, 'the computer is given the grant itself');
-  assert.equal(given.runs.rendered_from_workshop, TREE);
-  assert.deepEqual(given.runs.units[0].settings.vault_readers[1], { uid: 1104, operations: ['wake:arrive'] });
-
-  const refusedRun = world();
-  refusedRun.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { derive_from: from } }] };
-  withDerive(refusedRun.deps, [{ where: 'page /x', tool: 'tool:c', why: 'its held input database is filled from the request' }]);
-  await assert.rejects(applyARow(request({ widen_acts: true }), {}, refusedRun.deps), /the site one's rows ask for calls its grant cannot let it make: page \/x: tool:c/);
-  assert.equal(refusedRun.seen.writes.length, 0, 'nothing is written');
-
-  const dry = world();
-  dry.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { derive_from: from } }] };
-  withDerive(dry.deps);
-  const shown = await applyARow(request({ widen_acts: true }), { dryRun: true }, dry.deps);
-  assert.deepEqual(shown.summary.derived_acts.map(a => a.tools), [2]);
-  assert.equal(dry.seen.writes.length, 0);
-
-  for (const bad of [{ ...from, pin: 'main' }, { ...from, connection: 'a b' }, { ...from, extra: 1 }, { ...from, use: 'publish' }]) {
-    await assert.rejects(deriveActs({ runs: { units: [{ settings: { vault_readers: [{ act: { derive_from: bad } }] } }] } }, deps), /derive_from is \{ connection/, JSON.stringify(bad));
-  }
-  const plain = { runs: { units: [{ settings: { vault_readers: [{ act: grant }] } }] } };
-  assert.deepEqual(actsToDerive(plain), [], 'a hand act is not derived');
-  assert.equal((await deriveActs(plain, deps)).rendered, plain, 'a row with none is rendered as it is');
-});
-
-test('a site\'s rows are read on the named computer by its own engine: the request names the held connection and --pin the computer, and a failed read refuses with the engine\'s words', async () => {
-  // A stand-in for the engine's runner: answers the statement it was given and the computer it was pinned to.
-  const engine = [process.execPath, '-e', `const [request, flag, pin] = process.argv.slice(1); const { tool, input } = JSON.parse(request);
-    if (input.credential_name === 'not-held') { console.log(JSON.stringify({ exit_code: 1, error: 'A credential the tool names is not held' })); process.exit(0); }
-    console.log(JSON.stringify({ exit_code: 0, result: { columns: ['tool', 'sql', 'param', 'flag', 'pin'], rows: [{ tool, sql: input.sql, param: input.params[0], flag, pin }] } }));`];
-  const read = rowsOnComputer(engine)('site-rows-connection', 'example-box');
-  assert.deepEqual(await read('SELECT $1', ['x']), [{ tool: 'tool:run-sql-in-my-database', sql: 'SELECT $1', param: 'x', flag: '--pin', pin: 'example-box' }]);
-  await assert.rejects(rowsOnComputer(engine)('not-held', 'example-box')('SELECT 1', []), /could not be read on example-box with not-held: A credential the tool names is not held/);
-  await assert.rejects(rowsOnComputer(undefined)('site-rows-connection', 'example-box')('SELECT 1', []), /names no engine_runner/);
-  await assert.rejects(rowsOnComputer([process.execPath, '-e', 'process.exit(3)'])('site-rows-connection', 'example-box')('SELECT 1', []), /could not be read on example-box/);
+  handed.seen.stored.runs.units[0].settings = { vault_readers: [{ uid: 1106, act: { tools: ['tool:a'] } }] };
+  await assert.rejects(applyARow({ computer: 'example-box', workshop_commit: TREE, edits: [{ at: 'runs.units[0].settings.vault_readers[uid=1106].act', to: { derive_from: from } }] }, {}, handed.deps), refusal);
+  assert.equal(handed.seen.writes.length, 0);
+  await assert.rejects(applyARow(request({ widen_acts: true }), {}, world().deps), /unknown apply request field: widen_acts/);
+  assert.equal(refuseDerivedActs({ runs: { units: [{ settings: { vault_readers: [{ act: { tools: ['tool:a'] } }] } }] } }), undefined, 'a written act passes');
 });
