@@ -124,13 +124,25 @@ class ForehandSideAndTurn(unittest.TestCase):
         self.assertIsNone(s.read_stroke(track(850), {"t0": 0.0, "peak_t": 29 / 30}, rules=self.rules)["stroke"])
 
     def test_the_camera_angle_is_a_plain_class(self):
-        cls = lambda traj, elevation=-0.05: s.camera_of({"heading": {"traj": traj}, "elevation": {"value": elevation, "conf": 0.9}}, self.rules)["class"]  # noqa: E731
+        cls = lambda traj, elevation=-0.05: s.camera_of({**window(traj), "elevation": {"value": elevation, "conf": 0.9}}, self.rules)["class"]  # noqa: E731
         self.assertEqual(cls(RIGHT_FOREHAND_FROM_BEHIND), "back")
         self.assertEqual(cls(turned(RIGHT_FOREHAND_FROM_BEHIND, 180)), "front")
         self.assertEqual(cls(turned(RIGHT_FOREHAND_FROM_BEHIND, 270)), "side-right")   # a right forehand's takeback way
         self.assertEqual(cls(turned(RIGHT_FOREHAND_FROM_BEHIND, 90)), "side-left")
         self.assertEqual(cls(RIGHT_FOREHAND_FROM_BEHIND, elevation=0.02), "birdseye")
-        self.assertEqual(s.camera_of({"heading": None}, self.rules)["class"], "unclear")
+        self.assertEqual(s.camera_of({**window(RIGHT_FOREHAND_FROM_BEHIND), "heading": None}, self.rules)["class"], "unclear")
+
+    def test_a_fully_turned_finish_does_not_move_the_camera(self):
+        # the same forehand from behind, its follow-through carried on round to 100 degrees (chest side-on to the camera)
+        wrapped = RIGHT_FOREHAND_FROM_BEHIND[:-4] + [60, 80, 95, 100]
+        got = s.camera_of(window(wrapped), self.rules)
+        self.assertEqual(got["class"], "back")
+        self.assertLess(abs(((got["target_deg"] + 180) % 360) - 180), 30)     # the target: away from the camera
+        self.assertEqual(s.camera_of(window(RIGHT_BACKHAND_FROM_BEHIND), self.rules)["class"], "back")
+
+    def test_a_window_without_its_whole_turn_names_no_camera(self):
+        self.assertEqual(s.camera_of({**window(RIGHT_FOREHAND_FROM_BEHIND), "full_swing": False}, self.rules)["class"], "unclear")
+        self.assertEqual(s.camera_of(window([10, 12, 14, 15, 15, 14, 13, 12]), self.rules)["class"], "unclear")   # no turn
 
     def test_an_unclear_stroke_says_why(self):
         got = s.read_stroke(track(850), window(turned(RIGHT_FOREHAND_FROM_BEHIND, 90)), hand="right", rules=self.rules)

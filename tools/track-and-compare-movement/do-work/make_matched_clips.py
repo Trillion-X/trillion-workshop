@@ -923,7 +923,8 @@ def prepare(spec):
     reference_forehand_side (overrides), facts (where measurements are kept), and the job settings (movement, view,
     layout, padding_s, size, keep_folder, salience, stroke_side_rules)}. A person's contact marks come from the
     contact-mark rows, never from the spec. A clip already measured under the same perception settings is not fetched
-    here (its length comes from its perception row)."""
+    here (its length comes from its perception row), nor is a reference whose kept length rules it out; a length
+    probed here is kept as a length row."""
     sys.path.insert(0, HERE)
     import files_road
     import measured_facts
@@ -947,6 +948,7 @@ def prepare(spec):
     #                                              minute "backhand" sessions hold forehands too), so those are left out
 
     measured_before = {"target": 0, "reference": 0}
+    lengths, by = [], {"tool": "track-and-compare-movement", "commit": spec.get("code_commit")}
 
     def clips(rows, people, side):
         out = []
@@ -955,9 +957,19 @@ def prepare(spec):
             path = os.path.join(media, side + "-" + row["identity"][3:19] + ext)
             known = have.get((row["identity"], "perception", "", pfp))
             measured_before[side] += known is not None
-            if known is None:                             # not measured yet: perceive needs its pictures
-                files_road.fetch(call, row["identity"], path)
-            seconds = known.get("duration_s") if known else duration(path)
+            length = have.get((row["identity"], "length", "", ""))
+            seconds = (known or {}).get("duration_s") or (length or {}).get("seconds")
+            if known is None and not (seconds is not None and side == "reference" and longest and seconds > float(longest)):
+                try:                                      # not measured yet: perceive needs its pictures
+                    files_road.fetch(call, row["identity"], path)
+                except (RuntimeError, OSError) as e:      # one file that won't come is left out by name, not the batch
+                    left_out.append({"name": row["name"], "why": f"could not fetch: {e}"})
+                    continue
+            if seconds is None:
+                seconds = duration(path)
+                if seconds is not None:                    # a file's length is a fact of its bytes, kept once
+                    lengths.append({"identity": row["identity"], "fact": "length", "part": "", "fingerprint": "",
+                                    "value": {"seconds": seconds}, "measured_by": by})
             if side == "reference" and longest:
                 if seconds is None or seconds > float(longest):
                     left_out.append({"name": row["name"], "seconds": seconds, "why": f"longer than {longest} s or unreadable"})
@@ -981,6 +993,7 @@ def prepare(spec):
            "model_identities": {m["name"]: m["identity"] for m in spec["models"]},
            "targets": clips(spec["targets"], spec.get("target_people") or [], "target"),
            "references": clips(spec["references"], spec.get("reference_people") or [], "reference")}
+    measured_facts.write_rows(spec.get("facts"), lengths)
     path = os.path.join(work, "job.json")
     with open(path, "w") as f:
         json.dump(job, f, indent=1)

@@ -105,9 +105,9 @@ def _trajectory(heading):
     return traj
 
 
-def forward_turn(heading):
-    """Degrees the body turns from the furthest-turned point of the takeback to the window's end (signed, in the
-    heading's own direction), or None without a trajectory of at least two samples."""
+def _turned_from(heading):
+    """(the furthest-turned heading of the takeback, the window's last heading), unwrapped degrees, or None without a
+    trajectory of at least two samples."""
     traj = _trajectory(heading)
     if not traj or len(traj) < 2:
         return None
@@ -116,8 +116,21 @@ def forward_turn(heading):
         step = (b - a) % 360
         unwrapped.append(unwrapped[-1] + (step - 360 if step > 180 else step))
     end = unwrapped[-1]
-    farthest = max(unwrapped[:-1], key=lambda h: abs(h - end))
-    return round(end - farthest, 1)
+    return max(unwrapped[:-1], key=lambda h: abs(h - end)), end
+
+
+def forward_turn(heading):
+    """Degrees the body turns from the furthest-turned point of the takeback to the window's end (signed, in the
+    heading's own direction), or None without a trajectory of at least two samples."""
+    parts = _turned_from(heading)
+    return None if parts is None else round(parts[1] - parts[0], 1)
+
+
+def whole_swing(window, rules):
+    """A window that holds its whole forward turn: not cut at the clip's edge, and lasting turn_follow_min_s after
+    contact (without its follow-through a window's last turn can be the takeback's)."""
+    return window.get("full_swing") is not False and \
+        window.get("t1", window["peak_t"]) - window["peak_t"] >= float(rules["turn_follow_min_s"])
 
 
 def facing_of(heading, rules):
@@ -140,27 +153,37 @@ def forehand_side_of(heading, hand, rules):
 
 
 def camera_of(window, rules):
-    """Where the camera stood for one swing window, as a plain class with the numbers it came from:
+    """Where the camera stood for one swing window, as a plain class with the numbers it came from. The class reads
+    the direction the player hits toward (target_deg, heading degrees, 0 = the player's back to the camera), which
+    no stroke's turn moves: the forward turn starts from the takeback's furthest-turned heading and swings the body
+    back toward the target, so target = furthest-turned + camera_target_offset_deg in the turn's direction. (The
+    follow-through heading was used first: a fully turned finish classed a camera behind the player as side-on.)
       birdseye    the window's elevation (describe_clip's CLIP axis) over birdseye_elevation with confidence at least
                   elevation_min_conf
-      back/front  cos(facing) >= facing_min_cos / <= -facing_min_cos (the follow-through heading, 0 = back to camera)
+      back/front  cos(target) >= facing_min_cos / <= -facing_min_cos
       side-right / side-left  otherwise: the camera at the player's right / left side. A right hand's forehand takeback
-                  turns the body by -right_hand_forehand_turn, so that turn shows the player's right side to a camera
-                  behind: the sign of sin(facing) x right_hand_forehand_turn is -1 for the right side
-      unclear     no heading"""
+                  turns the body by -right_hand_forehand_turn and shows the player's right side to a camera behind,
+                  so the right side is where sin(target) x right_hand_forehand_turn < 0
+      unclear     no heading, a window without its whole forward turn (whole_swing), or a forward turn under
+                  camera_turn_min_deg"""
     elevation = window.get("elevation") if isinstance(window.get("elevation"), dict) else {}
     value, conf = elevation.get("value"), elevation.get("conf") or 0
-    facing = facing_of(window.get("heading"), rules)
-    numbers = {"facing_deg": None if facing is None else round(math.degrees(facing) % 360, 1),
+    parts = _turned_from(window.get("heading")) if whole_swing(window, rules) else None
+    turn = None if parts is None else parts[1] - parts[0]
+    target = None
+    if turn is not None and abs(turn) >= float(rules["camera_turn_min_deg"]):
+        target = math.radians(parts[0] + math.copysign(float(rules["camera_target_offset_deg"]), turn))
+    numbers = {"target_deg": None if target is None else round(math.degrees(target) % 360, 1),
+               "turn_deg": None if turn is None else round(turn, 1),
                "elevation": value if isinstance(value, (int, float)) and math.isfinite(value) else None}
     if numbers["elevation"] is not None and conf >= float(rules["elevation_min_conf"]) \
             and numbers["elevation"] > float(rules["birdseye_elevation"]):
         return {"class": "birdseye", **numbers}
-    if facing is None:
+    if target is None:
         return {"class": "unclear", **numbers}
-    if abs(math.cos(facing)) >= float(rules["facing_min_cos"]):
-        return {"class": "back" if math.cos(facing) > 0 else "front", **numbers}
-    right = math.sin(facing) * int(rules["right_hand_forehand_turn"]) < 0
+    if abs(math.cos(target)) >= float(rules["facing_min_cos"]):
+        return {"class": "back" if math.cos(target) > 0 else "front", **numbers}
+    right = math.sin(target) * int(rules["right_hand_forehand_turn"]) < 0
     return {"class": "side-right" if right else "side-left", **numbers}
 
 
@@ -180,10 +203,8 @@ def read_stroke(kp, window, hand=None, forehand_side=None, rules=None):
     side, wrist = takeback_side(kp, window["t0"], window["peak_t"])
     given = forehand_side in (1, -1)
     fs = forehand_side if given else forehand_side_of(window.get("heading"), hand, rules)
-    whole = window.get("full_swing") is not False and \
-        window.get("t1", window["peak_t"]) - window["peak_t"] >= float(rules["turn_follow_min_s"])
-    turn = forward_turn(window.get("heading")) if whole else None  # without its follow-through a window's last turn
-    #                                                                can be the takeback's
+    whole = whole_swing(window, rules)
+    turn = forward_turn(window.get("heading")) if whole else None
     by_side = stroke_of(side, fs, float(rules["margin"]))
     by_turn = stroke_by_turn(turn, hand, rules)
     if hand in HANDS:

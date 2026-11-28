@@ -2,17 +2,20 @@
 
 `tool:keep-tool-copies-in-step` keeps the tool folders a project copied into its own tools folder (with
 `tool:add-a-tool-to-a-project`, whose `read-data/record.ts` names the folder once as `TOOLS_FOLDER`) in step with where
-they came from. For each line of the folder's record `where-each-tool-comes-from.json` it compares three versions of the folder and settles the safe cases: it brings
-upstream changes to the project as a branch (merged on its own only for a trusted source whose project tests pass),
-offers the project's changes upstream (through the source's landing owner, or on a review branch), refuses conflicts
-with their diff, and skips forks. `workflow:keep-tool-copies-in-step` runs it when a push fact arrives.
+they came from. It reads the project from a clone it keeps itself in its own state folder, fetched from the project's
+repository address (`repo`) at the tip of its branch (`main` unless `branch` names another); no working checkout of the
+project, and no deploy folder, is ever read or written. For each line of the folder's record
+`where-each-tool-comes-from.json` it compares three versions of the folder, offers each upstream change to the project
+as one branch `sync/upstream/<record line>/<upstream commit>`, refuses conflicts with their diff, and skips forks. It
+never merges, never fast-forwards and never pushes any other ref. `workflow:keep-tool-copies-in-step` runs it when a push
+fact arrives, and once a day.
 
 ## The three versions
 
 | Name | What it is | Where it is read |
 |---|---|---|
 | base (b) | the files the copy started from | the record line's `files` (hashes) and, for a file changed on both sides, its bytes fetched at `copied_at_commit` |
-| project (l) | the copy now | the files git lists in the tool's folder (tracked, or new and not ignored); every regular file when the project is not a git checkout |
+| project (l) | the copy now | the tool's folder at the tip of the project's branch, in the tool's own clone (`<state>/projects/<repo>-<id>`: a depth-1, blob-less fetch and a sparse checkout of only the tools folder) |
 | upstream (u) | the source now | the folder at the commit the registry's pointer names now (`paths` only, when the pointer names them), checked against the pointer's `files_blake3`; for a direct `{repo, path, commit}` line, the repository's HEAD |
 
 ## The algebra (read-data/classify.ts)
@@ -22,11 +25,11 @@ Per file, in this order:
 | b / l / u | Verdict | What apply does |
 |---|---|---|
 | l == u (both absent included) | `same` | nothing |
-| u == b, l != b | `project-only` (`deleted-project` when l is absent) | offered upstream; the project is not touched |
+| u == b, l != b | `project-only` (`deleted-project` when l is absent) | nothing: the project's change stays in the project, and nothing is pushed |
 | l == b, u != b | `upstream-only` (`deleted-upstream` when u is absent) | upstream's bytes (or the deletion) in the project branch |
-| all present and different | `both-clean` when `git merge-file -p` exits 0, else `both-conflict`; a NUL byte on any side: `both-conflict`, never merged | the merge in the project branch, and offered upstream |
+| all present and different | `both-clean` when `git merge-file -p` exits 0, else `both-conflict`; a NUL byte on any side: `both-conflict`, never merged | the merge in the project branch |
 | one absent, the others different | `both-conflict` | nothing |
-| a path gone on one side, its exact bytes arrived at one new path on the same side, the other side touching neither | `renamed-project` / `renamed-upstream` on both paths | moved on the other side |
+| a path gone on one side, its exact bytes arrived at one new path on the same side, the other side touching neither | `renamed-project` / `renamed-upstream` on both paths | an upstream rename is made on the project branch; a project rename stays in the project |
 | one base file renamed to two different paths, one per side | `both-conflict` on all three paths | nothing |
 
 The tool's state is the strongest over its files: `both-conflict` > `both-clean` (also: different files changed on each
@@ -37,8 +40,11 @@ not read at all (no registry read, no fetch, no file read). A `made-here` line i
 A change in a needed tool is an upstream change of the tool that needs it. Its `closure_blake3` (the identity the add tool
 makes over every folder it reaches through `needs_tools`) is made again over the upstream versions; when it differs, the
 plan names `closure: {recorded, upstream}` and a tool whose own files are all `none-changed` is `upstream-only`. It moves
-in the same commit as the needed tools that move (the trusted commit, or the branch of a needed tool that waits), and is
-refused `needs-not-settled` when none of them settles.
+on the branch of the first needed tool that moves, and is refused `needs-not-settled` when none of them moves.
+
+A pointer's `paths` bound what upstream is. Only those files are fetched and compared, so a file outside them is never
+brought, and a file the pointer drops is `deleted-upstream` and goes from the branch; it is never added again. A file the
+project dropped while its pointer still names it is `deleted-project`: the project's own change, which stays.
 
 A record line whose `files` do not hash to its `copied_at_files_blake3` was edited by hand. It is `local-edit`: no
 registry read and no fetch is made for it, it is never used as the version a copy started from, and `apply` reports it in
@@ -53,56 +59,46 @@ registry read and no fetch is made for it, it is never used as the version a cop
   whose bytes are not what the record names, makes the file a conflict.
 - `apply` re-reads everything. The record must still have the BLAKE3 identity `plan` read (else
   `record-changed-meanwhile`), and every tool must still be what `plan` found (else `changed-since-plan`).
-- An upstream change never goes straight into the project's files (plan B4). The project must be a git checkout whose
-  record is committed. Each change is one commit on the project's HEAD holding the tool's files and its advanced record
-  line (the record text made by the add tool's `writeProjectRecord`), kept as a branch with a compare-and-set on its ref,
-  and pushed to the project's `origin` with a lease when it has one. Sources whose owner (read from the repository
-  address: `github.com/OWNER/...`, `git@host:OWNER/...`) is in the record's `"trust": [...]` list share one branch,
-  `sync/upstream/trusted`; it is merged with `git merge --ff-only` only when the record's `"test": [words]` exits 0 on an
-  export of that commit, and git refuses the merge if HEAD or those files moved. Every other source waits on
-  `sync/upstream/<tool>` for the project's owner. `waiting` answers each branch and why: `not-trusted`,
-  `no-test-command`, `tests-not-green`, `project-moved`. A pull request needs a GitHub key; while none bound to
-  api.github.com is held, `gap` names that and no pull request is opened.
-- A settled tool's line advances to exactly the upstream version it was compared with (`copied_at_commit`,
+- Branches only. The one push the tool makes goes through `pushSyncBranch`, which refuses every ref but
+  `refs/heads/sync/upstream/<record line>/<40-hex upstream commit>` before git starts (`ref-refused`): never `main`,
+  a deploy branch, a tag or any other branch. It never force-pushes, never fast-forwards and never merges. Each upstream change
+  is one commit on the tip of the project's branch holding the tool's files and its advanced record line (the record text
+  made by the add tool's `writeProjectRecord`), with author, committer, message and times fixed by that tip, so the same
+  change on the same tip is the same commit. It is pushed without force; a branch of that name holding another commit (the
+  project's branch moved since) is answered `push-refused` with git's words.
+- A pull request is opened only for a branch the push created, read from that push's own answer (`git push --porcelain`:
+  `*` new, `=` already there), never from a read made before it. No GitHub key bound to api.github.com is held, so a
+  created branch is answered `would_open: true` and `gap` names it. Two runs of one change make one branch and one
+  `would_open`. Who merges a branch is the project's owner; trust and auto-merge belong to the pull request.
+- A branch's line advances to exactly the upstream version it was compared with (`copied_at_commit`,
   `copied_at_files_blake3`, `files`; `from.commit` too for a direct line), and `closure_blake3` is made again for every line
-  that reaches it. A tool with a conflict keeps its line.
-- A project change goes upstream through the source's own landing owner when `land_through` names one for that
-  repository on this computer (for the Workshop checkout: `land_paths.py`, whose queue three-way merges it onto main):
-  its words, then `--lane`, `--message-file` and one `--edit PATH=cat FILE` or `--remove PATH` per file; the landed commit
-  is read from its answer. `land_through` works only when the tool is run directly on the computer (`node do-work/sync.ts`):
-  inside the engine, the run's sandbox lets it start only the system git, so the landing owner's command cannot start there.
-  Any other repository gets the change only as branch `sync/<project>/<tool>` (`<project>` is the project folder's name), a commit made on
-  the upstream commit with the changed files, pushed with `--force-with-lease=<ref>:<sha read just before>` and
-  `push.negotiate`, so only the changed objects are sent. A default branch is never pushed. The commit's author, committer,
-  message and times are fixed by its parent, so offering the same change again makes the same commit and pushes nothing
-  (`already: true`).
+  that reaches it. A tool with a conflict gets no branch.
+- Project changes stay in the project (`project_only`); nothing is pushed for them.
 - Fetch, hash and record code is the add tool's (`../add-a-tool-to-a-project/read-data/`), imported, never copied. A local
-  clone named in `clones` (inside the granted folder) that holds a commit is read instead of the network, as the add tool
+  clone named in `clones` (inside the state folder) that holds a commit is read instead of the network, as the add tool
   reads it; the bytes and identities are the same either way. The record names a registry only by its address (the add
   tool records a local registry as its git origin address), so a registry is read from the clone in `clones` whose origin
   is that address, else fetched from it. A record line written before that change names its registry by a folder path;
   readRegistry reads it only when the folder's git origin is an address, and otherwise the line is refused (`bad-from`)
-  with words that name the one-time rewrite of its registry fields. A push still goes to the pointer's repository address.
+  with words that name the one-time rewrite of its registry fields.
 
 ## How it runs
 
 ```
-node do-work/sync.ts GRANTED-FOLDER < {"op":"plan","project":".","only":["screen-look"],"fact":{...},"clones":["the-workshop-clone"]}
-node do-work/sync.ts GRANTED-FOLDER < {"op":"apply","project":".","plan":<plan's answer>,"clones":["the-workshop-clone"],"land_through":[{"repo":"...","command":["python3","land_paths.py","--repo","..."]}]}
+node do-work/sync.ts STATE-FOLDER < {"op":"plan","repo":"https://github.com/OWNER/PROJECT.git","only":["screen-look"],"fact":{...},"clones":["a-clone-in-the-state-folder"]}
+node do-work/sync.ts STATE-FOLDER < {"op":"apply","repo":"https://github.com/OWNER/PROJECT.git","plan":<plan's answer>}
 ```
 
-It runs on the person's computer under the capability `use-git-in-a-folder` (the granted folder, read and written, and the
-system's git, which every step here runs); `change-a-folder` alone gives no git, so a sandboxed run could not fetch or merge.
-
-`plan` answers `{record_blake3, because?, tools: {name: {state, files, upstream_commit, renames?, why?, said?, closure?}}}` and
-writes nothing. `apply` answers `{settled, forked, conflicts: [{tool, path, diff}], unchanged, pushed: [{tool, repo,
-branch, commit, already, landed_by?}], waiting: [{tools, branch, commit, why, said, pull_request}], gap?, skipped: [{tool,
-why}], refused: [{tool, why, said}]}`. `settled` names the tools merged into the project. A conflict is an answer (exit 0); exit 2 means
-the tool could not run.
+The state folder is the tool's own: it holds `projects/<repo>-<id>`, the clone of each project it keeps, and nothing else.
+The run needs that folder read and written, the system's git, and the network to the project's and the sources' git
+hosts. `plan` answers `{record_blake3, because?, tools: {name: {state, files, upstream_commit, renames?, why?, said?,
+closure?}}}` and writes nothing but its own clone. `apply` answers `{forked, conflicts: [{tool, path, diff}], unchanged,
+project_only, waiting: [{tools, branch, commit, created, would_open, pull_request}], gap?, skipped: [{tool, why}],
+refused: [{tool, why, said}]}`. A conflict is an answer (exit 0); exit 2 means the tool could not run.
 
 Refusals (`why`): `not-in-registry`, `bad-from`, `fetch-refused`, `identity-mismatch`, `no-base`,
-`record-changed-meanwhile`, `changed-since-plan`, `push-refused`, `landing-refused`, `not-a-git-project`,
-`record-not-committed`, `local-edit`, `needs-not-settled`; `made-here` for a skipped line.
+`record-changed-meanwhile`, `changed-since-plan`, `push-refused`, `ref-refused`, `local-edit`, `needs-not-settled`;
+`made-here` for a skipped line.
 
 ## Checked against land_paths
 

@@ -2,15 +2,16 @@
 //
 // PURPOSE
 //   tool:keep-tool-copies-in-step. For every tool folder a project copied into its own tools folder (TOOLS_FOLDER, the add
-//   tool's), compares three versions: the base (the files its record where-each-tool-comes-from.json says the copy started from), the
-//   project's folder now, and the upstream folder at the newest commit its pointer names (the registry's pointer, or the
-//   repository's HEAD for a direct pointer). `plan` says what each tool's state is and writes nothing. `apply` settles the
-//   safe states: it brings upstream changes to the project as a branch (merged only for a trusted source whose project
-//   tests pass), offers project changes upstream (through the source's landing owner, or on a branch), refuses conflicts
-//   with their diff, and skips forks.
+//   tool's), compares three versions: the base (the files its record where-each-tool-comes-from.json says the copy started
+//   from), the project's folder at the tip of the project's branch, and the upstream folder at the commit its pointer names
+//   (the registry's pointer, only its `paths` when it names them, or the repository's HEAD for a direct pointer). The
+//   project is read from a clone the tool keeps itself in its own state folder (the granted folder), fetched from the
+//   project's repository address each run; no working checkout of the project is read or written. `plan` says what each
+//   tool's state is and writes nothing to the project. `apply` offers each upstream change to the project as one branch
+//   sync/upstream/<record line>/<upstream commit>, refuses conflicts with their diff, and skips forks.
 //
-//   node do-work/sync.ts GRANTED-FOLDER   < {"op": "plan", "project"?, "only"?, "fact"?, "clones"?}
-//                                         < {"op": "apply", "project"?, "plan": <plan's answer>, "clones"?, "land_through"?}
+//   node do-work/sync.ts STATE-FOLDER   < {"op": "plan", "repo", "branch"?, "only"?, "fact"?, "clones"?}
+//                                       < {"op": "apply", "repo", "branch"?, "plan": <plan's answer>, "clones"?}
 //     prints one JSON answer; exits 0 when it answered (a conflict is an answer), 2 when it could not run
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -20,30 +21,29 @@
 //   3. A three-way-different file is decided from the base BYTES (fetched at the record's copied_at_commit), never from
 //      hashes alone; a base that cannot be fetched makes it a conflict. git merge-file's non-zero exit is a conflict and its
 //      output is never written (read-data/merge-text.ts).
-//   4. An upstream change (upstream-only, both-clean) never goes straight into the project's files (plan B4). It is one
-//      commit on the project's HEAD (the tool's files and its advanced record line, the record text written by the add
-//      tool's writeProjectRecord), kept as branch sync/upstream/trusted or sync/upstream/TOOL with a compare-and-set on the
-//      branch ref, and pushed to the project's origin with a lease when it has one. It is merged into the project
-//      (`git merge --ff-only`, git refusing when HEAD or those files moved) only when every source in the commit has its
-//      owner in the record's `trust` list (DATA) AND the record's `test` command (DATA, words, run in an export of the
-//      commit) exits 0. Otherwise it waits for the project's owner. A pull request needs a GitHub key; with none held it is
-//      named as the gap, never worked around.
-//   5. A tool's record line advances (copied_at_commit, copied_at_files_blake3, files) only in that commit, only for a tool
-//      with no conflict, and then to exactly the upstream version it was compared with.
-//   6. Project changes go upstream through the source's own landing owner when the input names one for its repository
-//      (`land_through`: a checkout on this computer, landed by its queue, which three-way merges onto its main). Any other
-//      repository is offered branch `sync/<project>/<tool>` made on the upstream commit, pushed with --force-with-lease
-//      naming the branch's sha read just before; never a default branch, never a plain force push. The branch commit is
-//      deterministic (same parent, tree, message and times), so offering the same change again is a no-op.
-//   7. Fetch, hash and record code is the add tool's (tools/add-a-tool-to-a-project/read-data), imported, never copied:
+//   4. Branches only. The one push this tool makes goes through pushSyncBranch, which refuses every ref but
+//      refs/heads/sync/upstream/<record line>/<40-hex upstream commit>, before git is started. It never force-pushes, never
+//      fast-forwards or merges any branch, and never pushes the project's branch, main or any other ref. An upstream change
+//      (upstream-only, both-clean, or a needed tool's change) is one commit on the tip of the project's branch (the tool's
+//      files and its advanced record line, the record text written by the add tool's writeProjectRecord), with author,
+//      committer, message and times fixed by that tip, so the same change on the same tip is the same commit.
+//   5. A pull request is opened only for a branch the push created, judged from that push's own answer (git push
+//      --porcelain: `*` is a new ref), never from a read made before it. No GitHub key is held, so each created branch's
+//      pull request is answered as would_open and the gap is named; two runs of one change make one branch and one
+//      would_open.
+//   6. A tool's record line advances (copied_at_commit, copied_at_files_blake3, files) only in that branch commit, only for
+//      a tool with no conflict, and then to exactly the upstream version it was compared with. A pointer's `paths` bound
+//      what upstream is: a file outside them is never brought, so a file the pointer dropped is never added again.
+//   7. Project changes stay in the project: a project-only tool is reported, and nothing is pushed for it.
+//   8. Fetch, hash and record code is the add tool's (tools/add-a-tool-to-a-project/read-data), imported, never copied:
 //      a local clone named in `clones` that holds a commit, or whose origin is the registry address a record line names,
 //      is read instead of the network, exactly as the add tool reads it. Nothing is imported from outside the Workshop.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { spawnSync } from 'node:child_process';
-import { existsSync, lstatSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, join, relative } from 'node:path';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileDigest, identityOfDigests } from '../../content-identity/read-data/manifest.mjs';
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
@@ -56,22 +56,22 @@ import { mergeText, threeWayDiff } from '../read-data/merge-text.ts';
 
 export type ToolState = ToolVerdict | 'forked' | 'skipped' | 'refused' | 'local-edit';
 export type Why = 'made-here' | 'not-in-registry' | 'bad-from' | 'fetch-refused' | 'identity-mismatch' | 'no-base'
-  | 'record-changed-meanwhile' | 'changed-since-plan' | 'push-refused' | 'landing-refused' | 'not-a-git-project' | 'record-not-committed'
-  | 'local-edit' | 'needs-not-settled';
-export type Waits = 'not-trusted' | 'no-test-command' | 'tests-not-green' | 'project-moved';
-/** A landing owner for one upstream repository on this computer: the words that start it (land_paths.py and its --repo). */
-export type LandThrough = { repo: string; command: string[] };
+  | 'record-changed-meanwhile' | 'changed-since-plan' | 'push-refused' | 'ref-refused' | 'local-edit' | 'needs-not-settled';
 export type PlannedTool = { state: ToolState; files: Record<string, Verdict>; upstream_commit: string | null; renames?: Rename[]; why?: Why; said?: string;
   closure?: { recorded: Hex64; upstream: Hex64 } };
 export type PlanResult = { record_blake3: string; because?: { where?: string; place?: string; key?: string }; tools: Record<string, PlannedTool> };
-export type PlanInput = { project: string; only?: string[]; fact?: unknown; clones?: string[] };
+/** Where the project is: its repository address, the branch read (main when not named), and the tool's state folder. */
+export type ProjectInput = { state: string; repo: string; branch?: string };
+export type PlanInput = ProjectInput & { only?: string[]; fact?: unknown; clones?: string[] };
 export type ApplyResult = {
-  settled: string[];
   forked: string[];
   conflicts: { tool: string; path: string; diff: string }[];
   unchanged: string[];
-  pushed: { tool: string; repo: string; branch: string | null; commit: string; already: boolean; landed_by?: string }[];
-  waiting: { tools: string[]; branch: string; commit: string; why: Waits; said: string; pull_request: null }[];
+  /** Tools with project changes only: they stay in the project, and nothing is pushed for them. */
+  project_only: string[];
+  /** One branch per upstream change: created is the push's own answer (a new ref); would_open is true for a created branch
+   *  whose pull request is not opened because no GitHub key is held. */
+  waiting: { tools: string[]; branch: string; commit: string; created: boolean; would_open: boolean; pull_request: null }[];
   gap?: string;
   skipped: { tool: string; why: Why }[];
   refused: { tool: string; why: Why; said: string }[];
@@ -296,12 +296,12 @@ function withScratch<T>(work: (scratch: string) => Promise<T>): Promise<T> {
   return work(scratch).finally(() => rmSync(scratch, { recursive: true, force: true }));
 }
 
-/** What each tool's state is, with every file's verdict. Writes nothing. */
+/** What each tool's state is, with every file's verdict. Writes nothing to the project (it fetches into its own clone). */
 export async function plan(input: PlanInput, io: Io = realIo(input.clones)): Promise<PlanResult> {
-  const project = realpathSync(input.project);
-  const { expected, record } = readProjectRecord(join(project, TOOLS_FOLDER));
+  const { dir } = openProject(input);
+  const { expected, record } = readProjectRecord(join(dir, TOOLS_FOLDER));
   return withScratch(async scratch => {
-    const computed = await compareAll(project, record, input.only, io, scratch);
+    const computed = await compareAll(dir, record, input.only, io, scratch);
     const because = becauseOf(input.fact);
     return { record_blake3: expected, ...(because ? { because } : {}), tools: Object.fromEntries(computed.map(one => [one.name, plannedOf(one)])) };
   });
@@ -310,36 +310,22 @@ export async function plan(input: PlanInput, io: Io = realIo(input.clones)): Pro
 const PROJECT_SIDE: ReadonlySet<Verdict> = new Set(['project-only', 'deleted-project', 'renamed-project']);
 const UPSTREAM_SIDE: ReadonlySet<Verdict> = new Set(['upstream-only', 'deleted-upstream', 'renamed-upstream']);
 type Change = { bytes: Uint8Array | null; executable: boolean };
-type Offer = Map<string, Change>;
 
-/** What one settling tool changes: the files its upstream side brings to the project, and the files offered upstream. */
-function movesOf(one: Computed): { into: Offer; offer: Offer } {
-  const into: Offer = new Map();
-  const offer: Offer = new Map();
+/** The files one settling tool's upstream side brings to the project (merged files included), and whether the project
+ *  holds changes of its own that stay where they are. */
+function movesOf(one: Computed): { into: Map<string, Change>; projectChanged: boolean } {
+  const into = new Map<string, Change>();
+  let projectChanged = false;
   const upstreamNow = fileMapOf(one.fetched!);
   for (const [path, verdict] of Object.entries(one.files)) {
     const mine = one.project.get(path) ?? null;
-    if (verdict === 'both-clean') {
-      const change = { bytes: one.merged.get(path)!, executable: mine?.executable ?? false };
-      into.set(path, change);
-      offer.set(path, change);
-    } else if (UPSTREAM_SIDE.has(verdict)) {
+    if (verdict === 'both-clean') into.set(path, { bytes: one.merged.get(path)!, executable: mine?.executable ?? false });
+    else if (UPSTREAM_SIDE.has(verdict)) {
       const theirs = upstreamNow.get(path) ?? null;
       into.set(path, { bytes: theirs?.bytes ?? null, executable: theirs?.executable ?? false });
-    } else if (PROJECT_SIDE.has(verdict)) {
-      offer.set(path, { bytes: mine?.bytes ?? null, executable: mine?.executable ?? false });
-    }
+    } else if (PROJECT_SIDE.has(verdict)) projectChanged = true;
   }
-  return { into, offer };
-}
-
-/** The owner a repository address names (github.com/OWNER/..., git@host:OWNER/...); null for a local folder. */
-export function ownerOf(repo: string): string | null {
-  const scp = /^[^@\s/]+@[^:\s/]+:([^/\s]+)\//.exec(repo);
-  if (scp) return scp[1].toLowerCase();
-  if (!isReachableAddress(repo)) return null;
-  const parts = new URL(repo).pathname.split('/').filter(Boolean);
-  return parts.length >= 2 ? parts[0].toLowerCase() : null;
+  return { into, projectChanged };
 }
 
 /** The folders reachable from `start` through needs_tools, `start` included. */
@@ -354,48 +340,55 @@ function reach(start: string, tools: Record<string, ToolRecord>): string[] {
   return [...seen];
 }
 
+/** The only refs this tool pushes: refs/heads/sync/upstream/<record line>/<40-hex upstream commit>. */
+const SYNC_REF = /^refs\/heads\/sync\/upstream\/[a-z0-9][a-z0-9._-]*\/[0-9a-f]{40}$/;
+
+/** Refused before git starts: a push to any ref but a sync/upstream branch (invariant 4). */
+export class RefRefused extends Error {}
+
+/** The branch one upstream change waits on: its record line and the upstream commit it brings. */
+export const syncRef = (line: string, upstreamCommit: string): string => `refs/heads/sync/upstream/${line}/${upstreamCommit}`;
+
+/** Pushes `commit` to `ref` of `repo` from the clone `dir`, without force, and says whether the push created the ref
+ *  (its own porcelain answer: `*` new, `=` already there). Every ref but a sync/upstream branch is refused before git
+ *  starts. A ref git refuses (it names another commit) is a GitRefused carrying git's words. */
+export function pushSyncBranch(dir: string, repo: string, commit: string, ref: string): { created: boolean } {
+  if (!SYNC_REF.test(ref) || ref.includes('..')) throw new RefRefused(`refusing to push ${ref}: only refs/heads/sync/upstream/<record line>/<upstream commit> is pushed.`);
+  if (!COMMIT.test(commit)) throw new RefRefused(`refusing to push ${commit}: not a full commit id.`);
+  const done = spawnSync('git', ['-C', dir, 'push', '--porcelain', '--no-verify', repo, `${commit}:${ref}`], { env: ENV, maxBuffer: 1 << 24 });
+  if (done.error) throw done.error;
+  const said = `${done.stdout.toString('utf8')}${done.stderr.toString('utf8')}`;
+  const line = done.stdout.toString('utf8').split('\n').find(row => row.split('\t')[1] === `${commit}:${ref}`);
+  if (done.status !== 0 || !line) throw new GitRefused(`git push of ${ref} refused: ${said.trim().slice(-1500)}`);
+  const flag = line[0];
+  if (flag === '*') return { created: true };
+  if (flag === '=') return { created: false };
+  throw new GitRefused(`git push of ${ref} answered ${JSON.stringify(line)}, which neither created nor found the branch.`);
+}
+
+/** The tool's own clone of the project, in its state folder: fetched blob-less at the tip of `branch`, with a sparse
+ *  checkout of only the tools folder (one batch of file contents). Its folder is the project the comparison reads; the
+ *  project's own working checkout is never read or written. The tip commit is returned with it. */
+function openProject(input: ProjectInput): { dir: string; tip: string } {
+  const branch = input.branch ?? 'main';
+  if (!/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(branch) || branch.includes('..')) throw new Error(`branch ${JSON.stringify(branch)} is not a branch name.`);
+  if (typeof input.repo !== 'string' || input.repo.length === 0) throw new Error('repo is the project repository address.');
+  const dir = join(realpathSync(input.state), 'projects', `${branchPart(input.repo)}-${fileDigest(Buffer.from(input.repo)).slice(0, 12)}`);
+  mkdirSync(dir, { recursive: true });
+  if (!existsSync(join(dir, '.git'))) git(dir, ['init', '-q']);
+  const remotes = git(dir, ['remote']).split('\n');
+  git(dir, remotes.includes('origin') ? ['remote', 'set-url', 'origin', input.repo] : ['remote', 'add', 'origin', input.repo]);
+  git(dir, ['-c', 'protocol.version=2', 'fetch', '-q', '--no-tags', '--depth', '1', '--filter=blob:none', 'origin', `refs/heads/${branch}`]);
+  const tip = git(dir, ['rev-parse', 'FETCH_HEAD']);
+  if (!COMMIT.test(tip)) throw new GitRefused(`${input.repo} answered no commit for ${branch}.`);
+  git(dir, ['config', 'core.sparseCheckout', 'true']);
+  writeFileSync(join(dir, '.git', 'info', 'sparse-checkout'), `/${TOOLS_FOLDER}/\n`);
+  git(dir, ['checkout', '-q', '--detach', '--force', tip]);
+  git(dir, ['clean', '-q', '-ffdx', '--', TOOLS_FOLDER]);
+  return { dir, tip };
+}
+
 const branchPart = (text: string): string => text.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^[-.]+|[-.]+$/g, '') || 'project';
-
-/** Offers `offer` upstream as branch sync/<project>/<tool> on the upstream commit (invariant 6). Null when it changes nothing. */
-function offerUpstream(one: Computed, offer: Offer, projectName: string): { branch: string; commit: string; already: boolean } | null {
-  const { repo, path, commit } = one.upstream!;
-  const dir = one.commitDir!;
-  const branch = `sync/${branchPart(projectName)}/${one.name}`;
-  const ref = `refs/heads/${branch}`;
-  const index = join(dir, '.git', `sync-index-${one.name}`);
-  const env = { ...ENV, GIT_INDEX_FILE: index };
-  try {
-    git(dir, ['read-tree', commit], { env });
-    for (const [relativePath, change] of offer) {
-      const full = `${path}/${relativePath}`;
-      if (change.bytes === null) { git(dir, ['update-index', '--force-remove', '--', full], { env }); continue; }
-      const blob = git(dir, ['hash-object', '-w', '--stdin'], { input: change.bytes });
-      git(dir, ['update-index', '--add', '--cacheinfo', `${change.executable ? '100755' : '100644'},${blob},${full}`], { env });
-    }
-    const tree = git(dir, ['write-tree'], { env });
-    if (tree === git(dir, ['rev-parse', `${commit}^{tree}`])) return null;
-    const when = git(dir, ['log', '-1', '--format=%cI', commit]);
-    const message = `${projectName}'s copy of ${one.name}, offered upstream by tool:keep-tool-copies-in-step\n\n`
-      + `Made on ${commit} (${path}); review and merge it as any change.\n`;
-    const made = git(dir, ['commit-tree', tree, '-p', commit, '-F', '-'], { env: { ...ENV, ...SIGNER, GIT_AUTHOR_DATE: when, GIT_COMMITTER_DATE: when }, input: Buffer.from(message) });
-    const there = git(dir, ['ls-remote', repo, ref]).split('\n').map(l => l.split('\t')).find(([, name]) => name === ref)?.[0] ?? '';
-    if (there === made) return { branch, commit: made, already: true };
-    if (!branch.startsWith('sync/')) throw new Error(`refusing to push ${branch}: only sync/ branches are offered`);
-    // push.negotiate: the push finds the upstream commit it is made on, so only the changed objects are sent.
-    git(dir, ['-c', 'push.negotiate=true', 'push', '--no-verify', '--quiet', repo, `${made}:${ref}`, `--force-with-lease=${ref}:${there}`]);
-    return { branch, commit: made, already: false };
-  } finally {
-    rmSync(index, { force: true });
-  }
-}
-
-/** The project's git, for the branch an upstream change waits on: its top folder and the commit HEAD names. */
-function projectGit(project: string): { top: string; head: string } | null {
-  const inGit = spawnSync('git', ['-C', project, 'rev-parse', '--show-toplevel', 'HEAD'], { env: ENV });
-  if (inGit.status !== 0) return null;
-  const [top, head] = inGit.stdout.toString('utf8').trim().split('\n');
-  return COMMIT.test(head ?? '') ? { top: realpathSync(top), head } : null;
-}
 
 /** The record text the add tool's writeProjectRecord writes for `record`, written into a fresh folder of the run's own. */
 function recordBytes(scratch: string, record: RecordFile): Buffer {
@@ -406,20 +399,18 @@ function recordBytes(scratch: string, record: RecordFile): Buffer {
 
 type Waiting = ApplyResult['waiting'][number];
 
-/** One commit on the project's HEAD holding `tools`' upstream changes and their advanced record lines, kept as `branch`
- *  (compare-and-set on the ref) and pushed to the project's origin with a lease when it has one (invariant 4). */
-function projectCommit(at: { top: string; head: string }, project: string, scratch: string, record: RecordFile,
-  tools: Computed[], branch: string, push: (error: string) => void): string {
-  const inTop = (path: string) => [relative(at.top, project), TOOLS_FOLDER, path].filter(Boolean).join('/');
-  const env = { ...ENV, GIT_INDEX_FILE: join(scratch, `index-${tools.length}-${branch.replace(/\W+/g, '-')}`) };
-  git(at.top, ['read-tree', at.head], { env });
+/** One commit on the project's tip holding `tools`' upstream changes and their advanced record lines (invariant 4). */
+function projectCommit(dir: string, tip: string, scratch: string, record: RecordFile, tools: Computed[]): string {
+  const inTop = (path: string) => `${TOOLS_FOLDER}/${path}`;
+  const env = { ...ENV, GIT_INDEX_FILE: join(scratch, `index-${tools[0].name}`) };
+  git(dir, ['read-tree', tip], { env });
   const lines = { ...record.tools };
   for (const one of tools) {
     for (const [path, change] of movesOf(one).into) {
       const full = inTop(`${one.name}/${path}`);
-      if (change.bytes === null) { git(at.top, ['update-index', '--force-remove', '--', full], { env }); continue; }
-      const blob = git(at.top, ['hash-object', '-w', '--stdin'], { input: change.bytes });
-      git(at.top, ['update-index', '--add', '--cacheinfo', `${change.executable ? '100755' : '100644'},${blob},${full}`], { env });
+      if (change.bytes === null) { git(dir, ['update-index', '--force-remove', '--', full], { env }); continue; }
+      const blob = git(dir, ['hash-object', '-w', '--stdin'], { input: change.bytes });
+      git(dir, ['update-index', '--add', '--cacheinfo', `${change.executable ? '100755' : '100644'},${blob},${full}`], { env });
     }
     lines[one.name] = { ...one.line, copied_at_commit: one.upstream!.commit, copied_at_files_blake3: one.fetched!.files_blake3,
       files: one.fetched!.digests, ...(typeof one.line.from === 'object' && 'repo' in one.line.from ? { from: { ...one.line.from, commit: one.upstream!.commit } } : {}) };
@@ -431,80 +422,31 @@ function projectCommit(at: { top: string; head: string }, project: string, scrat
       lines[name] = { ...line, closure_blake3: identityOfDigests(reached.map((folder): [string, string] => [folder, lines[folder].copied_at_files_blake3!])) };
     }
   }
-  const blob = git(at.top, ['hash-object', '-w', '--stdin'], { input: recordBytes(scratch, { ...record, tools: lines }) });
-  git(at.top, ['update-index', '--add', '--cacheinfo', `100644,${blob},${inTop(RECORD_FILE)}`], { env });
-  const tree = git(at.top, ['write-tree'], { env });
-  const when = git(at.top, ['log', '-1', '--format=%cI', at.head]);
+  const blob = git(dir, ['hash-object', '-w', '--stdin'], { input: recordBytes(scratch, { ...record, tools: lines }) });
+  git(dir, ['update-index', '--add', '--cacheinfo', `100644,${blob},${inTop(RECORD_FILE)}`], { env });
+  const tree = git(dir, ['write-tree'], { env });
+  const when = git(dir, ['log', '-1', '--format=%cI', tip]);
   const sources = [...new Set(tools.map(one => one.upstream!.repo))].join(', ');
   const message = `${tools.map(one => one.name).join(', ')} from upstream, by tool:keep-tool-copies-in-step\n\nUpstream: ${sources}.\n`;
-  const made = git(at.top, ['commit-tree', tree, '-p', at.head, '-F', '-'], { env: { ...ENV, ...SIGNER, GIT_AUTHOR_DATE: when, GIT_COMMITTER_DATE: when }, input: Buffer.from(message) });
-  const ref = `refs/heads/${branch}`;
-  const before = spawnSync('git', ['-C', at.top, 'rev-parse', '--verify', '--quiet', ref], { env: ENV }).stdout.toString('utf8').trim();
-  if (before !== made) git(at.top, ['update-ref', ref, made, before || '0'.repeat(40)]);
-  const origin = spawnSync('git', ['-C', at.top, 'remote', 'get-url', 'origin'], { env: ENV });
-  if (origin.status === 0) {
-    const there = spawnSync('git', ['-C', at.top, 'ls-remote', 'origin', ref], { env: ENV }).stdout.toString('utf8').split('\t')[0].trim();
-    if (there !== made) {
-      const pushed = spawnSync('git', ['-C', at.top, 'push', '--no-verify', '--quiet', 'origin', `${made}:${ref}`, `--force-with-lease=${ref}:${there}`], { env: ENV });
-      if (pushed.status !== 0) push(pushed.stderr.toString('utf8').trim());
-    }
-  }
-  return made;
+  return git(dir, ['commit-tree', tree, '-p', tip, '-F', '-'], { env: { ...ENV, ...SIGNER, GIT_AUTHOR_DATE: when, GIT_COMMITTER_DATE: when }, input: Buffer.from(message) });
 }
 
-/** Whether the project's tests pass on `commit`: the record's `test` words run in an export of it. */
-function testsOn(at: { top: string }, project: string, scratch: string, record: RecordFile, commit: string): { green: boolean; why: Waits; said: string } {
-  const words = (record as { test?: unknown }).test;
-  if (!Array.isArray(words) || words.length === 0 || !words.every(word => typeof word === 'string' && word.length > 0)) {
-    return { green: false, why: 'no-test-command', said: `${RECORD_FILE} names no test (a list of words, for example ["npm","test"]), so no change merges on its own.` };
-  }
-  const tree = mkdtempSync(join(scratch, 'tests-'));
-  git(at.top, ['--work-tree', tree, 'read-tree', '-u', '--reset', commit], { env: { ...ENV, GIT_INDEX_FILE: join(scratch, `tests-index-${basename(tree)}`) } });
-  const [program, ...rest] = words as string[];
-  const ran = spawnSync(program, rest, { cwd: join(tree, relative(at.top, project)), env: process.env, maxBuffer: 1 << 28, timeout: 900000 });
-  if (ran.status === 0) return { green: true, why: 'tests-not-green', said: '' };
-  const said = ran.error ? String(ran.error.message) : `${ran.stdout.toString('utf8')}${ran.stderr.toString('utf8')}`.trim().slice(-2000);
-  return { green: false, why: 'tests-not-green', said: `${words.join(' ')} exited ${ran.status ?? 'without a code'}: ${said}` };
-}
-
-/** Lands project changes through the source's landing owner (invariant 6): its words, then one --edit per changed file
- *  (a file of the run's own on stdin's place) or --remove for a deleted one. The landed commit, from the owner's answer. */
-function landThrough(owner: LandThrough, one: Computed, offer: Offer, projectName: string, scratch: string): string {
-  const folder = mkdtempSync(join(scratch, 'land-'));
-  const words = [...owner.command, '--lane', 'keep-tool-copies-in-step'];
-  const messageFile = join(folder, 'message');
-  writeFileSync(messageFile, `${projectName}'s copy of ${one.name}, landed by tool:keep-tool-copies-in-step\n\nThe project's edits of ${one.upstream!.path}, made on ${one.upstream!.commit}.\n`);
-  words.push('--message-file', messageFile);
-  [...offer].forEach(([relativePath, change], index) => {
-    const full = `${one.upstream!.path}/${relativePath}`;
-    if (change.bytes === null) { words.push('--remove', full); return; }
-    const file = join(folder, `file-${index}`);
-    writeFileSync(file, change.bytes);
-    // The landing owner runs the command through a shell: the run's own file name is quoted (it holds no quote).
-    words.push('--edit', `${full}=cat '${file}'`);
-  });
-  const [program, ...rest] = words;
-  const ran = spawnSync(program, rest, { env: process.env, maxBuffer: 1 << 28 });
-  const said = `${ran.stdout?.toString('utf8') ?? ''}${ran.stderr?.toString('utf8') ?? ''}`;
-  const landed = /landed ([0-9a-f]{40})/.exec(said)?.[1];
-  if (ran.status !== 0 || !landed) throw new GitRefused(`the landing owner did not land ${one.name}: ${(ran.error?.message ?? said).trim().slice(-1500)}`);
-  return landed;
-}
+const NO_KEY = 'No GitHub key bound to api.github.com is held in the vault, so the pull request each created branch would open is not opened (would_open).';
 
 /** Settles what `plan` found (see the invariants above). */
-export async function apply(input: { project: string; plan: PlanResult; clones?: string[]; land_through?: LandThrough[] }, io: Io = realIo(input.clones)): Promise<ApplyResult> {
-  const project = realpathSync(input.project);
-  const toolsFolder = join(project, TOOLS_FOLDER);
-  const result: ApplyResult = { settled: [], forked: [], conflicts: [], unchanged: [], pushed: [], waiting: [], skipped: [], refused: [] };
+export async function apply(input: ProjectInput & { plan: PlanResult; clones?: string[] }, io: Io = realIo(input.clones)): Promise<ApplyResult> {
+  const result: ApplyResult = { forked: [], conflicts: [], unchanged: [], project_only: [], waiting: [], skipped: [], refused: [] };
   const planned = input.plan?.tools;
   if (!planned || typeof planned !== 'object' || typeof input.plan.record_blake3 !== 'string') throw new Error('apply needs plan: the answer of op plan.');
+  const { dir, tip } = openProject(input);
+  const toolsFolder = join(dir, TOOLS_FOLDER);
   const { expected, record } = readProjectRecord(toolsFolder);
   if (expected !== input.plan.record_blake3) {
-    for (const tool of Object.keys(planned)) result.refused.push({ tool, why: 'record-changed-meanwhile', said: `${join(toolsFolder, RECORD_FILE)} changed after plan read it.` });
+    for (const tool of Object.keys(planned)) result.refused.push({ tool, why: 'record-changed-meanwhile', said: `${RECORD_FILE} at ${tip} is not the one plan read.` });
     return result;
   }
   return withScratch(async scratch => {
-    const computed = await compareAll(project, record, Object.keys(planned), io, scratch);
+    const computed = await compareAll(dir, record, Object.keys(planned), io, scratch);
     const settling: Computed[] = [];
     for (const one of computed) {
       if (canonicalJson(plannedOf(one)) !== canonicalJson(planned[one.name])) {
@@ -519,81 +461,36 @@ export async function apply(input: { project: string; plan: PlanResult; clones?:
         for (const [path, diff] of one.diffs) result.conflicts.push({ tool: one.name, path, diff });
       } else settling.push(one);
     }
+    for (const one of settling) if (one.state === 'project-only') result.project_only.push(one.name);
 
-    // Upstream changes come to the project as a branch (invariant 4).
+    // Upstream changes come to the project as one branch each (invariant 4).
     const own = settling.filter(one => movesOf(one).into.size > 0 || canonicalJson({ c: one.line.copied_at_commit, f: one.line.files })
       !== canonicalJson({ c: one.upstream!.commit, f: one.fetched!.digests }));
-    // A tool whose own files did not move but whose closure did goes in the commit of the needed tools that moved, so its
-    // closure_blake3 is made again from what that commit holds.
+    // A tool whose own files did not move but whose closure did rides on the branch of the first needed tool that moved,
+    // so its closure_blake3 is made again from what that commit holds.
     const ownNames = new Set(own.map(one => one.name));
-    const closureOnly = settling.filter(one => !ownNames.has(one.name) && one.closure);
-    const movedNeeds = new Map(closureOnly.map(one => [one.name, reach(one.name, record.tools).filter(folder => folder !== one.name && ownNames.has(folder))]));
-    for (const one of closureOnly) {
-      if (movedNeeds.get(one.name)!.length) continue;
-      result.refused.push({ tool: one.name, why: 'needs-not-settled', said: `The tools ${one.name} needs changed upstream (closure ${one.closure!.upstream}, recorded ${one.closure!.recorded}), but none of them settles in this apply; it moves when they do.` });
-    }
-    const incoming = [...own, ...closureOnly.filter(one => movedNeeds.get(one.name)!.length)];
-    if (incoming.length) {
-      const at = projectGit(project);
-      const recordPath = join(toolsFolder, RECORD_FILE);
-      const committed = at ? spawnSync('git', ['-C', at.top, 'diff', '--quiet', 'HEAD', '--', recordPath], { env: ENV }).status === 0 : false;
-      if (!at) {
-        for (const one of incoming) result.refused.push({ tool: one.name, why: 'not-a-git-project', said: `${project} is not a git checkout with a commit; an upstream change comes to a project only as a branch.` });
-      } else if (!committed) {
-        for (const one of incoming) result.refused.push({ tool: one.name, why: 'record-not-committed', said: `${recordPath} differs from HEAD; commit it first, so the branch is made on what the project holds.` });
-      } else {
-        const trust = new Set(((record as { trust?: unknown }).trust as unknown[] | undefined ?? []).filter((t): t is string => typeof t === 'string').map(t => t.toLowerCase()));
-        const isTrusted = (one: Computed) => { const owner = ownerOf(one.upstream!.repo); return owner !== null && trust.has(owner); };
-        const trustedOwn = own.filter(isTrusted);
-        const untrusted = own.filter(one => !isTrusted(one));
-        // A closure-only tool rides with its moved needs: in the trusted commit when every one of them is in it, else on the
-        // branch of the first untrusted one.
-        const riders = new Map<string, Computed[]>();
-        const trusted = [...trustedOwn];
-        for (const one of incoming.filter(tool => !ownNames.has(tool.name))) {
-          const needs = movedNeeds.get(one.name)!;
-          const outside = needs.find(need => !trustedOwn.some(tool => tool.name === need));
-          if (outside === undefined) trusted.push(one);
-          else riders.set(outside, [...(riders.get(outside) ?? []), one]);
-        }
-        const pushNote = (tools: Computed[]) => (said: string) => { for (const one of tools) result.refused.push({ tool: one.name, why: 'push-refused', said }); };
-        const waits = (tools: Computed[], branch: string, commit: string, why: Waits, said: string): Waiting =>
-          ({ tools: tools.map(one => one.name), branch, commit, why, said, pull_request: null });
-        if (trusted.length) {
-          const branch = 'sync/upstream/trusted';
-          const commit = projectCommit(at, project, scratch, record, trusted, branch, pushNote(trusted));
-          const tests = testsOn(at, project, scratch, record, commit);
-          if (!tests.green) result.waiting.push(waits(trusted, branch, commit, tests.why, tests.said));
-          else {
-            const merged = spawnSync('git', ['-C', at.top, 'merge', '--ff-only', '--quiet', commit], { env: ENV });
-            if (merged.status === 0) result.settled.push(...trusted.map(one => one.name));
-            else result.waiting.push(waits(trusted, branch, commit, 'project-moved', `git merge --ff-only refused: ${merged.stderr.toString('utf8').trim().slice(-800)}`));
-          }
-        }
-        for (const one of untrusted) {
-          const branch = `sync/upstream/${one.name}`;
-          const tools = [one, ...(riders.get(one.name) ?? [])];
-          const commit = projectCommit(at, project, scratch, record, tools, branch, pushNote(tools));
-          result.waiting.push(waits(tools, branch, commit, 'not-trusted', `The owner of ${one.upstream!.repo} is not in ${RECORD_FILE}'s trust list; the change waits on ${branch} for the project's owner.`));
-        }
-        result.gap = 'No GitHub key bound to api.github.com is held in the vault, so no pull request is opened: each waiting change is a branch only.';
+    const riders = new Map<string, Computed[]>();
+    for (const one of settling.filter(tool => !ownNames.has(tool.name) && tool.closure)) {
+      const need = reach(one.name, record.tools).find(folder => folder !== one.name && ownNames.has(folder));
+      if (need === undefined) {
+        result.refused.push({ tool: one.name, why: 'needs-not-settled', said: `The tools ${one.name} needs changed upstream (closure ${one.closure!.upstream}, recorded ${one.closure!.recorded}), but none of them settles in this apply; it moves when they do.` });
+        continue;
       }
+      riders.set(need, [...(riders.get(need) ?? []), one]);
     }
-
-    // Project changes go upstream (invariant 6).
-    for (const one of settling) {
-      const offer = movesOf(one).offer;
-      if (!offer.size) continue;
-      const owner = (input.land_through ?? []).find(entry => entry.repo === one.upstream!.repo);
+    for (const one of own) {
+      const tools = [one, ...(riders.get(one.name) ?? [])];
+      const ref = syncRef(one.name, one.upstream!.commit);
       try {
-        if (owner) result.pushed.push({ tool: one.name, repo: one.upstream!.repo, branch: null, commit: landThrough(owner, one, offer, basename(project), scratch), already: false, landed_by: owner.command.join(' ') });
-        else {
-          const offered = offerUpstream(one, offer, basename(project));
-          if (offered) result.pushed.push({ tool: one.name, repo: one.upstream!.repo, ...offered });
-        }
+        const commit = projectCommit(dir, tip, scratch, record, tools);
+        const { created } = pushSyncBranch(dir, input.repo, commit, ref);
+        const waiting: Waiting = { tools: tools.map(tool => tool.name), branch: ref.slice('refs/heads/'.length), commit, created, would_open: created, pull_request: null };
+        result.waiting.push(waiting);
+        if (created) result.gap = NO_KEY;
       } catch (error) {
+        if (error instanceof RefRefused) { for (const tool of tools) result.refused.push({ tool: tool.name, why: 'ref-refused', said: error.message }); continue; }
         if (!(error instanceof GitRefused)) throw error;
-        result.refused.push({ tool: one.name, why: owner ? 'landing-refused' : 'push-refused', said: error.message });
+        for (const tool of tools) result.refused.push({ tool: tool.name, why: 'push-refused', said: error.message });
       }
     }
     return result;
@@ -601,22 +498,16 @@ export async function apply(input: { project: string; plan: PlanResult; clones?:
 }
 
 async function main(): Promise<void> {
-  const [granted] = process.argv.slice(2);
-  if (!granted) throw new Error('Usage: node do-work/sync.ts GRANTED-FOLDER < input.json');
-  const input = JSON.parse(readFileSync(0, 'utf8')) as { op?: string; project?: string; only?: string[]; fact?: unknown; plan?: PlanResult; clones?: unknown; land_through?: LandThrough[] };
-  const project = projectInGrant(granted, input.project ?? '.');
-  // A local clone is read only from inside the granted folder, as the project is.
+  const [state] = process.argv.slice(2);
+  if (!state) throw new Error('Usage: node do-work/sync.ts STATE-FOLDER < input.json');
+  const input = JSON.parse(readFileSync(0, 'utf8')) as { op?: string; repo?: string; branch?: string; only?: string[]; fact?: unknown; plan?: PlanResult; clones?: unknown };
+  // A local clone is read only from inside the state folder.
   if (input.clones !== undefined && (!Array.isArray(input.clones) || !input.clones.every(c => typeof c === 'string' && c.length > 0))) throw new Error('clones is a list of folder paths.');
-  const clones = (input.clones as string[] | undefined ?? []).map(clone => projectInGrant(granted, clone));
+  const clones = (input.clones as string[] | undefined ?? []).map(clone => projectInGrant(state, clone));
+  const where = { state, repo: input.repo as string, ...(input.branch !== undefined ? { branch: input.branch } : {}) };
   let output: unknown;
-  if (input.op === 'plan') output = await plan({ project, only: input.only, fact: input.fact, clones });
-  else if (input.op === 'apply') {
-    const landThroughInput = input.land_through ?? [];
-    if (!Array.isArray(landThroughInput) || !landThroughInput.every(entry => entry && typeof entry.repo === 'string' && Array.isArray(entry.command) && entry.command.length > 0 && entry.command.every(word => typeof word === 'string' && word.length > 0))) {
-      throw new Error('land_through is a list of {repo, command}: command is the words that start the landing owner.');
-    }
-    output = await apply({ project, plan: input.plan as PlanResult, clones, land_through: landThroughInput });
-  }
+  if (input.op === 'plan') output = await plan({ ...where, only: input.only, fact: input.fact, clones });
+  else if (input.op === 'apply') output = await apply({ ...where, plan: input.plan as PlanResult, clones });
   else throw new Error('op is plan or apply.');
   process.stdout.write(`${JSON.stringify(output)}\n`);
 }

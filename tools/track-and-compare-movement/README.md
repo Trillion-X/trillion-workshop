@@ -99,7 +99,7 @@ in the pursuit's own database (`job.facts`: `database`, `table`, the engine comm
 | Column | Holds |
 |--------|-------|
 | identity | The recording's content identity (`1f:` + BLAKE3) |
-| fact | `perception`: the pose track and descriptor identities in Files, the window count, the length, or `{"refused": why}`. `swing` (part = window index): t0, t1, peak_t, full_swing, the heading trajectory, `camera` {class: back, front, side-left, side-right, birdseye, unclear; facing_deg; elevation}, `reading` (stroke_side.py: forehand side and where it came from, takeback side, turn, stroke, why unclear), `contact` {time, source: mark / hit / wrist, why}, people, date. `recording`: people, date, hand, the forehand side its swings agree on, the cameras seen. `contact-mark` (part = seconds) and `verdict`: a person's own |
+| fact | `perception`: the pose track and descriptor identities in Files, the window count, the length, or `{"refused": why}`. `swing` (part = window index): t0, t1, peak_t, full_swing, the heading trajectory, `camera` {class: back, front, side-left, side-right, birdseye, unclear; target_deg, turn_deg, elevation} (see Camera angle below), `reading` (stroke_side.py: forehand side and where it came from, takeback side, turn, stroke, why unclear), `contact` {time, source: mark / hit / wrist, why}, people, date. `recording`: people, date, hand, the forehand side its swings agree on, the cameras seen. `length`: the file's seconds (a fact of its bytes, no fingerprint), so a reference too long for the job is never fetched again. `contact-mark` (part = seconds) and `verdict`: a person's own |
 | part | '' or the window index, the marked seconds, the verdict's key |
 | fingerprint | BLAKE3 of the settings' canonical JSON. Perception: salience rules + model identities. Swing and recording: the perception fingerprint, the stroke rules, the hand and given forehand side, the people, the side's contact tolerance and audio lag, and the person's marks on that recording (a new mark measures it again). '' for a person's fact |
 | value, measured_by, measured_at | The fact; `{"tool", "commit"}` or `{"person"}`; when |
@@ -107,6 +107,38 @@ in the pursuit's own database (`job.facts`: `database`, `table`, the engine comm
 The heavy outputs are kept in Files as `<files_folder>/<identity hex>/<fingerprint hex>.desc.json` and `.kp.json`, so
 another work folder or computer fetches them instead of perceiving again (perceive rewrites the copy's clip path to
 its own work folder).
+
+## Camera angle (stroke_side.camera_of) and why
+
+The class reads the direction the player hits toward, which no stroke's turn moves: the forward turn starts at the
+takeback's furthest-turned heading and swings the body back toward the target, so target = furthest-turned +
+`camera_target_offset_deg` (90) in the turn's direction. back / front when `abs(cos(target)) >= facing_min_cos` (0.5,
+within 60 degrees), else side-right / side-left (the camera at the player's right / left); birdseye from the
+elevation; unclear without the whole forward turn or with one under `camera_turn_min_deg` (30). The follow-through
+heading was used first: a fully turned finish classed a camera behind the player as side-on (a left-handed student's
+back-view windows 5 and 10). Measured Nov 28 2026 on the pro's labelled clips (windows; the folder names the view
+relative to the stroke, so a "Back Side" camera is on one side for forehands and the other for backhands):
+
+| Folder view | Stroke | back | front | side-left | side-right | birdseye | unclear |
+|---|---|---|---|---|---|---|---|
+| Back | Forehand | 26 | 0 | 0 | 1 | 1 | 15 |
+| Back | Backhand | 11 | 0 | 0 | 0 | 0 | 6 |
+| Back 45 | Forehand | 12 | 0 | 0 | 3 | 0 | 4 |
+| Back Side 45 | Forehand | 8 | 0 | 0 | 0 | 0 | 0 |
+| Back Side | Forehand | 4 | 1 | 16 | 0 | 0 | 4 |
+| Back Side | Backhand | 0 | 1 | 0 | 30 | 0 | 6 |
+| Side | Forehand | 2 | 1 | 0 | 39 | 0 | 26 |
+| Side | Backhand | 0 | 2 | 0 | 0 | 1 | 5 |
+| Front Side 45 | Forehand | 0 | 4 | 0 | 0 | 0 | 4 |
+| Front 45 | Forehand | 0 | 3 | 0 | 15 | 0 | 7 |
+| Front 45 | Backhand | 0 | 4 | 0 | 0 | 0 | 2 |
+| Front | Forehand | 0 | 0 | 0 | 0 | 0 | 2 |
+| Birdseye | Forehand | 0 | 2 | 0 | 0 | 46 | 3 |
+
+No back-view window reads front; the student's 9 decided windows all read back. Front 45 forehands mostly read
+side-right: their target heading came out near 253 degrees, about 28 past the folder's 225, and side starts at 60
+degrees off the camera axis. The forehand side (stroke rules below) still reads the follow-through heading, as
+validated there.
 
 ## Stroke rules (stroke_side.py) and why
 

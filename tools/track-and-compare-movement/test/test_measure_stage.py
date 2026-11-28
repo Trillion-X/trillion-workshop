@@ -87,6 +87,17 @@ class MeasureStage(unittest.TestCase):
         got = m.measure(self.job)
         self.assertEqual((got["measured"], got["read"]), (1, 1))
 
+    def test_a_changed_rule_measures_again_and_keeps_the_old_rows(self):
+        m.measure(self.job)
+        old = {r["fingerprint"] for r in self.written if r["fact"] == "swing"}
+        with open(os.path.join(self.work, "measured-rows.json"), "w") as f:
+            json.dump(self.written, f)
+        self.written[:] = []
+        self.job["stroke_side_rules"] = {"camera_target_offset_deg": 80}
+        got = m.measure(self.job)
+        self.assertEqual((got["measured"], got["read"]), (2, 0))
+        self.assertTrue({r["fingerprint"] for r in self.written if r["fact"] == "swing"}.isdisjoint(old))  # new rows beside
+
     def test_a_refusal_perceive_met_is_kept(self):
         self.job["targets"].append({"path": "/x.mp4", "identity": "1f:" + "c" * 64, "seconds": 4.2})
         with open(os.path.join(self.work, "targets-refused.json"), "w") as f:

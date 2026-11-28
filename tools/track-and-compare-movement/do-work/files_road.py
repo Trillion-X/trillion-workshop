@@ -27,19 +27,31 @@ def blake3_identity(path):
     return "1f:" + subprocess.run(["b3sum", "--no-names", path], capture_output=True, text=True).stdout.strip()
 
 
-def fetch(call, identity, dest, seconds=1800):
+def fetch(call, identity, dest, seconds=1800, tries=4):
+    """The file's bytes at dest, trusted only when their BLAKE3 is the identity. A transfer that breaks (measured
+    Nov 28 2026: an HTTP/2 stream reset 71 files into a 250-file fetch) resumes from the bytes already here; a whole
+    try that still fails or gives other bytes starts over with a new share, up to `tries` times."""
     if os.path.exists(dest) and blake3_identity(dest) == identity:
         return dest
-    share = _op(call, "share_file", {"name_or_identity": identity, "seconds": seconds})
-    if "url" not in share:
-        raise RuntimeError(f"share refused: {json.dumps(share)[:200]}")
-    try:
-        subprocess.run(["curl", "-sS", "--fail", "-o", dest, share["url"]], check=True, timeout=seconds)
-    finally:
-        _op(call, "stop_share", {"id": share["share"]})
-    if blake3_identity(dest) != identity:
-        raise RuntimeError(f"fetched bytes of {identity} do not match")
-    return dest
+    why = None
+    for attempt in range(tries):
+        share = _op(call, "share_file", {"name_or_identity": identity, "seconds": seconds})
+        if "url" not in share:
+            raise RuntimeError(f"share refused: {json.dumps(share)[:200]}")
+        try:
+            got = subprocess.run(["curl", "-sS", "--fail", "--retry", "5", "--retry-all-errors", "--retry-delay", "3",
+                                  "-C", "-", "-o", dest, share["url"]], timeout=seconds)
+            why = f"curl exited {got.returncode}" if got.returncode else None
+        except subprocess.TimeoutExpired:
+            why = f"no whole file within {seconds} s"
+        finally:
+            _op(call, "stop_share", {"id": share["share"]})
+        if why is None and blake3_identity(dest) == identity:
+            return dest
+        why = why or "the fetched bytes do not match the identity"
+        if os.path.exists(dest) and (why.startswith("the fetched") or attempt == tries - 2):
+            os.remove(dest)                      # wrong or stuck bytes are not resumed: the next try starts clean
+    raise RuntimeError(f"could not fetch {identity} in {tries} tries: {why}")
 
 
 def keep(call, path, name, media_type, tries=4, piece=MAX_PIECE):
