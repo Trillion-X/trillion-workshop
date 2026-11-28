@@ -2,7 +2,9 @@
 //
 // One published article: category, title, description, picture, its sections in order, the short version, the sources, the
 // articles to read next and the course it points to. Its props are the answer of tool:read-a-published-article. Pure:
-// nothing is fetched, no window is read, and every word is drawn as text, never as markup.
+// nothing is fetched, no window is read, and every word is drawn as text, never as markup. The links to the next articles and
+// the course are Buttons given `wrap`: their labels are titles, which on a phone are wider than the screen, so the label
+// wraps inside the button instead of making the page wider than the screen.
 import React from 'react';
 import { SectionShell, StatementText, Text, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
 import { Button } from '../../ui/show/button/Button.tsx';
@@ -58,7 +60,7 @@ export function View({ article, base_path = '/articles', course_path = '/courses
           <Text as="nav" aria-label="Other articles">
             <Text as="h2">Read next</Text>
             <Text as="ul">{article.related.map(other => (
-              <Text as="li" key={other.slug}><Button href={`${base_path}/${encodeURIComponent(other.slug)}`} variant="secondary" size="lg">{other.title}</Button><Text color="muted">{other.description}</Text></Text>
+              <Text as="li" key={other.slug}><Button href={`${base_path}/${encodeURIComponent(other.slug)}`} variant="secondary" size="lg" wrap>{other.title}</Button><Text color="muted">{other.description}</Text></Text>
             ))}</Text>
           </Text>
         </SectionShell>
@@ -67,7 +69,7 @@ export function View({ article, base_path = '/articles', course_path = '/courses
         <SectionShell paddingY="default" size="narrow">
           <TextColumn align="center">
             {article.course_cta ? <Text color="muted">{article.course_cta}</Text> : null}
-            <Button href={`${course_path}/${encodeURIComponent(article.course.slug)}`} size="lg" variant="primary">{article.course.title}</Button>
+            <Button href={`${course_path}/${encodeURIComponent(article.course.slug)}`} size="lg" variant="primary" wrap>{article.course.title}</Button>
           </TextColumn>
         </SectionShell>
       ) : null}

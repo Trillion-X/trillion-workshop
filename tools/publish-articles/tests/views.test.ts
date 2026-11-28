@@ -40,6 +40,20 @@ test('an article draws its words, sources, related and course; markup and unsafe
   assert.ok(html.includes('&lt;script&gt;'));
 });
 
+// The opening tag of the link to `href`, with its classes.
+const linkTo = (html: string, href: string) => html.match(new RegExp(`<a[^>]*href="${href}"[^>]*>`))?.[0] ?? '';
+
+test('every title link wraps inside its button, so no title makes a phone page wider than the screen', () => {
+  const html = draw('article', { article });
+  const list = draw('list', { heading: 'All articles', articles: [{ slug: 'x', title: 'A title much longer than a phone screen is wide', description: 'D', category: '', published_at: null }] });
+  for (const [where, tag] of [['related', linkTo(html, '/articles/b')], ['course', linkTo(html, '/courses/c')], ['list', linkTo(list, '/articles/x')]]) {
+    assert.ok(tag, `${where} link drawn`);
+    assert.match(tag, /\bwhitespace-normal\b/, `${where} label may wrap`);
+    assert.match(tag, /\bmax-w-full\b/, `${where} button is never wider than its column`);
+    assert.doesNotMatch(tag, /\bwhitespace-nowrap\b/, `${where} keeps no one-line rule`);
+  }
+});
+
 test('a missing article draws only the not-found words', () => {
   assert.ok(draw('article', { article: null, not_found: 'Gone' }).includes('Gone'));
 });

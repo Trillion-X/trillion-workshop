@@ -24,7 +24,7 @@ export function View({ articles, heading, lede, empty, base_path = '/articles' }
           <Text as="ul" aria-label={heading}>
             {articles.map(article => (
               <Text as="li" key={article.slug}>
-                <Button href={`${base_path}/${encodeURIComponent(article.slug)}`} variant="secondary" size="lg">{article.title}</Button>
+                <Button href={`${base_path}/${encodeURIComponent(article.slug)}`} variant="secondary" size="lg" wrap>{article.title}</Button>
                 <Text color="muted">{article.description}</Text>
               </Text>
             ))}
