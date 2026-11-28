@@ -1,10 +1,15 @@
 """The real contact moment of one swing: the sharp sound of the ball being struck, near the fastest wrist moment.
 
-USAGE: contact_moment.py --clip CLIP.mp4 --t0 S --t1 S --wrist-peak S --media-composition DIR [--tolerance 0.25]
+USAGE: contact_moment.py --clip CLIP.mp4 --t0 S --t1 S --wrist-peak S --media-composition DIR [--tolerance 0.25] [--audio-lag 0]
 
 The fastest wrist moment (describe_clip's peak_t) is only where the arm is quickest; the ball is struck a little before
 or after it. media-composition's do-work/find-action-moments.mjs finds a hit from a sharp sound (led by motion). This
 reads its moments for [t0, t1] and takes the strongest SOUND moment within `tolerance_s` of the wrist peak.
+The sound reaches the recording a steady time after the ball is struck (`audio_lag_s`, a fact of the kind of recording,
+given as DATA); the contact is the sound's time minus it. Measured Nov 28 2026 against 11 contacts a person marked
+frame by frame: the strongest sharp sound within 0.6 s of the fastest wrist was the hit every time; it came 0.027 to
+0.077 s (mean 0.05) after contact on a phone recording and 0.066 to 0.116 s (mean 0.09) on a broadcast, while the
+fastest wrist ran from 0.42 s before contact to 0.07 s after (no steady offset).
 No guess: with no audio (that finder then ranks motion alone and reports sound 0), no sharp sound near the wrist peak,
 or a finder failure, the answer is the wrist peak itself with source "wrist" and the reason. Every time stays inside
 [t0, t1].
@@ -35,7 +40,7 @@ def moments_between(clip_path, t0, t1, finder):
     return json.loads(ran.stdout.strip().splitlines()[-1])["moments"]
 
 
-def contact(clip_path, t0, t1, wrist_peak, media_composition_dir, tolerance_s=0.25):
+def contact(clip_path, t0, t1, wrist_peak, media_composition_dir, tolerance_s=0.25, audio_lag_s=0.0):
     if not (t1 > t0):
         raise ValueError(f"the window must end after it starts; it was {t0} to {t1}")
     fallback = min(max(float(wrist_peak), float(t0)), float(t1))
@@ -56,8 +61,10 @@ def contact(clip_path, t0, t1, wrist_peak, media_composition_dir, tolerance_s=0.
         gap = min(abs(m["time"] - wrist_peak) for m in sounds)
         return wrist(f"the nearest sharp sound is {gap:.2f} s from the wrist peak, outside the {tolerance_s} s tolerance")
     best = max(near, key=lambda m: m["strength"])
-    return {"time": best["time"], "source": "hit", "hit": best,
-            "why": f"strongest sharp sound within {tolerance_s} s of the wrist peak, {best['time'] - wrist_peak:+.3f} s from it"}
+    at = min(max(best["time"] - float(audio_lag_s), float(t0)), float(t1))
+    return {"time": round(at, 6), "source": "hit", "hit": best,
+            "why": f"strongest sharp sound within {tolerance_s} s of the wrist peak, {best['time'] - wrist_peak:+.3f} s from it, "
+                   f"less the recording's audio lag {float(audio_lag_s)} s"}
 
 
 def main():
@@ -68,9 +75,10 @@ def main():
     ap.add_argument("--wrist-peak", type=float, required=True)
     ap.add_argument("--media-composition", required=True)
     ap.add_argument("--tolerance", type=float, default=0.25)
+    ap.add_argument("--audio-lag", type=float, default=0.0, help="seconds the hit sound arrives after contact in this recording")
     a = ap.parse_args()
     try:
-        out = contact(a.clip, a.t0, a.t1, a.wrist_peak, a.media_composition, a.tolerance)
+        out = contact(a.clip, a.t0, a.t1, a.wrist_peak, a.media_composition, a.tolerance, a.audio_lag)
     except (ValueError, FileNotFoundError) as err:
         print(json.dumps({"error": str(err)}))
         return 1

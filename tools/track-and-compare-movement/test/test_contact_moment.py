@@ -42,6 +42,12 @@ class ContactMoment(unittest.TestCase):
         self.assertIsNotNone(got["hit"])
         self.assertTrue(0.5 <= got["time"] <= 3.5)
 
+    def test_the_recordings_audio_lag_is_taken_off_the_sound(self):
+        got = cm.contact(self.with_click, 0.5, 3.5, CLICK_AT - 0.1, MEDIA, audio_lag_s=0.09)
+        self.assertEqual(got["source"], "hit", got)
+        self.assertLessEqual(abs(got["time"] - (CLICK_AT - 0.09)), 1.0 / FPS, got)
+        self.assertLessEqual(abs(got["hit"]["time"] - CLICK_AT), 1.0 / FPS, got)
+
     def test_far_click_is_ignored(self):
         got = cm.contact(self.with_click, 0.5, 3.5, 0.8, MEDIA)
         self.assertEqual(got["source"], "wrist", got)

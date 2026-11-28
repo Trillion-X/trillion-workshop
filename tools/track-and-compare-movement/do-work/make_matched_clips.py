@@ -246,10 +246,11 @@ def render(job):
                     contacts[name] = {"time": float(near), "source": "mark", "hit": None,
                                       "why": f"marked by a person, {float(near) - peak:+.3f} s from the wrist peak"}
                     continue
-                tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)  # 0 = never the sound (its audio
+                tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)
+                lag = (job.get("contact_audio_lag_s") or {}).get(name, 0.0)  # how late this side's sound is (DATA)  # 0 = never the sound (its audio
                 got = run_json([sys.executable, os.path.join(HERE, "contact_moment.py"), "--clip", clip["path"],  # may be off)
                                 "--t0", str(window[0]), "--t1", str(window[1]), "--wrist-peak", str(peak),
-                                "--media-composition", media, "--tolerance", str(tolerance)])
+                                "--media-composition", media, "--tolerance", str(tolerance), "--audio-lag", str(lag)])
                 if "error" in got:
                     raise RuntimeError(f"contact {name}: {got['error']}")
                 contacts[name] = got["result"]
