@@ -104,6 +104,18 @@ class RenderStage(unittest.TestCase):
         self.assertNotIn("in", spec["target"])                       # each window comes from the swing's landmarks
         self.assertEqual(spec["settings"]["landmarks"]["contact_off_s"], 0.35)  # a mark is not refused as early
 
+    def test_a_rerun_reuses_each_clip_with_its_own_contact_and_shape(self):
+        m.render(self.job)
+        first = {x["format"]: x for x in json.load(open(os.path.join(self.work, "rendered.json")))["made"]}
+        self.calls.clear()
+        m.render(self.job)
+        again = {x["format"]: x for x in json.load(open(os.path.join(self.work, "rendered.json")))["made"]}
+        self.assertEqual(self.calls, [])                                   # nothing made twice
+        for fid in ("9x16", "16x9"):
+            self.assertTrue(again[fid]["already"])
+            self.assertEqual(again[fid]["steps"]["contact"], first[fid]["steps"]["contact"])
+            self.assertEqual((again[fid]["size"], again[fid]["layout"]), (first[fid]["size"], first[fid]["layout"]))
+
     def test_a_refused_framing_makes_no_clip_of_that_format(self):
         self.refuse = {"whole_movement_check.py"}
         got = m.render(self.job)

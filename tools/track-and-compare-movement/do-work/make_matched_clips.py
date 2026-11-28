@@ -352,8 +352,7 @@ def render(job):
         base = os.path.join(folder, clip_name(job, pair)[:-4])
         formats = [f["id"] for f in variants["formats"]]
         if all(os.path.exists(f"{base}.{fid}.mp4") for fid in formats):
-            made += [{"pair": pair, "file": f"{base}.{fid}.mp4", "edit": f"{base}.{fid}.edit.json", "format": fid,
-                      "already": True} for fid in formats]
+            made += [already_made(pair, base, fmt) for fmt in variants["formats"]]
             continue
         steps = {}
         try:
@@ -373,11 +372,30 @@ def render(job):
             if why:
                 failed.append({"pair": pair, "format": fid, "why": why, "framing": framing, "steps": steps})
                 continue
-            made.append({"pair": pair, "file": out, "edit": f"{base}.{fid}.edit.json", "format": fid,
-                         "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": {**steps, "framing": framing}})
+            entry = {"pair": pair, "file": out, "edit": f"{base}.{fid}.edit.json", "format": fid,
+                     "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": {**steps, "framing": framing}}
+            with open(f"{base}.{fid}.made.json", "w") as f:   # a rerun reads this back instead of making the clip again
+                json.dump(entry, f, indent=1)
+            made.append(entry)
     with open(os.path.join(job["work"], "rendered.json"), "w") as f:
         json.dump({"made": made, "failed": failed}, f, indent=1)
     return {"made": len(made), "failed": len(failed), "first_failure": failed[0]["why"] if failed else None}
+
+
+def already_made(pair, base, fmt):
+    """A clip a previous run made: its own record when that run kept one, else rebuilt from what it left beside the
+    clip (each side's contact from the sync spec), so the check reads the contact and the cell shape it was made
+    with, never the wrist peak or another format's shape."""
+    fid = fmt["id"]
+    kept = f"{base}.{fid}.made.json"
+    if os.path.exists(kept):
+        return {**read(kept), "pair": pair, "already": True}
+    steps = {}
+    if os.path.exists(base + ".sync-spec.json"):
+        spec = read(base + ".sync-spec.json")
+        steps["contact"] = {name: {"time": spec[name]["contact"], "source": "sync-spec"} for name in ("target", "reference")}
+    return {"pair": pair, "file": f"{base}.{fid}.mp4", "edit": f"{base}.{fid}.edit.json", "format": fid,
+            "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": steps, "already": True}
 
 
 def progression(job):
