@@ -34,6 +34,16 @@ side) > `project-only` > `upstream-only` > `none-changed`. Every file `same` whi
 same change) is `upstream-only`: the record advances and no file moves. A line with `synced: false` is `forked` and is
 not read at all (no registry read, no fetch, no file read). A `made-here` line is `skipped`.
 
+A change in a needed tool is an upstream change of the tool that needs it. Its `closure_blake3` (the identity the add tool
+makes over every folder it reaches through `needs_tools`) is made again over the upstream versions; when it differs, the
+plan names `closure: {recorded, upstream}` and a tool whose own files are all `none-changed` is `upstream-only`. It moves
+in the same commit as the needed tools that move (the trusted commit, or the branch of a needed tool that waits), and is
+refused `needs-not-settled` when none of them settles.
+
+A record line whose `files` do not hash to its `copied_at_files_blake3` was edited by hand. It is `local-edit`: no
+registry read and no fetch is made for it, it is never used as the version a copy started from, and `apply` reports it in
+`refused`. Adding the tool again writes a true line.
+
 ## Invariants
 
 - Nothing a person wrote is overwritten. A tool with any `both-conflict` file is left byte for byte as it was, the files
@@ -59,7 +69,9 @@ not read at all (no registry read, no fetch, no file read). A `made-here` line i
 - A project change goes upstream through the source's own landing owner when `land_through` names one for that
   repository on this computer (for the Workshop checkout: `land_paths.py`, whose queue three-way merges it onto main):
   its words, then `--lane`, `--message-file` and one `--edit PATH=cat FILE` or `--remove PATH` per file; the landed commit
-  is read from its answer. Any other repository gets the change only as branch `sync/<project>/<tool>` (`<project>` is the project folder's name), a commit made on
+  is read from its answer. `land_through` works only when the tool is run directly on the computer (`node do-work/sync.ts`):
+  inside the engine, the run's sandbox lets it start only the system git, so the landing owner's command cannot start there.
+  Any other repository gets the change only as branch `sync/<project>/<tool>` (`<project>` is the project folder's name), a commit made on
   the upstream commit with the changed files, pushed with `--force-with-lease=<ref>:<sha read just before>` and
   `push.negotiate`, so only the changed objects are sent. A default branch is never pushed. The commit's author, committer,
   message and times are fixed by its parent, so offering the same change again makes the same commit and pushes nothing
@@ -82,7 +94,7 @@ node do-work/sync.ts GRANTED-FOLDER < {"op":"apply","project":".","plan":<plan's
 It runs on the person's computer under the capability `use-git-in-a-folder` (the granted folder, read and written, and the
 system's git, which every step here runs); `change-a-folder` alone gives no git, so a sandboxed run could not fetch or merge.
 
-`plan` answers `{record_blake3, because?, tools: {name: {state, files, upstream_commit, renames?, why?, said?}}}` and
+`plan` answers `{record_blake3, because?, tools: {name: {state, files, upstream_commit, renames?, why?, said?, closure?}}}` and
 writes nothing. `apply` answers `{settled, forked, conflicts: [{tool, path, diff}], unchanged, pushed: [{tool, repo,
 branch, commit, already, landed_by?}], waiting: [{tools, branch, commit, why, said, pull_request}], gap?, skipped: [{tool,
 why}], refused: [{tool, why, said}]}`. `settled` names the tools merged into the project. A conflict is an answer (exit 0); exit 2 means
@@ -90,7 +102,7 @@ the tool could not run.
 
 Refusals (`why`): `not-in-registry`, `bad-from`, `fetch-refused`, `identity-mismatch`, `no-base`,
 `record-changed-meanwhile`, `changed-since-plan`, `push-refused`, `landing-refused`, `not-a-git-project`,
-`record-not-committed`; `made-here` for a skipped line.
+`record-not-committed`, `local-edit`, `needs-not-settled`; `made-here` for a skipped line.
 
 ## Checked against land_paths
 

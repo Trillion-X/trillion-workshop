@@ -94,7 +94,7 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "plan answers record_blake3, because? and tools (name -> {state, files, upstream_commit, renames?, why?, said?}); apply answers settled, forked, conflicts, unchanged, pushed, waiting, gap?, skipped and refused.",
+          "description": "plan answers record_blake3, because? and tools (name -> {state, files, upstream_commit, renames?, why?, said?, closure?}); apply answers settled, forked, conflicts, unchanged, pushed, waiting, gap?, skipped and refused.",
           "properties": {
             "record_blake3": {
               "type": "string"
@@ -121,7 +121,8 @@
                       "both-conflict",
                       "forked",
                       "skipped",
-                      "refused"
+                      "refused",
+                      "local-edit"
                     ]
                   },
                   "files": {
@@ -162,11 +163,28 @@
                       "push-refused",
                       "landing-refused",
                       "not-a-git-project",
-                      "record-not-committed"
+                      "record-not-committed",
+                      "local-edit",
+                      "needs-not-settled"
                     ]
                   },
                   "said": {
                     "type": "string"
+                  },
+                  "closure": {
+                    "type": "object",
+                    "required": [
+                      "recorded",
+                      "upstream"
+                    ],
+                    "properties": {
+                      "recorded": {
+                        "type": "string"
+                      },
+                      "upstream": {
+                        "type": "string"
+                      }
+                    }
                   }
                 }
               }
@@ -272,7 +290,9 @@
                       "push-refused",
                       "landing-refused",
                       "not-a-git-project",
-                      "record-not-committed"
+                      "record-not-committed",
+                      "local-edit",
+                      "needs-not-settled"
                     ]
                   }
                 }
@@ -304,7 +324,9 @@
                       "push-refused",
                       "landing-refused",
                       "not-a-git-project",
-                      "record-not-committed"
+                      "record-not-committed",
+                      "local-edit",
+                      "needs-not-settled"
                     ]
                   },
                   "said": {

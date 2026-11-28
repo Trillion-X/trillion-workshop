@@ -54,13 +54,15 @@ import { projectInGrant } from '../../add-a-tool-to-a-project/do-work/add.ts';
 import { classifyTool, type Rename, type ToolVerdict, type Verdict } from '../read-data/classify.ts';
 import { mergeText, threeWayDiff } from '../read-data/merge-text.ts';
 
-export type ToolState = ToolVerdict | 'forked' | 'skipped' | 'refused';
+export type ToolState = ToolVerdict | 'forked' | 'skipped' | 'refused' | 'local-edit';
 export type Why = 'made-here' | 'not-in-registry' | 'bad-from' | 'fetch-refused' | 'identity-mismatch' | 'no-base'
-  | 'record-changed-meanwhile' | 'changed-since-plan' | 'push-refused' | 'landing-refused' | 'not-a-git-project' | 'record-not-committed';
+  | 'record-changed-meanwhile' | 'changed-since-plan' | 'push-refused' | 'landing-refused' | 'not-a-git-project' | 'record-not-committed'
+  | 'local-edit' | 'needs-not-settled';
 export type Waits = 'not-trusted' | 'no-test-command' | 'tests-not-green' | 'project-moved';
 /** A landing owner for one upstream repository on this computer: the words that start it (land_paths.py and its --repo). */
 export type LandThrough = { repo: string; command: string[] };
-export type PlannedTool = { state: ToolState; files: Record<string, Verdict>; upstream_commit: string | null; renames?: Rename[]; why?: Why; said?: string };
+export type PlannedTool = { state: ToolState; files: Record<string, Verdict>; upstream_commit: string | null; renames?: Rename[]; why?: Why; said?: string;
+  closure?: { recorded: Hex64; upstream: Hex64 } };
 export type PlanResult = { record_blake3: string; because?: { where?: string; place?: string; key?: string }; tools: Record<string, PlannedTool> };
 export type PlanInput = { project: string; only?: string[]; fact?: unknown; clones?: string[] };
 export type ApplyResult = {
@@ -172,6 +174,11 @@ async function compareAll(project: string, record: RecordFile, only: string[] | 
     const refused = (why: Why, said: string): Computed => ({ ...plain, state: 'refused', why, said });
     if (line.synced === false) { computed.push({ ...plain, state: 'forked' }); continue; }
     if (line.from === 'made-here') { computed.push({ ...plain, state: 'skipped', why: 'made-here', said: 'Made in this project: it has no upstream.' }); continue; }
+    // A line whose files do not hash to the identity it names was edited by hand: it is no start version (plan 30.3).
+    if (line.files && line.copied_at_files_blake3 && identityOfDigests(line.files) !== line.copied_at_files_blake3) {
+      computed.push({ ...plain, state: 'local-edit', why: 'local-edit', said: `The record line of ${name} names files whose identity is ${identityOfDigests(line.files)}, not its copied_at_files_blake3 ${line.copied_at_files_blake3}: it was edited by hand, so it is not trusted as the version the copy started from. Add the tool again, or put back the line tool:add-a-tool-to-a-project wrote.` });
+      continue;
+    }
 
     let upstream: Upstream;
     try {
@@ -252,11 +259,29 @@ async function compareAll(project: string, record: RecordFile, only: string[] | 
     computed.push({ ...plain, state: settled.tool, files: settled.files, upstream_commit: upstream.commit,
       ...(settled.renames.length ? { renames: settled.renames } : {}), upstream, fetched, commitDir, project: projectNow, merged, diffs });
   }
+  // A change in any needed tool is an upstream change of this tool (plan 30.3, B3): its closure_blake3, made as the add
+  // tool makes it over every folder it reaches, is compared with the same identity over the upstream versions.
+  const upstreamIdentity = async (folder: string): Promise<Hex64 | undefined> => {
+    const line = record.tools[folder];
+    if (!line || line.synced === false || line.from === 'made-here' || !('registry' in line.from)) return line?.copied_at_files_blake3;
+    if (!registries.has(line.from.registry)) registries.set(line.from.registry, io.readRegistry(line.from.registry));
+    try { return (await registries.get(line.from.registry)!).tools[line.from.tool]?.files_blake3 ?? line.copied_at_files_blake3; } catch { return line.copied_at_files_blake3; }
+  };
+  for (const one of computed) {
+    if (!one.upstream || !one.line.closure_blake3 || one.state === 'both-conflict') continue;
+    const reached = reach(one.name, record.tools);
+    const pairs = await Promise.all(reached.map(async (folder): Promise<[string, Hex64 | undefined]> => [folder, folder === one.name ? one.fetched!.files_blake3 : await upstreamIdentity(folder)]));
+    if (pairs.some(([, identity]) => identity === undefined)) continue;
+    const upstreamClosure = identityOfDigests(pairs as Array<[string, string]>);
+    if (upstreamClosure === one.line.closure_blake3) continue;
+    one.closure = { recorded: one.line.closure_blake3, upstream: upstreamClosure };
+    if (one.state === 'none-changed') one.state = 'upstream-only';
+  }
   return computed;
 }
 
 const plannedOf = (one: Computed): PlannedTool => ({ state: one.state, files: one.files, upstream_commit: one.upstream_commit,
-  ...(one.renames ? { renames: one.renames } : {}), ...(one.why ? { why: one.why, said: one.said } : {}) });
+  ...(one.renames ? { renames: one.renames } : {}), ...(one.why ? { why: one.why, said: one.said } : {}), ...(one.closure ? { closure: one.closure } : {}) });
 
 function becauseOf(fact: unknown): PlanResult['because'] | undefined {
   if (fact === null || typeof fact !== 'object') return undefined;
@@ -489,15 +514,25 @@ export async function apply(input: { project: string; plan: PlanResult; clones?:
       if (one.state === 'forked') result.forked.push(one.name);
       else if (one.state === 'none-changed') result.unchanged.push(one.name);
       else if (one.state === 'skipped') result.skipped.push({ tool: one.name, why: one.why! });
-      else if (one.state === 'refused') result.refused.push({ tool: one.name, why: one.why!, said: one.said! });
+      else if (one.state === 'refused' || one.state === 'local-edit') result.refused.push({ tool: one.name, why: one.why!, said: one.said! });
       else if (one.state === 'both-conflict') {
         for (const [path, diff] of one.diffs) result.conflicts.push({ tool: one.name, path, diff });
       } else settling.push(one);
     }
 
     // Upstream changes come to the project as a branch (invariant 4).
-    const incoming = settling.filter(one => movesOf(one).into.size > 0 || canonicalJson({ c: one.line.copied_at_commit, f: one.line.files })
+    const own = settling.filter(one => movesOf(one).into.size > 0 || canonicalJson({ c: one.line.copied_at_commit, f: one.line.files })
       !== canonicalJson({ c: one.upstream!.commit, f: one.fetched!.digests }));
+    // A tool whose own files did not move but whose closure did goes in the commit of the needed tools that moved, so its
+    // closure_blake3 is made again from what that commit holds.
+    const ownNames = new Set(own.map(one => one.name));
+    const closureOnly = settling.filter(one => !ownNames.has(one.name) && one.closure);
+    const movedNeeds = new Map(closureOnly.map(one => [one.name, reach(one.name, record.tools).filter(folder => folder !== one.name && ownNames.has(folder))]));
+    for (const one of closureOnly) {
+      if (movedNeeds.get(one.name)!.length) continue;
+      result.refused.push({ tool: one.name, why: 'needs-not-settled', said: `The tools ${one.name} needs changed upstream (closure ${one.closure!.upstream}, recorded ${one.closure!.recorded}), but none of them settles in this apply; it moves when they do.` });
+    }
+    const incoming = [...own, ...closureOnly.filter(one => movedNeeds.get(one.name)!.length)];
     if (incoming.length) {
       const at = projectGit(project);
       const recordPath = join(toolsFolder, RECORD_FILE);
@@ -508,8 +543,19 @@ export async function apply(input: { project: string; plan: PlanResult; clones?:
         for (const one of incoming) result.refused.push({ tool: one.name, why: 'record-not-committed', said: `${recordPath} differs from HEAD; commit it first, so the branch is made on what the project holds.` });
       } else {
         const trust = new Set(((record as { trust?: unknown }).trust as unknown[] | undefined ?? []).filter((t): t is string => typeof t === 'string').map(t => t.toLowerCase()));
-        const trusted = incoming.filter(one => { const owner = ownerOf(one.upstream!.repo); return owner !== null && trust.has(owner); });
-        const untrusted = incoming.filter(one => !trusted.includes(one));
+        const isTrusted = (one: Computed) => { const owner = ownerOf(one.upstream!.repo); return owner !== null && trust.has(owner); };
+        const trustedOwn = own.filter(isTrusted);
+        const untrusted = own.filter(one => !isTrusted(one));
+        // A closure-only tool rides with its moved needs: in the trusted commit when every one of them is in it, else on the
+        // branch of the first untrusted one.
+        const riders = new Map<string, Computed[]>();
+        const trusted = [...trustedOwn];
+        for (const one of incoming.filter(tool => !ownNames.has(tool.name))) {
+          const needs = movedNeeds.get(one.name)!;
+          const outside = needs.find(need => !trustedOwn.some(tool => tool.name === need));
+          if (outside === undefined) trusted.push(one);
+          else riders.set(outside, [...(riders.get(outside) ?? []), one]);
+        }
         const pushNote = (tools: Computed[]) => (said: string) => { for (const one of tools) result.refused.push({ tool: one.name, why: 'push-refused', said }); };
         const waits = (tools: Computed[], branch: string, commit: string, why: Waits, said: string): Waiting =>
           ({ tools: tools.map(one => one.name), branch, commit, why, said, pull_request: null });
@@ -526,8 +572,9 @@ export async function apply(input: { project: string; plan: PlanResult; clones?:
         }
         for (const one of untrusted) {
           const branch = `sync/upstream/${one.name}`;
-          const commit = projectCommit(at, project, scratch, record, [one], branch, pushNote([one]));
-          result.waiting.push(waits([one], branch, commit, 'not-trusted', `The owner of ${one.upstream!.repo} is not in ${RECORD_FILE}'s trust list; the change waits on ${branch} for the project's owner.`));
+          const tools = [one, ...(riders.get(one.name) ?? [])];
+          const commit = projectCommit(at, project, scratch, record, tools, branch, pushNote(tools));
+          result.waiting.push(waits(tools, branch, commit, 'not-trusted', `The owner of ${one.upstream!.repo} is not in ${RECORD_FILE}'s trust list; the change waits on ${branch} for the project's owner.`));
         }
         result.gap = 'No GitHub key bound to api.github.com is held in the vault, so no pull request is opened: each waiting change is a branch only.';
       }
