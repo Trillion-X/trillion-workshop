@@ -27,7 +27,7 @@ for (const [file, what] of [
   ['test_perceive_reuse.py', 'a kept descriptor is reused only when it was made with the same salience rules, a recording measured before is fetched from Files by identity, and one refused before is not tried again'],
   ['test_contact_moment.py', 'contact is the sharp sound of the hit near the wrist peak, else the wrist peak, never outside the window'],
   ['test_whole_movement_check.py', 'a cell whose crop cuts off the body or racket is widened to the smallest crop that holds it, or refused'],
-  ['test_reference_length.py', 'prepare leaves out a reference longer than reference_max_seconds and names it'],
+  ['test_reference_length.py', 'prepare leaves out a reference longer than reference_max_seconds and names it, keeps a probed length as a row, and never fetches a reference a kept length rules out'],
   ['test_check_stage.py', 'the check puts contact where the target reaches it in the first pass, also in a whole-swing pass'],
   ['test_render_stage.py', 'render runs contact, phase sync, the edit per format, the framing check and the renderer in order; a refused sync or framing makes no clip'],
   ['test_progression_stage.py', 'a progression takes the reference swing with the most dates, each date\'s closest synced swing spread over time within its length, one held reference crop and one date caption per swing'],

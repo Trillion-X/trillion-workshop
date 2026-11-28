@@ -8,6 +8,7 @@ One row per fact, in a table of the pursuit's own database (job.facts.table; the
                swing         one swing window (part = its index): times, heading trajectory, camera angle class, the
                              stroke reading (forehand side, stroke, why unclear), contact time and its source, people, date
                recording     the recording's summary: people, date, playing hand, the forehand side its swings agree on
+               length        the file's length in seconds (a fact of its bytes: no fingerprint)
                contact-mark  a person's mark of a contact (part = the seconds)
                verdict       a person's verdict
   part         '' | the window index | the marked seconds | the verdict's own key

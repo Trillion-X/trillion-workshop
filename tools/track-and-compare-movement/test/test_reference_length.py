@@ -1,4 +1,5 @@
-"""prepare leaves out a reference clip longer than reference_max_seconds and says which, with its length."""
+"""prepare leaves out a reference clip longer than reference_max_seconds and says which, with its length; a length it
+probes is kept as a row, and a kept length rules a long reference out without fetching it."""
 import os
 import subprocess
 import sys
@@ -38,6 +39,36 @@ class ReferenceLength(unittest.TestCase):
         self.assertEqual(got["references"], 1)
         self.assertEqual([x["name"] for x in got["references_left_out"]], ["/r/long practice.mp4"])
         self.assertGreater(got["references_left_out"][0]["seconds"], 11)
+
+    def test_a_kept_length_rules_a_reference_out_without_fetching_it(self):
+        import measured_facts
+        d = tempfile.mkdtemp()
+        short = os.path.join(d, "short.mp4")
+        video(short, 2)
+        fetched, written = [], []
+
+        class Road:
+            @staticmethod
+            def fetch(call, identity, path):
+                fetched.append(identity)
+                with open(short, "rb") as src, open(path, "wb") as dst:
+                    dst.write(src.read())
+        long_row = {"identity": "1f:" + "b" * 64, "fact": "length", "part": "", "fingerprint": "", "value": {"seconds": 640.0},
+                    "measured_by": {}}
+        saved = (measured_facts.read_rows, measured_facts.write_rows)
+        measured_facts.read_rows = lambda facts, identities: [long_row]
+        measured_facts.write_rows = lambda facts, rows: written.extend(rows) or len(rows)
+        sys.modules["files_road"] = Road
+        try:
+            got = m.prepare({"work": d, "call": ["x"], "models": [], "reference_max_seconds": 8, "facts": {"table": "t"},
+                             "targets": [], "references": [{"name": "/r/short.mp4", "identity": "1f:" + "a" * 64},
+                                                           {"name": "/r/long.mov", "identity": "1f:" + "b" * 64}]})
+        finally:
+            sys.modules.pop("files_road", None)
+            measured_facts.read_rows, measured_facts.write_rows = saved
+        self.assertEqual(fetched, ["1f:" + "a" * 64])                  # the long one is known long: never fetched
+        self.assertEqual([x["name"] for x in got["references_left_out"]], ["/r/long.mov"])
+        self.assertEqual([(r["identity"], r["fact"]) for r in written], [("1f:" + "a" * 64, "length")])  # probed once, kept
 
     def test_an_unreadable_file_has_no_length(self):
         self.assertIsNone(m.duration("/no/such/file.mp4"))
