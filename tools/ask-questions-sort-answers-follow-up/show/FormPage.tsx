@@ -13,19 +13,18 @@
 //   2. Every word is `info.words` (the form's own row); the screen holds no words of its own. The step in view is the host's
 //      `screen`; a loading screen draws nothing.
 //   3. The step's controls are the shared ones of ./FormSteps.tsx; nothing here writes markup of its own.
-//   4. A step says where the person is as one plain line of progress under the bar ("Question 2 of 5"), never as a small
-//      label over the heading.
+//   4. A step says where the person is as one plain line of progress under the progress pieces ("Question 2 of 5"), never as a
+//      small label over the heading. The progress is one piece per step (./FormSteps.tsx StepPieces), never one continuous bar.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import React from 'react';
 import { Container } from '../../ui/show/container/index.ts';
 import { Text } from '../../ui/show/text/Text.tsx';
 import { Form } from '../../ui/show/form/Form.tsx';
-import { ProgressBar } from '../../ui/show/progress-bar/ProgressBar.tsx';
 import { Input } from '../../ui/show/coss/ui/input.tsx';
 import { Button } from '../../ui/show/coss/ui/button.tsx';
 import { SectionShell, TextColumn } from '../../ui/show/marketing-page/MarketingPagePrimitives.tsx';
-import { AnswerControl, Labelled, answered, type Answer, type Next } from './FormSteps.tsx';
+import { AnswerControl, Labelled, StepPieces, answered, type Answer, type Next } from './FormSteps.tsx';
 import { controlFor } from '../read-data/step-controls.ts';
 
 export type Words = Record<string, string | undefined>;
@@ -56,11 +55,12 @@ export type FormPageProps = {
 
 const fill = (words: string | undefined, values: Record<string, unknown>) => (words ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
 
-// A step, flat on the page: how far along, its heading and words, then what the step asks.
-function Step({ done, progress, title, lead, children }: { done: number; progress?: string; title: string; lead?: string; children?: React.ReactNode }) {
+// A step, flat on the page: how far along (one piece per step: the intro, each question, the result), its heading and words,
+// then what the step asks.
+function Step({ at, count, progress, title, lead, children }: { at: number; count: number; progress?: string; title: string; lead?: string; children?: React.ReactNode }) {
   return (
     <Container as="section" layout="vertical" gap="lg" width="full" className="max-w-xl text-left" data-form-step>
-      <ProgressBar percentage={Math.round(done * 100)} color="var(--button-primary-bg)" height="0.25rem" aria-label={progress ?? title} />
+      <StepPieces at={at} count={count} label={progress ?? title} />
       {progress ? <Text as="p" variant="label" color="secondary" data-form-progress>{progress}</Text> : null}
       <Container layout="vertical" gap="sm" width="full">
         <Text as="h1" variant="heading-xl" color="strong" className="leading-tight text-balance">{title}</Text>
@@ -77,13 +77,15 @@ function Alert({ error }: { error: string }) {
 
 function Body({ screen, info, answer = null, email = '', error = '', sending = false, onStart, onResume, onChange, onSend, onEmailChange, onKeep }: FormPageProps) {
   if (screen.kind === 'loading') return null;
-  if (screen.kind === 'closed') return <Step done={0} title={screen.message} />;
+  if (screen.kind === 'closed') return <Step at={0} count={0} title={screen.message} />;
   if (!info) return null;
   const words = info.words;
+  // One piece for the intro, one per question and one for the result.
+  const pieceCount = info.questions + 2;
 
   if (screen.kind === 'intro') {
     return (
-      <Step done={0} title={words.intro_title ?? info.title ?? ''} lead={fill(words.intro_lead, { count: info.questions })}>
+      <Step at={0} count={pieceCount} title={words.intro_title ?? info.title ?? ''} lead={fill(words.intro_lead, { count: info.questions })}>
         <Container layout="horizontal" gap="sm" className="flex-wrap">
           {screen.resumable ? <Button type="button" size="lg" disabled={sending} onClick={() => onResume?.()}>{words.resume}</Button> : null}
           <Button type="button" size="lg" variant={screen.resumable ? 'outline' : 'default'} disabled={sending} onClick={() => onStart?.()}>{screen.resumable ? words.start_over : words.start}</Button>
@@ -103,7 +105,7 @@ function Body({ screen, info, answer = null, email = '', error = '', sending = f
     const help = asked.help ?? (picks ? (asked.multiple ? words.pick_many : words.pick_one) : required ? undefined : words.optional);
     const submit = (event: React.FormEvent) => { event.preventDefault(); onSend?.(answer); };
     return (
-      <Step done={place / (info.questions + 1)} progress={fill(words.question_of, { number: place, count: info.questions })} title={next.prompt ?? ''}>
+      <Step at={place} count={pieceCount} progress={fill(words.question_of, { number: place, count: info.questions })} title={next.prompt ?? ''}>
         <Form onSubmit={submit} className="flex flex-col gap-5">
           <Labelled label={words.answer_label ?? ''} help={help} error={error || undefined}>
             <AnswerControl id={`form-answer-${next.position}`} label={next.prompt ?? ''} asked={asked} required={required} value={answer} onChange={value => onChange?.(value)} textPlaceholder={words.answer_placeholder} />
@@ -121,7 +123,7 @@ function Body({ screen, info, answer = null, email = '', error = '', sending = f
   const steps = [result.segment?.next_step, ...result.follow_up.map(step => step.label)].filter((step): step is string => Boolean(step));
   const keep = (event: React.FormEvent) => { event.preventDefault(); onKeep?.(email.trim()); };
   return (
-    <Step done={1} title={result.segment?.title ?? words.result_title ?? ''} lead={result.segment?.meaning ?? undefined}>
+    <Step at={pieceCount} count={pieceCount} title={result.segment?.title ?? words.result_title ?? ''} lead={result.segment?.meaning ?? undefined}>
       {steps.length ? (
         <Container layout="vertical" gap="sm" width="full">
           <Text as="h2" variant="heading" color="strong">{words.next_steps}</Text>

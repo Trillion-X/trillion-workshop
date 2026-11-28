@@ -18,7 +18,8 @@
 //      `error` when it is not; a database or network failure shows the page's `words.failed`, never its own text.
 //   3. The sitting's id is kept in this browser under a key made from the page name, so a page opened again goes on where it
 //      was; a sitting that is already kept is let go of.
-//   4. Props are plain JSON: `page`, `title`, `words`, `questions`, `keep_on`, `signed_in`, `api_base`.
+//   4. Props are plain JSON: `page`, `title`, `words`, `questions`, `keep_on`, `signed_in`, `api_base`. A step drawn after another
+//      opens at the top of the page (./step-pieces.ts useStepOpensAtTop); the first step stays where the page put it.
 //   5. Only a step that needs the server's fact waits: the question after one that depends on earlier answers, and the result. It
 //      waits inside the Next button (its loading mark), the question still drawn. An answer the step tool refuses takes the visitor
 //      back to its question with the tool's words, every answer given kept; leaving the page sends the answers not yet kept in
@@ -31,6 +32,7 @@ import type { Answer, Next } from './FormSteps.tsx';
 import { callStep as call } from './call-step.ts';
 import type { Definition } from './optimistic-run.ts';
 import { useOptimisticForm } from './use-optimistic-form.ts';
+import { useStepOpensAtTop } from './step-pieces.ts';
 
 export type FormPageScreenProps = {
   /** The form page's name: its address names its row (`form-page:<page>`). */
@@ -49,6 +51,8 @@ export function View({ page, title = null, words, questions, keep_on = null, sig
   const info: PageInfo = { title, words, questions, keep_on, signed_in };
   const sittingKey = `form-page:${page}:sitting`;
   const [screen, setScreen] = useState<Screen>({ kind: 'intro', resumable: false });
+  // Each new step opens at the top of the page; the first step stays where the page put it.
+  useStepOpensAtTop(screen.kind === 'question' ? `question:${screen.next.position}` : screen.kind);
   const [answer, setAnswer] = useState<Answer>(null);
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
