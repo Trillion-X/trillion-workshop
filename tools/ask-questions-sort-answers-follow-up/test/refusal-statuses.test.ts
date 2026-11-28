@@ -1,7 +1,7 @@
 // tools/ask-questions-sort-answers-follow-up/test/refusal-statuses.test.ts
 //
 // Every refusal a page's steps throw names its own HTTP status (run-sql.mjs refusal, as sitting.ts hands it on), so none reaches
-// the site's door (serve-a-sites-pages-from-its-rows door.ts) without one and is answered as a bare 502. This reads every throw in
+// the site without one and is answered as a bare 502. This reads every throw in
 // the step files of the form pages, the booking pages and the words page (gather-words-from-people routes), so a new refusal that
 // names no status fails here, and checks every named refusal of a sitting or a page has its status, and that a run leaves a 4xx
 // refusal as the JSON line the door reads. The steps' own tests check each family answers the right status.

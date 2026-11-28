@@ -5,7 +5,7 @@
 //   place order) and answers the markup every page of the site carries: `head` (the consent default first, the bar's stylesheet,
 //   the declared parts, then the bar) and `body_start`. A site's server places them with withSiteHead (do-work/site-head.ts).
 //   It also answers `read_from`, the tables it read, so a server that keeps the markup reads it again only when a change names
-//   one of them (serve-a-sites-pages-from-its-rows keeps it until then).
+//   one of them (and keeps it until then).
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. A site with no site_head row, or whose rows break any rule of do-work/site-head.ts, is refused with every problem listed;

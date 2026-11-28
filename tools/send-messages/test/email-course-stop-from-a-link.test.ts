@@ -1,14 +1,13 @@
 // sql/email-course-stop-from-a-link.sql on PGlite, as a site's own logins hold it: a reader that may only call
 // email_course_stop_records and a writer that may only call keep_an_email_course_stop, neither with any right on
 // email_course_records. The narrow read hands the stop tool the same answer and keep the whole table would, and no other
-// person's rows; the keep goes in as keep-a-site-write's json value and stops only that person; a keep naming any other kind of
+// person's rows; the keep goes in as one json value to keep_an_email_course_stop and stops only that person; a keep naming any other kind of
 // row is refused whole. Every value is made up.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { describe, it } from 'node:test';
 import { PGlite } from '@electric-sql/pglite';
 import { enrollInEmailCourse, unsubscribeFromEmailCourse } from '../do-work/keep-who-agreed.mjs';
-import { statementOf } from '../../serve-a-sites-pages-from-its-rows/do-work/keep-a-site-write.ts';
 
 type Row = { id: string; type: string; value: Record<string, unknown> | null };
 const rowsStack = readFileSync(new URL('../sql/email-course-rows.sql', import.meta.url), 'utf8');
@@ -50,6 +49,8 @@ async function twoPeople() {
   }
   return s;
 }
+// The writer's one statement: the keep as one json value.
+const STOP_SQL = 'SELECT public.keep_an_email_course_stop($1::jsonb) AS kept';
 const tokens = async (s: Awaited<ReturnType<typeof store>>) => (await s.records()).filter(row => row.type === 'email-course-subscription').map(row => ({ token: String(row.value?.unsubscribe_token), account: String(row.value?.account_id), id: row.id }));
 
 describe('a site answers a stop link with its own logins only', () => {
@@ -70,22 +71,20 @@ describe('a site answers a stop link with its own logins only', () => {
     await assert.rejects(s.as('site_reader', 'SELECT id FROM email_course_records', []), /permission denied/, 'the reader reads no row of the table itself');
   });
 
-  it('the keep goes in as keep-a-site-write\'s json value and stops that person only; any other kind of row is refused whole', async () => {
+  it('the keep goes in as one json value and stops that person only; any other kind of row is refused whole', async () => {
     const s = await twoPeople();
     const [first, , other] = await tokens(s);
     const [{ records }] = await s.as<{ records: Row[] }>('site_reader', 'SELECT public.email_course_stop_records($1::text) AS records', [first.token]);
     const stopped = await unsubscribeFromEmailCourse({ token: first.token, records }, at(1));
     assert.equal(stopped.status, 'unsubscribed');
-    const { sql, params } = statementOf({ write: 'email-course-stop', values: { keep: stopped.keep } });
-    const [{ kept }] = await s.as<{ kept: number }>('site_writer', sql, params);
+    const [{ kept }] = await s.as<{ kept: number }>('site_writer', STOP_SQL, [JSON.stringify(stopped.keep)]);
     assert.equal(kept, stopped.keep.length);
     const after = await s.records();
     assert.ok(after.some(row => row.type === 'email-course-stop' && row.value?.account_id === first.account), 'the first person is stopped');
     assert.ok(!after.some(row => row.type === 'email-course-stop' && row.value?.account_id === other.account), 'the other person is not');
     const lesson = after.find(row => row.type === 'contact-point')!;
     const sneaked = [...stopped.keep, { id: lesson.id, type: lesson.type, value: null, expected: { type: lesson.type, value: lesson.value } }];
-    const asked = statementOf({ write: 'email-course-stop', values: { keep: sneaked } });
-    await assert.rejects(s.as('site_writer', asked.sql, asked.params), /only subscription, token and stop rows/);
+    await assert.rejects(s.as('site_writer', STOP_SQL, [JSON.stringify(sneaked)]), /only subscription, token and stop rows/);
     assert.deepEqual(await s.records(), after, 'nothing of a refused keep is written');
     await assert.rejects(s.as('site_writer', 'SELECT keep_email_course_rows($1::jsonb)', ['[]']), /permission denied/, 'the writer cannot call the unfenced keep');
     await assert.rejects(s.as('site_writer', 'SELECT id FROM email_course_records', []), /permission denied/, 'nor read the table');

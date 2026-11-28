@@ -58,7 +58,7 @@
     },
     {
       "id": "site-form-leads-from-statements",
-      "_what": "A lead a site's own form keeps through its action row (serve-a-sites-pages-from-its-rows actions): one statements row, place site-form, meaning lead, its key the action's new id, after holding email, visitor (only with analytics consent), offer_id, self_reported and touch_id (the t of the page the form was sent from, carried, never joined by). The same lead step and identity use as a lead the journey kit keeps.",
+      "_what": "A lead a site's own form keeps through its action row (the site's own action): one statements row, place site-form, meaning lead, its key the action's new id, after holding email, visitor (only with analytics consent), offer_id, self_reported and touch_id (the t of the page the form was sent from, carried, never joined by). The same lead step and identity use as a lead the journey kit keeps.",
       "table": "statements",
       "step": "lead",
       "where": "place = 'site-form' AND meaning = 'lead'",
@@ -82,7 +82,7 @@
     },
     {
       "id": "site-visits-from-statements",
-      "_what": "A visit a site's page beacon keeps through its action row (serve-a-sites-pages-from-its-rows actions): one statements row, place site-visit, meaning visit, its key the action's new id, after holding href (the page's address, on the site's own origin), referrer, and visitor (only with analytics consent). The journey kit's own visit step for that address (visitStep: its kept parameters, the touch it followed, joined by touch, else cookie); a direct visit or a check keeps nothing.",
+      "_what": "A visit a site's page beacon keeps through its action row (the site's own action): one statements row, place site-visit, meaning visit, its key the action's new id, after holding href (the page's address, on the site's own origin), referrer, and visitor (only with analytics consent). The journey kit's own visit step for that address (visitStep: its kept parameters, the touch it followed, joined by touch, else cookie); a direct visit or a check keeps nothing.",
       "table": "statements",
       "step": "visit",
       "where": "place = 'site-visit' AND meaning = 'visit'",
@@ -99,7 +99,7 @@
     },
     {
       "id": "site-checkouts-from-statements",
-      "_what": "A checkout a site's own checkout action started (serve-a-sites-pages-from-its-rows actions, its then step once the payment tool answered): one statements row, place site-checkout, meaning checkout, its key the checkout attempt id, after holding attempt, offer_id, visitor (only with analytics consent) and touch_id (the t of the page the checkout started from). The journey's checkout step, its ref the attempt id, joined by the cookie when the visitor is known, else by the touch.",
+      "_what": "A checkout a site's own checkout action started (the site's own action, its then step once the payment tool answered): one statements row, place site-checkout, meaning checkout, its key the checkout attempt id, after holding attempt, offer_id, visitor (only with analytics consent) and touch_id (the t of the page the checkout started from). The journey's checkout step, its ref the attempt id, joined by the cookie when the visitor is known, else by the touch.",
       "table": "statements",
       "step": "checkout",
       "where": "place = 'site-checkout' AND meaning = 'checkout'",
