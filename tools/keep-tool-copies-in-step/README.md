@@ -55,7 +55,9 @@ not read at all (no registry read, no fetch, no file read). A `made-here` line i
   (`already: true`). Opening a pull request from the branch is the reviewer's step; this tool holds no GitHub key.
 - Fetch, hash and record code is the add tool's (`../add-a-tool-to-a-project/read-data/`), imported, never copied. A local
   clone named in `clones` (inside the granted folder) that holds a commit is read instead of the network, as the add tool
-  reads it; the bytes and identities are the same either way. A push still goes to the pointer's repository address.
+  reads it; the bytes and identities are the same either way. The record names a registry only by its address (the add
+  tool records a local registry as its git origin address), so a registry is read from the clone in `clones` whose origin
+  is that address, else fetched from it. A push still goes to the pointer's repository address.
 
 ## How it runs
 

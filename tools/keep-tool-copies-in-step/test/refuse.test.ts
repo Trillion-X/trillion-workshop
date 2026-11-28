@@ -26,18 +26,18 @@ function folderIdentity(folder: string): string {
 
 test('a conflict is refused with a unified diff and the project folder is unchanged', async () => {
   const up = makeUpstream({ ...toolFiles('greet'), 'tools/greet/do-work/other.mjs': TEXT });
-  const { project, registry } = await projectWith(up, ['greet']);
+  const { project, registry, clones } = await projectWith(up, ['greet']);
   const tool = join(project, TOOLS_FOLDER, 'greet', 'do-work');
   writeFileSync(join(tool, 'run.mjs'), TEXT.replace('one', 'ONE'));
   writeFileSync(join(tool, 'other.mjs'), TEXT.replace('one', 'ONE'));
   commitUpstream(up, { 'tools/greet/do-work/run.mjs': TEXT.replace('one', 'uno'), 'tools/greet/do-work/other.mjs': TEXT.replace('six', 'SIX') });
   writeRegistry(registry, up, ['greet']);
   const before = folderIdentity(project);
-  const planned = await plan({ project });
+  const planned = await plan({ project, clones });
   assert.equal(planned.tools.greet.state, 'both-conflict');
   assert.deepEqual(planned.tools.greet.files, {
     'do-work/other.mjs': 'both-clean', 'do-work/run.mjs': 'both-conflict', 'what-this-tool-does-and-how-to-run-it.json': 'same' });
-  const done = await apply({ project, plan: planned });
+  const done = await apply({ project, clones, plan: planned });
   assert.deepEqual(done.settled, []);
   assert.deepEqual(done.conflicts.map(c => [c.tool, c.path]), [['greet', 'do-work/run.mjs']]);
   assert.match(done.conflicts[0].diff, /^\+\+\+ project\/do-work\/run\.mjs$/m);
@@ -49,32 +49,32 @@ test('a conflict is refused with a unified diff and the project folder is unchan
 
 test('a fork makes no network call and is reported as forked', async () => {
   const up = makeUpstream(toolFiles('greet'));
-  const { project } = await projectWith(up, ['greet']);
+  const { project, clones } = await projectWith(up, ['greet']);
   const recordFile = join(project, TOOLS_FOLDER, RECORD_FILE);
   const record = JSON.parse(readFileSync(recordFile, 'utf8'));
   record.tools.greet.synced = false;
   writeFileSync(recordFile, `${JSON.stringify(record, null, 2)}\n`);
   const refuse = () => { throw new Error('a fork reached out'); };
   const io: Io = { fetchCommit: refuse, readRegistry: async () => refuse(), remoteHead: refuse };
-  const planned = await plan({ project }, io);
+  const planned = await plan({ project, clones }, io);
   assert.equal(planned.tools.greet.state, 'forked');
   const before = folderIdentity(project);
-  const done = await apply({ project, plan: planned }, io);
+  const done = await apply({ project, clones, plan: planned }, io);
   assert.deepEqual(done.forked, ['greet']);
   assert.equal(folderIdentity(project), before);
 });
 
 test('a record changed between plan and apply refuses the apply and writes nothing', async () => {
   const up = makeUpstream(toolFiles('greet'));
-  const { project, registry } = await projectWith(up, ['greet']);
+  const { project, registry, clones } = await projectWith(up, ['greet']);
   commitUpstream(up, { 'tools/greet/do-work/run.mjs': TEXT.replace('six', 'SIX') });
   writeRegistry(registry, up, ['greet']);
-  const planned = await plan({ project });
+  const planned = await plan({ project, clones });
   assert.equal(planned.tools.greet.state, 'upstream-only');
   const recordFile = join(project, TOOLS_FOLDER, RECORD_FILE);
   writeFileSync(recordFile, readFileSync(recordFile, 'utf8').replace('"synced": true', '"synced": true '));
   const before = folderIdentity(project);
-  const done = await apply({ project, plan: planned }, realIo());
+  const done = await apply({ project, clones, plan: planned }, realIo(clones));
   assert.deepEqual(done.refused.map(r => [r.tool, r.why]), [['greet', 'record-changed-meanwhile']]);
   assert.deepEqual(done.settled, []);
   assert.equal(folderIdentity(project), before);
@@ -82,13 +82,13 @@ test('a record changed between plan and apply refuses the apply and writes nothi
 
 test('a file edited between plan and apply refuses the tool and writes nothing', async () => {
   const up = makeUpstream(toolFiles('greet'));
-  const { project, registry } = await projectWith(up, ['greet']);
+  const { project, registry, clones } = await projectWith(up, ['greet']);
   commitUpstream(up, { 'tools/greet/do-work/run.mjs': TEXT.replace('six', 'SIX') });
   writeRegistry(registry, up, ['greet']);
-  const planned = await plan({ project });
+  const planned = await plan({ project, clones });
   writeFileSync(join(project, TOOLS_FOLDER, 'greet', 'do-work', 'run.mjs'), TEXT.replace('one', 'ONE'));
   const before = folderIdentity(project);
-  const done = await apply({ project, plan: planned });
+  const done = await apply({ project, clones, plan: planned });
   assert.deepEqual(done.refused.map(r => [r.tool, r.why]), [['greet', 'changed-since-plan']]);
   assert.equal(folderIdentity(project), before);
 });

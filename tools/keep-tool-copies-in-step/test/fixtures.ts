@@ -2,13 +2,13 @@
 //
 // Stand-ins the sync tests share, built on the add tool's own (tools/add-a-tool-to-a-project/test/fixtures.ts): an upstream
 // that is a local BARE repository (made from a work repository the test commits to and pushes from), a registry pointing
-// at it, and a project with one tool copied in by tool:add-a-tool-to-a-project itself, so every record line is the add
-// tool's real output. Nothing reaches a network.
+// at it (its origin an example.invalid address the record names), and a project with one tool copied in by
+// tool:add-a-tool-to-a-project itself, so every record line is the add tool's real output. Nothing reaches a network.
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { add } from '../../add-a-tool-to-a-project/do-work/add.ts';
-import { emptyProject, makeRepo, pinOf, scratch } from '../../add-a-tool-to-a-project/test/fixtures.ts';
+import { emptyProject, makeRepo, pinOf, scratch, withOrigin } from '../../add-a-tool-to-a-project/test/fixtures.ts';
 
 export type Upstream = { work: string; bare: string; commit: string };
 const git = (dir: string, ...args: string[]) => execFileSync('git', ['-C', dir, ...args], { encoding: 'utf8' }).trim();
@@ -47,10 +47,13 @@ export function writeRegistry(registry: string, up: Upstream, names: string[], c
   writeFileSync(join(registry, 'tools-in-this-registry.json'), `${JSON.stringify({ _what: 'A stand-in registry.', tools }, null, 2)}\n`);
 }
 
-/** A git project with `names` copied in from a registry of the upstream by the add tool, committed. */
-export async function projectWith(up: Upstream, names: string[]): Promise<{ project: string; registry: string }> {
+/** A git project with `names` copied in from a registry of the upstream by the add tool, committed. The registry has an
+ *  origin address (example.invalid, never reached), which is what the record names; `clones` holds the registry folder, so
+ *  the sync reads it from there, as a computer holding a clone of the registry does. */
+export async function projectWith(up: Upstream, names: string[]): Promise<{ project: string; registry: string; clones: string[] }> {
   const registry = scratch('registry');
   writeRegistry(registry, up, names);
+  withOrigin(registry);
   const project = emptyProject();
   for (const name of names) {
     const added = await add({ project, tool: name, from: registry, prepare: false });
@@ -59,7 +62,7 @@ export async function projectWith(up: Upstream, names: string[]): Promise<{ proj
   git(project, 'init', '-q');
   git(project, 'add', '-A');
   git(project, '-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', 'tools copied');
-  return { project, registry };
+  return { project, registry, clones: [registry] };
 }
 
 export const TEXT = 'one\ntwo\nthree\nfour\nfive\nsix\n';

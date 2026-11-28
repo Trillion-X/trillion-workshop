@@ -60,7 +60,7 @@
                 "type": "string",
                 "minLength": 1
               },
-              "description": "Local git folders inside the granted folder (for example a clone of the Workshop) to read a commit from when one already holds it, as tool:add-a-tool-to-a-project reads them; a commit none holds is fetched over the network."
+              "description": "Local git folders inside the granted folder, read as tool:add-a-tool-to-a-project reads them: a clone that holds a pinned commit (for example the Workshop) is read instead of the network, and a clone whose origin is the registry address a record line names (for example the registry's clone) is read instead of fetching the registry. Without one, the commit or registry is fetched from its address."
             }
           }
         },

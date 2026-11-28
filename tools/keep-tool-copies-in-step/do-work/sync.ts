@@ -28,8 +28,8 @@
 //      --force-with-lease naming the branch's sha read just before; never a default branch, never a plain force push. The
 //      branch commit is deterministic (same parent, tree, message and times), so offering the same change again is a no-op.
 //   7. Fetch, hash and record code is the add tool's (tools/add-a-tool-to-a-project/read-data), imported, never copied:
-//      a local clone named in `clones` that holds a commit is read instead of the network, exactly as the add tool reads
-//      it. Nothing is imported from outside the Workshop.
+//      a local clone named in `clones` that holds a commit, or whose origin is the registry address a record line names,
+//      is read instead of the network, exactly as the add tool reads it. Nothing is imported from outside the Workshop.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { spawnSync } from 'node:child_process';
@@ -90,9 +90,11 @@ function remoteHead(repo: string): string {
   return commit;
 }
 
-/** The real reach: each commit borrowed from the first of `clones` that holds it, else fetched (the add tool's FetchedCommit). */
+/** The real reach: each commit borrowed from the first of `clones` that holds it, else fetched (the add tool's FetchedCommit);
+ *  a registry the record names by its address read from the clone whose origin it is, else fetched (the add tool's readRegistry). */
 export const realIo = (clones: string[] = []): Io => ({
-  fetchCommit: (scratch, repo, commit, index) => new FetchedCommit(scratch, repo, commit, index, clones), readRegistry, remoteHead });
+  fetchCommit: (scratch, repo, commit, index) => new FetchedCommit(scratch, repo, commit, index, clones),
+  readRegistry: from => readRegistry(from, clones), remoteHead });
 
 type Upstream = { repo: string; path: string; commit: string; paths?: string[]; files_blake3: Hex64 | null };
 type ProjectFile = { bytes: Buffer; executable: boolean };
