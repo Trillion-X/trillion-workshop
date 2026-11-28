@@ -1,0 +1,398 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-tool-copies-in-step-tool-rows",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-tool-copies-in-step",
+        "id": "tool:keep-tool-copies-in-step",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true
+        },
+        "label": "Keep my project's tool copies in step",
+        "job": "Compare every tool folder a project copied into its tools folder with its base and its upstream, offer each upstream change to the project as one sync/upstream branch, refuse conflicts with a diff and skip forks",
+        "description": "Give op plan or apply, and repo: the project's repository address (branch names the branch read, main when not given). The tool reads the project only from a clone it keeps in its own kept folder, fetched from repo at the tip of the branch (depth 1, blob-less, only the tools folder checked out); no working checkout of the project and no deploy folder is read or written. For every line of the record where-each-tool-comes-from.json in the project's tools folder (the folder tool:add-a-tool-to-a-project copies into) (only the names in only, when given) it compares three versions of the tool folder: the base (the files the line says the copy started from, at copied_at_commit), the project's folder at the branch tip, and upstream (the folder at the commit the registry's pointer names now, only the pointer's paths when it names them, or the repository's HEAD for a direct pointer). Each file gets a verdict: same, project-only, upstream-only, deleted-project, deleted-upstream, renamed-project, renamed-upstream, both-clean (changed on both sides and merged cleanly by git merge-file from the base bytes) or both-conflict. The tool's state is the strongest: both-conflict, both-clean, project-only, upstream-only or none-changed; a change in a needed tool (its closure_blake3) makes the tool that needs it upstream-only; a line with synced false is forked and is not read at all (no fetch), a made-here line is skipped, and a line whose files do not hash to its copied_at_files_blake3 is local-edit and is never used as a start version. plan answers every tool's state and file verdicts and writes nothing but its own clone. apply takes plan's answer: it checks that the record and every file are still what plan read (else record-changed-meanwhile or changed-since-plan, and nothing is pushed). Each upstream change (upstream-only, both-clean, or a needed tool's change) becomes one commit on the tip of the project's branch (the tool's files and its advanced record line), pushed without force as branch sync/upstream/<record line>/<upstream commit>. That is the only ref it ever pushes: every other ref (main, a deploy branch, any other branch or tag) is refused before git starts (ref-refused); it never merges, never fast-forwards and never force-pushes. waiting answers each branch with created (the push made the ref, read from the push's own answer) and would_open: a pull request is opened only for a created branch, and while no GitHub key is held it is not opened and gap names that. Two runs of one change make one branch and one would_open. A pointer's paths bound upstream, so a file outside them is never brought and a file the pointer dropped is never added again. Project changes stay in the project (project_only) and nothing is pushed for them. Conflicts are refused with each file's unified diff and push nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "op",
+            "repo"
+          ],
+          "properties": {
+            "op": {
+              "enum": [
+                "plan",
+                "apply"
+              ],
+              "description": "plan: say each tool's state, push nothing. apply: offer each upstream change as its sync/upstream branch."
+            },
+            "repo": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The project's repository address (for example https://github.com/OWNER/PROJECT.git); the tool keeps its own clone of it and pushes only sync/upstream branches there"
+            },
+            "branch": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The project's branch whose tip is read; main when not given. It is never pushed."
+            },
+            "only": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]*$"
+              },
+              "description": "plan only these tool folders"
+            },
+            "fact": {
+              "type": "object",
+              "description": "The fact that woke this sync (where, place, key are echoed in plan's because); the sync finds changes itself by comparing files."
+            },
+            "plan": {
+              "type": "object",
+              "description": "For apply: plan's whole answer."
+            },
+            "clones": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Local git folders inside the kept folder, read as tool:add-a-tool-to-a-project reads them: a clone that holds a pinned commit (for example the Workshop) is read instead of the network, and a clone whose origin is the registry address a record line names (for example the registry's clone) is read instead of fetching the registry. Without one, the commit or registry is fetched from its address."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "plan answers record_blake3, because? and tools (name -> {state, files, upstream_commit, renames?, why?, said?, closure?}); apply answers forked, conflicts, unchanged, project_only, waiting, gap?, skipped and refused.",
+          "properties": {
+            "record_blake3": {
+              "type": "string"
+            },
+            "because": {
+              "type": "object"
+            },
+            "tools": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "state",
+                  "files",
+                  "upstream_commit"
+                ],
+                "properties": {
+                  "state": {
+                    "enum": [
+                      "none-changed",
+                      "project-only",
+                      "upstream-only",
+                      "both-clean",
+                      "both-conflict",
+                      "forked",
+                      "skipped",
+                      "refused",
+                      "local-edit"
+                    ]
+                  },
+                  "files": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "enum": [
+                        "same",
+                        "project-only",
+                        "upstream-only",
+                        "both-clean",
+                        "both-conflict",
+                        "deleted-project",
+                        "deleted-upstream",
+                        "renamed-project",
+                        "renamed-upstream"
+                      ]
+                    }
+                  },
+                  "upstream_commit": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "renames": {
+                    "type": "array"
+                  },
+                  "why": {
+                    "enum": [
+                      "made-here",
+                      "not-in-registry",
+                      "bad-from",
+                      "fetch-refused",
+                      "identity-mismatch",
+                      "no-base",
+                      "record-changed-meanwhile",
+                      "changed-since-plan",
+                      "push-refused",
+                      "ref-refused",
+                      "local-edit",
+                      "needs-not-settled"
+                    ]
+                  },
+                  "said": {
+                    "type": "string"
+                  },
+                  "closure": {
+                    "type": "object",
+                    "required": [
+                      "recorded",
+                      "upstream"
+                    ],
+                    "properties": {
+                      "recorded": {
+                        "type": "string"
+                      },
+                      "upstream": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "forked": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "path",
+                  "diff"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "path": {
+                    "type": "string"
+                  },
+                  "diff": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "unchanged": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "why"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "enum": [
+                      "made-here",
+                      "not-in-registry",
+                      "bad-from",
+                      "fetch-refused",
+                      "identity-mismatch",
+                      "no-base",
+                      "record-changed-meanwhile",
+                      "changed-since-plan",
+                      "push-refused",
+                      "ref-refused",
+                      "local-edit",
+                      "needs-not-settled"
+                    ]
+                  }
+                }
+              }
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tool",
+                  "why",
+                  "said"
+                ],
+                "properties": {
+                  "tool": {
+                    "type": "string"
+                  },
+                  "why": {
+                    "enum": [
+                      "made-here",
+                      "not-in-registry",
+                      "bad-from",
+                      "fetch-refused",
+                      "identity-mismatch",
+                      "no-base",
+                      "record-changed-meanwhile",
+                      "changed-since-plan",
+                      "push-refused",
+                      "ref-refused",
+                      "local-edit",
+                      "needs-not-settled"
+                    ]
+                  },
+                  "said": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "waiting": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "tools",
+                  "branch",
+                  "commit",
+                  "created",
+                  "would_open",
+                  "pull_request"
+                ],
+                "properties": {
+                  "tools": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "branch": {
+                    "type": "string",
+                    "description": "sync/upstream/<record line>/<upstream commit>"
+                  },
+                  "commit": {
+                    "type": "string"
+                  },
+                  "created": {
+                    "type": "boolean",
+                    "description": "The push made this ref (its own porcelain answer), rather than finding it there"
+                  },
+                  "would_open": {
+                    "type": "boolean",
+                    "description": "A created branch whose pull request is not opened because no GitHub key is held"
+                  },
+                  "pull_request": {
+                    "type": "null"
+                  }
+                }
+              }
+            },
+            "gap": {
+              "type": "string"
+            },
+            "project_only": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Tools with project changes only: they stay in the project and nothing is pushed for them"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "use-git-in-a-folder"
+          ],
+          "workdir": "/opt/keep-tool-copies-in-step",
+          "may_reach": [],
+          "stdout": "json",
+          "run": [
+            "node",
+            "/opt/keep-tool-copies-in-step/do-work/sync.ts",
+            {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "kept_folder": true,
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-tool-copies-in-step",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-tool-copies-in-step"
+              },
+              {
+                "package": "add-a-tool-to-a-project",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/add-a-tool-to-a-project"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "packages": [
+                  "node_modules/@noble/hashes"
+                ],
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the system git, the tool's kept folder written, and the network to the project's git host and the sources' (or local bare repositories standing in for them)",
+            "proved_on": "2026-11-28"
+          }
+        ]
+      }
+    }
+  ]
+}

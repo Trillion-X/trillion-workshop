@@ -8,7 +8,7 @@
 //   as `<project>/trillion/<folder>/`, one line per folder is written in `<project>/trillion/where-each-tool-comes-from.json`
 //   with a compare-and-set, and each new folder's own `prepare` command (DATA in its card) is run in it.
 //
-//   node do-work/add.ts add GRANTED-FOLDER   < {"project", "tool", "from"?, "as"?, "prepare"?}
+//   node do-work/add.ts add GRANTED-FOLDER   < {"project", "tool", "from"?, "as"?, "prepare"?, "clones"?}
 //     prints {"added", "already", "refused", "prepared", "not_prepared"} once; exits 1 when anything was refused
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -25,6 +25,12 @@
 //   6. Writes stay under `<project>/trillion/`; the project must be inside the granted folder; names never climb.
 //   7. Each line's closure_blake3 is the manifest identity of {folder: files_blake3} over the folder and every folder it
 //      reaches through needs_tools, so two computers holding the same closure announce the same identity.
+//   8. A local clone named in `clones` (inside the granted folder) that already holds a pointer's commit is read instead
+//      of the network (read-data/fetch-folder.ts); it is only read, and the files, their identity and the record are the
+//      same bytes as a fetch gives.
+//   9. The record holds no file path: a registry and a direct pointer's repo are recorded by an address every computer
+//      can reach (read-data/registry.ts `addressOf`: a local folder is recorded as its git origin address, and one with
+//      none is refused bad-from), and each folder's locator is its name under the project's tools folder.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { spawnSync } from 'node:child_process';
@@ -33,14 +39,14 @@ import { dirname, join, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileDigest, identityOfDigests } from '../../content-identity/read-data/manifest.mjs';
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
-import { BadFrom, TOOL_NAME, isInsidePath, readRegistry, type Hex64, type Registry } from '../read-data/registry.ts';
+import { BadFrom, TOOL_NAME, addressOf, isInsidePath, readRegistry, type Hex64, type Registry } from '../read-data/registry.ts';
 import { FetchedCommit, GitRefused, NotAtCommit, type Fetched } from '../read-data/fetch-folder.ts';
 import { BadCard, OldCardName, cardFacts } from '../read-data/card.ts';
-import { RecordChanged, readProjectRecord, writeProjectRecord, type FromWhere, type RecordFile, type ToolRecord } from '../read-data/record.ts';
+import { RecordChanged, TOOLS_FOLDER, readProjectRecord, writeProjectRecord, type FromWhere, type RecordFile, type ToolRecord } from '../read-data/record.ts';
 import { unifiedDiff } from '../read-data/diff-text.ts';
 
 export type Direct = { repo: string; path: string; commit: string };
-export type AddInput = { project: string; tool: string; from?: string | Direct; as?: string; prepare?: boolean };
+export type AddInput = { project: string; tool: string; from?: string | Direct; as?: string; prepare?: boolean; clones?: string[] };
 export type Why = 'edited-copy' | 'other-version-present' | 'name-clash' | 'not-in-registry' | 'tool-not-found-at-commit'
   | 'identity-mismatch' | 'record-changed-meanwhile' | 'bad-from' | 'bad-card' | 'old-card-name' | 'fetch-refused';
 export type Refusal = { tool: string; why: Why; said: string; diff?: string };
@@ -103,19 +109,26 @@ function needsFirst(start: string, needsOf: Map<string, string[]>): string[] {
 const refusedOnly = (refused: Refusal[], already: string[] = []): AddOutput => ({ added: [], already, refused, prepared: [], not_prepared: [] });
 
 /** The pointer of the asked tool, and how its needs are found: through the registry, or beside it in the same commit. */
-async function rootOf(input: AddInput, record: RecordFile): Promise<{ registry: Registry | null; root: Wanted } | Refusal> {
+async function rootOf(input: AddInput, record: RecordFile, clones: string[]): Promise<{ registry: Registry | null; root: Wanted } | Refusal> {
   const folder = input.as ?? input.tool;
   if (input.from !== null && typeof input.from === 'object') {
     const { repo, path, commit } = input.from;
     if (typeof repo !== 'string' || !repo || !isInsidePath(path) || typeof commit !== 'string' || !COMMIT.test(commit)) {
       return { tool: input.tool, why: 'bad-from', said: 'A direct from is {repo, path, commit}: a repo, a path inside it and a full 40-hex commit.' };
     }
-    return { registry: null, root: { folder, from: { repo, path, commit }, repo, path, commit, files_blake3: null, needs: [] } };
+    // The record keeps an address every computer can reach (a local repo folder is recorded as its origin address); the
+    // files are still read from the repo as given.
+    let recorded: string;
+    try { recorded = addressOf(repo); } catch (error) {
+      if (error instanceof BadFrom) return { tool: input.tool, why: 'bad-from', said: error.message };
+      throw error;
+    }
+    return { registry: null, root: { folder, from: { repo: recorded, path, commit }, repo, path, commit, files_blake3: null, needs: [] } };
   }
   const address = input.from ?? record.registry;
   if (typeof address !== 'string') return { tool: input.tool, why: 'bad-from', said: 'No from was given and the project record names no registry.' };
   let registry: Registry;
-  try { registry = await readRegistry(address); } catch (error) {
+  try { registry = await readRegistry(address, clones); } catch (error) {
     if (error instanceof BadFrom) return { tool: input.tool, why: 'bad-from', said: error.message };
     throw error;
   }
@@ -134,12 +147,16 @@ const wantedFromRegistry = (registry: Registry, name: string, folder: string): W
 export async function add(input: AddInput): Promise<AddOutput> {
   if (typeof input.tool !== 'string' || !TOOL_NAME.test(input.tool)) return refusedOnly([{ tool: String(input.tool), why: 'bad-from', said: 'tool is not a tool name (a-z, 0-9 and -).' }]);
   if (input.as !== undefined && (typeof input.as !== 'string' || !TOOL_NAME.test(input.as))) return refusedOnly([{ tool: input.tool, why: 'bad-from', said: 'as is not a folder name (a-z, 0-9 and -).' }]);
+  if (input.clones !== undefined && (!Array.isArray(input.clones) || !input.clones.every(c => typeof c === 'string' && c.length > 0))) return refusedOnly([{ tool: input.tool, why: 'bad-from', said: 'clones is a list of folder paths.' }]);
+  const missingClone = (input.clones ?? []).find(clone => !existsSync(clone) || !lstatSync(realpathSync(clone)).isDirectory());
+  if (missingClone !== undefined) return refusedOnly([{ tool: input.tool, why: 'bad-from', said: `The clone ${missingClone} is not a folder.` }]);
+  const clones = (input.clones ?? []).map(clone => realpathSync(clone));
   const project = realpathSync(input.project);
   if (!lstatSync(project).isDirectory()) throw new Error(`${project} is not a folder.`);
-  const trillion = join(project, 'trillion');
+  const trillion = join(project, TOOLS_FOLDER);
   if (existsSync(trillion) && !lstatSync(trillion).isDirectory()) throw new Error(`${trillion} is not a folder (a link is not followed).`);
   const { expected, record } = readProjectRecord(trillion);
-  const rooted = await rootOf(input, record);
+  const rooted = await rootOf(input, record, clones);
   if ('why' in rooted) return refusedOnly([rooted]);
   const { registry, root } = rooted;
 
@@ -156,7 +173,7 @@ export async function add(input: AddInput): Promise<AddOutput> {
     const commits = new Map<string, FetchedCommit>();
     const fetchFolder = (wanted: Wanted): Fetched => {
       const key = `${wanted.repo}\n${wanted.commit}`;
-      if (!commits.has(key)) commits.set(key, new FetchedCommit(staging, wanted.repo, wanted.commit, commits.size));
+      if (!commits.has(key)) commits.set(key, new FetchedCommit(staging, wanted.repo, wanted.commit, commits.size, clones));
       return commits.get(key)!.folder(wanted.path, wanted.paths);
     };
     const queue: Wanted[] = [root];
@@ -291,7 +308,9 @@ async function main(): Promise<void> {
   const input = JSON.parse(readFileSync(0, 'utf8')) as AddInput;
   // A registry named by a folder or file path is read from the granted folder, as the project is.
   const from = typeof input.from === 'string' && !input.from.startsWith('https://') ? resolve(realpathSync(granted), input.from) : input.from;
-  const output = await add({ ...input, from, project: projectInGrant(granted, input.project ?? '.') });
+  // A local clone is read only from inside the granted folder, as the project is.
+  const clones = Array.isArray(input.clones) ? input.clones.map(clone => projectInGrant(granted, clone)) : input.clones;
+  const output = await add({ ...input, from, ...(clones === undefined ? {} : { clones }), project: projectInGrant(granted, input.project ?? '.') });
   process.stdout.write(`${JSON.stringify(output)}\n`);
   process.exitCode = output.refused.length ? 1 : 0;
 }

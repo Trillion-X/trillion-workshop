@@ -1,0 +1,39 @@
+{
+  "start_here": "Say to your AI: \"Run tool:keep-tool-copies-in-step with op plan and repo, my project's repository address.\" It says, for every tool folder the project copied in, whether upstream moved, you edited it, both, or neither; then run it with op apply and plan's answer, and each upstream change waits on its own sync/upstream branch for you to review and merge.",
+  "lists": [],
+  "no_lists_because": "This tool reads the project from a clone it keeps in its own kept folder and pushes only sync/upstream branches to the project's repository; it reads and keeps no list rows.",
+  "workflows": [
+    "workflow:keep-tool-copies-in-step"
+  ],
+  "tools": [
+    "tool:keep-tool-copies-in-step",
+    "tool:add-a-tool-to-a-project"
+  ],
+  "instructions": [
+    "1. Ask your AI to run tool:keep-tool-copies-in-step with {\"op\":\"plan\",\"repo\":\"<your project's repository address>\"}. It fetches the project's main into its own clone; read each tool's state and its files' verdicts. Nothing is pushed.",
+    "2. Run it with {\"op\":\"apply\",\"repo\":\"<the same address>\",\"plan\":<plan's answer>}. Read waiting (each upstream change on its branch sync/upstream/<tool>/<upstream commit>, created when this run made it, would_open while no GitHub key is held), project_only (your edits, which stay where they are), conflicts (each with its diff: settle those by hand), forked and refused.",
+    "3. Review and merge each sync/upstream branch yourself, as any change; the tool never merges, never moves main and pushes no other ref."
+  ],
+  "worked_examples": [
+    {
+      "title": "See what moved in every tool copy",
+      "ask": "Are my project's tool copies in step with the registry?",
+      "mcp": {
+        "server": "{cli}",
+        "tool": "do_one_thing_in_my_account",
+        "input": {
+          "method": "tools:run",
+          "input": {
+            "tool": "tool:keep-tool-copies-in-step",
+            "input": {
+              "op": "plan",
+              "repo": "https://github.com/OWNER/PROJECT.git"
+            }
+          }
+        }
+      },
+      "given": "The project holds a copy of screen-look, unedited since it was copied at Workshop 2446f95e0d748229ff15260fa3d862085301488f; the registry's screen-look pointer has moved to a commit that changed README.md.",
+      "hands_back": "{\"record_blake3\": \"4d143123b3e9368e9526cd8579aee11db735e6ec4660cfa73e1d27ea1d7f3ad4\", \"tools\": {\"screen-look\": {\"state\": \"upstream-only\", \"files\": {\"README.md\": \"upstream-only\", \"part.json\": \"same\"}, \"upstream_commit\": \"<the pointer's new commit>\"}}}"
+    }
+  ]
+}

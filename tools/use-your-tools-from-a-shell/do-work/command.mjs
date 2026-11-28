@@ -636,13 +636,36 @@ export async function credentialFor({ env = process.env, store = keyStore(), gra
 
 // ── The door ─────────────────────────────────────────────────────────────────────────────────────────────────────
 
-/** The Mac app's local door on this computer (./local-door.mjs, run against the app command.json `mac_app` names),
- *  or null when this computer has none. */
-export function findLocalDoor({ rules = settings } = {}) {
-  try { return localDoorAddress({ runtime: join(rules.mac_app, 'Contents', 'MacOS', 'node') }); } catch { return null; }
+/** Where this computer's local door is declared (./local-door.mjs): the engine config files `computer_config_files` names (the app
+ *  writes them on every launch), then the app `mac_app` names, then the node running this program when it is an app's own
+ *  (Contents/MacOS/node; an app installed anywhere else than `mac_app`). */
+export function localDoorSources({ rules = settings, home = homedir(), execPath = process.execPath } = {}) {
+  const inApp = basename(dirname(execPath)) === 'MacOS';
+  return { configs: rules.computer_config_files.map(file => expand(file, home)),
+    runtimes: [join(rules.mac_app, 'Contents', 'MacOS', 'node'), ...(inApp ? [execPath] : [])] };
 }
 
-/** The door this run talks to: `asked` (--origin or {CLI}_ORIGIN); else, for the account's key, the Mac app's local door
+/** The Mac app's local door on this computer, or null when nothing declares one. */
+export function findLocalDoor(where = {}) {
+  try { return localDoorAddress(localDoorSources(where)); } catch { return null; }
+}
+
+/** The line said on stderr when a call goes to another door because this computer declares no local door. With `verbose`, the
+ *  technical line follows: every file looked at and the door the call went to instead. */
+export function noLocalDoorWords(door, { verbose = false, ...where } = {}) {
+  let tried = [];
+  try { localDoorAddress(localDoorSources(where)); } catch (error) { tried = error.tried ?? []; }
+  const rules = where.rules ?? settings;
+  return [fill(rules.words.no_local_door, { name: door.name }), ...(verbose ? [fill(rules.words.details.no_local_door, { tried: tried.join(', '), mcp: door.mcp })] : [])].join(' ');
+}
+
+/** The line said on stderr after a call: the door that answered it, and the computers it was pinned to (`verbose` adds its address). */
+export function answeredByWords(door, pins, { rules = settings, verbose = false } = {}) {
+  return [fill(rules.words.answered_by, { name: door.name }) + (pins?.length ? fill(rules.words.answered_pinned, { pins: pins.join(', ') }) : ''),
+    ...(verbose ? [fill(rules.words.details.answered_by, { mcp: door.mcp })] : [])].join(' ');
+}
+
+/** The door this run talks to: `asked` (--origin or {CLI}_ORIGIN); else, for the account's key or a sign-in made for this site, the Mac app's local door
  *  when this computer has one; else the origin a sign-in was made at, else the declared address (`declared`, {CLI}_ORIGIN); with none the run is
  *  refused. { mcp, origin, name, local, public (the declared address), localMcp }: `localMcp` is this computer's local door, named when another door refuses the key. */
 /** The sign-in servers (origins) a door names in its protected-resource document (RFC 9728); none when it does not answer. */
@@ -653,12 +676,20 @@ async function engineServersOf(door, { fetchImpl, rules }) {
 }
 
 
-export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
-  // The engine a run talks to: the one asked for (--origin, {CLI}_ORIGIN); else, for a kept key, this computer's own; else, for a sign-in,
+/** Whether a sign-in's pass was made for the site this computer's app serves (the declared site's own door): such a pass goes to this
+ *  computer's local door, which admits a pass of its issuer; a pass made for another site never does. */
+const passIsForThisSite = (credential, declared) => {
+  try { return declared !== null && new URL(credential.resource ?? `${credential.origin}/mcp`).origin === declared; } catch { return false; }
+};
+
+export function doorFor({ asked = null, credential = null, declared = null, pinned = false, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
+  // The engine a run talks to: the one asked for (--origin, {CLI}_ORIGIN); else, for a kept key or a sign-in, this computer's own
+  // (the engine admits a pass of its issuer at its loopback address; a sign-in made for another site stays with that site, and so does a pinned call: only the gateway meets a pin at the computer it names, the local door answers as itself); else, for a sign-in,
   // the one its pass was made for (`resource`: the pass names it, so no host is compared and no other engine is tried); else the declared
   // address, else the sign-in site's own engine (the public origin the Mac app declares), else none: the run is refused.
   const mcp = asked ? `${asked}/mcp`
     : credential?.kind === 'key' && localMcp ? localMcp
+    : credential?.kind === 'sign-in' && localMcp && !pinned && passIsForThisSite(credential, declared) ? localMcp
     : credential?.kind === 'sign-in' ? credential.resource ?? `${credential.origin}/mcp`
     : declared ? `${declared}/mcp` : null;
   if (mcp === null) throw new CommandError(rules.words.no_origin, { status: 2 });
@@ -1577,7 +1608,7 @@ const HELP = `{cli}: see your AIs and their tasks, and run your {site_name}'s to
   {cli} tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   {cli} connect ADDRESS                               sign in to a remote tool server (an MCP server's https address); then any AI calls its tools by that address
   {cli} op METHOD JSON|-|@FILE [--pin ID]...           any engine operation by its method (do_one_thing_in_my_account); op --dry-run shows the request and sends nothing
-  --pin ID  meet the op or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
+  --pin ID  meet the op, call or schedule call at this computer first, then the next --pin in order (repeat it, or give IDs separated by commas; at most ${settings.engine.pins.most})
   --upload FILE      (op, call) send FILE's bytes as the call's raw body (at most ${settings.direct_calls.upload_most_bytes} bytes): a session tool takes it as the file argument its row names (byte_argument)
   --timeout SECONDS  wait this long for one try of a call (default ${settings.retry.attempt_seconds}); a try with no answer may still be running: it is asked again under the same request key, up to ${settings.retry.count} more times, which follows that run to its end and never starts it again
   {cli} schedule list [--first-page] | on TOOL WAKE_ID | off TOOL WAKE_ID | cancel RUN_KEY [--pin ID]...   the wakes your tool rows declare (a list reads every page; --first-page prints only the first and the cursor after it): list, switch, or cancel one admitted run (a wake is made, changed or removed in its row's wakes list). Each answer says which computer answered it on its first line; an unpinned list has one block per carried computer
@@ -1762,7 +1793,8 @@ export function withUntil(method, input, { requestKey = null, timeoutSeconds, st
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new CommandError(settings.words.no_credential, { status: 3 });
-  const door = doorFor({ asked: context.asked, declared: context.declared ?? context.state.site(), credential, localMcp: context.localMcp() });
+  const pinned = (pinRouteOf(context.flags).pins ?? []).length > 0;
+  const door = doorFor({ asked: context.asked, declared: context.declared ?? context.state.site(), credential, pinned, localMcp: context.localMcp() });
   // The key this computer keeps goes only to this computer's local door or the address declared in {CLI}_ORIGIN; any other door gets a key the person gives for it ({CLI}_KEY).
   if (credential.kind === 'key' && credential.where !== settings.env.key && !door.local && !door.public) throw new CommandError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
@@ -2151,7 +2183,9 @@ export async function main(argv, seams = {}) {
   }
   if (command === 'serve') return serve(context);
   if (!TASK_COMMANDS.has(command) && !['whoami', 'tools', 'connect', 'call', 'op', 'who', 'publish', 'schedule'].includes(command)) throw new CommandError(`Unknown command ${command}. Run ${cliName()} help.`, { status: 2 });
-  const pinned = command === 'op' || command === 'schedule' ? pinRouteOf(flags) : {};
+  // `call` takes the same --pin as `op` and `schedule`: one reader of the flag, so the documented `call TOOL JSON` reaches a
+  // pinned computer (Nov 28 2026: a call on a pinned computer said "Nothing was sent" and had to be sent as op tools:run).
+  const pinned = command === 'op' || command === 'call' || command === 'schedule' ? pinRouteOf(flags) : {};
   if (command === 'call' || command === 'op') {
     const known = settings.direct_calls.flags[command];
     const unknown = Object.keys(flags).find(name => !known.includes(name));
@@ -2166,6 +2200,10 @@ export async function main(argv, seams = {}) {
   const requestKey = randomUUID();
   const call = TASK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held(), requestKey }) : null;
   const client = await signedInClient(context);
+  // A call that went to another door because this computer declares no local door says so (with --verbose, every place looked at): it never falls through unsaid.
+  const direct = command === 'call' || command === 'op';
+  const say = direct ? (seams.say ?? (text => process.stderr.write(`${text}\n`))) : null;
+  if (direct && !context.asked && !client.door.local && context.localMcp() === null) say(noLocalDoorWords(client.door, { verbose: flags.verbose === true }));
   // A move the task rows do not allow is said in the rows' own words, as a refusal (status 1), never as a program failure.
   if (call) return taskCommand(client, context, { command, call, flags, requestKey, stdinBytes, stdout: seams.stdout ?? process.stdout, print })
     .catch(error => { throw error?.code === 'tool_refused' ? new CommandError(error.message, { status: 1 }) : error; });
@@ -2203,12 +2241,16 @@ export async function main(argv, seams = {}) {
       const input = await readJson(words[1], '{"text": "..."}');
       const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
       const request = withUntil(engine.tools_run, { tool, input }, { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
-      return whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: await routeOf(client, tool), upload: uploadOf(flags.upload) }));
+      const answer = whole(await opWhole(client, null, engine.tools_run, request, { requestKey: flags['request-key'], route: { ...await routeOf(client, tool), ...pinned }, upload: uploadOf(flags.upload) }));
+      say(answeredByWords(client.door, pinned.pins, { verbose: flags.verbose === true }));
+      return answer;
     }
     const method = opMethod(words[0]);
     const timeoutSeconds = flags.timeout === undefined ? undefined : timeoutOf(flags.timeout);
     const request = withUntil(method, await readJson(words[1], '{"id": "..."}'), { requestKey: flags['request-key'] ?? null, timeoutSeconds, state: context.state });
-    return whole(await opWhole(client, flags.address ?? null, method, request, { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
+    const answer = whole(await opWhole(client, flags.address ?? null, method, request, { requestKey: flags['request-key'], route: pinned, upload: uploadOf(flags.upload) }));
+    say(answeredByWords(client.door, pinned.pins, { verbose: flags.verbose === true }));
+    return answer;
   }
   if (command === 'who') {
     const now = Date.now();

@@ -8,12 +8,16 @@ and answers per cell:
   - the frames where the subject box or the subject-plus-implement box crosses the crop edge;
   - when there are any, the smallest widened crop that has none: never smaller than the cell's crop, at the cell's
     aspect, inside the source frame, holding every measured box plus a margin, as close to the old crop's place as it
-    can sit. When no such crop fits the source, a refusal that names why.
+    can sit. When no crop of the cell's shape fits the source: with --when-too-wide fit-blurred (the default) the cell
+    is FITTED: its crop holds every box (as near the cell's shape as the source allows) and is shown whole, scaled into
+    the cell over a blurred fill of itself (the source's `fit`, which media-composition's split layout draws), so the
+    movement is in view by construction; with refuse, a refusal that names why.
+A fitted cell is checked like any other: its crop must hold every box (it is shown whole, so nothing in it is cut).
 Frames with no detected subject are counted as `undetected_frames`, not as crossing (the same rule as the measure tool).
 
 USAGE: whole_movement_check.py --edit EDIT.json --model SEG_MODEL.pt [--work DIR] [--write-edit FIXED.json]
          [--subject-class 0] [--implement-class 38] [--sample-fps 6] [--imgsz 960] [--conf 0.2] [--near-px 400]
-         [--margin 0.03]
+         [--margin 0.03] [--when-too-wide fit-blurred|refuse]
 EDIT.json is the edit author_comparison_edl.py writes: spine.segments[].sources[] each with source, in, out (source
 seconds) and crop {x, y, w, h} (source pixels); the cell aspect comes from encode and the segment layout (h or v),
 or from the crop itself when the edit names neither.
@@ -89,9 +93,14 @@ def crossings(frames: list[dict[str, Any]], crop: dict[str, float]) -> dict[str,
     return {"subject": subject, "extent": extent, "undetected": undetected}
 
 
-def widen(crop: dict[str, float], aspect: float, frames: list[dict[str, Any]], source: list[int], margin: float) -> dict[str, Any]:
+WHEN_TOO_WIDE = ("fit-blurred", "refuse")
+
+
+def widen(crop: dict[str, float], aspect: float, frames: list[dict[str, Any]], source: list[int], margin: float,
+          cell: list[int] | None = None, when_too_wide: str = "refuse") -> dict[str, Any]:
     """The smallest crop at `aspect`, no smaller than `crop`, inside the source, holding every box plus margin, nearest
-    to the old crop's place. Returns {"crop": {...}} or {"refusal": why}."""
+    to the old crop's place. Returns {"crop": {...}}, {"crop": {...}, "fit": {...}} when no crop of that shape fits the
+    source and `when_too_wide` is fit-blurred (the cell size `cell` is known), or {"refusal": why}."""
     boxes = [f["box"] for f in frames if f.get("box") is not None]
     if not boxes:
         return {"refusal": "no subject was detected in this cell's range, so there is nothing to fit"}
@@ -109,8 +118,11 @@ def widen(crop: dict[str, float], aspect: float, frames: list[dict[str, Any]], s
             break
         height += 1
     if width > src_w or height > src_h:
-        return {"refusal": (f"the movement needs {math.ceil(x1 - x0)} by {math.ceil(y1 - y0)} px (a {width} by {height} crop at the "
-                            f"cell aspect), which does not fit the {src_w} by {src_h} source frame")}
+        too_wide = (f"the movement needs {math.ceil(x1 - x0)} by {math.ceil(y1 - y0)} px (a {width} by {height} crop at the "
+                    f"cell aspect), which does not fit the {src_w} by {src_h} source frame")
+        if when_too_wide == "fit-blurred" and cell:
+            return fitted(x0, y0, x1, y1, min(width, src_w), min(height, src_h), source, cell, frames)
+        return {"refusal": too_wide + ("" if cell else "; a fit needs the cell size (the edit's encode and layout)")}
     x = min(max(crop["x"] + crop["w"] / 2 - width / 2, x1 - width), x0)
     y = min(max(crop["y"] + crop["h"] / 2 - height / 2, y1 - height), y0)
     x = int(min(max(math.floor(x), 0), src_w - width))
@@ -121,10 +133,27 @@ def widen(crop: dict[str, float], aspect: float, frames: list[dict[str, Any]], s
     return {"crop": widened}
 
 
+def fitted(x0: float, y0: float, x1: float, y1: float, width: int, height: int, source: list[int], cell: list[int],
+           frames: list[dict[str, Any]]) -> dict[str, Any]:
+    """A crop of `width` by `height` (the cell's shape cut to the source) centred on the boxes x0..x1, y0..y1, shown
+    whole: `inner` is its picture scaled into the cell (even sizes, centred), the rest of the cell the blurred fill."""
+    src_w, src_h = source
+    x = int(min(max(math.floor((x0 + x1) / 2 - width / 2), 0), src_w - width))
+    y = int(min(max(math.floor((y0 + y1) / 2 - height / 2), 0), src_h - height))
+    crop = {"w": int(width), "h": int(height), "x": x, "y": y}
+    if crossings(frames, crop)["extent"]:
+        return {"refusal": "the fitted crop still lets a box cross its edge after rounding to whole pixels"}
+    scale = min(cell[0] / width, cell[1] / height)
+    w, h = 2 * int(width * scale / 2), 2 * int(height * scale / 2)
+    inner = {"w": w, "h": h, "x": (cell[0] - w) // 4 * 2, "y": (cell[1] - h) // 4 * 2}   # even: yuv420p places on 2s
+    return {"crop": crop, "fit": {"fill": "blur", "cell": list(cell), "inner": inner}}
+
+
 HELD_SPAN_S = 0.25  # long enough for the measure tool's 6 fps sampling to take the held frame
 
 
-def cell_check(source: dict[str, Any], aspect: float, measure: Measure, margin: float) -> dict[str, Any]:
+def cell_check(source: dict[str, Any], aspect: float, measure: Measure, margin: float, cell_size: list[int] | None = None,
+               when_too_wide: str = "refuse") -> dict[str, Any]:
     start = float(source["in"])
     # a held frame (a still pass) carries `in` only: what shows is that one frame, measured on the short span from it
     end = float(source["out"]) if "out" in source else start + HELD_SPAN_S
@@ -138,13 +167,15 @@ def cell_check(source: dict[str, Any], aspect: float, measure: Measure, margin: 
         "crossing_times": [round(start + t, 3) for t in found["extent"]],
     }
     if not found["extent"]:
-        return {**cell, "ok": True, "widened": None, "refusal": None}
-    result = widen(crop, aspect, measured["frames"], measured["source"], margin)
-    return {**cell, "ok": False, "widened": result.get("crop"), "refusal": result.get("refusal")}
+        return {**cell, "ok": True, "widened": None, "fit": source.get("fit"), "refusal": None}
+    result = widen(crop, aspect, measured["frames"], measured["source"], margin, cell_size, when_too_wide)
+    return {**cell, "ok": False, "widened": result.get("crop"), "fit": result.get("fit"), "refusal": result.get("refusal")}
 
 
-def check_edit(edit: dict[str, Any], measure: Measure, margin: float = 0.03) -> dict[str, Any]:
-    """Every cell of the edit's split segments, in order, and the edit with the widened crops applied."""
+def check_edit(edit: dict[str, Any], measure: Measure, margin: float = 0.03, when_too_wide: str = "fit-blurred") -> dict[str, Any]:
+    """Every cell of the edit's split segments, in order, and the edit with the widened (or fitted) crops applied."""
+    if when_too_wide not in WHEN_TOO_WIDE:
+        raise ValueError(f"when_too_wide must be one of {', '.join(WHEN_TOO_WIDE)}, not {when_too_wide!r}")
     encode = edit.get("encode", {})
     fixed = copy.deepcopy(edit)
     cells = []
@@ -152,15 +183,22 @@ def check_edit(edit: dict[str, Any], measure: Measure, margin: float = 0.03) -> 
         for c_index, source in enumerate(segment.get("sources", [])):
             crop = source["crop"]
             layout = segment.get("layout")
+            size = None
             if layout in ("h", "v") and encode.get("width") and encode.get("height"):
                 aspect = cell_aspect(layout, encode["width"], encode["height"])
+                size = [encode["width"] // 2, encode["height"]] if layout == "h" else [encode["width"], encode["height"] // 2]
             else:
                 aspect = crop["w"] / crop["h"]
-            cell = cell_check(source, aspect, measure, margin)
+            cell = cell_check(source, aspect, measure, margin, size, when_too_wide)
             cell = {"segment": segment.get("id", s_index), "cell": c_index, **cell}
             cells.append(cell)
             if cell["widened"]:
-                fixed["spine"]["segments"][s_index]["sources"][c_index]["crop"] = cell["widened"]
+                fixed_source = fixed["spine"]["segments"][s_index]["sources"][c_index]
+                fixed_source["crop"] = cell["widened"]
+                if cell["fit"]:
+                    fixed_source["fit"] = cell["fit"]
+                else:
+                    fixed_source.pop("fit", None)      # a crop of the cell's shape fills the cell itself
     refused = [c for c in cells if c["refusal"]]
     return {"cells": cells, "cells_out_of_frame": sum(1 for c in cells if not c["ok"]), "cells_refused": len(refused),
             "passes": all(c["ok"] for c in cells), "fixed_edit": fixed}
@@ -179,6 +217,8 @@ def main(argv: list[str] | None = None, measure: Measure | None = None) -> int:
     parser.add_argument("--conf", type=float, default=0.2)
     parser.add_argument("--near-px", type=float, default=400)
     parser.add_argument("--margin", type=float, default=0.03)
+    parser.add_argument("--when-too-wide", choices=WHEN_TOO_WIDE, default="fit-blurred",
+                        help="a movement no crop of the cell's shape can hold: fit it whole over a blurred fill, or refuse")
     args = parser.parse_args(argv)
     try:
         edit = json.loads(Path(args.edit).read_text(encoding="utf-8"))
@@ -188,7 +228,7 @@ def main(argv: list[str] | None = None, measure: Measure | None = None) -> int:
                         "conf": args.conf, "near_px": args.near_px}
             work = Path(args.work) if args.work else Path(args.edit).with_suffix(".framing")
             measure = make_measure(settings, work)
-        report = check_edit(edit, measure, args.margin)
+        report = check_edit(edit, measure, args.margin, args.when_too_wide)
     except (OSError, ValueError, KeyError, TypeError, RuntimeError) as error:
         print(json.dumps({"error": f"{type(error).__name__}: {error}"}))
         return 2

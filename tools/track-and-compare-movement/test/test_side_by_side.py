@@ -72,12 +72,33 @@ class MakeAndCheck(unittest.TestCase):
         moved["bottom"]["contact_frame"] += 2
         self.assertFalse(M.check(moved, self.made["out"])["checks"]["contact-in-sync"]["pass"])
 
+    def test_the_check_looks_where_the_clip_says_contact_is_even_past_a_sides_own_lead(self):
+        # a retimed side (slowed before contact) can show more output time before contact than its source holds
+        early = json.loads(json.dumps(self.spec))
+        early["top"]["contact_frame"] = 20          # 0.63 s of source before contact, less than before_s 1.0
+        self.assertEqual(M.check(early, self.made["out"])["contact_output_frame"], 30)
+
     def test_a_solo_clip_is_not_a_comparison(self):
         solo = json.loads(json.dumps(self.spec))
         solo["bottom"] = dict(solo["top"])
         result = M.check(solo, self.made["out"])
         self.assertFalse(result["checks"]["is-a-comparison"]["pass"])
         self.assertFalse(result["pass"])
+
+    def test_a_fitted_cell_is_compared_on_the_part_its_crop_is_shown_in(self):
+        fitted = str(self.dir / "fitted.mp4")       # the bottom cell's picture shown whole at 320x240, on a dark fill
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", self.made["out"], "-filter_complex",
+                        "[0:v]split[a][b];[a]crop=640:480:0:0[top];[b]crop=640:480:0:480,split[c][d];"
+                        "[c]gblur=sigma=20,colorchannelmixer=rr=0.4:gg=0.4:bb=0.4[fill];[d]scale=320:240[whole];"
+                        "[fill][whole]overlay=160:120[bottom];[top][bottom]vstack=2,format=yuv420p[v]",
+                        "-map", "[v]", "-c:v", "libx264", "-crf", "12", fitted], check=True)
+        spec = json.loads(json.dumps(self.spec))
+        spec["bottom"]["inner"] = [320, 240, 160, 120]
+        result = M.check(spec, fitted)
+        self.assertTrue(result["pass"], json.dumps(result["checks"]))
+        self.assertEqual(result["checks"]["contact-in-sync"]["offset_frames"], 0)
+        del spec["bottom"]["inner"]                  # read as a whole cell it is not its source
+        self.assertFalse(M.check(spec, fitted)["checks"]["is-a-comparison"]["pass"])
 
     def test_the_sheet_holds_the_contact_and_its_neighbours(self):
         out = M.sheet(self.made["out"], self.made["contact_output_frame"], str(self.dir / "sheet.jpg"))

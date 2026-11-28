@@ -14,19 +14,21 @@ Whole-frame motion against a reference video is a different job: `check-a-videos
 
 Every movement comparison and swing clip is made by `workflow:make-matched-movement-clips` (a row of
 the pursuit's `workflow_recipes`), never by a hand-run script: its steps run `do-work/make_matched_clips.py`
-(prepare, perceive, match, render, check, keep) from Workshop origin/main, then index each kept clip in the named store's
+(prepare, perceive, match, render, check, keep, and progression) from Workshop origin/main, then index each kept clip in the named store's
 `recording_moment`. A guard in ai-command-center (`.claude/hooks/making-a-deliverable-needs-a-wf-run.py`, its `routes`
 data) refuses running these scripts, or ffmpeg on swing-library footage, outside an open run of that workflow. Why (Nov 25 2026):
 comparison clips had been made by hand scripts around this tool's matcher, contact finder and planner.
 
 | Stage | What it runs |
 |-------|--------------|
-| prepare | `files_road.fetch` of the perception models and every clip by Files identity |
-| perceive | `perception/run_perception.py` (pose, then `describe_clip` with the physical stroke rules on), as the index folder `select_partner` reads; a clip described with the same salience rules is reused. A tightly cut one-swing clip never reaches a sustained rest, so `quiet_edge_frac`, `min_lead_s` and `min_follow_s` let an edge cut while the body is quiet, with contact far enough inside, count as a whole swing |
-| match | `match/select_partner.py` per target window; only admitted pairs (camera direction verified) are kept. With `reference_classes` (each reference folder and the class a person labelled it with) it runs the labelled mode: a window is admitted only when its nearest `movement`-class reference is within `class_admit` and every other class is at least `class_margin` further; a view family with no contrast class refuses. `class_admit` 0 admits nothing and records every window's class distances, the run the bound and margin are calibrated on |
-| render | `author_comparison_edl.py` (stacked or side by side, crop on each person, centred on contact), rendered by media-composition `render-an-edit.mjs` |
+| prepare | Reads every kept fact about the job's clips first (the `recording_facts` rows, see Measured once below); `files_road.fetch` of the perception models and of every clip not yet measured under the same perception settings (a measured clip is fetched only when render needs its pictures); a person's contact marks come from the rows |
+| perceive | `perception/run_perception.py` (pose, then `describe_clip` with the physical stroke rules on), as the index folder `select_partner` reads; a clip described here with the same salience rules is reused, one measured anywhere before under the same perception settings has its pose track and descriptor fetched from Files by identity, and one refused before is not tried again. A tightly cut one-swing clip never reaches a sustained rest, so `quiet_edge_frac`, `min_lead_s` and `min_follow_s` let an edge cut while the body is quiet, with contact far enough inside, count as a whole swing |
+| measure | Per clip, once: its pose track and descriptor kept in Files, a perception row (or the refusal), and per swing window a swing row (times, heading, camera angle class, stroke reading with why when unclear, contact with its source: a person's mark, the hit's sound less the audio lag, or the wrist peak; people, date) and a recording row. A clip with rows under the same fingerprints is read, not measured. `work/measured.json` holds the facts for match and render |
+| match | `match/select_partner.py` per target window; only admitted pairs (camera direction verified) are kept. With `reference_classes` (each reference folder and the class a person labelled it with) it runs the labelled mode: a window is admitted only when its nearest `movement`-class reference is within `class_admit` and every other class is at least `class_margin` further; a view family with no contrast class refuses. `class_admit` 0 admits nothing and records every window's class distances, the run the bound and margin are calibrated on With `target_hand` / `reference_hand` (each side's playing hand) or a given `target_forehand_side` / `reference_forehand_side`, each target window and each partner must also read as `movement` by `stroke_side.py` (see Stroke rules below); a window that does not is refused with its reading. |
+| render | `author_comparison_edl.py` (stacked or side by side, crop on each person, centred on contact), `whole_movement_check.py` (a cell's crop widened until the body and racket stay inside it; where no crop of the cell's shape fits the source, `when_too_wide` in `comparison-variants.json`: `fit-blurred`, the default, shows the movement's crop whole in the cell over a blurred, darkened fill of itself, never cut; `refuse` makes no clip), rendered by media-composition `render-an-edit.mjs` |
 | check | `side_by_side.py check` (two sources, same stroke and direction, contact within one output frame) |
 | keep | `files_road.keep` (any size, in 32 MiB pieces) and one row per clip |
+| progression | Only when the run's input names `progression` (then prepare goes straight to it, from the work folder's finished `pairs.json`, and the batch stages are not run): one fixed reference swing on the top cell and a target's dated swings under it, oldest first. The reference swing is the one that partners the most dates with a swing that can be shown (or the one named); per date its closest pair whose phase sync holds and whose cells hold the whole movement (the framing check, per swing), spread over time, as many as fit `seconds` (a swing too wide for its cell is fitted over a blurred fill unless `when_too_wide` is `refuse`); each swing is render's own plan (contact, phase sync, mirror) cut as its whole synced swing; the reference crop is held for the whole video; each swing carries its date (`label.format`) as a caption in a caption style whose letters' edge media-composition `caption-subtitle.mjs` places by measuring. Writes `progression/NAME.mp4` and `NAME.json` (every swing's program seconds, contact second and the measured caption rows) |
 
 ## Files
 
@@ -41,6 +43,9 @@ comparison clips had been made by hand scripts around this tool's matcher, conta
 | `do-work/comparison-variants.json` | DATA: the shapes (9x16 stacked, 16x9 side by side) and the passes of a comparison; the one list, which `stroke_variants.py` also reads its shapes and speeds from. |
 | `do-work/phase_sync.py` | The landmark sync. `--spec --out [--sheet]`; spec `{fps, target: {kp, contact, track_id?, clip?}, reference: {...}, settings?, sheet?}` (a side's `in`/`out` is refused: the window comes from the landmarks); writes `phase_sync.v1`: `target`/`reference` {in, contact, out}, `landmarks` {target, reference: {L1..L4}}, `pieces` [{from, to, plays_from, plays_to, speed}], `speed_ramp` [{t, speed}], `landmark_misses_frames`, `max_phase_error_frames` (the largest miss) and, with both clips, `landmark_sheet` (default beside OUT as `.landmarks.png`); a refusal prints `{"error", "refused"}` and exits 1. `phase_sync`, `reference_window`, `reference_second` and `plays_at` are plain functions. |
 | `do-work/swing_landmarks.py` | The landmark reader. `--kp --contact [--track-id --clip --sheet]`; `find_landmarks(frames, contact)` gives L1..L4 in clip seconds or raises `NoLandmark` saying which and why; `landmark_sheet(rows, out)` takes each row's frames at L1..L4 with ffmpeg (the frame nearest each second) into one labelled picture, a row per person. The rules and their measurements are under "Landmark rules" below. |
+| `do-work/stroke_side.py` | The stroke reader: forehand, backhand or unclear for one swing window from two readings that must agree (the takeback's side on screen with the swing's forehand side, and the direction the body turns with the playing hand). `--kp --desc --window [--hand right\|left --forehand-side 1\|-1 --rules]`; `read_stroke(kp, window, hand, forehand_side, rules)`, `forehand_side_of`, `forward_turn`, `stroke_of`, `stroke_by_turn` are plain functions. |
+| `do-work/measured_facts.py` | The kept-facts road: `read_rows`, `write_rows` (a conflict keeps the first), `fingerprint` (BLAKE3 of the settings' canonical JSON, by `b3sum`), `marks_of`. It runs SQL only through the command in `job.facts.sql`. |
+| `do-work/stroke-side.json` | The stroke reader's numbers (`margin`, `turn_min_deg`, `right_hand_forehand_turn`, `facing_min_cos`, `facing_samples`); a job's `stroke_side_rules` goes over them. |
 | `do-work/phase-sync.json` | DATA: the speed bounds, the miss refusal limit (output frames), the lead and tail around L1 and L4, and under `landmarks` every landmark rule number and the sheet's cell size. |
 | `do-work/fast_pose.py` | The fast pose reader: ffmpeg decodes small frames, the model reads 16 at a time, one person is followed by nearest box. `--video --out --checkpoint [--height --device]`; writes the same `pose.keypoints.v1` track, about 4x the frame rate of `estimate_pose.py`. |
 | `do-work/find_strokes.py` | Each stroke's contact second and window. `--track --out [--min-speed --min-arc]`; wraps `describe_clip.detect_windows` with three physical rules (lost-body frames, at most one body height a frame, the signal capped at its 99th percentile) and keeps a window only when the hitting wrist is fast enough and sweeps across the hips. |
@@ -53,6 +58,9 @@ comparison clips had been made by hand scripts around this tool's matcher, conta
 | `test/test_estimate_pose.py` | The contract, the cache rule (same size, head and tail but another middle is not the same video), the refusals and a cache hit, with no model. |
 | `test/test_make_site_clip.py` | The cut filter, the refused backward stretch, sound off unless asked, the place input, a clip or still with no why refused; and, with ffmpeg and b3sum, a real silent cut of a made-up video kept by its identity, and bytes that are not the named identity refused. No engine is used. |
 | `test/test_side_by_side.py` | Direction from hand, camera and mirror; different strokes and unread labels refused; an upscale refused; and, with ffmpeg, two made-up sources at 30 and 24 frames a second made into one clip whose contacts share an output frame, a contact moved two frames refused, a solo clip refused as a comparison, and the sheet's frames. |
+| `test/test_stroke_side.py` | Made-up tracks and measured-shape heading trajectories: the takeback side whatever the wrist label; the forward turn the same from eight camera azimuths; the forehand side from the camera and the hand, none from a side view; a stroke only when both readings agree; a cut window gives no turn; a given forehand side overrides the heading and, without a hand, decides alone; a job's own numbers. |
+| `test/test_measure_stage.py` | measure on a made-up track and heading: rows per window with camera, reading, contact and people; a mark inside the window is the contact; a clip with rows under the same fingerprints is read, not measured; a refusal is kept; a new mark measures again; the fingerprint is BLAKE3 of the canonical settings. |
+| `test/test_match_side.py` | match with stand-in readings: a target window not read as the movement is refused, a partner must read as it too, a playing hand alone has swings read, and the forehand side a swing was read with decides the mirror. |
 | `test/test_track_selected_object.py` | The refusals; and, when ffmpeg, torch, transformers and the small SAM 2 model are cached, a real run on a made-up video of a white square moving across black. Skipped, saying why, otherwise. |
 | `test/test_author_comparison_edl.py` | The edit on synthetic tracks: labels, layout, mirror and passes from the spec, crops inside the frame and at the cell's shape, the window cut to the shorter clip, the person picked by id, the command and its refusal; a synced side's window and ramp (as long as the target's), smooth only when slowed, the still, one edit per shape from the variants. |
 | `test/test_stroke_variants.py` | The clip-library variants' shapes and speeds are `comparison-variants.json`'s, the ones the library was made in, and another variants file gives its own. |
@@ -81,6 +89,95 @@ swings, the other 3 start while he moves to the ball (no still ready position, s
 the move); L4 the wrapped finish in 7 (one 0.3 s late, in the recovery). Refused: one swing whose track has no frames
 around contact, one pro clip whose given contact is 0.33 s before its fastest moment, and one self-fed student swing
 whose frames show the given contact is right but whose hands are fastest 0.25 s after it (a false refusal).
+
+## Measured once: the recording_facts rows
+
+Whatever this tool measures about a recording is measured once and kept, keyed by the recording's content identity,
+in the pursuit's own database (`job.facts`: `database`, `table`, the engine command `sql` that runs one statement, and
+`files_folder` for the heavy outputs). Without `job.facts` nothing is read or kept.
+
+| Column | Holds |
+|--------|-------|
+| identity | The recording's content identity (`1f:` + BLAKE3) |
+| fact | `perception`: the pose track and descriptor identities in Files, the window count, the length, or `{"refused": why}`. `swing` (part = window index): t0, t1, peak_t, full_swing, the heading trajectory, `camera` {class: back, front, side-left, side-right, birdseye, unclear; target_deg, turn_deg, elevation} (see Camera angle below), `reading` (stroke_side.py: forehand side and where it came from, takeback side, turn, stroke, why unclear), `contact` {time, source: mark / hit / wrist, why}, people, date. `recording`: people, date, hand, the forehand side its swings agree on, the cameras seen. `length`: the file's seconds (a fact of its bytes, no fingerprint), so a reference too long for the job is never fetched again. `contact-mark` (part = seconds) and `verdict`: a person's own |
+| part | '' or the window index, the marked seconds, the verdict's key |
+| fingerprint | BLAKE3 of the settings' canonical JSON. Perception: salience rules + model identities. Swing and recording: the perception fingerprint, the stroke rules, the hand and given forehand side, the people, the side's contact tolerance and audio lag, and the person's marks on that recording (a new mark measures it again). '' for a person's fact |
+| value, measured_by, measured_at | The fact; `{"tool", "commit"}` or `{"person"}`; when |
+
+The heavy outputs are kept in Files as `<files_folder>/<identity hex>/<fingerprint hex>.desc.json` and `.kp.json`, so
+another work folder or computer fetches them instead of perceiving again (perceive rewrites the copy's clip path to
+its own work folder).
+
+## Camera angle (stroke_side.camera_of) and why
+
+The class reads the direction the player hits toward, which no stroke's turn moves: the forward turn starts at the
+takeback's furthest-turned heading and swings the body back toward the target, so target = furthest-turned +
+`camera_target_offset_deg` (90) in the turn's direction. back / front when `abs(cos(target)) >= facing_min_cos` (0.5,
+within 60 degrees), else side-right / side-left (the camera at the player's right / left); birdseye from the
+elevation; unclear without the whole forward turn or with one under `camera_turn_min_deg` (30). The follow-through
+heading was used first: a fully turned finish classed a camera behind the player as side-on (a left-handed student's
+back-view windows 5 and 10). Measured Nov 28 2026 on the pro's labelled clips (windows; the folder names the view
+relative to the stroke, so a "Back Side" camera is on one side for forehands and the other for backhands):
+
+| Folder view | Stroke | back | front | side-left | side-right | birdseye | unclear |
+|---|---|---|---|---|---|---|---|
+| Back | Forehand | 26 | 0 | 0 | 1 | 1 | 15 |
+| Back | Backhand | 11 | 0 | 0 | 0 | 0 | 6 |
+| Back 45 | Forehand | 12 | 0 | 0 | 3 | 0 | 4 |
+| Back Side 45 | Forehand | 8 | 0 | 0 | 0 | 0 | 0 |
+| Back Side | Forehand | 4 | 1 | 16 | 0 | 0 | 4 |
+| Back Side | Backhand | 0 | 1 | 0 | 30 | 0 | 6 |
+| Side | Forehand | 2 | 1 | 0 | 39 | 0 | 26 |
+| Side | Backhand | 0 | 2 | 0 | 0 | 1 | 5 |
+| Front Side 45 | Forehand | 0 | 4 | 0 | 0 | 0 | 4 |
+| Front 45 | Forehand | 0 | 3 | 0 | 15 | 0 | 7 |
+| Front 45 | Backhand | 0 | 4 | 0 | 0 | 0 | 2 |
+| Front | Forehand | 0 | 0 | 0 | 0 | 0 | 2 |
+| Birdseye | Forehand | 0 | 2 | 0 | 0 | 46 | 3 |
+
+No back-view window reads front; the student's 9 decided windows all read back. Front 45 forehands mostly read
+side-right: their target heading came out near 253 degrees, about 28 past the folder's 225, and side starts at 60
+degrees off the camera axis. The forehand side (stroke rules below) still reads the follow-through heading, as
+validated there.
+
+## Stroke rules (stroke_side.py) and why
+
+A swing library is built from hundreds of recordings whose names do not say where the camera stood, so a forehand
+cannot be told from a backhand by a fixed per-recording number: a right hand's forehand takeback goes to screen right
+seen from behind and to screen left seen from the front. Two readings of each window, from different signals, must
+agree; anything else is unclear and refused, never guessed.
+
+| Reading | Rule | Why this rule |
+|---------|------|---------------|
+| forehand side | Given (`forehand_side`), else `hand x sign(cos(facing))`, facing = circular mean of the window's last `facing_samples` (3) headings, only when `abs(cos(facing)) >= facing_min_cos` (0.5). | The heading (0 = back to the camera) says whether the camera is behind or in front. The follow-through is where the chest has turned back toward the target. A camera at the player's side decides nothing: there both strokes take the racket back behind the body. |
+| by side | `side x forehand_side >= margin` (2 body widths) forehand, `<= -margin` backhand. | The takeback side on screen, read without left/right labels. |
+| by turn | Forward turn = last unwrapped heading minus the heading farthest from it; `turn x hand x right_hand_forehand_turn >= turn_min_deg` (70) forehand, `<= -70` backhand. No reading for a cut window or one ending under `turn_follow_min_s` (0.3 s) after contact. | A turn about the upright body has the same direction from every camera azimuth. A volley's punch turned 48 to 64 degrees and was misread by both readings, so a groundstroke's turn of 70 or more is required. A window ending at contact read its takeback turn as the forward turn. |
+
+Measured Nov 28 2026 on every labelled one-swing clip of one right-handed pro of 8 s or less (345 clips; 54 had no
+athlete track and were not described), playing hand right, no forehand side given, by camera folder (clips: right /
+unclear / wrong / not described). A clip is wrong when any of its windows is called the other stroke.
+
+| Folder | View | Right | Unclear | Wrong | Not described |
+|--------|------|-------|---------|-------|---------------|
+| Forehand | Back | 20 | 17 | 0 | 0 |
+| Forehand | Back 45 | 15 | 4 | 0 | 1 |
+| Forehand | Back Side 45 | 6 | 2 | 0 | 1 |
+| Forehand | Back Side | 9 | 4 | 0 | 32 |
+| Forehand | Side | 26 | 35 | 0 | 11 |
+| Forehand | Front Side 45 | 4 | 0 | 0 | 7 |
+| Forehand | Front 45 | 1 | 20 | 0 | 2 |
+| Forehand | Birdseye | 33 | 15 | 0 | 0 |
+| Backhand One-Handed | Back | 8 | 3 | 0 | 0 |
+| Backhand One-Handed | Back Side | 2 | 20 | 0 | 0 |
+| Backhand Slice | Back / Back Side / Side | 1 | 15 | 0 | 0 |
+| Forehand Volley | Back Side / Front Side 45 / Front | 0 | 18 | 0 | 0 |
+| Backhand Volley | Front 45 / Side | 0 | 13 | 0 | 0 |
+
+0 of 317 windows called wrong; 125 called right. The two numbers set from these clips (`turn_min_deg` 70,
+`turn_follow_min_s` 0.3) each removed wrong calls seen on them, so this table is not a held-out test. A left-handed
+student's back-view recording (11 windows), with playing hand left: the forehand side read -1 in 9 windows and +1 in
+none; it called 5 forehands and 1 backhand, and the given -1 calls each of them the same (and one more forehand,
+where the heading could not decide the forehand side).
 
 ## Invariants
 

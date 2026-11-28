@@ -1,5 +1,5 @@
 {
-  "start_here": "Say to your AI: \"Grant my project folder for change, then run tool:add-a-tool-to-a-project with project . and tool content-identity from my registry tools-in-this-registry.json.\" It copies the folder into trillion/content-identity/ and writes its line in trillion/where-each-tool-comes-from.json.",
+  "start_here": "Say to your AI: \"Grant my project folder with use-git-in-a-folder, then run tool:add-a-tool-to-a-project with project . and tool content-identity from my registry tools-in-this-registry.json.\" It copies the folder into trillion/content-identity/ and writes its line in trillion/where-each-tool-comes-from.json.",
   "lists": [],
   "no_lists_because": "This tool copies files into the granted project folder and writes the project's own record file; it reads and keeps no list rows.",
   "workflows": [],
@@ -7,7 +7,7 @@
     "tool:add-a-tool-to-a-project"
   ],
   "instructions": [
-    "1. Grant the project's folder (the folder holding its package.json) for change, and keep a registry file tools-in-this-registry.json there or give its https address.",
+    "1. Grant the project's folder (the folder holding its package.json) with use-git-in-a-folder (the folder for change, plus the system git the copy is read with), and keep a registry file tools-in-this-registry.json there or give its https address.",
     "2. Ask your AI to run tool:add-a-tool-to-a-project with {\"project\":\".\",\"tool\":\"content-identity\",\"from\":\"tools-in-this-registry.json\"}. Add as when the name is already another source's folder; add prepare false to skip the cards' prepare commands.",
     "3. Read added, already and refused. A refused edited-copy carries the diff of what you changed; move a copy to a newer commit with the sync tool, never by adding again. Commit the new trillion/ folders and the record file in your project."
   ],

@@ -82,7 +82,8 @@
         "json",
         "help",
         "verbose",
-        "upload"
+        "upload",
+        "pin"
       ]
     }
   },
@@ -429,6 +430,9 @@
     "not_covered": "Your sign-in is not for that {site_name}. Run {cli} login for it, giving its address, then try again.",
     "refused_key_at_door": "{site_name} did not accept the key kept on this computer. Run {cli} login to sign in.",
     "local_door": "{site_name} on this computer",
+    "answered_by": "Answered by {name}.",
+    "answered_pinned": " Pinned to computer {pins}.",
+    "no_local_door": "{site_name} on this computer was not found, so this call went to {name}.",
     "kept_key_elsewhere": "The key kept on this computer is for {site_name} on this computer, so it was not sent to a different {site_name}. Set {CLI}_KEY to the key for that one, then try again.",
     "public_door": "{site_name}",
     "no_origin": "This computer doesn't know which {site_name} to sign in to. Run the install line from your {site_name} website, then run {cli} login.",
@@ -507,6 +511,8 @@
       "door_full": "This computer is busy with as many calls as it takes at once; try again in a moment."
     },
     "details": {
+      "answered_by": "The door was {mcp}.",
+      "no_local_door": "Looked for it at {tried}; the door was {mcp}.",
       "schedule_input_old_engine": "An engine older than trillion-rust 3bd6dc47a refuses a wake:switch that carries input (engine.need_refusal).",
       "_what": "The technical line each refusal adds when the person runs the command with --verbose; no other run prints it. Not person-facing words, so the plain-words test skips this block.",
       "not_running": "Nothing answered at {mcp}: {why}.",

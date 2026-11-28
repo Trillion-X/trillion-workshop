@@ -1,5 +1,6 @@
-"""make_matched_clips render runs its pieces in order for every format, with each piece stood in for: contact, phase
-sync, the edit per format, the framing check and the renderer. A refused sync or a refused framing makes no clip."""
+"""make_matched_clips render runs its pieces in order for every format, with each piece stood in for: phase sync, the
+edit per format, the framing check and the renderer, from the contacts the measure stage kept. A refused sync or a
+refused framing makes no clip."""
 import json
 import os
 import subprocess
@@ -15,6 +16,19 @@ T = {"path": "/t.mp4", "identity": "1f:" + "a" * 64, "people": ["Ada Lane"], "da
 R = {"path": "/r.mp4", "identity": "1f:" + "b" * 64, "people": ["Bo Reyes"], "year": "2019", "class": "forehand"}
 
 
+def measured(job, pairs, contact=None):
+    """work/measured.json as the measure stage writes it, for the windows the pairs use: each contact the wrist peak
+    unless `contact` names one ((side, key, window) -> contact)."""
+    out = {"targets": {}, "references": {}}
+    for p in pairs:
+        for side, k, w, peak in (("targets", p["target"], p["target_window"], p["target_peak"]),
+                                 ("references", p["reference"], p["reference_window"], p["reference_peak"])):
+            got = (contact or {}).get((side, k, w)) or {"time": peak, "source": "wrist"}
+            out[side].setdefault(k, {"swings": {}})["swings"][str(w)] = {"reading": None, "contact": got}
+    with open(os.path.join(job["work"], "measured.json"), "w") as f:
+        json.dump(out, f)
+
+
 class RenderStage(unittest.TestCase):
     def setUp(self):
         self.work = tempfile.mkdtemp()
@@ -23,13 +37,17 @@ class RenderStage(unittest.TestCase):
                 "reference_peak": 1.2, "target_t": [39.9, 41.4], "reference_t": [0.5, 2.0], "parity": "reflected"}
         with open(os.path.join(self.work, "pairs.json"), "w") as f:
             json.dump({"pairs": [pair], "refused": []}, f)
+        self.pair = pair
+        measured(self.job, [pair])
+        m._MEASURED.clear()
         self.calls, self.refuse = [], set()
-        self.saved = (m.run_json, m.subprocess.run)
+        self.saved = (m.run_json, m.subprocess.run, m.ensure_media)
         m.run_json = self.fake_run_json
         m.subprocess.run = self.fake_run
+        m.ensure_media = lambda job, clip: clip["path"]
 
     def tearDown(self):
-        m.run_json, m.subprocess.run = self.saved
+        m.run_json, m.subprocess.run, m.ensure_media = self.saved
 
     def arg(self, cmd, name):
         return cmd[cmd.index(name) + 1]
@@ -39,8 +57,6 @@ class RenderStage(unittest.TestCase):
         self.calls.append(piece)
         if piece in self.refuse:
             return {"error": f"{piece} refused"}
-        if piece == "contact_moment.py":
-            return {"result": {"time": float(self.arg(cmd, "--wrist-peak")), "source": "wrist"}}
         if piece == "phase_sync.py":
             with open(self.arg(cmd, "--out"), "w") as f:
                 json.dump({"kind": "phase_sync.v1"}, f)
@@ -66,8 +82,8 @@ class RenderStage(unittest.TestCase):
     def test_every_format_is_made_by_the_pieces_in_order(self):
         got = m.render(self.job)
         self.assertEqual(got["made"], 2)
-        self.assertEqual(self.calls[:4], ["contact_moment.py", "contact_moment.py", "phase_sync.py", "author_comparison_edl.py"])
-        self.assertEqual(self.calls[4:], ["whole_movement_check.py", "render-an-edit.mjs"] * 2)
+        self.assertEqual(self.calls[:2], ["phase_sync.py", "author_comparison_edl.py"])   # the contacts are measured
+        self.assertEqual(self.calls[2:], ["whole_movement_check.py", "render-an-edit.mjs"] * 2)
         made = json.load(open(os.path.join(self.work, "rendered.json")))["made"]
         self.assertEqual(sorted(x["format"] for x in made), ["16x9", "9x16"])
         self.assertTrue(all(x["file"].endswith(f".{x['format']}.mp4") for x in made))
@@ -92,10 +108,11 @@ class RenderStage(unittest.TestCase):
         spec = json.load(open(made[0]["file"].rsplit(".", 2)[0] + ".spec.json"))
         self.assertNotIn("sync", spec["left"])
 
-    def test_a_marked_contact_wins_over_the_detectors(self):
-        self.job["contact_marks"] = {T["identity"]: [12.0, 40.75], R["identity"]: [1.33]}  # 12.0 is another swing's
+    def test_a_measured_mark_is_the_contact(self):
+        mark = lambda t: {"time": t, "source": "mark", "hit": None}  # noqa: E731
+        measured(self.job, [self.pair], {("targets", m.key(T), 0): mark(40.75), ("references", m.key(R), 3): mark(1.33)})
+        m._MEASURED.clear()
         m.render(self.job)
-        self.assertNotIn("contact_moment.py", self.calls)
         folder = os.path.join(self.work, "clips")
         spec = next(f for f in os.listdir(folder) if f.endswith(".sync-spec.json"))
         spec = json.load(open(os.path.join(folder, spec)))
@@ -103,6 +120,26 @@ class RenderStage(unittest.TestCase):
         self.assertEqual((spec["target"]["clip"], spec["reference"]["clip"]), ("/t.mp4", "/r.mp4"))  # landmark sheet
         self.assertNotIn("in", spec["target"])                       # each window comes from the swing's landmarks
         self.assertEqual(spec["settings"]["landmarks"]["contact_off_s"], 0.35)  # a mark is not refused as early
+
+    def test_a_rerun_reuses_each_clip_with_its_own_contact_and_shape(self):
+        m.render(self.job)
+        first = {x["format"]: x for x in json.load(open(os.path.join(self.work, "rendered.json")))["made"]}
+        self.calls.clear()
+        m.render(self.job)
+        again = {x["format"]: x for x in json.load(open(os.path.join(self.work, "rendered.json")))["made"]}
+        self.assertEqual(self.calls, [])                                   # nothing made twice
+        for fid in ("9x16", "16x9"):
+            self.assertTrue(again[fid]["already"])
+            self.assertEqual(again[fid]["steps"]["contact"], first[fid]["steps"]["contact"])
+            self.assertEqual((again[fid]["size"], again[fid]["layout"]), (first[fid]["size"], first[fid]["layout"]))
+
+    def test_an_unmeasured_window_makes_no_clip_and_says_so(self):
+        with open(os.path.join(self.work, "measured.json"), "w") as f:
+            json.dump({"targets": {}, "references": {}}, f)
+        m._MEASURED.clear()
+        got = m.render(self.job)
+        self.assertEqual(got["made"], 0)
+        self.assertIn("was not measured", got["first_failure"])
 
     def test_a_refused_framing_makes_no_clip_of_that_format(self):
         self.refuse = {"whole_movement_check.py"}

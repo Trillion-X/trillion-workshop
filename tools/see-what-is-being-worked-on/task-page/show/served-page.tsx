@@ -2,13 +2,14 @@
 // in with their own sign-in and asks the row's kept session through the door's /mcp, from the door's own origin. Nothing is
 // kept but the pass, in this tab only (sessionStorage), and the sign-in's one-time verifier while it signs in.
 //
-// The address says which databases the page reads: ?dbs=a,b (the session's start input, each held for the owner alone) and
+// The address says which databases the page reads: ?dbs=a,b (each its own session, started with that one database, held for the owner alone) and
 // ?pages=<the one whose task_pages names the pursuits> (default the first). The sign-in is found from the door itself: its
 // protected-resource document names the sign-in server, whose metadata names the endpoints; the client is the sign-in
 // server's own document for this page (<server>/pages/<tool>/client.json, published from task-page/client-metadata.json)
 // unless the address names one (?client=), and the pass is made for this door (<origin>/mcp).
 // The callback is callback.html beside this page; it finishes the sign-in and returns to the page.
-import { mount, type Ask } from './mount-task-page';
+import { askByDatabase } from '../read-data/ask-by-database';
+import { mount } from './mount-task-page';
 
 const PASS = 'task-page-pass';
 const VERIFIER = 'task-page-verifier';
@@ -74,6 +75,9 @@ async function callOnce(name: string, args: Record<string, unknown>, input: Reco
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: DO, arguments: { method: 'tools:run', input: { tool, call: { name, arguments: args }, input }, request_key: crypto.randomUUID() } } }) });
   if (reply.status === 401) { sessionStorage.removeItem(PASS); await signIn(); throw new Error('signing in'); }
   const message = await reply.json();
+  // The door refuses a call it did not run (a key not held, the engine's own refusal) as a result with isError and a
+  // structuredContent of its own: say its words, never read it as an answer.
+  if (message?.result?.isError) throw new Error(String(message.result.structuredContent?.detail ?? message.result.content?.[0]?.text ?? 'refused'));
   const outer = message?.result?.structuredContent ?? JSON.parse(message?.result?.content?.[0]?.text ?? 'null');
   const inner = outer?.result;
   if (message?.error || outer?.error || inner?.isError) throw new Error(String(message?.error?.message ?? outer?.error?.message ?? inner?.content?.[0]?.text ?? 'refused'));
@@ -89,14 +93,8 @@ if (location.pathname.endsWith('/callback.html')) {
 } else {
   const dbs = (params.get('dbs') ?? '').split(',').filter(Boolean).map(database => ({ database }));
   const pagesDatabase = params.get('pages') ?? dbs[0]?.database ?? '';
-  const input = { dbs };
-  const asks = { dbs, pages_database: pagesDatabase };
-  // The page's two addresses, answered by the session's two calls.
-  const ask: Ask = async url => {
-    const asked = new URL(url, base);
-    if (asked.pathname.endsWith('/pursuits')) return JSON.stringify((await call('pursuits', asks, input)).items);
-    return JSON.stringify(await call('data', { ...asks, p: (asked.searchParams.get('p') ?? '').split(',').filter(Boolean) }, input));
-  };
+  // One session per database: the engine never starts a run holding the keys of two places.
+  const ask = askByDatabase({ call, dbs: dbs.map(one => one.database), pagesDatabase });
   const element = document.getElementById('timeline');
   if (element) mount(element, { dataUrl: 'data', seenKey: 'task-page-seen', choices: { url: 'pursuits', param: 'p', ariaLabel: 'Whose work', every: 'All' }, ask });
 }

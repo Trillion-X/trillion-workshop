@@ -20,6 +20,8 @@ import { fileDigest } from '../../content-identity/read-data/manifest.mjs';
 import type { Hex64 } from './registry.ts';
 import type { FileMap } from './fetch-folder.ts';
 
+/** The folder of a project that holds its copied tool folders and the record; the one place its name is written. */
+export const TOOLS_FOLDER = 'trillion';
 export const RECORD_FILE = 'where-each-tool-comes-from.json';
 const LOCK_FILE = '.where-each-tool-comes-from.lock';
 const WHAT = 'Where each tool folder in trillion/ came from and the exact files it started from, so sync can merge three ways. '

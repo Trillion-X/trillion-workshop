@@ -8,7 +8,7 @@ import { readFileSync, symlinkSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { add } from '../do-work/add.ts';
 import { tarFiles } from '../../content-identity/read-data/manifest.mjs';
-import { emptyProject, makeRegistry, makeRepo } from './fixtures.ts';
+import { emptyProject, makeRegistry, makeRepo, originAddress } from './fixtures.ts';
 
 const workshop = resolve(import.meta.dirname, '../../..');
 const committed = (paths: string[]): Record<string, string> => Object.fromEntries(
@@ -26,7 +26,7 @@ test('a tool\'s needs come with it and its sibling imports resolve', async () =>
   assert.deepEqual(output.added.map(a => a.tool).sort(), ['content-identity', 'hash-content-with-blake3']);
   const record = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8'));
   assert.deepEqual(record.tools['hash-content-with-blake3'].needs_tools, ['content-identity']);
-  assert.deepEqual(record.tools['content-identity'].from, { registry, tool: 'content-identity' });
+  assert.deepEqual(record.tools['content-identity'].from, { registry: originAddress(registry), tool: 'content-identity' });
   assert.notEqual(record.tools['hash-content-with-blake3'].closure_blake3, record.tools['content-identity'].closure_blake3);
   // The project's own packages: this checkout's, as a project's workspace install would give them.
   symlinkSync(join(workshop, 'node_modules'), join(project, 'node_modules'));

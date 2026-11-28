@@ -14,7 +14,7 @@ test('adding a tool the project already holds unchanged writes nothing', async (
   await add({ project, tool: 'greet', from: registry });
   const recordFile = join(project, 'trillion', 'where-each-tool-comes-from.json');
   const before = fileDigest(readFileSync(recordFile));
-  const again = await add({ project, tool: 'greet' });
+  const again = await add({ project, tool: 'greet', clones: [registry] });
   assert.deepEqual(again, { added: [], already: ['greet'], refused: [], prepared: [], not_prepared: [] });
   assert.equal(fileDigest(readFileSync(recordFile)), before);
 });

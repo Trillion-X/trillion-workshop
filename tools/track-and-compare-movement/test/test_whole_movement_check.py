@@ -105,11 +105,44 @@ class Widen(unittest.TestCase):
 
     def test_refusal_keeps_the_old_crop_in_the_fixed_edit_and_exits_one(self):
         crop = {"x": 10, "y": 10, "w": 100, "h": 100}
-        report = M.check_edit(edit_with(crop, layout="v", width=640, height=640), fixed_measure([[5, 0, 630, 350]]))
+        report = M.check_edit(edit_with(crop, layout="v", width=640, height=640), fixed_measure([[5, 0, 630, 350]]),
+                              when_too_wide="refuse")
         cell = report["cells"][0]
         self.assertFalse(report["passes"])
         self.assertEqual((report["cells_refused"], cell["widened"]), (1, None))
         self.assertEqual(report["fixed_edit"]["spine"]["segments"][0]["sources"][0]["crop"], crop)
+
+    def test_a_movement_no_cell_shaped_crop_can_hold_is_fitted_whole_by_default(self):
+        # a 640x320 cell (aspect 2) needs a 640+ wide crop for a 350 px tall movement: the source is 640 wide
+        crop = {"x": 10, "y": 10, "w": 100, "h": 50}
+        boxes = [[5, 0, 630, 350]]
+        report = M.check_edit(edit_with(crop, layout="v", width=640, height=640), fixed_measure(boxes))
+        self.assertEqual(report["cells_refused"], 0)
+        source = report["fixed_edit"]["spine"]["segments"][0]["sources"][0]
+        fit, got = source["fit"], source["crop"]
+        self.assertEqual(M.crossings(frames(boxes), got)["extent"], [])     # the whole movement is in the crop
+        self.assertTrue(got["x"] >= 0 and got["y"] >= 0 and got["x"] + got["w"] <= 640 and got["y"] + got["h"] <= 360)
+        self.assertEqual((fit["fill"], fit["cell"]), ("blur", [640, 320]))
+        inner = fit["inner"]
+        self.assertTrue(all(inner[k] % 2 == 0 for k in ("w", "h", "x", "y")))      # yuv420p places on even pixels
+        self.assertTrue(inner["x"] + inner["w"] <= 640 and inner["y"] + inner["h"] <= 320)
+        self.assertAlmostEqual(inner["w"] / inner["h"], got["w"] / got["h"], delta=0.02)   # shown whole, not stretched
+        self.assertTrue(inner["w"] == 640 or inner["h"] == 320)                             # as large as the cell allows
+
+    def test_a_fitted_cell_holding_the_movement_passes_and_keeps_its_fit(self):
+        fit = {"fill": "blur", "cell": [640, 320], "inner": {"w": 368, "h": 320, "x": 136, "y": 0}}
+        edit = edit_with({"x": 0, "y": 0, "w": 414, "h": 360}, layout="v", width=640, height=640)
+        edit["spine"]["segments"][0]["sources"][0]["fit"] = fit
+        report = M.check_edit(edit, fixed_measure([[10, 10, 400, 350]]))
+        self.assertTrue(report["passes"])
+        self.assertEqual(report["fixed_edit"]["spine"]["segments"][0]["sources"][0]["fit"], fit)
+
+    def test_a_fitted_cell_that_cuts_the_movement_is_still_caught(self):
+        fit = {"fill": "blur", "cell": [640, 320], "inner": {"w": 368, "h": 320, "x": 136, "y": 0}}
+        edit = edit_with({"x": 0, "y": 0, "w": 414, "h": 360}, layout="v", width=640, height=640)
+        edit["spine"]["segments"][0]["sources"][0]["fit"] = fit
+        report = M.check_edit(edit, fixed_measure([[300, 10, 630, 350]]), when_too_wide="refuse")
+        self.assertFalse(report["passes"])
 
     def test_frames_without_a_subject_are_not_counted_as_crossing(self):
         crop = {"x": 100, "y": 0, "w": 320, "h": 360}

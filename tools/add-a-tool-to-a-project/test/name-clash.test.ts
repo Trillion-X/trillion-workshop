@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { add } from '../do-work/add.ts';
-import { emptyProject, makeRegistry, makeRepo, standInTool } from './fixtures.ts';
+import { emptyProject, makeRegistry, makeRepo, originAddress, standInTool } from './fixtures.ts';
 
 test('a name clash is refused without as and accepted with as', async () => {
   const first = makeRepo(standInTool('greet'));
@@ -21,6 +21,6 @@ test('a name clash is refused without as and accepted with as', async () => {
   assert.deepEqual(renamed.added.map(a => a.tool), ['greet-from-second']);
   const record = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8'));
   assert.deepEqual(Object.keys(record.tools).sort(), ['greet', 'greet-from-second']);
-  assert.deepEqual(record.tools['greet-from-second'].from, { registry: otherRegistry, tool: 'greet' });
+  assert.deepEqual(record.tools['greet-from-second'].from, { registry: originAddress(otherRegistry), tool: 'greet' });
   assert.equal(readFileSync(join(project, 'trillion', 'greet-from-second', 'do-work', 'y.mjs'), 'utf8'), 'export const other = true;\n');
 });

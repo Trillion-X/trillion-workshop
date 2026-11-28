@@ -33,6 +33,11 @@
 //       every branch the same length. A slow-mo contact pass is its OWN split segment
 //       with speed:0.4; video-compose drops audio on a sped split (setpts retimes only
 //       video). crop/label are spatial and stay per-cell; speed is temporal and global.
+//       - fit  {fill:'blur', cell:[w,h], inner:{w,h,x,y}, sigma?, dim?}  the crop is shown WHOLE, scaled to `inner`
+//                          (cell px) and laid on a fill made of the same picture scaled to cover the cell, blurred
+//                          (gaussian `sigma`) and darkened (`dim`, the fraction of light kept): the usual vertical
+//                          video fill, for a movement whose crop cannot take the cell's shape inside its source.
+//                          The producer that measured the movement places `inner`; `cell` must be this cell's size.
 //   • TEMPORAL, PER-SOURCE, LENGTH-CHECKED (`sources[i].hold|ramp|smooth`): a cell may hold
 //       one frame or play its own speed envelope (a phase-synced reference) when the
 //       compositor has checked that every cell still comes out the same length, which
@@ -41,7 +46,8 @@
 /**
  * Build the video filter graph for a split.
  * @param {{count:number, layout?:string, weights?:number[], width:number, height:number, fps:string|number, speed?:number, sources?:SourceTransform[]}} spec
- * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:string, ramp?:string, smooth?:string, frames?:number, label?:LabelSpec}} SourceTransform
+ * @typedef {{crop?:{w:number,h:number,x:number,y:number}, flip?:'h'|'v'|'hv', hold?:string, ramp?:string, smooth?:string, frames?:number, fit?:FitSpec, label?:LabelSpec}} SourceTransform
+ * @typedef {{fill:'blur', cell:[number,number], inner:{w:number,h:number,x:number,y:number}, sigma?:number, dim?:number}} FitSpec
  * @typedef {{textfile:string, x?:number, y?:number, corner?:'tl'|'tr'|'bl'|'br', size?:number, color?:string, box?:boolean, box_color?:string, pad?:number}} LabelSpec
  * @returns {{ filter:string, videoLabel:string, cells:{w:number,h:number}[], cols?:number, rows?:number }}
  */
@@ -77,11 +83,16 @@ export function buildSplitLayout({ count, layout = 'h', weights, width, height, 
     if (t.ramp) parts.push(`setpts=(${t.ramp})/TB`);
     if (retime) parts.push(`setpts=PTS/${speed}`);
     if (t.smooth) parts.push(t.smooth);
-    parts.push(`scale=${cw}:${ch}`, norm);
+    const after = [norm];
     // `frames`: the cell's exact length; its last frame is held past its end and the compositor stops the output there.
-    if (Number.isInteger(t.frames)) parts.push(`tpad=stop_mode=clone:stop=${t.frames}`);
-    if (t.label && t.label.textfile) parts.push(drawtextFilter(t.label, ch));
-    return `[${i}:v]${parts.join(',')}[${scaleLabel(i)}]`;
+    if (Number.isInteger(t.frames)) after.push(`tpad=stop_mode=clone:stop=${t.frames}`);
+    if (t.label && t.label.textfile) after.push(drawtextFilter(t.label, ch));
+    if (!t.fit) return `[${i}:v]${[...parts, `scale=${cw}:${ch}`, ...after].join(',')}[${scaleLabel(i)}]`;
+    const { inner, sigma, dim } = fitOf(t.fit, cw, ch);
+    return [`[${i}:v]${parts.join(',')},split[f${i}a][f${i}b]`,
+      `[f${i}a]scale=${cw}:${ch}:force_original_aspect_ratio=increase,crop=${cw}:${ch},gblur=sigma=${sigma},colorchannelmixer=rr=${dim}:gg=${dim}:bb=${dim}[f${i}fill]`,
+      `[f${i}b]scale=${inner.w}:${inner.h}[f${i}whole]`,
+      `[f${i}fill][f${i}whole]overlay=${inner.x}:${inner.y},${after.join(',')}[${scaleLabel(i)}]`].join(';');
   };
 
   // A single-source "split" is a full-frame cell — no stack filter at all
@@ -136,6 +147,20 @@ export function buildSplitLayout({ count, layout = 'h', weights, width, height, 
   }
 
   throw new Error(`[split] unknown layout ${JSON.stringify(layout)} (use h | v | grid)`);
+}
+
+/** A fitted cell's checked geometry (made for this very cell size, its whole picture inside the cell) and its fill's
+ *  look: blur strength (gaussian sigma, cell px, 40 when the fit names none) and the fraction of light kept (0.45). */
+function fitOf(fit, cw, ch) {
+  if (fit.fill !== 'blur') throw new Error(`[split] fit.fill must be 'blur', not ${JSON.stringify(fit.fill)}`);
+  if (!Array.isArray(fit.cell) || fit.cell[0] !== cw || fit.cell[1] !== ch)
+    throw new Error(`[split] the fit was made for a ${fit.cell} cell, this cell is ${cw}x${ch}`);
+  const { w, h, x, y } = fit.inner ?? {};
+  if (![w, h, x, y].every(Number.isInteger) || w < 2 || h < 2 || x < 0 || y < 0 || x + w > cw || y + h > ch)
+    throw new Error(`[split] fit.inner ${JSON.stringify(fit.inner)} is not a picture inside the ${cw}x${ch} cell`);
+  const sigma = Number.isFinite(fit.sigma) && fit.sigma >= 0 ? fit.sigma : 40;
+  const dim = Number.isFinite(fit.dim) && fit.dim >= 0 && fit.dim <= 1 ? fit.dim : 0.45;
+  return { inner: fit.inner, sigma, dim };
 }
 
 /** Resolve relative weights to a usable per-source array (defaults to equal). */

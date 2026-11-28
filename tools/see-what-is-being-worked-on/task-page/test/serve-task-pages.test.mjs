@@ -37,16 +37,18 @@ async function databases() {
 
 const dbs = [{ database: 'runs_it' }, { database: 'garden_it' }];
 
-test('pursuits are the task_pages rows whose database the session holds, in their place; data joins the chosen pages', async () => {
+test('pursuits are every task_pages row with its database, in their place; data joins the chosen pages', async () => {
   const { open, opened } = await databases();
   const session = taskPagesSession({ open });
-  assert.deepEqual(await session.pursuits({ dbs, pages_database: 'runs_it' }), [{ id: 'bakery', label: 'Bakery' }, { id: 'garden', label: 'Garden' }]);
-  const both = await session.data({ dbs, pages_database: 'runs_it', p: ['bakery', 'garden', 'elsewhere'] });
+  assert.deepEqual(await session.pursuits({ dbs, pages_database: 'runs_it' }), [
+    { id: 'bakery', label: 'Bakery', database: 'runs_it', tables: {} }, { id: 'garden', label: 'Garden', database: 'garden_it', tables: {} }, { id: 'elsewhere', label: 'Not held', database: 'not_held', tables: {} }]);
+  const both = await session.data({ dbs, pursuits: [{ id: 'bakery', database: 'runs_it' }, { id: 'garden', database: 'garden_it', tables: {} }] });
   assert.deepEqual(both.tasks.map(task => task.id).sort(), ['e1', 't1']);
   assert.deepEqual(both.changes.map(change => change.task), ['e1', 't1'], 'changes in time order across pursuits');
   assert.deepEqual(both.statuses.map(status => status.name), ['Done', 'To do'], 'each status once');
   assert.deepEqual([both.tasks.find(task => task.id === 't1').assignees, both.tasks.find(task => task.id === 't1').taken_by], [['ai:north'], 'ai:north']);
-  await session.data({ dbs, pages_database: 'runs_it', p: ['bakery'] });
+  await session.data({ dbs, pursuits: [{ id: 'bakery', database: 'runs_it' }] });
+  await assert.rejects(session.data({ dbs, pursuits: [{ id: 'elsewhere', database: 'not_held' }] }), /not one of the databases/);
   assert.deepEqual(opened, [['runs_it', 0], ['garden_it', 1]], 'each database opened once, element i on its own descriptor');
 });
 
@@ -66,10 +68,10 @@ test('the MCP lines: initialize, tools/list, a call answered with structuredCont
   assert.equal(await answer(session, { jsonrpc: '2.0', method: 'notifications/initialized' }), null);
   assert.deepEqual((await answer(session, { jsonrpc: '2.0', id: 2, method: 'tools/list' })).result.tools.map(tool => tool.name), ['pursuits', 'data', 'part']);
   const listed = await answer(session, { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'pursuits', arguments: { dbs, pages_database: 'runs_it' } } });
-  assert.deepEqual(listed.result.structuredContent.items.map(item => item.id), ['bakery', 'garden']);
-  const failed = await answer(session, { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'data', arguments: { dbs, pages_database: 'runs_it' } } });
+  assert.deepEqual(listed.result.structuredContent.items.map(item => item.id), ['bakery', 'garden', 'elsewhere']);
+  const failed = await answer(session, { jsonrpc: '2.0', id: 4, method: 'tools/call', params: { name: 'data', arguments: { dbs } } });
   assert.equal(failed.result.isError, true);
-  assert.match(failed.result.content[0].text, /p is the list/);
+  assert.match(failed.result.content[0].text, /pursuits is the list/);
 });
 
 test('an answer longer than one reply comes in pieces, each small enough for one door message, and joins to the whole', async () => {
@@ -98,7 +100,7 @@ test('a connection reset while it waits is let go, and the next ask opens it aga
   const session = taskPagesSession({ open });
   await session.pursuits({ dbs, pages_database: 'runs_it' });
   last.emit('error', new Error('read ECONNRESET'));
-  assert.deepEqual((await session.pursuits({ dbs, pages_database: 'runs_it' })).map(item => item.id), ['bakery', 'garden']);
+  assert.deepEqual((await session.pursuits({ dbs, pages_database: 'runs_it' })).map(item => item.id), ['bakery', 'garden', 'elsewhere']);
   assert.equal(opens, 2);
 });
 

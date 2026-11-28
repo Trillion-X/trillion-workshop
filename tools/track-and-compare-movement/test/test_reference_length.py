@@ -1,4 +1,5 @@
-"""prepare leaves out a reference clip longer than reference_max_seconds and says which, with its length."""
+"""prepare leaves out a reference clip longer than reference_max_seconds and says which, with its length; a length it
+probes is kept as a row, and a kept length rules a long reference out without fetching it."""
 import os
 import subprocess
 import sys
@@ -38,6 +39,68 @@ class ReferenceLength(unittest.TestCase):
         self.assertEqual(got["references"], 1)
         self.assertEqual([x["name"] for x in got["references_left_out"]], ["/r/long practice.mp4"])
         self.assertGreater(got["references_left_out"][0]["seconds"], 11)
+
+    def test_a_kept_length_rules_a_reference_out_without_fetching_it(self):
+        import measured_facts
+        d = tempfile.mkdtemp()
+        short = os.path.join(d, "short.mp4")
+        video(short, 2)
+        fetched, written = [], []
+
+        class Road:
+            @staticmethod
+            def fetch(call, identity, path):
+                fetched.append(identity)
+                with open(short, "rb") as src, open(path, "wb") as dst:
+                    dst.write(src.read())
+        long_row = {"identity": "1f:" + "b" * 64, "fact": "length", "part": "", "fingerprint": "", "value": {"seconds": 640.0},
+                    "measured_by": {}}
+        saved = (measured_facts.read_rows, measured_facts.write_rows)
+        measured_facts.read_rows = lambda facts, identities: [long_row]
+        measured_facts.write_rows = lambda facts, rows: written.extend(rows) or len(rows)
+        sys.modules["files_road"] = Road
+        try:
+            got = m.prepare({"work": d, "call": ["x"], "models": [], "reference_max_seconds": 8, "facts": {"table": "t"},
+                             "targets": [], "references": [{"name": "/r/short.mp4", "identity": "1f:" + "a" * 64},
+                                                           {"name": "/r/long.mov", "identity": "1f:" + "b" * 64}]})
+        finally:
+            sys.modules.pop("files_road", None)
+            measured_facts.read_rows, measured_facts.write_rows = saved
+        self.assertEqual(fetched, ["1f:" + "a" * 64])                  # the long one is known long: never fetched
+        self.assertEqual([x["name"] for x in got["references_left_out"]], ["/r/long.mov"])
+        self.assertEqual([(r["identity"], r["fact"]) for r in written], [("1f:" + "a" * 64, "length")])  # probed once, kept
+
+    def test_files_are_fetched_several_at_once_and_one_that_fails_is_left_out(self):
+        import threading
+        import time
+        d = tempfile.mkdtemp()
+        short = os.path.join(d, "short.mp4")
+        video(short, 2)
+        live, most, lock = [0], [0], threading.Lock()
+
+        class Road:
+            @staticmethod
+            def fetch(call, identity, path):
+                with lock:
+                    live[0] += 1
+                    most[0] = max(most[0], live[0])
+                time.sleep(0.2)
+                with lock:
+                    live[0] -= 1
+                if identity.endswith("f" * 8):
+                    raise RuntimeError("could not fetch it in 4 tries: curl exited 92")
+                with open(short, "rb") as src, open(path, "wb") as dst:
+                    dst.write(src.read())
+        refs = [{"name": f"/r/{c}.mp4", "identity": "1f:" + c * 64, "class": "forehand"} for c in "abcdef"]
+        sys.modules["files_road"] = Road
+        try:
+            got = m.prepare({"work": d, "call": ["x"], "models": [], "fetch_parallel": 3, "targets": [], "references": refs})
+        finally:
+            sys.modules.pop("files_road", None)
+        self.assertEqual(most[0], 3)                                     # three transfers at once, never more
+        self.assertEqual(got["references"], 5)
+        self.assertEqual([x["name"] for x in got["references_left_out"]], ["/r/f.mp4"])
+        self.assertIn("curl exited 92", got["references_left_out"][0]["why"])
 
     def test_an_unreadable_file_has_no_length(self):
         self.assertIsNone(m.duration("/no/such/file.mp4"))

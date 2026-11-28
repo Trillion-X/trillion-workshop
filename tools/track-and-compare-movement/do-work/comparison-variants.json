@@ -13,6 +13,7 @@
       "layout": "h"
     }
   ],
+  "when_too_wide": "fit-blurred",
   "passes": [
     {
       "id": "full",

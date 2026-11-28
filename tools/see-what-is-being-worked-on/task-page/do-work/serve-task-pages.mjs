@@ -10,10 +10,12 @@ import { realpathSync } from 'node:fs';
 // hands element i's login on descriptor 3 + i (secret_name_from_input with the row's held_suffix), for the account's owner only. The session opens
 // each once and keeps it. `pages_database` is the one of them whose task_pages table says which pursuits have a page:
 // (pursuit, label, database, tables, place); a row that still names `connection_name` is read as its database (the name
-// without `-connection`). A pursuit is answered only from a database the session holds.
+// without `-connection`). `pursuits` names every row with its database and tables; `data` is given the chosen rows (so a
+// database that keeps no task_pages of its own is read all the same) and answers each from a database the session holds. One run never holds the keys of two places, so the page starts one session per database (dbs of one) and
+// asks each pursuit's own database's session for its data.
 //
-//   pursuits {dbs, pages_database}           -> [{ id, label }]                       the pursuits with a page, in their place
-//   data     {dbs, pages_database, p: [ids]} -> { tasks, statuses, shows, changes, facts, fact_kinds }  their pages joined
+//   pursuits {dbs, pages_database}           -> [{ id, label, database, tables }]       the pursuits with a page, in their place
+//   data     {dbs, pursuits: [{ id, database, tables }]} -> { tasks, statuses, shows, changes, facts, fact_kinds }  their pages joined
 //   part     {key, at}                        -> { part, at, total, key }                 the next piece of a long answer
 //
 // One reply line is held to one door message (the engine drops a longer line), so an answer whose JSON is longer than
@@ -37,10 +39,10 @@ const PART_BYTES = 400_000;
 const KEPT_MS = 60_000;
 
 const TOOLS = [
-  { name: 'pursuits', description: 'The pursuits that have a task page: [{ id, label }], in their place.',
+  { name: 'pursuits', description: 'The pursuits that have a task page: [{ id, label, database }], in their place.',
     inputSchema: { type: 'object', required: ['dbs', 'pages_database'], properties: { dbs: { type: 'array' }, pages_database: { type: 'string' } } } },
-  { name: 'data', description: 'The task pages of the chosen pursuits, joined: { tasks, statuses, shows, changes, facts, fact_kinds }.',
-    inputSchema: { type: 'object', required: ['dbs', 'pages_database', 'p'], properties: { dbs: { type: 'array' }, pages_database: { type: 'string' }, p: { type: 'array', items: { type: 'string' } } } } },
+  { name: 'data', description: 'The task pages of the chosen pursuits (each as `pursuits` answered it: id, database, tables), joined: { tasks, statuses, shows, changes, facts, fact_kinds }.',
+    inputSchema: { type: 'object', required: ['dbs', 'pursuits'], properties: { dbs: { type: 'array' }, pursuits: { type: 'array', items: { type: 'object' } } } } },
   { name: 'part', description: 'The next piece of a long answer: { part, at, total, key }, from the key and `at` its earlier piece named.',
     inputSchema: { type: 'object', required: ['key', 'at'], properties: { key: { type: 'string' }, at: { type: 'integer' } } } },
 ];
@@ -113,13 +115,13 @@ export function taskPagesSession({ open }) {
   };
   async function pursuits({ dbs, pages_database: pagesDatabase }) {
     const names = databasesOf(dbs);
-    return (await pages(names, pagesDatabase)).filter(page => names.includes(page.database)).map(page => ({ id: page.pursuit, label: page.label }));
+    return (await pages(names, pagesDatabase)).map(page => ({ id: page.pursuit, label: page.label, database: page.database, tables: page.tables }));
   }
-  async function data({ dbs, pages_database: pagesDatabase, p }) {
+  async function data({ dbs, pursuits: chosen }) {
     const names = databasesOf(dbs);
-    if (!Array.isArray(p)) throw new Error('p is the list of pursuit ids to show.');
-    const chosen = (await pages(names, pagesDatabase)).filter(page => p.includes(page.pursuit) && names.includes(page.database));
-    const parts = await Promise.all(chosen.map(async page => taskPageFrom((await (await client(names, page.database)).query(taskPageSql(page.tables))).rows)));
+    if (!Array.isArray(chosen)) throw new Error('pursuits is the list of { id, database, tables } to show.');
+    for (const page of chosen) if (!names.includes(page.database)) throw new Error(`${page.database} is not one of the databases this page was started with.`);
+    const parts = await Promise.all(chosen.map(async page => taskPageFrom((await (await client(names, page.database)).query(taskPageSql(page.tables ?? {}))).rows)));
     const first = (key, field) => { const kept = new Map(); for (const part of parts) for (const one of part[key] ?? []) if (!kept.has(one[field])) kept.set(one[field], one); return [...kept.values()].sort((a, b) => a.place - b.place); };
     const joined = key => parts.flatMap(part => part[key] ?? []);
     return { tasks: joined('tasks'), statuses: first('statuses', 'name'), shows: joined('shows'), changes: joined('changes').sort((a, b) => a.at.localeCompare(b.at)),
