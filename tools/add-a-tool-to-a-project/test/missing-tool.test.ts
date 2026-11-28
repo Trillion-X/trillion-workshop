@@ -19,5 +19,5 @@ test('a missing tool is refused by why, and nothing is written', async () => {
   withOrigin(elsewhere);
   const notThere = await add({ project, tool: 'wave', from: elsewhere });
   assert.deepEqual(notThere.refused.map(r => r.why), ['tool-not-found-at-commit']);
-  assert.equal(existsSync(join(project, 'trillion')), false);
+  assert.equal(existsSync(join(project, 'where-each-tool-comes-from.json')), false);
 });

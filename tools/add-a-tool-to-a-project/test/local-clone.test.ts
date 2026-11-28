@@ -8,12 +8,12 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import { join, relative } from 'node:path';
 import { add } from '../do-work/add.ts';
 import { objectsHolding } from '../read-data/fetch-folder.ts';
-import { RECORD_FILE } from '../read-data/record.ts';
+import { RECORD_FILE, recordPlace } from '../read-data/record.ts';
 import { emptyProject, makeRegistry, makeRepo, pinOf, scratch, standInTool, withOrigin } from './fixtures.ts';
 
 const git = (dir: string, ...args: string[]) => execFileSync('git', ['-C', dir, ...args], { encoding: 'utf8' }).trim();
-/** The project's tools folder: the one folder of the project that holds the record file. */
-const toolsOf = (project: string) => join(project, readdirSync(project).find(name => existsSync(join(project, name, RECORD_FILE)))!);
+/** The folder of the project that holds its record (read-data/record.ts recordPlace). */
+const toolsOf = (project: string) => join(project, recordPlace(project)!);
 const recordOf = (project: string) => readFileSync(join(toolsOf(project), RECORD_FILE));
 
 /** Every file under `dir` with its size and modification time, so a later read shows nothing in it changed. */
@@ -107,8 +107,8 @@ test('clones that is not a list of folders is refused and nothing is written', a
   const project = emptyProject();
   const output = await add({ project, tool: 'greet', from: registry, clones: 'here' as unknown as string[] });
   assert.deepEqual(output.refused.map(r => r.why), ['bad-from']);
-  assert.deepEqual(readdirSync(project), ['package.json']);
+  assert.deepEqual(readdirSync(project).filter(name => name !== '.git'), ['package.json']);
   const gone = await add({ project, tool: 'greet', from: registry, clones: [join(scratch('gone'), 'no-such-clone')] });
   assert.deepEqual(gone.refused.map(r => r.why), ['bad-from']);
-  assert.deepEqual(readdirSync(project), ['package.json']);
+  assert.deepEqual(readdirSync(project).filter(name => name !== '.git'), ['package.json']);
 });

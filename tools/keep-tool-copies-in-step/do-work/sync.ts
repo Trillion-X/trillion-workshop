@@ -1,8 +1,8 @@
 // tools/keep-tool-copies-in-step/do-work/sync.ts
 //
 // PURPOSE
-//   tool:keep-tool-copies-in-step. For every tool folder a project copied into its own tools folder (TOOLS_FOLDER, the add
-//   tool's), compares three versions: the base (the files its record where-each-tool-comes-from.json says the copy started
+//   tool:keep-tool-copies-in-step. For every tool folder a project copied (each where its record line's `at` says, the
+//   record being the project's one where-each-tool-comes-from.json, found in the tip's file list), compares three versions: the base (the files its record where-each-tool-comes-from.json says the copy started
 //   from), the project's folder at the tip of the project's branch, and the upstream folder at the commit its pointer names
 //   (the registry's pointer, only its `paths` when it names them, or the repository's HEAD for a direct pointer). The
 //   project is read from a clone the tool keeps itself in its own state folder (the granted folder), fetched from the
@@ -49,14 +49,14 @@ import { fileDigest, identityOfDigests } from '../../content-identity/read-data/
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
 import { BadFrom, isReachableAddress, readRegistry, type Hex64, type Registry } from '../../add-a-tool-to-a-project/read-data/registry.ts';
 import { FetchedCommit, GitRefused, NotAtCommit, type Fetched, type FileMap } from '../../add-a-tool-to-a-project/read-data/fetch-folder.ts';
-import { RECORD_FILE, TOOLS_FOLDER, readProjectRecord, writeProjectRecord, type RecordFile, type ToolRecord } from '../../add-a-tool-to-a-project/read-data/record.ts';
+import { BadPlace, RECORD_FILE, placeOf, readProjectRecord, recordPlaceIn, writeProjectRecord, type RecordFile, type ToolRecord } from '../../add-a-tool-to-a-project/read-data/record.ts';
 import { projectInGrant } from '../../add-a-tool-to-a-project/do-work/add.ts';
 import { classifyTool, type Rename, type ToolVerdict, type Verdict } from '../read-data/classify.ts';
 import { mergeText, threeWayDiff } from '../read-data/merge-text.ts';
 
 export type ToolState = ToolVerdict | 'forked' | 'skipped' | 'refused' | 'local-edit';
 export type Why = 'made-here' | 'not-in-registry' | 'bad-from' | 'fetch-refused' | 'identity-mismatch' | 'no-base'
-  | 'record-changed-meanwhile' | 'changed-since-plan' | 'push-refused' | 'ref-refused' | 'local-edit' | 'needs-not-settled';
+  | 'record-changed-meanwhile' | 'changed-since-plan' | 'push-refused' | 'ref-refused' | 'local-edit' | 'needs-not-settled' | 'bad-place';
 export type PlannedTool = { state: ToolState; files: Record<string, Verdict>; upstream_commit: string | null; renames?: Rename[]; why?: Why; said?: string;
   closure?: { recorded: Hex64; upstream: Hex64 } };
 export type PlanResult = { record_blake3: string; because?: { where?: string; place?: string; key?: string }; tools: Record<string, PlannedTool> };
@@ -124,10 +124,11 @@ type Computed = PlannedTool & {
   diffs: Map<string, string>;
 };
 
-/** The files of the project's copy: what git lists (tracked, or new and not ignored), else every regular file. */
-function projectFiles(project: string, folder: string): Map<string, ProjectFile> {
+/** The files of the project's copy at `place` (its line's `at`): what git lists (tracked, or new and not ignored), else every
+ *  regular file. */
+function projectFiles(project: string, place: string): Map<string, ProjectFile> {
   const files = new Map<string, ProjectFile>();
-  const at = join(project, TOOLS_FOLDER, folder);
+  const at = join(project, place);
   if (!existsSync(at) || !lstatSync(at).isDirectory()) return files;
   const keep = (relativePath: string) => {
     const file = join(at, ...relativePath.split('/'));
@@ -137,8 +138,8 @@ function projectFiles(project: string, folder: string): Map<string, ProjectFile>
   };
   const inGit = spawnSync('git', ['-C', project, 'rev-parse', '--is-inside-work-tree'], { env: ENV });
   if (inGit.status === 0 && inGit.stdout.toString('utf8').trim() === 'true') {
-    const listed = git(project, ['ls-files', '-z', '-c', '-o', '--exclude-standard', '--', `${TOOLS_FOLDER}/${folder}/`]);
-    const prefix = `${TOOLS_FOLDER}/${folder}/`;
+    const listed = git(project, ['ls-files', '-z', '-c', '-o', '--exclude-standard', '--', `${place}/`]);
+    const prefix = `${place}/`;
     for (const name of listed.split('\0').filter(Boolean)) if (name.startsWith(prefix)) keep(name.slice(prefix.length));
     return files;
   }
@@ -173,6 +174,10 @@ async function compareAll(project: string, record: RecordFile, only: string[] | 
     const plain = { name, line, files: {}, upstream_commit: null, project: new Map(), merged: new Map(), diffs: new Map() };
     const refused = (why: Why, said: string): Computed => ({ ...plain, state: 'refused', why, said });
     if (line.synced === false) { computed.push({ ...plain, state: 'forked' }); continue; }
+    try { placeOf(line.at, `The record line ${name}'s at`); } catch (error) {
+      if (error instanceof BadPlace) { computed.push(refused('bad-place', `${error.message} Every line names where its copy lives.`)); continue; }
+      throw error;
+    }
     if (line.from === 'made-here') { computed.push({ ...plain, state: 'skipped', why: 'made-here', said: 'Made in this project: it has no upstream.' }); continue; }
     // A line whose files do not hash to the identity it names was edited by hand: it is no start version (plan 30.3).
     if (line.files && line.copied_at_files_blake3 && identityOfDigests(line.files) !== line.copied_at_files_blake3) {
@@ -222,7 +227,7 @@ async function compareAll(project: string, record: RecordFile, only: string[] | 
     }
 
     const base = line.files;
-    const projectNow = projectFiles(project, name);
+    const projectNow = projectFiles(project, line.at);
     const projectMap = digestsOf(projectNow);
     const upstreamNow = fileMapOf(fetched);
     const upstreamMap = fetched.digests;
@@ -298,8 +303,8 @@ function withScratch<T>(work: (scratch: string) => Promise<T>): Promise<T> {
 
 /** What each tool's state is, with every file's verdict. Writes nothing to the project (it fetches into its own clone). */
 export async function plan(input: PlanInput, io: Io = realIo(input.clones)): Promise<PlanResult> {
-  const { dir } = openProject(input);
-  const { expected, record } = readProjectRecord(join(dir, TOOLS_FOLDER));
+  const { dir, recordAt } = openProject(input);
+  const { expected, record } = readProjectRecord(join(dir, recordAt));
   return withScratch(async scratch => {
     const computed = await compareAll(dir, record, input.only, io, scratch);
     const because = becauseOf(input.fact);
@@ -367,9 +372,10 @@ export function pushSyncBranch(dir: string, repo: string, commit: string, ref: s
 }
 
 /** The tool's own clone of the project, in its state folder: fetched blob-less at the tip of `branch`, with a sparse
- *  checkout of only the tools folder (one batch of file contents). Its folder is the project the comparison reads; the
- *  project's own working checkout is never read or written. The tip commit is returned with it. */
-function openProject(input: ProjectInput): { dir: string; tip: string } {
+ *  checkout of only the record and each copy its lines place (`at`). The record is the project's one record file in the
+ *  tip's file list (recordPlaceIn; two are refused). Its folder is the project the comparison reads; the project's own
+ *  working checkout is never read or written. The tip commit and the record's folder are returned with it. */
+function openProject(input: ProjectInput): { dir: string; tip: string; recordAt: string } {
   const branch = input.branch ?? 'main';
   if (!/^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(branch) || branch.includes('..')) throw new Error(`branch ${JSON.stringify(branch)} is not a branch name.`);
   if (typeof input.repo !== 'string' || input.repo.length === 0) throw new Error('repo is the project repository address.');
@@ -381,11 +387,23 @@ function openProject(input: ProjectInput): { dir: string; tip: string } {
   git(dir, ['-c', 'protocol.version=2', 'fetch', '-q', '--no-tags', '--depth', '1', '--filter=blob:none', 'origin', `refs/heads/${branch}`]);
   const tip = git(dir, ['rev-parse', 'FETCH_HEAD']);
   if (!COMMIT.test(tip)) throw new GitRefused(`${input.repo} answered no commit for ${branch}.`);
+  const found = recordPlaceIn(git(dir, ['ls-tree', '-r', '-z', '--name-only', tip]).split('\0').filter(Boolean));
+  const recordAt = found ?? '';
+  const recordPath = recordAt ? `${recordAt}/${RECORD_FILE}` : RECORD_FILE;
   git(dir, ['config', 'core.sparseCheckout', 'true']);
-  writeFileSync(join(dir, '.git', 'info', 'sparse-checkout'), `/${TOOLS_FOLDER}/\n`);
-  git(dir, ['checkout', '-q', '--detach', '--force', tip]);
-  git(dir, ['clean', '-q', '-ffdx', '--', TOOLS_FOLDER]);
-  return { dir, tip };
+  const checkout = (places: string[]) => {
+    writeFileSync(join(dir, '.git', 'info', 'sparse-checkout'), places.map(place => `/${place}\n`).join(''));
+    git(dir, ['checkout', '-q', '--detach', '--force', tip]);
+  };
+  checkout([recordPath]);
+  // Each copy is checked out at the place its line names; a line whose place is no folder inside the project is left
+  // out here, and compareAll refuses it.
+  const places = found === null ? [] : Object.values(readProjectRecord(join(dir, recordAt)).record.tools).flatMap(line => {
+    try { return [placeOf(line.at, 'at')]; } catch (error) { if (error instanceof BadPlace) return []; throw error; }
+  }).filter(Boolean);
+  checkout([recordPath, ...places.map(place => `${place}/`)]);
+  for (const place of places) git(dir, ['clean', '-q', '-ffdx', '--', place]);
+  return { dir, tip, recordAt };
 }
 
 const branchPart = (text: string): string => text.toLowerCase().replace(/[^a-z0-9._-]+/g, '-').replace(/^[-.]+|[-.]+$/g, '') || 'project';
@@ -400,14 +418,14 @@ function recordBytes(scratch: string, record: RecordFile): Buffer {
 type Waiting = ApplyResult['waiting'][number];
 
 /** One commit on the project's tip holding `tools`' upstream changes and their advanced record lines (invariant 4). */
-function projectCommit(dir: string, tip: string, scratch: string, record: RecordFile, tools: Computed[]): string {
-  const inTop = (path: string) => `${TOOLS_FOLDER}/${path}`;
+function projectCommit(dir: string, tip: string, scratch: string, recordAt: string, record: RecordFile, tools: Computed[]): string {
+  const inTop = (place: string, path: string) => (place ? `${place}/${path}` : path);
   const env = { ...ENV, GIT_INDEX_FILE: join(scratch, `index-${tools[0].name}`) };
   git(dir, ['read-tree', tip], { env });
   const lines = { ...record.tools };
   for (const one of tools) {
     for (const [path, change] of movesOf(one).into) {
-      const full = inTop(`${one.name}/${path}`);
+      const full = inTop(one.line.at, path);
       if (change.bytes === null) { git(dir, ['update-index', '--force-remove', '--', full], { env }); continue; }
       const blob = git(dir, ['hash-object', '-w', '--stdin'], { input: change.bytes });
       git(dir, ['update-index', '--add', '--cacheinfo', `${change.executable ? '100755' : '100644'},${blob},${full}`], { env });
@@ -423,7 +441,7 @@ function projectCommit(dir: string, tip: string, scratch: string, record: Record
     }
   }
   const blob = git(dir, ['hash-object', '-w', '--stdin'], { input: recordBytes(scratch, { ...record, tools: lines }) });
-  git(dir, ['update-index', '--add', '--cacheinfo', `100644,${blob},${inTop(RECORD_FILE)}`], { env });
+  git(dir, ['update-index', '--add', '--cacheinfo', `100644,${blob},${inTop(recordAt, RECORD_FILE)}`], { env });
   const tree = git(dir, ['write-tree'], { env });
   const when = git(dir, ['log', '-1', '--format=%cI', tip]);
   const sources = [...new Set(tools.map(one => one.upstream!.repo))].join(', ');
@@ -438,9 +456,8 @@ export async function apply(input: ProjectInput & { plan: PlanResult; clones?: s
   const result: ApplyResult = { forked: [], conflicts: [], unchanged: [], project_only: [], waiting: [], skipped: [], refused: [] };
   const planned = input.plan?.tools;
   if (!planned || typeof planned !== 'object' || typeof input.plan.record_blake3 !== 'string') throw new Error('apply needs plan: the answer of op plan.');
-  const { dir, tip } = openProject(input);
-  const toolsFolder = join(dir, TOOLS_FOLDER);
-  const { expected, record } = readProjectRecord(toolsFolder);
+  const { dir, tip, recordAt } = openProject(input);
+  const { expected, record } = readProjectRecord(join(dir, recordAt));
   if (expected !== input.plan.record_blake3) {
     for (const tool of Object.keys(planned)) result.refused.push({ tool, why: 'record-changed-meanwhile', said: `${RECORD_FILE} at ${tip} is not the one plan read.` });
     return result;
@@ -482,7 +499,7 @@ export async function apply(input: ProjectInput & { plan: PlanResult; clones?: s
       const tools = [one, ...(riders.get(one.name) ?? [])];
       const ref = syncRef(one.name, one.upstream!.commit);
       try {
-        const commit = projectCommit(dir, tip, scratch, record, tools);
+        const commit = projectCommit(dir, tip, scratch, recordAt, record, tools);
         const { created } = pushSyncBranch(dir, input.repo, commit, ref);
         const waiting: Waiting = { tools: tools.map(tool => tool.name), branch: ref.slice('refs/heads/'.length), commit, created, would_open: created, pull_request: null };
         result.waiting.push(waiting);

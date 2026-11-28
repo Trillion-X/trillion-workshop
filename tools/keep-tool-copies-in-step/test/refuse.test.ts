@@ -5,16 +5,16 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { RECORD_FILE, TOOLS_FOLDER } from '../../add-a-tool-to-a-project/read-data/record.ts';
+import { RECORD_FILE } from '../../add-a-tool-to-a-project/read-data/record.ts';
 import { apply, plan, realIo, type Io } from '../do-work/sync.ts';
-import { TEXT, commitUpstream, makeUpstream, projectWith, publish, refsOf, toolFiles, writeRegistry } from './fixtures.ts';
+import { TEXT, commitUpstream, makeUpstream, projectWith, publish, refsOf, toolFiles, writeRegistry, PLACE } from './fixtures.ts';
 
-const recordOf = (project: string) => join(project, TOOLS_FOLDER, RECORD_FILE);
+const recordOf = (project: string) => join(project, PLACE, RECORD_FILE);
 
 test('a conflict is refused with a unified diff and no branch of the project remote moves', async () => {
   const up = makeUpstream({ ...toolFiles('greet'), 'tools/greet/do-work/other.mjs': TEXT });
   const { project, registry, clones, at } = await projectWith(up, ['greet']);
-  const tool = join(project, TOOLS_FOLDER, 'greet', 'do-work');
+  const tool = join(project, PLACE, 'greet', 'do-work');
   writeFileSync(join(tool, 'run.mjs'), TEXT.replace('one', 'ONE'));
   writeFileSync(join(tool, 'other.mjs'), TEXT.replace('one', 'ONE'));
   publish(project);
@@ -74,7 +74,7 @@ test('a file edited between plan and apply refuses the tool and pushes nothing',
   commitUpstream(up, { 'tools/greet/do-work/run.mjs': TEXT.replace('six', 'SIX') });
   writeRegistry(registry, up, ['greet']);
   const planned = await plan({ ...at, clones });
-  writeFileSync(join(project, TOOLS_FOLDER, 'greet', 'do-work', 'run.mjs'), TEXT.replace('one', 'ONE'));
+  writeFileSync(join(project, PLACE, 'greet', 'do-work', 'run.mjs'), TEXT.replace('one', 'ONE'));
   publish(project);
   const before = refsOf(at.repo);
   const done = await apply({ ...at, clones, plan: planned });

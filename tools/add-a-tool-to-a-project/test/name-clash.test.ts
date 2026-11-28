@@ -19,8 +19,8 @@ test('a name clash is refused without as and accepted with as', async () => {
   const renamed = await add({ project, tool: 'greet', from: otherRegistry, as: 'greet-from-second' });
   assert.deepEqual(renamed.refused, []);
   assert.deepEqual(renamed.added.map(a => a.tool), ['greet-from-second']);
-  const record = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8'));
+  const record = JSON.parse(readFileSync(join(project, 'where-each-tool-comes-from.json'), 'utf8'));
   assert.deepEqual(Object.keys(record.tools).sort(), ['greet', 'greet-from-second']);
   assert.deepEqual(record.tools['greet-from-second'].from, { registry: originAddress(otherRegistry), tool: 'greet' });
-  assert.equal(readFileSync(join(project, 'trillion', 'greet-from-second', 'do-work', 'y.mjs'), 'utf8'), 'export const other = true;\n');
+  assert.equal(readFileSync(join(project, 'greet-from-second', 'do-work', 'y.mjs'), 'utf8'), 'export const other = true;\n');
 });

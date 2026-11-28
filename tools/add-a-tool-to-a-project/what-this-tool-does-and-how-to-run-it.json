@@ -17,8 +17,8 @@
           "network_egress": true
         },
         "label": "Add a tool to my project",
-        "job": "Copy one tool folder, and the folders it needs, into a project's own trillion/ folder at the exact commit its pointer names, and record where each came from",
-        "description": "Give project (the project's folder, inside the folder the person granted with use-git-in-a-folder, which also lets the run start the system git that reads and fetches the pinned commit) and tool (the tool's name). from says where the pointer comes from: a registry (a folder holding tools-in-this-registry.json, the file, or its https address) or a direct pointer {repo, path, commit}; without from, the registry the project's trillion/where-each-tool-comes-from.json names. The tool folder and every folder it needs (needs_tools, from the registry and from the tool's card) are fetched at the pinned commit, their BLAKE3 identity is checked against the pointer, and each is written as trillion/<folder>/ with one line in the record file (where it came from, the commit, every file's BLAKE3, the folders it needs and the identity of the whole set). A folder whose card still has the old name tool-rows.json is refused (old-card-name). Then each new folder's card (what-this-tool-does-and-how-to-run-it.json) prepare command, if it names one, runs in that folder (prepare: false skips it). Nothing is overwritten: a folder already there from the same pointer is reported as already; an edited copy is refused with its diff; another version from the same source is refused (moving it is a sync); another source's folder of the same name is refused unless as gives the new folder another name. When anything is refused, nothing is written. Returns added, already, refused (each with why), prepared and not_prepared.",
+        "job": "Copy one tool folder, and the folders it needs, into a project, at the place its own layout wants it, at the exact commit its pointer names, and record where each lives and came from",
+        "description": "Give project (the project's folder, inside the folder the person granted with use-git-in-a-folder, which also lets the run start the system git that reads and fetches the pinned commit) and tool (the tool's name). from says where the pointer comes from: a registry (a folder holding tools-in-this-registry.json, the file, or its https address) or a direct pointer {repo, path, commit}; without from, the registry the project's record where-each-tool-comes-from.json names. The record is the project's one record file wherever it is, found from git's list of the project's files (two are refused bad-place); a project with none gets one at record_at, else at its top. The tool folder and every folder it needs (needs_tools, from the registry and from the tool's card) are fetched at the pinned commit, their BLAKE3 identity is checked against the pointer, and each is written as <into>/<folder>/ (into defaults to the record's folder; a needed folder the record already names is found at its recorded place) with one line in the record file (where it lives as at, where it came from, the commit, every file's BLAKE3, the folders it needs and the identity of the whole set). A folder whose card still has the old name tool-rows.json is refused (old-card-name). Then each new folder's card (what-this-tool-does-and-how-to-run-it.json) prepare command, if it names one, runs in that folder (prepare: false skips it). Nothing is overwritten: a folder already there from the same pointer is reported as already; an edited copy is refused with its diff; another version from the same source is refused (moving it is a sync); another source's folder of the same name is refused unless as gives the new folder another name. When anything is refused, nothing is written. Returns added, already, refused (each with why), prepared and not_prepared.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -30,7 +30,7 @@
             "project": {
               "type": "string",
               "minLength": 1,
-              "description": "The project's folder, relative to the granted folder (. for the granted folder itself). Only <project>/trillion/ is written."
+              "description": "The project's folder, relative to the granted folder (. for the granted folder itself), a git folder. Only places inside it are written: each copy's at and the record's folder."
             },
             "tool": {
               "type": "string",
@@ -73,6 +73,14 @@
               "type": "string",
               "pattern": "^[a-z0-9][a-z0-9-]*$",
               "description": "The folder name for the asked tool when its own name is already another source's folder"
+            },
+            "into": {
+              "type": "string",
+              "description": "The folder inside the project, relative to its top, the new copies go in (each at <into>/<folder>), for example src/components/ui. Absent: the record's folder. A place that climbs out with .., is absolute, has an empty part or passes through a link is refused bad-place."
+            },
+            "record_at": {
+              "type": "string",
+              "description": "Where a project with no record yet keeps it: a folder inside the project, relative to its top. Absent: the project's top. A project that already has a record is refused bad-place when record_at names another folder."
             },
             "prepare": {
               "type": "boolean",
@@ -162,7 +170,8 @@
                       "bad-from",
                       "bad-card",
                       "old-card-name",
-                      "fetch-refused"
+                      "fetch-refused",
+                      "bad-place"
                     ]
                   },
                   "said": {
@@ -195,6 +204,16 @@
                   "said": {
                     "type": "string"
                   }
+                }
+              }
+            },
+            "import_map": {
+              "type": "object",
+              "description": "When nothing was refused: the TypeScript paths entries that reach every recorded copy by its import name, trillion-workshop/tools/<folder>/* to ./<at>/*, for the project's tsconfig paths. A bundler resolves a copy anywhere through them; a copy Node loads natively stays inside the folder of the package whose exports map it.",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
                 }
               }
             }

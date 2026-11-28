@@ -19,8 +19,8 @@ test('prepare from the card makes the folder ready and stays out of the record',
   assert.deepEqual(output.refused, []);
   assert.deepEqual(output.prepared, ['say']);
   assert.deepEqual(output.not_prepared, []);
-  assert.ok(existsSync(join(project, 'trillion', 'say', '.venv', 'bin', 'python3')), 'the virtual environment was made');
-  const line = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8')).tools.say;
+  assert.ok(existsSync(join(project, 'say', '.venv', 'bin', 'python3')), 'the virtual environment was made');
+  const line = JSON.parse(readFileSync(join(project, 'where-each-tool-comes-from.json'), 'utf8')).tools.say;
   assert.deepEqual(Object.keys(line.files).sort(), ['requirements.txt', 'say.py', 'what-this-tool-does-and-how-to-run-it.json']);
   const again = await add({ project, tool: 'say', clones: [registry] });
   assert.deepEqual(again.already, ['say'], 'what prepare made is not an edit');

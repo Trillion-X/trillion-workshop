@@ -17,5 +17,5 @@ test('a folder with only the old card name is refused, naming the folder', async
   assert.deepEqual(output.refused.map(r => r.why), ['old-card-name']);
   assert.match(output.refused[0].said, /^tools\/greet: its card has the old name tool-rows\.json/);
   assert.deepEqual(output.added, []);
-  assert.equal(existsSync(join(project, 'trillion')), false);
+  assert.equal(existsSync(join(project, 'where-each-tool-comes-from.json')), false);
 });

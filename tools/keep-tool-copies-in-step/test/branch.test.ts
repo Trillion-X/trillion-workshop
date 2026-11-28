@@ -9,13 +9,15 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileDigest, identityOfDigests } from '../../content-identity/read-data/manifest.mjs';
-import { RECORD_FILE, TOOLS_FOLDER } from '../../add-a-tool-to-a-project/read-data/record.ts';
+import { RECORD_FILE } from '../../add-a-tool-to-a-project/read-data/record.ts';
 import { RefRefused, apply, plan, pushSyncBranch, syncRef } from '../do-work/sync.ts';
-import { TEXT, commitUpstream, git, makeUpstream, projectWith, publish, refsOf, toolFiles, writeRegistry, type Upstream } from './fixtures.ts';
+import { TEXT, commitUpstream, git, makeUpstream, projectWith, publish, refsOf, remoteOf, toolFiles, writeRegistry, type Upstream, PLACE } from './fixtures.ts';
+import { emptyProject, scratch, withOrigin } from '../../add-a-tool-to-a-project/test/fixtures.ts';
+import { add } from '../../add-a-tool-to-a-project/do-work/add.ts';
 
 const MAIN = 'refs/heads/main';
 const show = (repo: string, at: string) => execFileSync('git', ['-C', repo, 'show', at], { encoding: 'utf8' });
-const recordAt = (repo: string, ref: string) => JSON.parse(show(repo, `${ref}:${TOOLS_FOLDER}/${RECORD_FILE}`));
+const recordAt = (repo: string, ref: string) => JSON.parse(show(repo, `${ref}:${PLACE}/${RECORD_FILE}`));
 const syncRefs = (repo: string) => Object.keys(refsOf(repo)).filter(ref => ref.startsWith('refs/heads/sync/'));
 
 /** A registry pointer at `commit` that takes only `paths` of tools/<name>, its files_blake3 over exactly those files. */
@@ -41,8 +43,8 @@ test('an upstream change waits on branch sync/upstream/<line>/<commit> made on m
   assert.equal(refsOf(at.repo)[MAIN], main, 'main is never moved');
   assert.equal(refsOf(at.repo)[`refs/heads/${branch}`], done.waiting[0].commit);
   assert.equal(git(at.repo, 'rev-parse', `${branch}^`), main, 'the branch is one commit on the tip of main');
-  assert.equal(show(at.repo, `${branch}:${TOOLS_FOLDER}/greet/do-work/run.mjs`), TEXT.replace('six', 'SIX'));
-  assert.throws(() => show(at.repo, `${branch}:${TOOLS_FOLDER}/greet/do-work/gone.mjs`), 'a file upstream deleted is gone on the branch');
+  assert.equal(show(at.repo, `${branch}:${PLACE}/greet/do-work/run.mjs`), TEXT.replace('six', 'SIX'));
+  assert.throws(() => show(at.repo, `${branch}:${PLACE}/greet/do-work/gone.mjs`), 'a file upstream deleted is gone on the branch');
   const line = recordAt(at.repo, branch).tools.greet;
   assert.equal(line.copied_at_commit, next);
   assert.equal(line.files['do-work/new.mjs'], fileDigest(Buffer.from('new\n')));
@@ -87,8 +89,8 @@ test('a pointer\'s paths bound upstream: a file outside them is never brought, a
   pathsRegistry(registry, up, 'greet', paths);
   const { project, at } = registry0;
   const { add } = await import('../../add-a-tool-to-a-project/do-work/add.ts');
-  rmSync(join(project, TOOLS_FOLDER), { recursive: true, force: true });
-  const added = await add({ project, tool: 'greet', from: registry, prepare: false });
+  rmSync(join(project, PLACE), { recursive: true, force: true });
+  const added = await add({ project, tool: 'greet', from: registry, record_at: PLACE, prepare: false });
   assert.deepEqual(added.refused, []);
   publish(project, 'greet by its paths');
   // Upstream changes a file outside the paths and one inside; the pointer moves with the same paths.
@@ -98,7 +100,7 @@ test('a pointer\'s paths bound upstream: a file outside them is never brought, a
   assert.deepEqual(Object.keys(planned.tools.greet.files).sort(), [...paths].sort(), 'only the pointer\'s paths are compared');
   const done = await apply({ ...at, clones, plan: planned });
   const branch = done.waiting[0].branch;
-  assert.throws(() => show(at.repo, `${branch}:${TOOLS_FOLDER}/greet/do-work/extra.mjs`), 'a file outside the paths is never brought');
+  assert.throws(() => show(at.repo, `${branch}:${PLACE}/greet/do-work/extra.mjs`), 'a file outside the paths is never brought');
   // The pointer drops kept.mjs: it goes on the branch and is not added back; the project dropped nothing else.
   const later = commitUpstream(up, { 'tools/greet/do-work/kept.mjs': 'kept, changed upstream\n' });
   pathsRegistry(registry, up, 'greet', paths.filter(path => path !== 'do-work/kept.mjs'), later);
@@ -106,14 +108,14 @@ test('a pointer\'s paths bound upstream: a file outside them is never brought, a
   assert.equal(trimmed.tools.greet.files['do-work/kept.mjs'], 'deleted-upstream');
   const after = await apply({ ...at, clones, plan: trimmed });
   const trimmedBranch = after.waiting[0].branch;
-  assert.throws(() => show(at.repo, `${trimmedBranch}:${TOOLS_FOLDER}/greet/do-work/kept.mjs`), 'the dropped file is not on the branch');
+  assert.throws(() => show(at.repo, `${trimmedBranch}:${PLACE}/greet/do-work/kept.mjs`), 'the dropped file is not on the branch');
   assert.equal(recordAt(at.repo, trimmedBranch).tools.greet.files['do-work/kept.mjs'], undefined);
 });
 
 test('a file the project dropped stays dropped: it is the project\'s own change, and nothing is pushed for it', async () => {
   const up = makeUpstream({ ...toolFiles('greet'), 'tools/greet/do-work/extra.mjs': 'extra\n' });
   const { project, clones, at } = await projectWith(up, ['greet']);
-  rmSync(join(project, TOOLS_FOLDER, 'greet', 'do-work', 'extra.mjs'));
+  rmSync(join(project, PLACE, 'greet', 'do-work', 'extra.mjs'));
   publish(project, 'the project drops extra.mjs');
   const before = refsOf(at.repo);
   const planned = await plan({ ...at, clones });
@@ -127,7 +129,7 @@ test('a file the project dropped stays dropped: it is the project\'s own change,
 test('a both-clean merge waits on its branch holding both sides, and main never moves', async () => {
   const up = makeUpstream(toolFiles('greet'));
   const { project, registry, clones, at } = await projectWith(up, ['greet']);
-  writeFileSync(join(project, TOOLS_FOLDER, 'greet', 'do-work', 'run.mjs'), TEXT.replace('one', 'ONE'));
+  writeFileSync(join(project, PLACE, 'greet', 'do-work', 'run.mjs'), TEXT.replace('one', 'ONE'));
   publish(project);
   const main = refsOf(at.repo)[MAIN];
   commitUpstream(up, { 'tools/greet/do-work/run.mjs': TEXT.replace('six', 'SIX') });
@@ -135,6 +137,31 @@ test('a both-clean merge waits on its branch holding both sides, and main never 
   const planned = await plan({ ...at, clones });
   assert.equal(planned.tools.greet.state, 'both-clean');
   const done = await apply({ ...at, clones, plan: planned });
-  assert.equal(show(at.repo, `${done.waiting[0].branch}:${TOOLS_FOLDER}/greet/do-work/run.mjs`), TEXT.replace('one', 'ONE').replace('six', 'SIX'));
+  assert.equal(show(at.repo, `${done.waiting[0].branch}:${PLACE}/greet/do-work/run.mjs`), TEXT.replace('one', 'ONE').replace('six', 'SIX'));
   assert.equal(refsOf(at.repo)[MAIN], main);
+});
+
+test('a copy that lives apart from the record is compared and brought at its own place', async () => {
+  const up = makeUpstream(toolFiles('ui'));
+  const registry = scratch('registry');
+  writeRegistry(registry, up, ['ui']);
+  withOrigin(registry);
+  const project = emptyProject();
+  const added = await add({ project, tool: 'ui', from: registry, record_at: PLACE, into: 'src/components/ui', prepare: false });
+  assert.deepEqual(added.refused, []);
+  git(project, 'add', '-A');
+  git(project, '-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', 'ui copied');
+  const at = remoteOf(project);
+  const next = commitUpstream(up, { 'tools/ui/do-work/run.mjs': TEXT.replace('two', 'TWO') });
+  writeRegistry(registry, up, ['ui']);
+  const planned = await plan({ ...at, clones: [registry] });
+  assert.equal(planned.tools.ui.state, 'upstream-only');
+  const done = await apply({ ...at, clones: [registry], plan: planned });
+  const branch = done.waiting[0].branch;
+  assert.equal(branch, `sync/upstream/ui/${next}`);
+  assert.equal(show(at.repo, `${branch}:src/components/ui/ui/do-work/run.mjs`), TEXT.replace('two', 'TWO'));
+  assert.throws(() => show(at.repo, `${branch}:${PLACE}/ui/do-work/run.mjs`), 'nothing is written beside the record');
+  const line = recordAt(at.repo, branch).tools.ui;
+  assert.equal(line.at, 'src/components/ui/ui');
+  assert.equal(line.copied_at_commit, next);
 });

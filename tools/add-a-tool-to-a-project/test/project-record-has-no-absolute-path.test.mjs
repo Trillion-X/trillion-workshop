@@ -1,8 +1,8 @@
 // The project record (where-each-tool-comes-from.json) travels in the project's git, so it holds no path of the computer
 // that wrote it: a registry and a direct pointer's repo are recorded by an address every computer can reach (a local
-// folder given as from is recorded as its git origin address), each tool's locator is its folder name under the
-// project's tools folder, and a local registry with no origin address is refused with nothing written. The absolute
-// anchor of the project's tools folder lives only in each computer's own settings.
+// folder given as from is recorded as its git origin address), each copy's locator is its `at`, relative to the project's
+// top, and a local registry with no origin address is refused with nothing written. The absolute anchor of the project
+// lives only in each computer's own settings.
 //
 //   node --test test/project-record-has-no-absolute-path.test.mjs   (from the tool's folder, or with the path from the root)
 import { test } from 'node:test';
@@ -11,12 +11,12 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { add } from '../do-work/add.ts';
-import { RECORD_FILE } from '../read-data/record.ts';
+import { RECORD_FILE, recordPlace } from '../read-data/record.ts';
 import { isReachableAddress } from '../read-data/registry.ts';
 import { emptyProject, makeRegistry, makeRepo, originAddress, scratch, standInTool } from './fixtures.ts';
 
-/** The project's tools folder: the one folder of the project that holds the record file. */
-const toolsOf = project => join(project, readdirSync(project).find(name => existsSync(join(project, name, RECORD_FILE))));
+/** The folder of the project that holds its record (read-data/record.ts recordPlace). */
+const toolsOf = project => join(project, recordPlace(project));
 
 /** Every string in a JSON value, with the path of keys that reaches it (object keys are checked too). */
 function strings(value, at = '$') {
@@ -51,7 +51,7 @@ test('the record names registries and repos by reachable addresses and holds no 
   assert.equal(record.registry, originAddress(registry));
   assert.ok(isReachableAddress(record.registry));
   for (const [name, line] of Object.entries(record.tools)) {
-    assert.ok(existsSync(join(tools, name)), `${name} is a folder under the tools folder, named by its folder name only`);
+    assert.ok(existsSync(join(project, line.at)), `${name} is at its line's at, relative to the project's top`);
     if ('registry' in line.from) assert.ok(isReachableAddress(line.from.registry), `${name}'s registry is an address`);
     if ('repo' in line.from) assert.equal(line.from.repo, originAddress(repo), `${name}'s repo is its origin address`);
   }
@@ -71,7 +71,7 @@ test('a local registry or repo with no origin address is refused and nothing is 
     const output = await add({ project, tool: 'greet', from, prepare: false });
     assert.deepEqual(output.refused.map(r => r.why), ['bad-from'], JSON.stringify(from));
   }
-  assert.deepEqual(readdirSync(project), ['package.json']);
+  assert.deepEqual(readdirSync(project).filter(name => name !== '.git'), ['package.json']);
 });
 
 test('an https address carrying a user or password is refused, so no key is ever recorded', async () => {
@@ -80,5 +80,5 @@ test('an https address carrying a user or password is refused, so no key is ever
     const output = await add({ project, tool: 'greet', from, prepare: false });
     assert.deepEqual(output.refused.map(r => r.why), ['bad-from'], from);
   }
-  assert.deepEqual(readdirSync(project), ['package.json']);
+  assert.deepEqual(readdirSync(project).filter(name => name !== '.git'), ['package.json']);
 });

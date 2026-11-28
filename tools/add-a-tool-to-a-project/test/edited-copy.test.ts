@@ -12,9 +12,9 @@ test('an edited copy is refused with its diff and left untouched', async () => {
   const registry = makeRegistry(repo, commit, { greet: [] });
   const project = emptyProject();
   await add({ project, tool: 'greet', from: registry });
-  const edited = join(project, 'trillion', 'greet', 'do-work', 'x.mjs');
+  const edited = join(project, 'greet', 'do-work', 'x.mjs');
   writeFileSync(edited, 'export const name = "greeT";\n');
-  const recordFile = join(project, 'trillion', 'where-each-tool-comes-from.json');
+  const recordFile = join(project, 'where-each-tool-comes-from.json');
   const before = fileDigest(readFileSync(recordFile));
   const output = await add({ project, tool: 'greet', from: registry });
   assert.equal(output.refused.length, 1);
