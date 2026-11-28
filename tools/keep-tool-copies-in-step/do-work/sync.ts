@@ -39,7 +39,7 @@ import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileDigest, identityOfDigests } from '../../content-identity/read-data/manifest.mjs';
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
-import { BadFrom, readRegistry, type Hex64, type Registry } from '../../add-a-tool-to-a-project/read-data/registry.ts';
+import { BadFrom, isReachableAddress, readRegistry, type Hex64, type Registry } from '../../add-a-tool-to-a-project/read-data/registry.ts';
 import { FetchedCommit, GitRefused, NotAtCommit, type Fetched, type FileMap } from '../../add-a-tool-to-a-project/read-data/fetch-folder.ts';
 import { RECORD_FILE, RecordChanged, TOOLS_FOLDER, readProjectRecord, writeProjectRecord, type RecordFile, type ToolRecord } from '../../add-a-tool-to-a-project/read-data/record.ts';
 import { projectInGrant } from '../../add-a-tool-to-a-project/do-work/add.ts';
@@ -171,7 +171,13 @@ async function compareAll(project: string, record: RecordFile, only: string[] | 
         upstream = { repo: line.from.repo, path: line.from.path, commit: io.remoteHead(line.from.repo), files_blake3: null };
       }
     } catch (error) {
-      if (error instanceof BadFrom) { computed.push(refused('bad-from', error.message)); continue; }
+      if (error instanceof BadFrom) {
+        // A line written before the add tool recorded registries by address (2381a22ed) names a folder path; readRegistry
+        // reads one only when its git origin is an address, so the cause names the one-time rewrite, never a second reader.
+        const old = typeof line.from === 'object' && 'registry' in line.from && !isReachableAddress(line.from.registry);
+        computed.push(refused('bad-from', old ? `${error.message} This record line names its registry by a path, as records written before tool:add-a-tool-to-a-project 2381a22ed do: rewrite its registry fields once to the registry's address (same commits and identities).` : error.message));
+        continue;
+      }
       if (error instanceof GitRefused) { computed.push(refused('fetch-refused', error.message)); continue; }
       throw error;
     }

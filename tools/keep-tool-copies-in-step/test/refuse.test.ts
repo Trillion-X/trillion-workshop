@@ -3,7 +3,7 @@
 // fetch stand-in that throws is never called); a record changed between plan and apply refuses the apply and writes nothing.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileDigest, identityOfDigests } from '../../content-identity/read-data/manifest.mjs';
 import { RECORD_FILE, TOOLS_FOLDER } from '../../add-a-tool-to-a-project/read-data/record.ts';
@@ -91,4 +91,21 @@ test('a file edited between plan and apply refuses the tool and writes nothing',
   const done = await apply({ project, clones, plan: planned });
   assert.deepEqual(done.refused.map(r => [r.tool, r.why]), [['greet', 'changed-since-plan']]);
   assert.equal(folderIdentity(project), before);
+});
+
+test('a record line written before registries were recorded by address names the one-time rewrite when its path cannot be read', async () => {
+  const up = makeUpstream(toolFiles('greet'));
+  const { project, registry } = await projectWith(up, ['greet']);
+  const recordFile = join(project, TOOLS_FOLDER, RECORD_FILE);
+  const record = JSON.parse(readFileSync(recordFile, 'utf8'));
+  // The old shape: a folder path in from.registry, of a folder with no origin (as an old record's copy is on another computer).
+  const bare = join(registry, '..', `${registry.split('/').pop()}-no-origin`);
+  mkdirSync(bare);
+  writeFileSync(join(bare, 'tools-in-this-registry.json'), readFileSync(join(registry, 'tools-in-this-registry.json')));
+  record.tools.greet.from.registry = bare;
+  writeFileSync(recordFile, `${JSON.stringify(record, null, 2)}\n`);
+  const planned = await plan({ project });
+  assert.equal(planned.tools.greet.state, 'refused');
+  assert.equal(planned.tools.greet.why, 'bad-from');
+  assert.match(planned.tools.greet.said!, /rewrite its registry fields once to the registry's address/);
 });
