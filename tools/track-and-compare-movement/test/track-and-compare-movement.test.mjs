@@ -30,6 +30,7 @@ for (const [file, what] of [
   ['test_reference_length.py', 'prepare leaves out a reference longer than reference_max_seconds and names it'],
   ['test_check_stage.py', 'the check puts contact where the target reaches it in the first pass, also in a whole-swing pass'],
   ['test_render_stage.py', 'render runs contact, phase sync, the edit per format, the framing check and the renderer in order; a refused sync or framing makes no clip'],
+  ['test_progression_stage.py', 'a progression takes the reference swing with the most dates, each date\'s closest synced swing spread over time within its length, one held reference crop and one date caption per swing'],
   ['test_whole_movement_still.py', 'a held-frame cell is measured at its frame, never raising'],
   ['test_side_by_side_layout.py', 'the check reads a side-by-side clip left and right, and a stacked reading of it does not match'],
   ['test_stroke_side.py', 'the takeback side is read in image space from the fastest wrist, and the recording\'s forehand side decides the stroke with a margin'],

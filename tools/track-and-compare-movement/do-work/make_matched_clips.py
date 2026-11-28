@@ -14,6 +14,9 @@ Each stage only chains pieces this tool already has; it adds no matcher, rendere
             render-an-edit.mjs renders each format.
   check     side_by_side.py check: two different sources, contact in sync within one output frame.
   keep      files_road.keep puts each passed clip in Files; its identity is the local file's BLAKE3.
+  progression  from a finished batch's pairs.json: one fixed reference swing on top and a target's swings of many dates
+            under it, oldest first, each synced by the same pieces as render, each with its date as a caption
+            (media-composition's caption-subtitle.mjs places the letters); job.progression is its DATA.
 
 USAGE: make_matched_clips.py prepare < SPEC.json   (fetches models and clips, writes WORK/job.json)
        make_matched_clips.py STAGE --job JOB.json
@@ -27,10 +30,12 @@ JOB.json (DATA; nothing about a person, a sport or a folder is in this file):
   "reference_max_seconds": 8,                             prepare leaves out longer references (their label may not hold)
   "movement": "forehand", "class_margin": 0.05, "class_admit": 0.6,   when references carry a class (a human label, e.g.
                                                           from their folder), match uses select_partner's labelled mode
-  "layout": "v", "padding_s": 2.5, "size": [1080, 1920], "call": ["<engine command>", "op"], "keep_folder": "/Recordings/..."
+  "layout": "v", "padding_s": 2.5, "size": [1080, 1920], "call": ["<engine command>", "op"], "keep_folder": "/Recordings/...",
+  "progression": {...}                                    optional: what the progression stage makes (see progression())
 }
 """
 import argparse
+import datetime
 import hashlib
 import json
 import os
@@ -91,9 +96,10 @@ def read(path):
         return json.load(f)
 
 
-def run_json(cmd, env=None):
-    """Run one tool script and return its JSON answer: the whole stdout, or its last {"result"}/{"error"} line."""
-    r = subprocess.run(cmd, capture_output=True, text=True, env=env)
+def run_json(cmd, env=None, input_text=None):
+    """Run one tool script (given `input_text` on stdin) and return its JSON answer: the whole stdout, or its last
+    {"result"}/{"error"} line."""
+    r = subprocess.run(cmd, capture_output=True, text=True, env=env, input=input_text)
     out = r.stdout.strip()
     try:
         return json.loads(out)
@@ -232,6 +238,99 @@ def clip_name(job, pair):
             f"{pair['reference_window']}_{job.get('movement', 'movement')}-{job.get('view', 'view')}{choice}.mp4")
 
 
+def media_of(job):
+    """The media-composition tool folder: job.media_composition, else the one beside this tool."""
+    return job.get("media_composition") or os.path.join(HERE, "..", "..", "media-composition")
+
+
+def kp_of(job, index, k):
+    return os.path.join(job["work"], f"{index}-index", "_work", f"{k}.kp.json")
+
+
+def plan_pair(job, pair, base, media, steps):
+    """One pair's plan, written beside `base` for author_comparison_edl.py: each side's contact (a person's mark, else
+    contact_moment.py), the phase sync of the reference to the target (phase_sync.py; refused = contact only), the
+    mirror from facts both sides carry, and the two-sided spec (BASE.spec.json, reference first: top / left). `steps`
+    is filled as it goes, so a failure still says what was found; a piece that fails raises RuntimeError."""
+    T, R = by_key(job, "targets"), by_key(job, "references")
+    t, r = T[pair["target"]], R[pair["reference"]]
+    contacts = {}
+    for name, clip, k, index, window, peak in (
+            ("target", t, pair["target"], "targets", pair["target_t"], pair["target_peak"]),
+            ("reference", r, pair["reference"], "references", pair["reference_t"], pair["reference_peak"])):
+        marks = [m for m in (job.get("contact_marks") or {}).get(clip.get("identity"), [])
+                 if window[0] <= float(m) <= window[1]]
+        if marks:  # a person's mark is the contact: no detector here is frame-exact on every kind of video
+            near = min(marks, key=lambda m: abs(float(m) - peak))
+            contacts[name] = {"time": float(near), "source": "mark", "hit": None,
+                              "why": f"marked by a person, {float(near) - peak:+.3f} s from the wrist peak"}
+            continue
+        tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)
+        lag = (job.get("contact_audio_lag_s") or {}).get(name, 0.0)  # how late this side's sound is (DATA)  # 0 = never the sound (its audio
+        got = run_json([sys.executable, os.path.join(HERE, "contact_moment.py"), "--clip", clip["path"],  # may be off)
+                        "--t0", str(window[0]), "--t1", str(window[1]), "--wrist-peak", str(peak),
+                        "--media-composition", media, "--tolerance", str(tolerance), "--audio-lag", str(lag)])
+        if "error" in got:
+            raise RuntimeError(f"contact {name}: {got['error']}")
+        contacts[name] = got["result"]
+    steps["contact"] = contacts
+    tc, rc = contacts["target"]["time"], contacts["reference"]["time"]
+    # each side's window comes from its own swing landmarks (phase_sync); the clips make its landmark sheet
+    sync_spec = {"fps": 30, "target": {"kp": kp_of(job, "targets", pair["target"]), "contact": tc, "clip": t["path"]},
+                 "reference": {"kp": kp_of(job, "references", pair["reference"]), "contact": rc, "clip": r["path"]}}
+    if "mark" in (contacts["target"]["source"], contacts["reference"]["source"]):
+        # a person's mark is the contact; the fastest hands can come before it (measured Nov 26 2026: 0.127 s
+        # on a student's phone clip), so the fastest-moment check only asks for the same swing
+        sync_spec["settings"] = {"landmarks": {"contact_off_s": 0.35}}
+    with open(base + ".sync-spec.json", "w") as f:
+        json.dump(sync_spec, f, indent=1)
+    got = run_json([sys.executable, os.path.join(HERE, "phase_sync.py"), "--spec", base + ".sync-spec.json",
+                    "--out", base + ".sync.json"])
+    # a refused sync never distorts the reference: the pair is cut on contact alone (both contacts meet, the
+    # phases around them play as recorded) and the clip's row says which alignment it has
+    synced = "error" not in got
+    steps["sync"] = got["result"] if synced else {"aligned": "contact only", "refused": got["error"]}
+
+    # mirror from facts both sides carry (hand, where the camera stands), by the same rule the check holds
+    # them to; the matcher's pose parity is kept beside it, never used to decide
+    sys.path.insert(0, HERE)
+    from side_by_side import screen_direction
+    facts = lambda c: on_screen(c, job)
+    flip = screen_direction(facts(r)) != screen_direction(facts(t))
+    steps["mirror"] = {"flip": flip, "reference": facts(r), "target": facts(t), "matcher_parity": pair.get("parity")}
+
+    def side(clip, k, index, peak, flip, sync=None):
+        return {"clip": clip["path"], "kp": kp_of(job, index, k), "peak": peak, "label": "",
+                **({"flip": "h"} if flip else {}), **({"sync": sync} if sync else {})}
+    spec = {"encode": {"fps": 30, "crf": 18, "preset": "medium"}, "bg": "black",
+            "left": side(r, pair["reference"], "references", rc, flip,
+                         base + ".sync.json" if synced else None),
+            "right": side(t, pair["target"], "targets", tc, False)}
+    with open(base + ".spec.json", "w") as f:
+        json.dump(spec, f, indent=1)
+    return spec
+
+
+def frame_and_render(job, media, edit, framed, out, add=None):
+    """whole_movement_check.py on an edit (a cell's crop widened where the body or racket would leave it, written to
+    `framed`), the fields of `add` set on the framed edit, then media-composition's render-an-edit.mjs renders it to
+    `out`. Answers (framing result, None) or (framing result, why it made no video)."""
+    seg_model = os.path.join(job["models"], job.get("framing_model", "yolo11n-seg.pt"))
+    got = run_json([sys.executable, os.path.join(HERE, "whole_movement_check.py"), "--edit", edit, "--model", seg_model,
+                    "--work", out[:-4] + ".framing", "--write-edit", framed])
+    if "error" in got or not os.path.exists(framed) or (got.get("result") or {}).get("cells_refused"):
+        return got.get("result"), f"framing: {got.get('error') or 'a cell cannot hold the whole movement'}"
+    edl = {**read(framed), **(add or {})}
+    if add:
+        with open(framed, "w") as f:
+            json.dump(edl, f, indent=1)
+    rr = subprocess.run(["node", os.path.join(media, "do-work", "render-an-edit.mjs"), "--edl", json.dumps(edl),
+                         "--output", out], capture_output=True, text=True)
+    if rr.returncode or not os.path.exists(out):
+        return got.get("result"), (rr.stderr.strip().splitlines() or ["render failed"])[-1][:300]
+    return got.get("result"), None
+
+
 def render(job):
     """Each admitted pair becomes one clip per format of the variants (comparison-variants.json: 9:16 stacked and
     16:9 side by side, each with a 1x pass, 0.5x / 0.25x / 0.1x smooth slow motion and a contact still), made only by
@@ -243,20 +342,12 @@ def render(job):
       whole_movement_check.py  body and racket inside every cell's crop for the whole cut (crop widened, or refused)
       render-an-edit.mjs       media-composition renders it (smooth slow motion = its motion-compensated interpolation)"""
     pairs = read(os.path.join(job["work"], "pairs.json"))["pairs"]
-    T, R = by_key(job, "targets"), by_key(job, "references")
     folder = os.path.join(job["work"], "clips")
     os.makedirs(folder, exist_ok=True)
-    media = job.get("media_composition") or os.path.join(HERE, "..", "..", "media-composition")
-    renderer = os.path.join(media, "do-work", "render-an-edit.mjs")
+    media = media_of(job)
     variants_path = job.get("variants") or os.path.join(HERE, "comparison-variants.json")
     variants = read(variants_path)
-    full_half = next((p["half"] for p in variants["passes"] if not p.get("speed") and not p.get("still")), 1.0)
-    seg_model = os.path.join(job["models"], job.get("framing_model", "yolo11n-seg.pt"))
     made, failed = [], []
-
-    def kp_of(index, k):
-        return os.path.join(job["work"], f"{index}-index", "_work", f"{k}.kp.json")
-
     for pair in pairs:
         base = os.path.join(folder, clip_name(job, pair)[:-4])
         formats = [f["id"] for f in variants["formats"]]
@@ -264,63 +355,9 @@ def render(job):
             made += [{"pair": pair, "file": f"{base}.{fid}.mp4", "edit": f"{base}.{fid}.edit.json", "format": fid,
                       "already": True} for fid in formats]
             continue
-        t, r = T[pair["target"]], R[pair["reference"]]
         steps = {}
         try:
-            contacts = {}
-            for name, clip, k, index, window, peak in (
-                    ("target", t, pair["target"], "targets", pair["target_t"], pair["target_peak"]),
-                    ("reference", r, pair["reference"], "references", pair["reference_t"], pair["reference_peak"])):
-                marks = [m for m in (job.get("contact_marks") or {}).get(clip.get("identity"), [])
-                         if window[0] <= float(m) <= window[1]]
-                if marks:  # a person's mark is the contact: no detector here is frame-exact on every kind of video
-                    near = min(marks, key=lambda m: abs(float(m) - peak))
-                    contacts[name] = {"time": float(near), "source": "mark", "hit": None,
-                                      "why": f"marked by a person, {float(near) - peak:+.3f} s from the wrist peak"}
-                    continue
-                tolerance = (job.get("contact_tolerance_s") or {}).get(name, 0.25)
-                lag = (job.get("contact_audio_lag_s") or {}).get(name, 0.0)  # how late this side's sound is (DATA)  # 0 = never the sound (its audio
-                got = run_json([sys.executable, os.path.join(HERE, "contact_moment.py"), "--clip", clip["path"],  # may be off)
-                                "--t0", str(window[0]), "--t1", str(window[1]), "--wrist-peak", str(peak),
-                                "--media-composition", media, "--tolerance", str(tolerance), "--audio-lag", str(lag)])
-                if "error" in got:
-                    raise RuntimeError(f"contact {name}: {got['error']}")
-                contacts[name] = got["result"]
-            steps["contact"] = contacts
-            tc, rc = contacts["target"]["time"], contacts["reference"]["time"]
-            # each side's window comes from its own swing landmarks (phase_sync); the clips make its landmark sheet
-            sync_spec = {"fps": 30, "target": {"kp": kp_of("targets", pair["target"]), "contact": tc, "clip": t["path"]},
-                         "reference": {"kp": kp_of("references", pair["reference"]), "contact": rc, "clip": r["path"]}}
-            if "mark" in (contacts["target"]["source"], contacts["reference"]["source"]):
-                # a person's mark is the contact; the fastest hands can come before it (measured Nov 26 2026: 0.127 s
-                # on a student's phone clip), so the fastest-moment check only asks for the same swing
-                sync_spec["settings"] = {"landmarks": {"contact_off_s": 0.35}}
-            with open(base + ".sync-spec.json", "w") as f:
-                json.dump(sync_spec, f, indent=1)
-            got = run_json([sys.executable, os.path.join(HERE, "phase_sync.py"), "--spec", base + ".sync-spec.json",
-                            "--out", base + ".sync.json"])
-            # a refused sync never distorts the reference: the pair is cut on contact alone (both contacts meet, the
-            # phases around them play as recorded) and the clip's row says which alignment it has
-            synced = "error" not in got
-            steps["sync"] = got["result"] if synced else {"aligned": "contact only", "refused": got["error"]}
-
-            # mirror from facts both sides carry (hand, where the camera stands), by the same rule the check holds
-            # them to; the matcher's pose parity is kept beside it, never used to decide
-            sys.path.insert(0, HERE)
-            from side_by_side import screen_direction
-            facts = lambda c: on_screen(c, job)
-            flip = screen_direction(facts(r)) != screen_direction(facts(t))
-            steps["mirror"] = {"flip": flip, "reference": facts(r), "target": facts(t), "matcher_parity": pair.get("parity")}
-
-            def side(clip, k, index, peak, flip, sync=None):
-                return {"clip": clip["path"], "kp": kp_of(index, k), "peak": peak, "label": "",
-                        **({"flip": "h"} if flip else {}), **({"sync": sync} if sync else {})}
-            spec = {"encode": {"fps": 30, "crf": 18, "preset": "medium"}, "bg": "black",
-                    "left": side(r, pair["reference"], "references", rc, flip,
-                                 base + ".sync.json" if synced else None),
-                    "right": side(t, pair["target"], "targets", tc, False)}
-            with open(base + ".spec.json", "w") as f:
-                json.dump(spec, f, indent=1)
+            plan_pair(job, pair, base, media, steps)
             got = run_json([sys.executable, os.path.join(HERE, "author_comparison_edl.py"), "--spec", base + ".spec.json",
                             "--out", base + ".edit.json", "--variants", variants_path])
             if "error" in got:
@@ -331,23 +368,219 @@ def render(job):
         for fmt in variants["formats"]:
             fid = fmt["id"]
             edit, out = f"{base}.edit.{fid}.json", f"{base}.{fid}.mp4"   # author_comparison_edl --variants names OUT.FORMAT.json
-            framed = f"{base}.{fid}.edit.json"
-            got = run_json([sys.executable, os.path.join(HERE, "whole_movement_check.py"), "--edit", edit, "--model", seg_model,
-                            "--work", base + f".{fid}.framing", "--write-edit", framed])
-            if "error" in got or not os.path.exists(framed) or (got.get("result") or {}).get("cells_refused"):
-                failed.append({"pair": pair, "format": fid, "why": f"framing: {got.get('error') or 'a cell cannot hold the whole movement'}",
-                               "framing": got.get("result"), "steps": steps})
+            framing, why = frame_and_render(job, media, edit, f"{base}.{fid}.edit.json", out)
+            if why:
+                failed.append({"pair": pair, "format": fid, "why": why, "framing": framing, "steps": steps})
                 continue
-            rr = subprocess.run(["node", renderer, "--edl", open(framed).read(), "--output", out], capture_output=True, text=True)
-            if rr.returncode or not os.path.exists(out):
-                failed.append({"pair": pair, "format": fid, "why": (rr.stderr.strip().splitlines() or ["render failed"])[-1][:300],
-                               "steps": steps})
-                continue
-            made.append({"pair": pair, "file": out, "edit": framed, "format": fid, "size": [fmt["width"], fmt["height"]],
-                         "layout": fmt["layout"], "steps": {**steps, "framing": got.get("result")}})
+            made.append({"pair": pair, "file": out, "edit": f"{base}.{fid}.edit.json", "format": fid,
+                         "size": [fmt["width"], fmt["height"]], "layout": fmt["layout"], "steps": {**steps, "framing": framing}})
     with open(os.path.join(job["work"], "rendered.json"), "w") as f:
         json.dump({"made": made, "failed": failed}, f, indent=1)
     return {"made": len(made), "failed": len(failed), "first_failure": failed[0]["why"] if failed else None}
+
+
+def progression(job):
+    """One video of a target's swings over time against ONE fixed reference swing: the reference on the top cell, the
+    target's swings under it oldest first, each played as recorded with the reference phase-synced to it (render's own
+    plan_pair), each a whole swing ("span": "swing"), and over each swing its date as a caption whose letters sit where
+    the label says (media-composition's caption-subtitle.mjs measures them). It is made from a finished batch's
+    pairs.json by the pieces render uses, and adds no matcher, sync or renderer of its own.
+    job.progression (DATA; nothing about a person, a stroke or a reference is in this code):
+      "reference": {"key" | "identity", "window"}   optional; else the reference swing that partners the most distinct
+                                                    target dates (ties: the lowest mean motion distance). One batch is
+                                                    one camera view (job.view), so every candidate is at that angle
+      "targets": [{"key" | "identity", "window"}]   optional, in play order; else per date its pair closest to the
+                                                    reference (lowest motion_dist) whose sync holds, spread over time
+      "count": 12, "seconds": [30, 50]              how many swings, and the length the video must fit: fewer or more
+                                                    swings until it does
+      "slow_last": {"speed": 0.5, "smooth": true}   optional: the newest swing once more, slowed
+      "label": {"format": "%b %Y", "style": <caption style id | row>, "letters": {"edge": "top", "at": 0.5},
+                "fontsdir": "/a/folder"}            the date text, its caption style and where its letters sit
+      "size": [1080, 1920], "layout": "v", "name": "<file name without .mp4>"
+    Without job.progression it does nothing and says so."""
+    p = job.get("progression")
+    if not p:
+        return {"skipped": "the job has no progression"}
+    pairs = read(os.path.join(job["work"], "pairs.json"))["pairs"]
+    T, R = by_key(job, "targets"), by_key(job, "references")
+    by_identity = {c.get("identity"): k for side in (T, R) for k, c in side.items()}
+
+    def named_key(named):
+        return named.get("key") or by_identity.get(named.get("identity"))
+
+    def dist(pair):
+        return pair["motion_dist"] if isinstance(pair.get("motion_dist"), (int, float)) else float("inf")
+
+    dated = [pair for pair in pairs if T[pair["target"]].get("date")]
+    if p.get("reference"):
+        swing = (named_key(p["reference"]), int(p["reference"].get("window", 0)))
+    else:
+        swings = {}
+        for pair in dated:
+            swings.setdefault((pair["reference"], pair["reference_window"]), []).append(pair)
+        if not swings:
+            raise ValueError("pairs.json has no pair of a dated target")
+        swing = min(swings, key=lambda s: (-len({T[x["target"]]["date"] for x in swings[s]}),
+                                           sum(map(dist, swings[s])) / len(swings[s]), s))
+    if swing[0] not in R:
+        raise ValueError(f"the job has no reference {swing[0]}")
+    with_ref = [pair for pair in dated if (pair["reference"], pair["reference_window"]) == swing]
+    width, height = (int(n) for n in p.get("size") or job.get("size") or [1080, 1920])
+    layout = p.get("layout", "v")
+    name = p.get("name") or re.sub(r"[^A-Za-z0-9]+", "-", f"{job.get('movement', 'movement')}-{job.get('view', 'view')}-"
+                                   f"progression-vs-{swing[0]}-{swing[1]}").strip("-")
+    folder = os.path.join(job["work"], "progression", name)
+    os.makedirs(folder, exist_ok=True)
+    media = media_of(job)
+    planned, dropped = [], []
+
+    def plan(pair):
+        base = os.path.join(folder, f"{pair['target']}-{pair['target_window']}")
+        steps = {}
+        try:
+            plan_pair(job, pair, base, media, steps)
+        except RuntimeError as e:
+            return None, str(e)
+        if (steps.get("sync") or {}).get("aligned") == "contact only":
+            return None, f"sync refused: {steps['sync']['refused']}"   # every swing is synced, or it is not shown
+        sync = read(base + ".sync.json")
+        return {"pair": pair, "base": base, "steps": steps, "date": T[pair["target"]]["date"],
+                "seconds": sync["target"]["out"] - sync["target"]["in"]}, None
+
+    if p.get("targets"):
+        for named in p["targets"]:
+            want = (named_key(named), int(named.get("window", 0)))
+            pair = min((x for x in with_ref if (x["target"], x["target_window"]) == want), key=dist, default=None)
+            got, why = plan(pair) if pair else (None, "no pair of this target swing with the reference swing")
+            if got:
+                planned.append(got)
+            else:
+                dropped.append({"target": want, "why": why})
+        chosen = planned
+    else:
+        for date in sorted({T[x["target"]]["date"] for x in with_ref}):
+            whys = []
+            for pair in sorted((x for x in with_ref if T[x["target"]]["date"] == date), key=dist):
+                got, why = plan(pair)
+                if got:
+                    planned.append(got)
+                    break
+                whys.append(why)
+            else:
+                dropped.append({"date": date, "why": whys})
+        chosen = fit(planned, int(p.get("count", 12)), p.get("seconds"), p.get("slow_last"))
+    if not chosen:
+        raise ValueError(f"no swing of a dated target syncs with the reference swing {list(swing)}: {dropped[:3]}")
+
+    fps = 30
+    slow = p.get("slow_last")
+    label = p.get("label") or {}
+    segments, lines, shown, at_frame, edit = [], [], [], 0, None
+    for n, item in enumerate(chosen):
+        spec = read(item["base"] + ".spec.json")
+        passes = [{"id": "swing", "half": 1.0, "span": "swing"}]
+        if slow and n == len(chosen) - 1:
+            passes.append({"id": "slow", "half": 1.0, "span": "swing", "speed": float(slow["speed"]),
+                           **({"smooth": True} if slow.get("smooth") else {})})
+        spec.update({"encode": {**spec["encode"], "width": width, "height": height}, "layout": layout, "passes": passes})
+        with open(item["base"] + ".progression-spec.json", "w") as f:
+            json.dump(spec, f, indent=1)
+        got = run_json([sys.executable, os.path.join(HERE, "author_comparison_edl.py"), "--spec",
+                        item["base"] + ".progression-spec.json", "--out", item["base"] + ".progression-edit.json"])
+        if "error" in got:
+            raise RuntimeError(f"edit of {item['pair']['target']}: {got['error']}")
+        edit = read(item["base"] + ".progression-edit.json")
+        text = datetime.date.fromisoformat(item["date"]).strftime(label.get("format", "%Y-%m-%d"))
+        starts, contact = at_frame, None
+        for segment in edit["spine"]["segments"]:
+            target = segment["sources"][1]                     # the target plays as recorded, so its seconds time the cell
+            if contact is None:
+                contact = at_frame / fps + item["steps"]["contact"]["target"]["time"] - target["in"]
+            segment["id"] = f"{n:02d}-{segment['id']}"
+            at_frame += round((target["out"] - target["in"]) / float(segment.get("speed", 1)) * fps)
+            segments.append(segment)
+        lines.append({"text": text, "start": starts / fps, "end": at_frame / fps, "x": 0.5})
+        shown.append({"target": item["pair"]["target"], "target_window": item["pair"]["target_window"],
+                      "date": item["date"], "label": text, "motion_dist": item["pair"].get("motion_dist"),
+                      "from_s": round(starts / fps, 3), "to_s": round(at_frame / fps, 3), "contact_s": round(contact, 3),
+                      "max_phase_error_frames": item["steps"]["sync"].get("max_phase_error_frames"),
+                      "contact": item["steps"]["contact"]})
+    hold_reference_crop(segments, read(kp_of(job, "references", swing[0]))["video"], width, height, layout)
+    out = os.path.join(job["work"], "progression", name + ".mp4")
+    with open(out[:-4] + ".edit.json", "w") as f:
+        json.dump({**edit, "spine": {"segments": segments}}, f, indent=1)
+    fonts = {"fontsdir": label["fontsdir"]} if label.get("fontsdir") else {}
+    caption = run_json(["node", os.path.join(media, "do-work", "caption-subtitle.mjs")], input_text=json.dumps(
+        {"lines": lines, "style": label.get("style"), "width": width, "height": height, "letters": label.get("letters"), **fonts}))
+    if "error" in caption:
+        raise RuntimeError(f"date captions: {caption['error']}")
+    framing, why = frame_and_render(job, media, out[:-4] + ".edit.json", out[:-4] + ".framed-edit.json", out,
+                                    add={"subtitles": {"ass": caption["result"]["ass"], **fonts}})
+    if why:
+        raise RuntimeError(why)
+    r = R[swing[0]]
+    made = {"file": out, "edit": out[:-4] + ".framed-edit.json", "size": [width, height], "seconds": round(at_frame / fps, 3),
+            "reference": {"key": swing[0], "window": swing[1], "name": r.get("name"), "identity": r.get("identity")},
+            "swings": shown, "labels": caption["result"]["lines"], "framing": framing, "dropped": dropped}
+    with open(out[:-4] + ".json", "w") as f:
+        json.dump(made, f, indent=1)
+    return {"file": out, "record": out[:-4] + ".json", "swings": len(shown), "seconds": made["seconds"],
+            "reference": made["reference"], "dates": [s["date"] for s in shown], "dropped": len(dropped)}
+
+
+def fit(planned, count, seconds, slow):
+    """`count` of the planned swings spread evenly over time (the oldest and the newest always in), then fewer or more
+    of them until the whole video, the slowed newest swing included, lasts within `seconds` [least, most] if given."""
+    planned = sorted(planned, key=lambda x: x["date"])
+    if not planned:
+        return []
+
+    def day(item):
+        return datetime.date.fromisoformat(item["date"]).toordinal()
+
+    def spread(k):
+        if k >= len(planned):
+            return list(planned)
+        first, last = day(planned[0]), day(planned[-1])
+        left, out = list(planned), []
+        for i in range(k):
+            when = first + (last - first) * i / max(k - 1, 1)
+            near = min(left, key=lambda x: (abs(day(x) - when), day(x)))
+            left.remove(near)
+            out.append(near)
+        return sorted(out, key=lambda x: x["date"])
+
+    def length(chosen):
+        return sum(x["seconds"] for x in chosen) + (chosen[-1]["seconds"] / float(slow["speed"]) if slow else 0.0)
+
+    k = max(1, min(count, len(planned)))
+    if seconds:
+        least, most = (float(n) for n in seconds)
+        while k > 1 and length(spread(k)) > most:
+            k -= 1
+        while k < len(planned) and length(spread(k)) < least and length(spread(k + 1)) <= most:
+            k += 1
+    return spread(k)
+
+
+def hold_reference_crop(segments, video, width, height, layout):
+    """One crop for the reference cell of every segment: the union of their crops, at the cell's aspect, inside the
+    source frame, so the reference never jumps when the date changes."""
+    crops = [s["sources"][0]["crop"] for s in segments]
+    x0, y0 = min(c["x"] for c in crops), min(c["y"] for c in crops)
+    x1, y1 = max(c["x"] + c["w"] for c in crops), max(c["y"] + c["h"] for c in crops)
+    aspect = (width / 2) / height if layout == "h" else width / (height / 2)
+    w, h = max(x1 - x0, (y1 - y0) * aspect), max(y1 - y0, (x1 - x0) / aspect)
+    if w > video["width"]:
+        w, h = video["width"], video["width"] / aspect
+    if h > video["height"]:
+        w, h = video["height"] * aspect, video["height"]
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    crop = {"w": int(w), "h": int(h), "x": int(max(0, min(cx - w / 2, video["width"] - w))),
+            "y": int(max(0, min(cy - h / 2, video["height"] - h)))}
+    for s in segments:
+        s["sources"][0]["crop"] = dict(crop)
+    return crop
 
 
 def check(job):
@@ -481,7 +714,8 @@ def prepare(spec):
     path = os.path.join(work, "job.json")
     with open(path, "w") as f:
         json.dump(job, f, indent=1)
-    return {"job": path, "targets": len(job["targets"]), "references": len(job["references"]), "references_left_out": left_out}
+    return {"job": path, "targets": len(job["targets"]), "references": len(job["references"]), "references_left_out": left_out,
+            "progression": bool(job.get("progression"))}
 
 
 def duration(path):
@@ -496,7 +730,7 @@ def duration(path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("stage", choices=["prepare", "perceive", "match", "render", "check", "keep"])
+    ap.add_argument("stage", choices=["prepare", "perceive", "match", "render", "check", "keep", "progression"])
     ap.add_argument("--job", help="the job file (every stage but prepare, which reads its spec on stdin)")
     ap.add_argument("--side", choices=["targets", "references"], default="targets")
     a = ap.parse_args()
@@ -506,7 +740,8 @@ def main():
         else:
             job = read(a.job)
             out = perceive(job, a.side) if a.stage == "perceive" else \
-                {"match": match, "render": render, "check": check, "keep": keep}[a.stage](job)
+                {"match": match, "render": render, "check": check, "keep": keep,
+                 "progression": progression}[a.stage](job)
     except Exception as e:  # one line the workflow reads, with the reason
         print(json.dumps({"error": f"{a.stage}: {type(e).__name__}: {e}"}))
         return 1

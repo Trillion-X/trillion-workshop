@@ -14,7 +14,7 @@ Whole-frame motion against a reference video is a different job: `check-a-videos
 
 Every movement comparison and swing clip is made by `workflow:make-matched-movement-clips` (a row of
 the pursuit's `workflow_recipes`), never by a hand-run script: its steps run `do-work/make_matched_clips.py`
-(prepare, perceive, match, render, check, keep) from Workshop origin/main, then index each kept clip in the named store's
+(prepare, perceive, match, render, check, keep, and progression) from Workshop origin/main, then index each kept clip in the named store's
 `recording_moment`. A guard in ai-command-center (`.claude/hooks/making-a-deliverable-needs-a-wf-run.py`, its `routes`
 data) refuses running these scripts, or ffmpeg on swing-library footage, outside an open run of that workflow. Why (Nov 25 2026):
 comparison clips had been made by hand scripts around this tool's matcher, contact finder and planner.
@@ -27,6 +27,7 @@ comparison clips had been made by hand scripts around this tool's matcher, conta
 | render | `author_comparison_edl.py` (stacked or side by side, crop on each person, centred on contact), rendered by media-composition `render-an-edit.mjs` |
 | check | `side_by_side.py check` (two sources, same stroke and direction, contact within one output frame) |
 | keep | `files_road.keep` (any size, in 32 MiB pieces) and one row per clip |
+| progression | Only when the run's input names `progression` (then prepare goes straight to it, from the work folder's finished `pairs.json`, and the batch stages are not run): one fixed reference swing on the top cell and a target's dated swings under it, oldest first. The reference swing is the one that partners the most dates (or the one named); per date its closest pair whose phase sync holds, spread over time, as many as fit `seconds`; each swing is render's own plan (contact, phase sync, mirror) cut as its whole synced swing; the reference crop is held for the whole video; each swing carries its date (`label.format`) as a caption in a caption style whose letters' edge media-composition `caption-subtitle.mjs` places by measuring. Writes `progression/NAME.mp4` and `NAME.json` (every swing's program seconds, contact second and the measured caption rows) |
 
 ## Files
 
