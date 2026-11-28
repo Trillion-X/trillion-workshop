@@ -1,5 +1,5 @@
 {
-  "_what": "Keeps the tool folders a project copied into its own tools folder (tool:add-a-tool-to-a-project's) in step with where they came from. It is chosen by workflow:route-each-row-change when a push fact arrives (a GitHub push the signed receiver receivers/github-push.json told, kind something-changed) whose ref is the main branch. Its two steps are tool:keep-tool-copies-in-step: plan compares every copy with its base and its upstream and writes nothing; apply settles what plan found (upstream changes taken, project changes offered on a sync/ branch, conflicts answered with their diff, forks skipped). Every step is deterministic: no AI decides anything. The project's folder comes in on the person's own switch ({project: {computer: {change-a-folder: {folder}}}}); the row names none. The original is the pursuit's own workflow_recipes row; this file is the shipped form.",
+  "_what": "Keeps the tool folders a project copied into its own tools folder (tool:add-a-tool-to-a-project's) in step with where they came from. It is chosen by workflow:route-each-row-change when a push fact arrives (a GitHub push the signed receiver receivers/github-push.json told, kind something-changed) whose ref is the main branch. Its two steps are tool:keep-tool-copies-in-step: plan compares every copy with its base and its upstream and writes nothing; apply settles what plan found (upstream changes taken, project changes offered on a sync/ branch, conflicts answered with their diff, forks skipped). Every step is deterministic: no AI decides anything. The project's folder comes in on the person's own switch ({project: {computer: {use-git-in-a-folder: {folder}}}}); the row names none. The original is the pursuit's own workflow_recipes row; this file is the shipped form.",
   "records": [
     {
       "payload": {
@@ -17,7 +17,7 @@
             },
             "project": {
               "type": "object",
-              "description": "The project's folder as a capability target, on the person's own switch: {computer: {change-a-folder: {folder}}, clones?: [local git folders inside it to read commits from, as tool:add-a-tool-to-a-project reads them]}"
+              "description": "The project's folder as a capability target, on the person's own switch: {computer: {use-git-in-a-folder: {folder}}, clones?: [local git folders inside it to read commits from, as tool:add-a-tool-to-a-project reads them]}"
             }
           }
         },

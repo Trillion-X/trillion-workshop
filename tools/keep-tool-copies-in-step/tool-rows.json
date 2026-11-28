@@ -18,7 +18,7 @@
         },
         "label": "Keep my project's tool copies in step",
         "job": "Compare every tool folder a project copied into its tools folder with its base and its upstream, take upstream changes, offer project changes upstream on a branch, refuse conflicts with a diff and skip forks",
-        "description": "Give op plan or apply, and project (the project's folder, inside the folder the person granted for change; default the granted folder). For every line of the record where-each-tool-comes-from.json in the project's tools folder (the folder tool:add-a-tool-to-a-project copies into) (only the names in only, when given) it compares three versions of the tool folder: the base (the files the line says the copy started from, at copied_at_commit), the project's folder now (the files git lists there, or every file when the project is not a git checkout) and upstream (the folder at the commit the registry's pointer names now, or the repository's HEAD for a direct pointer). Each file gets a verdict: same, project-only, upstream-only, deleted-project, deleted-upstream, renamed-project, renamed-upstream, both-clean (changed on both sides and merged cleanly by git merge-file from the base bytes) or both-conflict. The tool's state is the strongest: both-conflict, both-clean, project-only, upstream-only or none-changed; a line with synced false is forked and is not read at all (no fetch), a made-here line is skipped. plan answers every tool's state and file verdicts and writes nothing. apply takes plan's answer: it checks that the record and every file are still what plan read (else record-changed-meanwhile or changed-since-plan, and nothing is written), writes upstream's side and each clean merge into the project, advances each settled tool's line to the upstream version in one compare-and-set write of the record, and offers project changes (and clean merges) upstream as branch sync/<project>/<tool> on the upstream commit, pushed with --force-with-lease; it never pushes a default branch. A tool with any conflict is left exactly as it was and each conflicting file is answered with its unified diff (base to project, base to upstream). Returns settled, forked, conflicts, unchanged, pushed, skipped and refused. A conflict is an answer, not a failure.",
+        "description": "Give op plan or apply, and project (the project's folder, inside the folder the person granted with use-git-in-a-folder, which also lets the run start the system git; default the granted folder). For every line of the record where-each-tool-comes-from.json in the project's tools folder (the folder tool:add-a-tool-to-a-project copies into) (only the names in only, when given) it compares three versions of the tool folder: the base (the files the line says the copy started from, at copied_at_commit), the project's folder now (the files git lists there, or every file when the project is not a git checkout) and upstream (the folder at the commit the registry's pointer names now, or the repository's HEAD for a direct pointer). Each file gets a verdict: same, project-only, upstream-only, deleted-project, deleted-upstream, renamed-project, renamed-upstream, both-clean (changed on both sides and merged cleanly by git merge-file from the base bytes) or both-conflict. The tool's state is the strongest: both-conflict, both-clean, project-only, upstream-only or none-changed; a line with synced false is forked and is not read at all (no fetch), a made-here line is skipped. plan answers every tool's state and file verdicts and writes nothing. apply takes plan's answer: it checks that the record and every file are still what plan read (else record-changed-meanwhile or changed-since-plan, and nothing is written), writes upstream's side and each clean merge into the project, advances each settled tool's line to the upstream version in one compare-and-set write of the record, and offers project changes (and clean merges) upstream as branch sync/<project>/<tool> on the upstream commit, pushed with --force-with-lease; it never pushes a default branch. A tool with any conflict is left exactly as it was and each conflicting file is answered with its unified diff (base to project, base to upstream). Returns settled, forked, conflicts, unchanged, pushed, skipped and refused. A conflict is an answer, not a failure.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -275,7 +275,7 @@
         "invoke": {
           "kind": "computer",
           "capabilities": [
-            "change-a-folder"
+            "use-git-in-a-folder"
           ],
           "workdir": "/opt/keep-tool-copies-in-step",
           "internet": true,
@@ -286,7 +286,7 @@
             {
               "fill": {
                 "from": "task",
-                "field": "grants.change-a-folder.folder"
+                "field": "grants.use-git-in-a-folder.folder"
               }
             }
           ],
@@ -348,7 +348,7 @@
             },
             "files": [
               {
-                "grant": "change-a-folder",
+                "grant": "use-git-in-a-folder",
                 "path": "package.json",
                 "text": "{\"name\":\"a-sample-project\",\"private\":true}\n"
               }

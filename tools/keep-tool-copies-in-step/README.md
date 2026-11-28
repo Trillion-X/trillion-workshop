@@ -66,6 +66,9 @@ node do-work/sync.ts GRANTED-FOLDER < {"op":"plan","project":".","only":["screen
 node do-work/sync.ts GRANTED-FOLDER < {"op":"apply","project":".","plan":<plan's answer>,"clones":["the-workshop-clone"]}
 ```
 
+It runs on the person's computer under the capability `use-git-in-a-folder` (the granted folder, read and written, and the
+system's git, which every step here runs); `change-a-folder` alone gives no git, so a sandboxed run could not fetch or merge.
+
 `plan` answers `{record_blake3, because?, tools: {name: {state, files, upstream_commit, renames?, why?, said?}}}` and
 writes nothing. `apply` answers `{settled, forked, conflicts: [{tool, path, diff}], unchanged, pushed: [{tool, branch, repo,
 commit, already}], skipped: [{tool, why}], refused: [{tool, why, said}]}`. A conflict is an answer (exit 0); exit 2 means
