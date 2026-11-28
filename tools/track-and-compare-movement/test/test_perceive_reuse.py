@@ -89,5 +89,45 @@ class PerceiveReuse(unittest.TestCase):
         self.assertEqual(m.salience_fingerprint(a), m.salience_fingerprint(b))
 
 
+class PerceiveSeveralAtOnce(unittest.TestCase):
+    """Clips not yet described are described perceive_parallel at a time; each result lands in made or failed."""
+
+    def test_clips_are_described_several_at_once(self):
+        import subprocess
+        import threading
+        import time
+        d = tempfile.mkdtemp()
+        clips = [{"path": os.path.join(d, f"{c}.mp4"), "identity": "1f:" + c * 64} for c in "abcde"]
+        job = {"work": d, "models": d, "targets": clips, "perceive_parallel": 3}
+        live, most, lock = [0], [0], threading.Lock()
+
+        real = m.subprocess.run
+
+        def run(cmd, **kw):
+            if "--out" not in cmd:                        # other tools (the fingerprint's b3sum) run for real
+                return real(cmd, **kw)
+            with lock:
+                live[0] += 1
+                most[0] = max(most[0], live[0])
+            time.sleep(0.2)
+            with lock:
+                live[0] -= 1
+            out = cmd[cmd.index("--out") + 1]
+            if not os.path.basename(out).startswith("e-"):   # every clip but the last is described
+                os.makedirs(os.path.dirname(out), exist_ok=True)
+                open(out, "w").write("{}")
+            return subprocess.CompletedProcess(cmd, 1 if os.path.basename(out).startswith("e-") else 0, "", "no athlete track")
+        saved = (m.ensure_media, m.subprocess.run)
+        m.ensure_media = lambda job, clip: clip["path"]
+        m.subprocess.run = run
+        try:
+            got = m.perceive(job, "targets")
+        finally:
+            m.ensure_media, m.subprocess.run = saved
+        self.assertEqual(most[0], 3)
+        self.assertEqual(got["made"], [m.key(c) for c in clips[:4]])     # in the job's order
+        self.assertEqual([f["identity"] for f in got["failed"]], [clips[4]["identity"]])
+
+
 if __name__ == "__main__":
     unittest.main()

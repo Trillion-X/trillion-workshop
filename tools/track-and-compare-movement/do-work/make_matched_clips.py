@@ -81,7 +81,7 @@ def perceive(job, side):
     index = os.path.join(job["work"], f"{side}-index")
     os.makedirs(os.path.join(index, "_work"), exist_ok=True)
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
-    made, kept, reused, before, failed = [], [], [], [], []
+    made, kept, reused, before, failed, todo = [], [], [], [], [], []
     rules = json.dumps(job.get("salience") or {})
     fp = salience_fingerprint(rules)
     pfp = perception_fingerprint(job)
@@ -105,15 +105,29 @@ def perceive(job, side):
                     json.dump(data, f)
             reused.append(k)
             continue
-        ensure_media(job, clip)
+        todo.append((clip, k, desc, kp))
+
+    def describe(item):
+        clip, k, desc, kp = item
+        try:
+            ensure_media(job, clip)
+        except (RuntimeError, OSError) as e:
+            failed.append({"clip": clip["path"], "identity": clip.get("identity"), "why": f"could not fetch: {e}"[:300]})
+            return
         cmd = [sys.executable, os.path.join(PERCEPTION, "run_perception.py"), "--clip", clip["path"], "--out", desc,
                "--kp", kp, "--salience-config", rules]
         r = subprocess.run(cmd, capture_output=True, text=True, env=env)
         if r.returncode or not os.path.exists(desc):
             failed.append({"clip": clip["path"], "identity": clip.get("identity"),
                            "why": (r.stderr.strip().splitlines() or ["no output"])[-1][:300]})
-            continue
+            return
         made.append(k)
+    # several clips at once (job.perceive_parallel, default 4): one at a time, 250 practice recordings (about 410
+    # minutes of footage, measured Nov 28 2026) would take most of a day on a computer with 18 cores
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=max(1, int(job.get("perceive_parallel", 4)))) as pool:
+        list(pool.map(describe, todo))
+    made.sort(key=[key(c) for c in job[side]].index)
     with open(os.path.join(job["work"], f"{side}-refused.json"), "w") as f:
         json.dump(failed, f, indent=1)
     return {"index": index, "made": made, "already": kept, "reused": reused, "refused_before": before, "failed": failed}
