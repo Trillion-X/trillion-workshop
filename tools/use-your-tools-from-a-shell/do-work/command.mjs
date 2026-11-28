@@ -49,7 +49,7 @@ import { chmodSync, existsSync, writeSync, lstatSync, mkdirSync, readFileSync, r
 import { createServer, request as httpRequest } from 'node:http';
 import { createInterface } from 'node:readline';
 import { homedir, hostname } from 'node:os';
-import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve as resolvePath, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
 import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
@@ -2229,37 +2229,67 @@ export async function main(argv, seams = {}) {
 
 /** The Workshop copy of this command that the installed copy runs, or null (rules.install.follow). Only the installed copy follows:
  *  a copy run from anywhere else (the Workshop's own, a checkout) runs itself, so the two never hand off to each other. The
- *  Workshop is found where the engine reads it (trillion-rust src/tool_runs/tools/location.rs), nothing installed: this
- *  computer's engine config names its product settings file, whose first tool source with a `place` is the Workshop's folder. */
+ *  Workshop is found where the engine reads it (trillion-rust src/tool_runs/tools/location.rs, own_places.rs), nothing installed
+ *  and no Workshop in the shipped seed: this computer's engine config names its product settings file, whose `tool_sources` are the
+ *  launcher's sources, and each person's own places follow them, one file `<person folder>/tool-places/<label>.json` in label order
+ *  (a file whose name starts with `.` is being written and never read). The Workshop is the first source, per person, whose folder of
+ *  tool folders (`<place>/<packages>`, default `tools`, links followed, inside the place) holds the tool `follow.marker`. */
 export function workshopProgram({ rules = settings, home = homedir(), here = HERE, self = fileURLToPath(import.meta.url), env = process.env } = {}) {
   const follow = rules.install.follow;
   const real = path => { try { return realpathSync(path); } catch { return null; } };
   if (real(here) !== real(expand(rules.install.folder, home))) return null;
   const ordinary = text => typeof text === 'string' && text !== '' && text.split('/').every(part => part !== '' && part !== '.' && part !== '..' && !part.includes('\\'));
+  const inside = (folder, within) => { const part = relative(within, folder); return part !== '..' && !part.startsWith(`..${sep}`) && !isAbsolute(part); };
+  /** The place folder `place` names for the person whose folder is `person` (null when no one), or null when it names none. */
+  const placeFolder = (place, person) => {
+    const ways = ['setting', 'state', 'home', 'at'].filter(way => place[way] !== undefined);
+    if (ways.length !== 1) return null;
+    const [way] = ways, named = place[way];
+    if (way === 'setting') return typeof env[named] === 'string' && isAbsolute(env[named]) ? env[named] : null;
+    if (way === 'at') return typeof named === 'string' && isAbsolute(named) ? named : null;
+    if (!ordinary(named)) return null;
+    return way === 'home' ? join(home, named) : person === null ? null : join(person, named);
+  };
+  /** This place's folder when its folder of tool folders holds the Workshop's tool, else null. */
+  const workshopIn = (source, person) => {
+    const folder = placeFolder(source.place, person);
+    const packages = source.packages ?? follow.default_packages;
+    if (folder === null || !ordinary(packages)) return null;
+    const root = real(folder), tools = real(join(folder, packages));
+    if (root === null || tools === null || !inside(tools, root)) return null;
+    return real(join(tools, follow.marker)) === null ? null : folder;
+  };
+  const sourceOf = entry => entry && typeof entry === 'object' && typeof entry.label === 'string' && entry.place && typeof entry.place === 'object';
+  /** A person's own places in the order of their labels: each file that reads as one entry of its own label. */
+  const ownSources = person => {
+    let names;
+    try { names = readdirSync(join(person, follow.own_places)); } catch { return []; }
+    return names.filter(name => !name.startsWith('.') && name.endsWith('.json')).sort().flatMap(name => {
+      try {
+        const entry = JSON.parse(readFileSync(join(person, follow.own_places, name), 'utf8'));
+        return sourceOf(entry) && entry.label === name.slice(0, -'.json'.length) ? [entry] : [];
+      } catch { return []; }
+    });
+  };
   for (const file of rules.computer_config_files) {
     let config;
     try { config = JSON.parse(readFileSync(expand(file, home), 'utf8')); } catch { continue; }
     let sources;
     try { sources = JSON.parse(readFileSync(config[follow.settings_field], 'utf8'))[follow.sources_field]; } catch { return null; }
-    const place = Array.isArray(sources) ? sources.find(source => source && typeof source.label === 'string' && source.place && typeof source.place === 'object')?.place : undefined;
-    if (!place) return null;
-    const ways = ['setting', 'state', 'home', 'at'].filter(way => place[way] !== undefined);
-    if (ways.length !== 1) return null;
-    const [way] = ways, named = place[way];
-    let folders;
-    if (way === 'setting') folders = typeof env[named] === 'string' && isAbsolute(env[named]) ? [env[named]] : [];
-    else if (way === 'at') folders = typeof named === 'string' && isAbsolute(named) ? [named] : [];
-    else if (!ordinary(named)) folders = [];
-    else if (way === 'home') folders = [join(home, named)];
-    else {
-      // A `state` place is read inside each person's state folder the engine serves: one person's Workshop, never a guess between several.
-      let names;
-      try { names = readdirSync(config[follow.persons_field]); } catch { return null; }
-      folders = names.map(name => join(config[follow.persons_field], name, named));
+    const launcher = Array.isArray(sources) ? sources.filter(sourceOf) : [];
+    let people;
+    try { people = readdirSync(config[follow.persons_field]).map(name => join(config[follow.persons_field], name)); } catch { people = []; }
+    // One person's Workshop, never a guess between several: each person adds the first source of theirs that holds it.
+    const found = new Set();
+    for (const person of people.length === 0 ? [null] : people) {
+      for (const source of [...launcher, ...(person === null ? [] : ownSources(person))]) {
+        const folder = workshopIn(source, person);
+        const program = folder === null ? null : real(join(folder, follow.program));
+        if (program !== null) { found.add(program); break; }
+      }
     }
-    const programs = folders.map(folder => real(join(folder, follow.program))).filter(program => program !== null);
-    if (programs.length === 1 && programs[0] !== real(self)) return programs[0];
-    return null;
+    const [program] = found;
+    return found.size === 1 && program !== real(self) ? program : null;
   }
   return null;
 }
