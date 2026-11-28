@@ -173,7 +173,6 @@ Generated from each folder's `what-this-tool-does-and-how-to-run-it.json` by `no
 | `hold-to-it` | `tool:hold-to-it` |
 | `how-someone-does-their-thing` | `tool:brief-a-profile`, `tool:check-a-draft-against-a-profile`, `tool:find-repeated-voice-edits`, `tool:keep-a-profile`, `tool:keep-a-voice-edit`, `tool:save-voice` |
 | `import-markdown-to-editable-document` | `tool:import-markdown-as-editable-document`, `tool:import-markdown-file-as-editable-document` |
-| `install-a-tool-source` | `tool:install-a-tool-source` |
 | `internet-archive` | `tool:read-internet-archive-item`, `tool:search-internet-archive` |
 | `introduce-two-people` | `tool:record-an-introduction-state` |
 | `judge-words` | `tool:judge-against-rules`, `tool:make-a-plain-work-title` |

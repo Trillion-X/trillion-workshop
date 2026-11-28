@@ -5,8 +5,6 @@
   "tools:run",
   "tools:read",
   "tools:cancel",
-  "tools:update",
-  "tools:rollback",
   "secrets:put",
   "secrets:remove",
   "secrets:sign",

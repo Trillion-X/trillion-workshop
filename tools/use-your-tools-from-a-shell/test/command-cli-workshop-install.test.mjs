@@ -1,6 +1,6 @@
 // tools/use-your-tools-from-a-shell/test/command-cli-workshop-install.test.mjs
 //
-// The installed example command (~/.example/cli/program) follows the Workshop copy the engine keeps current (install.follow),
+// The installed example command (~/.example/cli/program) follows the Workshop copy the engine reads where it stands (install.follow),
 // and `example setup` from a newer Workshop program refreshes every installed file that changed, the fallback when no Workshop
 // copy is found. `example update` says so. Nothing else writes that copy.
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
