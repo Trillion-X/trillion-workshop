@@ -311,24 +311,24 @@ def plan_pair(job, pair, base, media, steps):
     return spec
 
 
-def frame_and_render(job, media, edit, framed, out, add=None):
-    """whole_movement_check.py on an edit (a cell's crop widened where the body or racket would leave it, written to
-    `framed`), the fields of `add` set on the framed edit, then media-composition's render-an-edit.mjs renders it to
-    `out`. Answers (framing result, None) or (framing result, why it made no video)."""
+def frame_edit(job, edit, framed):
+    """whole_movement_check.py on an edit: a cell's crop widened where the body or racket would leave it, written to
+    `framed`. Answers (framing result, None) or (framing result, why a cell cannot hold the whole movement)."""
     seg_model = os.path.join(job["models"], job.get("framing_model", "yolo11n-seg.pt"))
     got = run_json([sys.executable, os.path.join(HERE, "whole_movement_check.py"), "--edit", edit, "--model", seg_model,
-                    "--work", out[:-4] + ".framing", "--write-edit", framed])
+                    "--work", framed[:-5] + ".framing", "--write-edit", framed])
     if "error" in got or not os.path.exists(framed) or (got.get("result") or {}).get("cells_refused"):
         return got.get("result"), f"framing: {got.get('error') or 'a cell cannot hold the whole movement'}"
-    edl = {**read(framed), **(add or {})}
-    if add:
-        with open(framed, "w") as f:
-            json.dump(edl, f, indent=1)
+    return got.get("result"), None
+
+
+def render_edit(media, edl, out):
+    """media-composition's render-an-edit.mjs renders an edit to `out`. Answers None, or why it made no video."""
     rr = subprocess.run(["node", os.path.join(media, "do-work", "render-an-edit.mjs"), "--edl", json.dumps(edl),
                          "--output", out], capture_output=True, text=True)
     if rr.returncode or not os.path.exists(out):
-        return got.get("result"), (rr.stderr.strip().splitlines() or ["render failed"])[-1][:300]
-    return got.get("result"), None
+        return (rr.stderr.strip().splitlines() or ["render failed"])[-1][:300]
+    return None
 
 
 def render(job):
@@ -368,7 +368,8 @@ def render(job):
         for fmt in variants["formats"]:
             fid = fmt["id"]
             edit, out = f"{base}.edit.{fid}.json", f"{base}.{fid}.mp4"   # author_comparison_edl --variants names OUT.FORMAT.json
-            framing, why = frame_and_render(job, media, edit, f"{base}.{fid}.edit.json", out)
+            framing, why = frame_edit(job, edit, f"{base}.{fid}.edit.json")
+            why = why or render_edit(media, read(f"{base}.{fid}.edit.json"), out)
             if why:
                 failed.append({"pair": pair, "format": fid, "why": why, "framing": framing, "steps": steps})
                 continue
@@ -390,7 +391,8 @@ def progression(job):
                                                     target dates (ties: the lowest mean motion distance). One batch is
                                                     one camera view (job.view), so every candidate is at that angle
       "targets": [{"key" | "identity", "window"}]   optional, in play order; else per date its pair closest to the
-                                                    reference (lowest motion_dist) whose sync holds, spread over time
+                                                    reference (lowest motion_dist) whose sync holds and whose cells
+                                                    hold the whole movement (render's framing rule), spread over time
       "count": 12, "seconds": [30, 50]              how many swings, and the length the video must fit: fewer or more
                                                     swings until it does
       "slow_last": {"speed": 0.5, "smooth": true}   optional: the newest swing once more, slowed
@@ -432,19 +434,35 @@ def progression(job):
     folder = os.path.join(job["work"], "progression", name)
     os.makedirs(folder, exist_ok=True)
     media = media_of(job)
+    slow = p.get("slow_last")
     planned, dropped = [], []
 
     def plan(pair):
+        """A swing is shown only when its sync holds and both cells hold the whole movement (the render rules)."""
         base = os.path.join(folder, f"{pair['target']}-{pair['target_window']}")
         steps = {}
         try:
-            plan_pair(job, pair, base, media, steps)
+            spec = plan_pair(job, pair, base, media, steps)
         except RuntimeError as e:
             return None, str(e)
         if (steps.get("sync") or {}).get("aligned") == "contact only":
-            return None, f"sync refused: {steps['sync']['refused']}"   # every swing is synced, or it is not shown
+            return None, f"sync refused: {steps['sync']['refused']}"
+        passes = [{"id": "swing", "half": 1.0, "span": "swing"}]
+        if slow:      # made for every swing, shown for the newest only
+            passes.append({"id": "slow", "half": 1.0, "span": "swing", "speed": float(slow["speed"]),
+                           **({"smooth": True} if slow.get("smooth") else {})})
+        spec.update({"encode": {**spec["encode"], "width": width, "height": height}, "layout": layout, "passes": passes})
+        with open(base + ".progression-spec.json", "w") as f:
+            json.dump(spec, f, indent=1)
+        got = run_json([sys.executable, os.path.join(HERE, "author_comparison_edl.py"), "--spec",
+                        base + ".progression-spec.json", "--out", base + ".progression-edit.json"])
+        if "error" in got:
+            return None, f"edit: {got['error']}"
+        framing, why = frame_edit(job, base + ".progression-edit.json", base + ".progression-framed.json")
+        if why:
+            return None, {"why": why, "framing": framing}
         sync = read(base + ".sync.json")
-        return {"pair": pair, "base": base, "steps": steps, "date": T[pair["target"]]["date"],
+        return {"pair": pair, "base": base, "steps": {**steps, "framing": framing}, "date": T[pair["target"]]["date"],
                 "seconds": sync["target"]["out"] - sync["target"]["in"]}, None
 
     if p.get("targets"):
@@ -470,26 +488,15 @@ def progression(job):
                 dropped.append({"date": date, "why": whys})
         chosen = fit(planned, int(p.get("count", 12)), p.get("seconds"), p.get("slow_last"))
     if not chosen:
-        raise ValueError(f"no swing of a dated target syncs with the reference swing {list(swing)}: {dropped[:3]}")
+        raise ValueError(f"no swing of a dated target syncs and frames with the reference swing {list(swing)}: {dropped[:3]}")
 
     fps = 30
-    slow = p.get("slow_last")
     label = p.get("label") or {}
     segments, lines, shown, at_frame, edit = [], [], [], 0, None
     for n, item in enumerate(chosen):
-        spec = read(item["base"] + ".spec.json")
-        passes = [{"id": "swing", "half": 1.0, "span": "swing"}]
-        if slow and n == len(chosen) - 1:
-            passes.append({"id": "slow", "half": 1.0, "span": "swing", "speed": float(slow["speed"]),
-                           **({"smooth": True} if slow.get("smooth") else {})})
-        spec.update({"encode": {**spec["encode"], "width": width, "height": height}, "layout": layout, "passes": passes})
-        with open(item["base"] + ".progression-spec.json", "w") as f:
-            json.dump(spec, f, indent=1)
-        got = run_json([sys.executable, os.path.join(HERE, "author_comparison_edl.py"), "--spec",
-                        item["base"] + ".progression-spec.json", "--out", item["base"] + ".progression-edit.json"])
-        if "error" in got:
-            raise RuntimeError(f"edit of {item['pair']['target']}: {got['error']}")
-        edit = read(item["base"] + ".progression-edit.json")
+        edit = read(item["base"] + ".progression-framed.json")
+        if n < len(chosen) - 1:
+            edit["spine"]["segments"] = edit["spine"]["segments"][:1]
         text = datetime.date.fromisoformat(item["date"]).strftime(label.get("format", "%Y-%m-%d"))
         starts, contact = at_frame, None
         for segment in edit["spine"]["segments"]:
@@ -507,21 +514,21 @@ def progression(job):
                       "contact": item["steps"]["contact"]})
     hold_reference_crop(segments, read(kp_of(job, "references", swing[0]))["video"], width, height, layout)
     out = os.path.join(job["work"], "progression", name + ".mp4")
-    with open(out[:-4] + ".edit.json", "w") as f:
-        json.dump({**edit, "spine": {"segments": segments}}, f, indent=1)
     fonts = {"fontsdir": label["fontsdir"]} if label.get("fontsdir") else {}
     caption = run_json(["node", os.path.join(media, "do-work", "caption-subtitle.mjs")], input_text=json.dumps(
         {"lines": lines, "style": label.get("style"), "width": width, "height": height, "letters": label.get("letters"), **fonts}))
     if "error" in caption:
         raise RuntimeError(f"date captions: {caption['error']}")
-    framing, why = frame_and_render(job, media, out[:-4] + ".edit.json", out[:-4] + ".framed-edit.json", out,
-                                    add={"subtitles": {"ass": caption["result"]["ass"], **fonts}})
+    edl = {**edit, "spine": {"segments": segments}, "subtitles": {"ass": caption["result"]["ass"], **fonts}}
+    with open(out[:-4] + ".edit.json", "w") as f:
+        json.dump(edl, f, indent=1)
+    why = render_edit(media, edl, out)
     if why:
         raise RuntimeError(why)
     r = R[swing[0]]
-    made = {"file": out, "edit": out[:-4] + ".framed-edit.json", "size": [width, height], "seconds": round(at_frame / fps, 3),
+    made = {"file": out, "edit": out[:-4] + ".edit.json", "size": [width, height], "seconds": round(at_frame / fps, 3),
             "reference": {"key": swing[0], "window": swing[1], "name": r.get("name"), "identity": r.get("identity")},
-            "swings": shown, "labels": caption["result"]["lines"], "framing": framing, "dropped": dropped}
+            "swings": shown, "labels": caption["result"]["lines"], "dropped": dropped}
     with open(out[:-4] + ".json", "w") as f:
         json.dump(made, f, indent=1)
     return {"file": out, "record": out[:-4] + ".json", "swings": len(shown), "seconds": made["seconds"],

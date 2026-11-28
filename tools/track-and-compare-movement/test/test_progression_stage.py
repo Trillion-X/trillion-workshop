@@ -1,6 +1,6 @@
 """make_matched_clips progression, with each heavy piece stood in for: it picks the reference swing that partners the
 most dates, per date the closest pair whose sync holds, spreads the swings over time within the length, holds one
-reference crop, times one date caption per swing and hands the captions to the renderer on the framed edit."""
+reference crop, times one date caption per swing and renders the framed swings once with the captions."""
 import json
 import os
 import subprocess
@@ -43,7 +43,7 @@ class ProgressionStage(unittest.TestCase):
         for ref in (REF_A, REF_B):
             with open(m.kp_of(self.job, "references", m.key(ref)), "w") as f:
                 json.dump({"video": {"width": 1920, "height": 1080, "fps": 30}}, f)
-        self.calls, self.refuse_sync, self.caption_in, self.rendered = [], set(), None, None
+        self.calls, self.refuse_sync, self.refuse_framing, self.caption_in, self.rendered = [], set(), set(), None, None
         self.saved = (m.run_json, m.subprocess.run)
         m.run_json = self.fake_run_json
         m.subprocess.run = self.fake_run
@@ -86,6 +86,8 @@ class ProgressionStage(unittest.TestCase):
             return {"result": {"ass": "[Script Info]\n", "lines": [{**ln, "y": 0.535, "letters": {"top": 960, "bottom": 1011}}
                                                                     for ln in self.caption_in["lines"]]}}
         if piece == "whole_movement_check.py":
+            if any(name in self.arg(cmd, "--edit") for name in self.refuse_framing):
+                return {"result": {"cells_refused": 1}}
             with open(self.arg(cmd, "--write-edit"), "w") as f:
                 json.dump(m.read(self.arg(cmd, "--edit")), f)
             return {"result": {"cells_refused": 0, "passes": True}}
@@ -138,6 +140,13 @@ class ProgressionStage(unittest.TestCase):
         self.assertEqual(record["swings"][0]["target_window"], 0)
         self.assertNotIn("2024-03-09", got["dates"])
         self.assertEqual(record["dropped"][0]["date"], "2024-03-09")
+
+    def test_a_swing_whose_cell_cannot_hold_the_movement_is_not_shown(self):
+        self.refuse_framing = {f"{m.key(TARGETS[0])}-1."}             # day 0's closest swing loses its racket
+        got = m.progression(self.job)
+        record = m.read(got["record"])
+        self.assertEqual(record["swings"][0]["target_window"], 0)    # that day's next swing is shown instead
+        self.assertEqual(self.calls.count("render-an-edit.mjs"), 1)  # the whole video renders once, already framed
 
     def test_the_length_bounds_take_fewer_swings(self):
         got = m.progression({**self.job, "progression": {**self.job["progression"], "count": 6, "seconds": [5, 12]}})
