@@ -38,7 +38,7 @@
               "description": "The tool's name in the registry, or the folder name for a direct pointer"
             },
             "from": {
-              "description": "A registry (a folder or file path inside the granted folder, or an https address of tools-in-this-registry.json), or a direct pointer {repo, path, commit}. Absent: the registry the project's record names.",
+              "description": "A registry (a folder or file path inside the granted folder, read here and recorded as its git origin address; a git repository address of the registry, read from its default branch; or an https address of tools-in-this-registry.json), or a direct pointer {repo, path, commit} (a local repo folder is recorded as its origin address). The record keeps only addresses every computer can reach: a local registry or repo with no origin, or an https address carrying a user or password, is refused bad-from. Absent: the registry the project's record names.",
               "oneOf": [
                 {
                   "type": "string",
@@ -84,7 +84,7 @@
                 "type": "string",
                 "minLength": 1
               },
-              "description": "Local git folders inside the granted folder (for example a clone of the Workshop) to read a pinned commit from when one already holds it, checked with git cat-file -e; the commit is fetched over the network only when none holds it. The copied files and the record are the same bytes either way."
+              "description": "Local git folders inside the granted folder (for example a clone of the Workshop) to read a pinned commit from when one already holds it, checked with git cat-file -e; the commit is fetched over the network only when none holds it. A registry address that one of them has as its git origin is read from that folder. The copied files and the record are the same bytes either way."
             }
           }
         },

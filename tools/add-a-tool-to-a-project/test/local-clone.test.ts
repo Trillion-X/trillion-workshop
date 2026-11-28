@@ -9,7 +9,7 @@ import { join, relative } from 'node:path';
 import { add } from '../do-work/add.ts';
 import { objectsHolding } from '../read-data/fetch-folder.ts';
 import { RECORD_FILE } from '../read-data/record.ts';
-import { emptyProject, makeRegistry, makeRepo, pinOf, scratch, standInTool } from './fixtures.ts';
+import { emptyProject, makeRegistry, makeRepo, pinOf, scratch, standInTool, withOrigin } from './fixtures.ts';
 
 const git = (dir: string, ...args: string[]) => execFileSync('git', ['-C', dir, ...args], { encoding: 'utf8' }).trim();
 /** The project's tools folder: the one folder of the project that holds the record file. */
@@ -37,6 +37,7 @@ function registryNaming(registry: string, repo: string): string {
   const data = JSON.parse(readFileSync(join(registry, 'tools-in-this-registry.json'), 'utf8'));
   for (const pointer of Object.values(data.tools) as Array<{ repo: string }>) pointer.repo = repo;
   writeFileSync(join(copy, 'tools-in-this-registry.json'), `${JSON.stringify(data, null, 2)}\n`);
+  withOrigin(copy);
   return copy;
 }
 

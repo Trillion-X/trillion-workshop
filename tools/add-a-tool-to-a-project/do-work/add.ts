@@ -28,6 +28,9 @@
 //   8. A local clone named in `clones` (inside the granted folder) that already holds a pointer's commit is read instead
 //      of the network (read-data/fetch-folder.ts); it is only read, and the files, their identity and the record are the
 //      same bytes as a fetch gives.
+//   9. The record holds no file path: a registry and a direct pointer's repo are recorded by an address every computer
+//      can reach (read-data/registry.ts `addressOf`: a local folder is recorded as its git origin address, and one with
+//      none is refused bad-from), and each folder's locator is its name under the project's tools folder.
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 import { spawnSync } from 'node:child_process';
@@ -36,7 +39,7 @@ import { dirname, join, posix, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { fileDigest, identityOfDigests } from '../../content-identity/read-data/manifest.mjs';
 import { canonicalJson } from '../../content-identity/read-data/identity.mjs';
-import { BadFrom, TOOL_NAME, isInsidePath, readRegistry, type Hex64, type Registry } from '../read-data/registry.ts';
+import { BadFrom, TOOL_NAME, addressOf, isInsidePath, readRegistry, type Hex64, type Registry } from '../read-data/registry.ts';
 import { FetchedCommit, GitRefused, NotAtCommit, type Fetched } from '../read-data/fetch-folder.ts';
 import { BadCard, OldCardName, cardFacts } from '../read-data/card.ts';
 import { RecordChanged, readProjectRecord, writeProjectRecord, type FromWhere, type RecordFile, type ToolRecord } from '../read-data/record.ts';
@@ -106,19 +109,26 @@ function needsFirst(start: string, needsOf: Map<string, string[]>): string[] {
 const refusedOnly = (refused: Refusal[], already: string[] = []): AddOutput => ({ added: [], already, refused, prepared: [], not_prepared: [] });
 
 /** The pointer of the asked tool, and how its needs are found: through the registry, or beside it in the same commit. */
-async function rootOf(input: AddInput, record: RecordFile): Promise<{ registry: Registry | null; root: Wanted } | Refusal> {
+async function rootOf(input: AddInput, record: RecordFile, clones: string[]): Promise<{ registry: Registry | null; root: Wanted } | Refusal> {
   const folder = input.as ?? input.tool;
   if (input.from !== null && typeof input.from === 'object') {
     const { repo, path, commit } = input.from;
     if (typeof repo !== 'string' || !repo || !isInsidePath(path) || typeof commit !== 'string' || !COMMIT.test(commit)) {
       return { tool: input.tool, why: 'bad-from', said: 'A direct from is {repo, path, commit}: a repo, a path inside it and a full 40-hex commit.' };
     }
-    return { registry: null, root: { folder, from: { repo, path, commit }, repo, path, commit, files_blake3: null, needs: [] } };
+    // The record keeps an address every computer can reach (a local repo folder is recorded as its origin address); the
+    // files are still read from the repo as given.
+    let recorded: string;
+    try { recorded = addressOf(repo); } catch (error) {
+      if (error instanceof BadFrom) return { tool: input.tool, why: 'bad-from', said: error.message };
+      throw error;
+    }
+    return { registry: null, root: { folder, from: { repo: recorded, path, commit }, repo, path, commit, files_blake3: null, needs: [] } };
   }
   const address = input.from ?? record.registry;
   if (typeof address !== 'string') return { tool: input.tool, why: 'bad-from', said: 'No from was given and the project record names no registry.' };
   let registry: Registry;
-  try { registry = await readRegistry(address); } catch (error) {
+  try { registry = await readRegistry(address, clones); } catch (error) {
     if (error instanceof BadFrom) return { tool: input.tool, why: 'bad-from', said: error.message };
     throw error;
   }
@@ -146,7 +156,7 @@ export async function add(input: AddInput): Promise<AddOutput> {
   const trillion = join(project, 'trillion');
   if (existsSync(trillion) && !lstatSync(trillion).isDirectory()) throw new Error(`${trillion} is not a folder (a link is not followed).`);
   const { expected, record } = readProjectRecord(trillion);
-  const rooted = await rootOf(input, record);
+  const rooted = await rootOf(input, record, clones);
   if ('why' in rooted) return refusedOnly([rooted]);
   const { registry, root } = rooted;
 

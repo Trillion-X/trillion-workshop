@@ -3,14 +3,29 @@
 // Stand-ins the add tests share: a git repository made from given files, a registry folder pointing at folders of it (each
 // pointer's files_blake3 computed by the content-identity owner from `git archive`, as a real registry's pin is), and an
 // empty project folder. Everything is made under the test process's own temp folder (test-helpers/own-tmpdir.mjs).
+// Each stand-in repository and registry has a git origin address (example.invalid, never reached), because a project
+// record names a registry or repo only by an address every computer can reach; the files are read from the folder.
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { basename, join } from 'node:path';
 import { tempFolder } from '../../../test-helpers/temp-folder.mjs';
 import { manifestIdentity, tarFiles } from '../../content-identity/read-data/manifest.mjs';
 
 export const scratch = (name: string): string => tempFolder(join(tmpdir(), `add-a-tool-${name}-`));
+
+/** Gives `folder` a git origin address of its own (making it a git folder when it is not) and returns that address. */
+export function withOrigin(folder: string): string {
+  const git = (...args: string[]) => execFileSync('git', ['-C', folder, ...args], { encoding: 'utf8' }).trim();
+  if (!existsSync(join(folder, '.git'))) git('init', '-q');
+  const address = `https://example.invalid/${basename(folder)}.git`;
+  git('remote', 'add', 'origin', address);
+  return address;
+}
+
+/** The git origin address of a stand-in folder: what a project record names it by. */
+export const originAddress = (folder: string): string =>
+  execFileSync('git', ['-C', folder, 'remote', 'get-url', 'origin'], { encoding: 'utf8' }).trim();
 
 /** A repository holding `files` (path -> text) in one commit; its folder and the commit. */
 export function makeRepo(files: Record<string, string>): { repo: string; commit: string } {
@@ -23,6 +38,7 @@ export function makeRepo(files: Record<string, string>): { repo: string; commit:
   }
   git('add', '-A');
   git('-c', 'user.name=Example', '-c', 'user.email=maker@example.com', 'commit', '-q', '-m', 'tools');
+  withOrigin(repo);
   return { repo, commit: git('rev-parse', 'HEAD') };
 }
 
@@ -40,6 +56,7 @@ export function makeRegistry(repo: string, commit: string, needs: Record<string,
     what_it_does: `The stand-in ${name}.`, needs_tools: needsTools,
   }]));
   writeFileSync(join(registry, 'tools-in-this-registry.json'), `${JSON.stringify({ _what: 'A stand-in registry.', tools }, null, 2)}\n`);
+  withOrigin(registry);
   return registry;
 }
 

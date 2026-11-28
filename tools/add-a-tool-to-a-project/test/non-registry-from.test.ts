@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { add } from '../do-work/add.ts';
-import { emptyProject, makeRepo, scratch, standInTool } from './fixtures.ts';
+import { emptyProject, makeRepo, originAddress, scratch, standInTool } from './fixtures.ts';
 
 test('a direct pointer is copied and recorded as the object it was', async () => {
   const { repo, commit } = makeRepo(standInTool('greet'));
@@ -15,7 +15,7 @@ test('a direct pointer is copied and recorded as the object it was', async () =>
   assert.deepEqual(output.refused, []);
   assert.deepEqual(output.added.map(a => a.tool), ['greet']);
   const line = JSON.parse(readFileSync(join(project, 'trillion', 'where-each-tool-comes-from.json'), 'utf8')).tools.greet;
-  assert.deepEqual(line.from, from);
+  assert.deepEqual(line.from, { ...from, repo: originAddress(repo) }, 'the repo is recorded by its origin address, not its folder');
 });
 
 test('a from that is not a registry is refused and nothing is written', async () => {
