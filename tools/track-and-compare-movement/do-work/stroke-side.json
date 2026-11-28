@@ -1,0 +1,8 @@
+{
+  "margin": 2.0,
+  "turn_min_deg": 70,
+  "right_hand_forehand_turn": 1,
+  "facing_min_cos": 0.5,
+  "facing_samples": 3,
+  "turn_follow_min_s": 0.3
+}

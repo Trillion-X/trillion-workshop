@@ -27,7 +27,7 @@ class MatchBySide(unittest.TestCase):
                     json.dump({"windows": [{"t0": 0.0, "t1": 2.0, "peak_t": 1.0}, {"t0": 3.0, "t1": 5.0, "peak_t": 4.0}]}, f)
         self.strokes = {}
         self.saved = (m.run_json, m.stroke_of_window)
-        m.stroke_of_window = lambda kp, window, side, job: {"stroke": self.strokes.get((os.path.basename(kp), window["peak_t"]))}
+        m.stroke_of_window = lambda kp, window, clip, job: {"stroke": self.strokes.get((os.path.basename(kp), window["peak_t"]))}
         m.run_json = lambda cmd, env=None: {"no_match": False, "partner_clip": "/r1.mp4", "partner_window": 0, "pairs": [
             {"partner_clip": "/r1.mp4", "partner_window": 0, "partner_t": [0, 2]},
             {"partner_clip": "/r2.mp4", "partner_window": 1, "partner_t": [3, 5]}], "target_t": [0, 2]}
@@ -44,7 +44,7 @@ class MatchBySide(unittest.TestCase):
         got = m.match(self.job)
         self.assertEqual((got["pairs"], got["refused"]), (1, 1))
         out = json.load(open(got["file"]))
-        self.assertEqual(out["refused"][0]["reason"], "takeback side says backhand")
+        self.assertEqual(out["refused"][0]["reason"], "the swing reads as backhand")
         self.assertEqual(out["pairs"][0]["reference"], m.key(self.r2))
         self.assertEqual(out["pairs"][0]["reference_window"], 1)
 
@@ -66,7 +66,26 @@ class MatchBySide(unittest.TestCase):
     def test_an_unclear_target_is_refused(self):
         got = m.match(self.job)
         self.assertEqual(got["pairs"], 0)
-        self.assertEqual(json.load(open(got["file"]))["refused"][0]["reason"], "takeback side says unclear")
+        self.assertEqual(json.load(open(got["file"]))["refused"][0]["reason"], "the swing reads as unclear")
+
+    def test_a_clip_with_only_a_playing_hand_is_read_too(self):
+        del self.t["forehand_side"]
+        self.t["hand"] = "left"
+        self.strokes = {(self.kp(self.t), 1.0): "backhand", (self.kp(self.t), 4.0): "backhand"}
+        got = m.match(self.job)
+        self.assertEqual((got["pairs"], got["refused"]), (0, 2))
+
+    def test_a_clip_with_neither_is_not_read(self):
+        del self.t["forehand_side"]
+        self.assertFalse(m.readable(self.t))
+        self.assertTrue(m.readable({"hand": "right"}) and m.readable({"forehand_side": -1}))
+
+    def test_the_forehand_side_a_swing_was_read_with_decides_the_mirror(self):
+        from side_by_side import screen_direction
+        clip = {"hand": "right"}
+        self.assertEqual(screen_direction(m.on_screen(clip, self.job, {"forehand_side": -1})), -1)
+        self.assertEqual(screen_direction(m.on_screen(clip, self.job, {"forehand_side": 1})), 1)
+        self.assertEqual(screen_direction(m.on_screen(self.t, self.job, {"forehand_side": None})), -1)
 
     def test_opposite_forehand_sides_mirror_the_reference(self):
         from side_by_side import screen_direction

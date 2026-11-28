@@ -25,8 +25,12 @@ JOB.json (DATA; nothing about a person, a sport or a folder is in this file):
   "work": "/a/folder",                                   where every stage reads and writes
   "models": "/a/folder/models",                          MATCH_VENDOR_ROOT for perception
   "salience": {"lost_body_frac": 0.4, "max_body_heights_per_frame": 1.0, "cap_percentile": 0.99},
-  "targets":    [{"path": "...", "identity": "1f:...", "name": "...", "date": "2026-09-10", "people": ["..."]}],
-  "references": [{"path": "...", "identity": "1f:...", "name": "...", "year": "2019", "people": ["..."], "class": "forehand"}],
+  "targets":    [{"path": "...", "identity": "1f:...", "name": "...", "date": "2026-09-10", "people": ["..."], "hand": "left"}],
+  "references": [{"path": "...", "identity": "1f:...", "name": "...", "year": "2019", "people": ["..."], "class": "forehand",
+                  "hand": "right"}],                       a clip's "hand" (prepare: spec.<side>_hand) has each swing read
+                                                          from any camera angle; a "forehand_side" (spec.<side>_forehand_side,
+                                                          +1/-1) overrides the forehand side read from the heading
+  "stroke_side_rules": {"margin": 2.0, ...},              optional: over stroke-side.json for this job
   "reference_max_seconds": 8,                             prepare leaves out longer references (their label may not hold)
   "movement": "forehand", "class_margin": 0.05, "class_admit": 0.6,   when references carry a class (a human label, e.g.
                                                           from their folder), match uses select_partner's labelled mode
@@ -118,7 +122,8 @@ def match(job):
       {"name": "best"}                                   the matcher's order
       {"name": "footwork", "channels": ["approach", ...]} the scorecard channels named, closest first (each channel's
                                                          rank among the admitted partners, summed: no units to weigh)
-    Only partners whose own takeback is the movement count. Each pair says its choice and which orderings it tops."""
+    When a clip carries a playing hand or a forehand side, its swing must read as the movement (stroke_side.py), and
+    so must each partner's. Each pair says its choice and which orderings it tops."""
     t_index, r_index = (os.path.join(job["work"], f"{s}-index") for s in ("targets", "references"))
     refs_by_src = {os.path.realpath(c["path"]): c for c in job["references"]}
     env = {**os.environ, "MATCH_VENDOR_ROOT": job["models"], "MATCH_PERCEPTION_BACKEND": job.get("backend", "onnx")}
@@ -150,27 +155,27 @@ def match(job):
                                 "class_check": got.get("class_check")})
                 continue
             side_check = None
-            if clip.get("forehand_side"):
-                side_check = stroke_of_window(os.path.join(t_index, "_work", f"{k}.kp.json"), window, clip["forehand_side"], job)
+            if readable(clip):
+                side_check = stroke_of_window(os.path.join(t_index, "_work", f"{k}.kp.json"), window, clip, job)
                 if side_check["stroke"] != job.get("movement"):
-                    refused.append({"target": k, "window": w, "reason": f"takeback side says {side_check['stroke'] or 'unclear'}",
+                    refused.append({"target": k, "window": w, "reason": f"the swing reads as {side_check['stroke'] or 'unclear'}",
                                     "stroke_side": side_check, "class_check": got.get("class_check")})
                     continue
             options = []
-            for option in got.get("pairs") or [got]:      # every admitted partner whose own takeback is the movement too
+            for option in got.get("pairs") or [got]:      # every admitted partner whose own swing reads as the movement too
                 r_ = refs_by_src.get(os.path.realpath(option.get("partner_clip") or ""))
                 d_ = read(os.path.join(r_index, f"{key(r_)}.desc.json")) if r_ else None
                 if d_ is None:
                     continue
                 w_ = d_["windows"][option["partner_window"]]
                 ps = None
-                if r_.get("forehand_side"):
-                    ps = stroke_of_window(os.path.join(r_index, "_work", f"{key(r_)}.kp.json"), w_, r_["forehand_side"], job)
+                if readable(r_):
+                    ps = stroke_of_window(os.path.join(r_index, "_work", f"{key(r_)}.kp.json"), w_, r_, job)
                     if ps["stroke"] != job.get("movement"):
                         continue
                 options.append({"ref": r_, "pw": w_, "side": ps, "got": {**got, **option}})
             if not options:
-                refused.append({"target": k, "window": w, "reason": "no admitted partner is the movement by its takeback side",
+                refused.append({"target": k, "window": w, "reason": "no admitted partner's swing reads as the movement",
                                 "stroke_side": side_check})
                 continue
             orders = {c["name"]: order_options(options, c.get("channels")) for c in job.get("partner_choices") or [{"name": "best"}]}
@@ -210,21 +215,29 @@ def order_options(options, channels):
     return sorted(options, key=lambda o: rank[id(o)])        # sorted is stable: ties stay in the matcher's order
 
 
-def stroke_of_window(kp_path, window, forehand_side, job):
-    """stroke_side.py's reading of one swing window: its takeback side and, with the recording's forehand side, its stroke."""
+def readable(clip):
+    """A clip whose swings stroke_side.py can read: it carries the player's playing hand or a given forehand side."""
+    return clip.get("hand") in ("right", "left") or clip.get("forehand_side") in (1, -1)
+
+
+def stroke_of_window(kp_path, window, clip, job):
+    """stroke_side.py's reading of one swing window from the clip's playing hand and given forehand side (either may be
+    absent): its takeback side, its turn, the forehand side used and the stroke both agree on."""
     sys.path.insert(0, HERE)
     import stroke_side
     with open(kp_path) as f:
-        side, wrist = stroke_side.takeback_side(json.load(f), window["t0"], window["peak_t"])
-    return {"side": side, "hitting_wrist": wrist, "forehand_side": forehand_side,
-            "stroke": stroke_side.stroke_of(side, forehand_side, float(job.get("stroke_side_margin", 2.0)))}
+        return stroke_side.read_stroke(json.load(f), window, clip.get("hand"), clip.get("forehand_side"),
+                                       stroke_side.rules_of(job))
 
 
-def on_screen(clip, job):
-    """The facts side_by_side.screen_direction reads. A recording with a forehand side says it directly (its forehand
-    travels like a right hand seen from behind when +1); otherwise the clip's hand and camera."""
-    if clip.get("forehand_side") in (1, -1):
-        return {"hand": "right" if clip["forehand_side"] == 1 else "left", "camera": "behind"}
+def on_screen(clip, job, reading=None):
+    """The facts side_by_side.screen_direction reads. A swing's forehand side (the one its stroke reading used, else
+    the recording's given one) says it directly: its forehand travels like a right hand seen from behind when +1.
+    Otherwise the clip's hand and camera."""
+    fs = (reading or {}).get("forehand_side")
+    fs = fs if fs in (1, -1) else clip.get("forehand_side")
+    if fs in (1, -1):
+        return {"hand": "right" if fs == 1 else "left", "camera": "behind"}
     return {"hand": clip.get("hand", "right"), "camera": clip.get("camera", job.get("camera", "behind"))}
 
 
@@ -295,9 +308,10 @@ def plan_pair(job, pair, base, media, steps):
     # them to; the matcher's pose parity is kept beside it, never used to decide
     sys.path.insert(0, HERE)
     from side_by_side import screen_direction
-    facts = lambda c: on_screen(c, job)
-    flip = screen_direction(facts(r)) != screen_direction(facts(t))
-    steps["mirror"] = {"flip": flip, "reference": facts(r), "target": facts(t), "matcher_parity": pair.get("parity")}
+    readings = pair.get("stroke_side") or {}
+    facts = {"reference": on_screen(r, job, readings.get("reference")), "target": on_screen(t, job, readings.get("target"))}
+    flip = screen_direction(facts["reference"]) != screen_direction(facts["target"])
+    steps["mirror"] = {"flip": flip, **facts, "matcher_parity": pair.get("parity")}
 
     def side(clip, k, index, peak, flip, sync=None):
         return {"clip": clip["path"], "kp": kp_of(job, index, k), "peak": peak, "label": "",
@@ -657,18 +671,21 @@ def check(job):
         t_contact = (contact.get("target") or {}).get("time", pair["target_peak"])
         before, after = t_contact - bottom_src["in"], bottom_src["out"] - t_contact
 
-        def side(src, clip, peak, data_side):
+        def side(src, clip, peak, data_side, reading):
             fps = read(os.path.join(job["work"], f"{data_side}-index", "_work", f"{key(clip)}.kp.json"))["video"]["fps"]
             c = src["crop"]
             inner = (src.get("fit") or {}).get("inner")
             return {"source": clip["path"], "fps": fps, "contact_frame": round(peak * fps), "crop": [c["w"], c["h"], c["x"], c["y"]],
                     **({"inner": [inner["w"], inner["h"], inner["x"], inner["y"]]} if inner else {}),
-                    "mirror": src.get("flip") == "h", "stroke": job.get("movement"), **on_screen(clip, job),
+                    "mirror": src.get("flip") == "h", "stroke": job.get("movement"), **on_screen(clip, job, reading),
                     "stroke_seen": f"{job.get('movement')}: the reference's labelled class, and the matcher admitted the pair (motion {pair.get('motion_dist')}, class check {pair.get('class_check')})"}
         width, height = item.get("size") or job.get("size", [1080, 1920])
         cell = [width, height // 2] if item.get("layout", job.get("layout", "v")) == "v" else [width // 2, height]
-        spec = {"top": side(top_src, R[pair["reference"]], (contact.get("reference") or {}).get("time", pair["reference_peak"]), "references"),
-                "bottom": side(bottom_src, T[pair["target"]], (contact.get("target") or {}).get("time", pair["target_peak"]), "targets"),
+        readings = pair.get("stroke_side") or {}
+        spec = {"top": side(top_src, R[pair["reference"]], (contact.get("reference") or {}).get("time", pair["reference_peak"]), "references",
+                            readings.get("reference")),
+                "bottom": side(bottom_src, T[pair["target"]], (contact.get("target") or {}).get("time", pair["target_peak"]), "targets",
+                               readings.get("target")),
                 "cell": cell, "layout": item.get("layout", job.get("layout", "v")), "fps": 30, "before_s": round(before, 6), "after_s": round(after, 6)}
         spec_path = item["file"][:-4] + ".check-spec.json"
         with open(spec_path, "w") as f:
@@ -728,7 +745,9 @@ YEAR = re.compile(r"(?<!\d)((?:19|20)\d\d)(?!\d)")
 def prepare(spec):
     """Fetch the models and every clip by identity from Files into spec.work, and write the job the other stages read.
     spec: {work, call, models: [{name, identity}], targets: [{name, identity}], references: [{name, identity}],
-    target_people, reference_people, and the job settings (movement, view, layout, padding_s, size, keep_folder, salience)}."""
+    target_people, reference_people, target_hand / reference_hand (each side's playing hand), target_forehand_side /
+    reference_forehand_side (overrides), and the job settings (movement, view, layout, padding_s, size, keep_folder,
+    salience, stroke_side_rules)}."""
     sys.path.insert(0, HERE)
     import files_road
     work, call = spec["work"], spec["call"]  # the engine command that holds the Files right, given by the caller
@@ -757,8 +776,10 @@ def prepare(spec):
             clip = {"path": path, "identity": row["identity"], "name": row["name"], "people": people}
             if row.get("class"):
                 clip["class"] = row["class"]                  # a human label (e.g. from the clip's folder)
-            if spec.get(f"{side}_forehand_side") in (1, -1):  # how the recording was filmed: +1 forehand takebacks go
-                clip["forehand_side"] = spec[f"{side}_forehand_side"]   # to screen right, -1 to screen left
+            if spec.get(f"{side}_hand") in ("right", "left"):  # the side's player's playing hand: each swing's forehand
+                clip["hand"] = spec[f"{side}_hand"]             # side is then read from its heading (stroke_side.py)
+            if spec.get(f"{side}_forehand_side") in (1, -1):  # given, it overrides that reading: +1 forehand takebacks
+                clip["forehand_side"] = spec[f"{side}_forehand_side"]   # go to screen right, -1 to screen left
             d = DATE.search(os.path.basename(row["name"]))
             if d:
                 clip["date"] = f"20{d.group(1)}-{d.group(2)}-{d.group(3)}"
