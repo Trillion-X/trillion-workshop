@@ -682,14 +682,14 @@ const passIsForThisSite = (credential, declared) => {
   try { return declared !== null && new URL(credential.resource ?? `${credential.origin}/mcp`).origin === declared; } catch { return false; }
 };
 
-export function doorFor({ asked = null, credential = null, declared = null, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
+export function doorFor({ asked = null, credential = null, declared = null, pinned = false, rules = settings, localMcp = findLocalDoor({ rules }) } = {}) {
   // The engine a run talks to: the one asked for (--origin, {CLI}_ORIGIN); else, for a kept key or a sign-in, this computer's own
-  // (the engine admits a pass of its issuer at its loopback address; a sign-in made for another site stays with that site); else, for a sign-in,
+  // (the engine admits a pass of its issuer at its loopback address; a sign-in made for another site stays with that site, and so does a pinned call: only the gateway meets a pin at the computer it names, the local door answers as itself); else, for a sign-in,
   // the one its pass was made for (`resource`: the pass names it, so no host is compared and no other engine is tried); else the declared
   // address, else the sign-in site's own engine (the public origin the Mac app declares), else none: the run is refused.
   const mcp = asked ? `${asked}/mcp`
     : credential?.kind === 'key' && localMcp ? localMcp
-    : credential?.kind === 'sign-in' && localMcp && passIsForThisSite(credential, declared) ? localMcp
+    : credential?.kind === 'sign-in' && localMcp && !pinned && passIsForThisSite(credential, declared) ? localMcp
     : credential?.kind === 'sign-in' ? credential.resource ?? `${credential.origin}/mcp`
     : declared ? `${declared}/mcp` : null;
   if (mcp === null) throw new CommandError(rules.words.no_origin, { status: 2 });
@@ -1793,7 +1793,8 @@ export function withUntil(method, input, { requestKey = null, timeoutSeconds, st
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new CommandError(settings.words.no_credential, { status: 3 });
-  const door = doorFor({ asked: context.asked, declared: context.declared ?? context.state.site(), credential, localMcp: context.localMcp() });
+  const pinned = (pinRouteOf(context.flags).pins ?? []).length > 0;
+  const door = doorFor({ asked: context.asked, declared: context.declared ?? context.state.site(), credential, pinned, localMcp: context.localMcp() });
   // The key this computer keeps goes only to this computer's local door or the address declared in {CLI}_ORIGIN; any other door gets a key the person gives for it ({CLI}_KEY).
   if (credential.kind === 'key' && credential.where !== settings.env.key && !door.local && !door.public) throw new CommandError(settings.words.kept_key_elsewhere, { status: 3 });
   const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);

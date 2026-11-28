@@ -70,6 +70,14 @@ test('no declaration gives the named line, with every file looked at and the doo
     `Example on this computer was not found, so this call went to Example. Looked for it at ${join(root, 'home', 'computer.json')}, ${appDeclaration(join(root, 'Example.app'))}; the door was https://example.test/mcp.`);
 });
 
+test('a pinned call keeps its road: a sign-in goes to the door that meets the pin, never to the local door that answers as itself', () => {
+  const local = 'http://127.0.0.1:8788/mcp';
+  const credential = { kind: 'sign-in', origin: 'https://example.test', resource: 'https://example.test/mcp' };
+  const pinned = doorFor({ credential, declared: 'https://example.test', pinned: true, localMcp: local });
+  assert.deepEqual([pinned.local, pinned.mcp], [false, 'https://example.test/mcp']);
+  assert.equal(doorFor({ credential, declared: 'https://example.test', pinned: false, localMcp: local }).local, true);
+});
+
 test('a pass made for the site this computer\'s app serves goes to the local door; a pass made for another site never does', () => {
   const local = 'http://127.0.0.1:8788/mcp';
   const own = doorFor({ credential: { kind: 'sign-in', origin: 'https://example.test', resource: 'https://example.test/mcp' }, declared: 'https://example.test', localMcp: local });
@@ -100,10 +108,18 @@ test('a reply names the door that answered, and the computers it was pinned to',
   assert.deepEqual(said, ['Answered by Example on this computer.']);
   const pinned = [];
   await main(['call', 'tool:x', '{}', '--pin', 'computer-a,computer-b'], seams(pinned, local));
-  assert.deepEqual(pinned, ['Answered by Example on this computer. Pinned to computer computer-a, computer-b.']);
+  assert.deepEqual(pinned, ['Answered by Example. Pinned to computer computer-a, computer-b.']);
   const verbose = [];
   await main(['op', 'tools:read', '{}', '--verbose'], seams(verbose, local));
   assert.deepEqual(verbose, ['Answered by Example on this computer. The door was http://127.0.0.1:8788/mcp.']);
+});
+
+test('a pinned call is sent to the door that meets the pin, and says so with the pin', async () => {
+  const said = [], sent = [];
+  const fetchImpl = async (url, init) => { sent.push(url); return fakeDoor().fetchImpl(url, init); };
+  await main(['op', 'tools:read', '{}', '--pin', 'computer-a'], seams(said, { fetchImpl, localDoor: () => 'http://127.0.0.1:8788/mcp' }));
+  assert.deepEqual([...new Set(sent)], ['https://example.test/mcp']);
+  assert.deepEqual(said, ['Answered by Example. Pinned to computer computer-a.']);
 });
 
 test('a call with no local door says so before the door that answered, and never goes there unsaid', async () => {
