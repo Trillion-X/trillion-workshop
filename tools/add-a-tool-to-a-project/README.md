@@ -32,9 +32,12 @@ A record line (keyed by the folder's name):
 1. The pointer is read: from a registry (`tools-in-this-registry.json`: `repo`, `path`, `commit`, `files_blake3`,
    `needs_tools`, and `paths` when only some files of a large folder are taken), or given directly as `{repo, path, commit}`.
    Without `from`, the registry the record names (`registry`, set on the first registry add) is read.
-2. Each folder of the set is fetched once per (repo, commit): a depth-1, blob-less fetch, a sparse checkout of only the
-   folder, then `git archive` of its files, read by the content-identity owner. The identity must equal the pointer's
-   `files_blake3`.
+2. Each folder of the set is taken once per (repo, commit). When a folder named in `clones` (a local git clone inside the
+   granted folder) already holds the commit (`git cat-file -e`), the run's own repository borrows that clone's objects
+   (git alternates) and nothing goes over the network; the clone is only read. Otherwise, or when the clone lacks some
+   of the folder's contents, it is a depth-1, blob-less fetch. Then a sparse checkout of only the folder and `git archive`
+   of its files, read by the content-identity owner. The identity must equal the pointer's `files_blake3`; a commit id
+   names every file in it, so the files and the record are the same bytes whichever way they came.
 3. The needs of a folder are DATA: the registry pointer's `needs_tools` and the card's `needs_tools`. A direct pointer's
    needs are the sibling folders of the same commit. Needs that loop copy each folder once.
 4. The folders are written to a staging folder under `trillion/`, then, holding the record's lock, moved into place and
@@ -67,7 +70,7 @@ reason; `edited-copy` also carries `diff`.
 |---|---|
 | `do-work/add.ts` | `add(input)`, the CLI `node do-work/add.ts add GRANTED-FOLDER < input.json` |
 | `read-data/registry.ts` | `readRegistry(from)`, `checkPointer`: the pointer shape |
-| `read-data/fetch-folder.ts` | `FetchedCommit`: one fetch per (repo, commit), `folder(path, paths)` |
+| `read-data/fetch-folder.ts` | `FetchedCommit`: one commit per (repo, commit), borrowed from a local clone that holds it or fetched; `folder(path, paths)`; `objectsHolding(clone, commit)` |
 | `read-data/record.ts` | `readProjectRecord`, `writeProjectRecord` (lock, compare-and-set, rename) |
 | `read-data/card.ts` | `cardFacts`: `needs_tools` and `prepare` from the card |
 | `read-data/diff-text.ts` | `unifiedDiff` for the edited-copy refusal |

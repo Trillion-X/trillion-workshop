@@ -77,6 +77,14 @@
             "prepare": {
               "type": "boolean",
               "description": "false: do not run the cards' prepare commands. Default true."
+            },
+            "clones": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "Local git folders inside the granted folder (for example a clone of the Workshop) to read a pinned commit from when one already holds it, checked with git cat-file -e; the commit is fetched over the network only when none holds it. The copied files and the record are the same bytes either way."
             }
           }
         },
